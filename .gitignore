@@ -52,3 +52,7 @@ oxford_5000.txt
 
 # Crawler
 .crawl-progress.json
+
+# Exported data
+words-export.json
+**/words-export.json

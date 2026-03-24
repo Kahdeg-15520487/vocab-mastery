@@ -6,6 +6,7 @@ import { themeRoutes } from './routes/themes.js';
 import { progressRoutes } from './routes/progress.js';
 import { sessionRoutes } from './routes/sessions.js';
 import { statsRoutes } from './routes/stats.js';
+import { dataRoutes } from './routes/data.js';
 import prisma from './lib/prisma.js';
 
 const PORT = Number(process.env.PORT) || 3000;
@@ -37,6 +38,7 @@ async function start() {
     instance.register(progressRoutes);
     instance.register(sessionRoutes);
     instance.register(statsRoutes);
+    instance.register(dataRoutes);
   }, { prefix: '/api' });
 
   // Graceful shutdown
