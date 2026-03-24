@@ -1,0 +1,72 @@
+services:
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - vocab-network
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://vocab_user:vocab_pass@postgres:5432/vocab_master
+      - POSTGRES_USER=vocab_user
+      - POSTGRES_PASSWORD=vocab_pass
+      - POSTGRES_DB=vocab_master
+      - NODE_ENV=production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - vocab-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: vocab_master
+      POSTGRES_USER: vocab_user
+      POSTGRES_PASSWORD: vocab_pass
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vocab_user -d vocab_master"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vocab-network
+    restart: unless-stopped
+
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+    networks:
+      - vocab-network
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+
+networks:
+  vocab-network:
+    driver: bridge

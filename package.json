@@ -1,0 +1,33 @@
+{
+  "name": "vocab-master",
+  "version": "1.0.0",
+  "description": "Vocabulary learning app with spaced repetition",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "start": "npm run dev:db && concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev": "npm run dev:db && concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "npm run dev -w apps/frontend",
+    "dev:backend": "npm run dev -w apps/backend",
+    "dev:db": "docker-compose -f docker-compose.dev.yml up -d",
+    "build": "npm run build -w apps/frontend && npm run build -w apps/backend",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "seed": "npm run seed -w apps/backend",
+    "migrate": "cd apps/backend && npx prisma migrate dev",
+    "migrate:init": "cd apps/backend && npx prisma migrate dev --name init",
+    "migrate:prod": "cd apps/backend && npx prisma migrate deploy",
+    "generate": "cd apps/backend && npx prisma generate",
+    "studio": "cd apps/backend && npx prisma studio",
+    "setup": "npm install && npm run dev:db && npm run generate && npm run migrate:init && npm run seed",
+    "setup:full": "npm run dev:db && npm run generate && npm run migrate:init && npm run seed",
+    "stop": "taskkill /F /IM node.exe 2>nul || echo 'Stopped'"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Word {
+  id            String        @id @default(uuid())
+  word          String        @unique
+  phoneticUs    String        @map("phonetic_us")
+  phoneticUk    String        @map("phonetic_uk")
+  partOfSpeech  Json          @map("part_of_speech")
+  definition    String
+  examples      Json
+  synonyms      Json
+  antonyms      Json
+  oxfordList    String        @map("oxford_list")
+  cefrLevel     String        @map("cefr_level")
+  frequency     Int
+  themes        WordTheme[]
+  progress      WordProgress[]
+  sessionWords  SessionWord[]
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  @@index([word])
+  @@index([cefrLevel])
+  @@index([oxfordList])
+  @@map("words")
+}
+
+model Theme {
+  id          String      @id @default(uuid())
+  name        String      @unique
+  slug        String      @unique
+  icon        String
+  description String
+  words       WordTheme[]
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  @@map("themes")
+}
+
+model WordTheme {
+  wordId    String
+  themeId   String
+  word      Word      @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  theme     Theme     @relation(fields: [themeId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@id([wordId, themeId])
+  @@index([themeId])
+  @@map("word_themes")
+}
+
+model WordProgress {
+  id              String    @id @default(uuid())
+  wordId          String    @map("word_id")
+  word            Word      @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  status          String    @default("new")
+  interval        Int       @default(0)
+  easeFactor      Float     @default(2.5) @map("ease_factor")
+  repetitions     Int       @default(0)
+  nextReview      DateTime  @default(now()) @map("next_review")
+  lastReview      DateTime? @map("last_review")
+  totalReviews    Int       @default(0) @map("total_reviews")
+  correctReviews  Int       @default(0) @map("correct_reviews")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@index([wordId])
+  @@index([nextReview])
+  @@index([status])
+  @@map("word_progress")
+}
+
+model LearningSession {
+  id            String        @id @default(uuid())
+  type          String
+  themeId       String?       @map("theme_id")
+  startedAt     DateTime      @default(now()) @map("started_at")
+  completedAt   DateTime?     @map("completed_at")
+  totalCorrect  Int           @default(0) @map("total_correct")
+  totalIncorrect Int          @default(0) @map("total_incorrect")
+  sessionWords  SessionWord[]
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  @@index([startedAt])
+  @@map("learning_sessions")
+}
+
+model SessionWord {
+  id            String          @id @default(uuid())
+  sessionId     String          @map("session_id")
+  session       LearningSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  wordId        String          @map("word_id")
+  word          Word            @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  shown         Boolean         @default(false)
+  response      String?
+  responseTime  Int?            @map("response_time")
+  createdAt     DateTime        @default(now()) @map("created_at")
+
+  @@index([sessionId])
+  @@index([wordId])
+  @@map("session_words")
+}
+
+model UserStats {
+  id              String   @id @default(uuid())
+  totalWords      Int      @default(0) @map("total_words")
+  masteredWords   Int      @default(0) @map("mastered_words")
+  currentStreak   Int      @default(0) @map("current_streak")
+  longestStreak   Int      @default(0) @map("longest_streak")
+  lastActiveDate  DateTime @default(now()) @map("last_active_date")
+  totalXP         Int      @default(0) @map("total_xp")
+  level           Int      @default(1)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("user_stats")
+}
