@@ -8,6 +8,130 @@
 - [ ] **#6** Build progress tracking system #frontend #data
 - [ ] **#7** Create theme-based word organization #data #organization
 - [ ] **#8** **[low]** Add Oxford 3000/5000 full integration #data #future
+- [ ] **#9** **[high]** Phase 1: Auth Foundation #phase-1 #auth
+- [ ] **#10** **[high]** Update Prisma schema with User model (id, email, passwordHash, username, role, googleId, subscriptionTier, timestamps) #phase-1 #auth #database
+- [ ] **#11** **[high]** Add RefreshToken model to Prisma schema (id, userId, token, expiresAt, revoked) #phase-1 #auth #database
+- [ ] **#12** **[high]** Add SubscriptionTier enum (FREE, EXPLORER, WORDSMITH) to Prisma schema #phase-1 #auth #database
+- [ ] **#13** **[high]** Add Role enum (LEARNER, ADMIN) to Prisma schema #phase-1 #auth #database
+- [ ] **#14** **[high]** Run Prisma migration for new auth schema #phase-1 #auth #database
+- [ ] **#15** **[high]** Install bcrypt and @types/bcrypt for password hashing #phase-1 #auth #backend
+- [ ] **#16** **[high]** Install jsonwebtoken and @types/jsonwebtoken for JWT #phase-1 #auth #backend
+- [ ] **#17** **[high]** Create JWT utilities (generateAccessToken, generateRefreshToken, verifyToken) #phase-1 #auth #backend
+- [ ] **#18** **[high]** Create password utilities (hashPassword, comparePassword) #phase-1 #auth #backend
+- [ ] **#19** **[high]** Create auth middleware (authenticate, requireAuth, requireAdmin) #phase-1 #auth #backend
+- [ ] **#20** **[high]** Create auth routes file (apps/backend/src/routes/auth.ts) #phase-1 #auth #backend
+- [ ] **#21** **[high]** Implement POST /api/auth/register endpoint #phase-1 #auth #api
+- [ ] **#22** **[high]** Implement POST /api/auth/login endpoint #phase-1 #auth #api
+- [ ] **#23** **[high]** Implement POST /api/auth/refresh endpoint (refresh token rotation) #phase-1 #auth #api
+- [ ] **#24** **[high]** Implement POST /api/auth/logout endpoint #phase-1 #auth #api
+- [ ] **#25** **[high]** Implement POST /api/auth/logout-all endpoint #phase-1 #auth #api
+- [ ] **#26** **[high]** Implement GET /api/auth/me endpoint #phase-1 #auth #api
+- [ ] **#27** **[high]** Implement PUT /api/auth/password endpoint #phase-1 #auth #api
+- [ ] **#28** **[high]** Implement DELETE /api/auth/account endpoint #phase-1 #auth #api
+- [ ] **#29** **[high]** Implement GET /api/auth/export endpoint (GDPR) #phase-1 #auth #api
+- [ ] **#30** **[high]** Add auth environment variables (JWT_SECRET, JWT_EXPIRES_IN, REFRESH_TOKEN_EXPIRES_IN) #phase-1 #auth #config
+- [ ] **#31** **[high]** Update existing routes to require authentication #phase-1 #auth #backend
+- [ ] **#32** **[high]** Add guest access for GET /api/words/:word (limited fields) #phase-1 #auth #api
+- [ ] **#33** **[high]** Frontend: Create auth store (Pinia) for user state management #phase-1 #auth #frontend
+- [ ] **#34** **[high]** Frontend: Create LoginView.vue page #phase-1 #auth #frontend
+- [ ] **#35** **[high]** Frontend: Create RegisterView.vue page #phase-1 #auth #frontend
+- [ ] **#36** **[high]** Frontend: Create auth composable (useAuth) with login/register/logout methods #phase-1 #auth #frontend
+- [ ] **#37** **[high]** Frontend: Add auth API service (apps/frontend/src/lib/auth.ts) #phase-1 #auth #frontend
+- [ ] **#38** **[high]** Frontend: Add route guards (check auth on protected routes) #phase-1 #auth #frontend
+- [ ] **#39** **[high]** Frontend: Add navigation updates (show username, logout button) #phase-1 #auth #frontend
+- [ ] **#40** **[high]** Frontend: Handle token refresh on 401 responses #phase-1 #auth #frontend
+- [ ] **#41** **[high]** Frontend: Store tokens (access in memory, refresh in httpOnly cookie handled by backend) #phase-1 #auth #frontend
+- [ ] **#42** **[high]** Phase 2: OAuth & Admin #phase-2 #auth
+- [ ] **#43** **[high]** Add Google OAuth environment variables (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK_URL) #phase-2 #oauth #config
+- [ ] **#44** **[high]** Install @fastify/oauth2 for Google OAuth #phase-2 #oauth #backend
+- [ ] **#45** **[high]** Implement GET /api/auth/google endpoint (OAuth redirect) #phase-2 #oauth #backend
+- [ ] **#46** **[high]** Implement GET /api/auth/google/callback endpoint #phase-2 #oauth #backend
+- [ ] **#47** **[high]** Handle OAuth user creation (link existing email or create new user) #phase-2 #oauth #backend
+- [ ] **#48** **[high]** Create admin middleware (requireAdmin) #phase-2 #admin #backend
+- [ ] **#49** **[high]** Create admin routes file (apps/backend/src/routes/admin.ts) #phase-2 #admin #backend
+- [ ] **#50** **[high]** Implement GET /api/admin/users endpoint (paginated list) #phase-2 #admin #api
+- [ ] **#51** **[high]** Implement GET /api/admin/users/:id endpoint #phase-2 #admin #api
+- [ ] **#52** **[high]** Implement PUT /api/admin/users/:id endpoint (role, subscription) #phase-2 #admin #api
+- [ ] **#53** **[high]** Implement DELETE /api/admin/users/:id endpoint #phase-2 #admin #api
+- [ ] **#54** **[high]** Implement GET /api/admin/stats endpoint (platform statistics) #phase-2 #admin #api
+- [ ] **#55** **[high]** Add SystemConfig model to Prisma schema (id, key, value) #phase-2 #admin #database
+- [ ] **#56** **[high]** Implement GET /api/admin/config endpoint #phase-2 #admin #api
+- [ ] **#57** **[high]** Implement PUT /api/admin/config/:key endpoint #phase-2 #admin #api
+- [ ] **#58** **[high]** Frontend: Create AdminView.vue page #phase-2 #admin #frontend
+- [ ] **#59** **[high]** Frontend: Create user management table component #phase-2 #admin #frontend
+- [ ] **#60** **[high]** Frontend: Create user edit modal (role, subscription) #phase-2 #admin #frontend
+- [ ] **#61** **[high]** Frontend: Create admin config page (LLM settings) #phase-2 #admin #frontend
+- [ ] **#62** **[high]** Frontend: Add admin navigation link (only visible to admin role) #phase-2 #admin #frontend
+- [ ] **#63** **[high]** Frontend: Add "Sign in with Google" button to login page #phase-2 #oauth #frontend
+- [ ] **#64** **[high]** Frontend: Create OAuth callback handler page #phase-2 #oauth #frontend
+- [ ] **#65** **[high]** Phase 3: Progress System #phase-3 #progress
+- [ ] **#66** **[high]** Add UserProgress model to Prisma (userId, themeId, level, status, interval, easeFactor, nextReview, lastReview, stats) #phase-3 #progress #database
+- [ ] **#67** **[high]** Add ProgressStatus enum (NEW, LEARNING, REVIEWING, MASTERED) #phase-3 #progress #database
+- [ ] **#68** **[high]** Add DailyGoal model to Prisma (userId, date, targets, actuals, completed) #phase-3 #progress #database
+- [ ] **#69** **[high]** Add UserStreak model to Prisma (userId, currentStreak, longestStreak, lastActivityDate, gracePeriodsUsed) #phase-3 #progress #database
+- [ ] **#70** **[high]** Add Achievement model to Prisma (key, name, description, icon, category, conditionType, conditionValue) #phase-3 #progress #database
+- [ ] **#71** **[high]** Add UserAchievement model to Prisma (userId, achievementId, unlockedAt) #phase-3 #progress #database
+- [ ] **#72** **[high]** Run Prisma migration for progress schema #phase-3 #progress #database
+- [ ] **#73** **[high]** Create seed file for default achievements #phase-3 #progress #backend
+- [ ] **#74** **[high]** Create progress routes file (apps/backend/src/routes/progress.ts) - update existing #phase-3 #progress #backend
+- [ ] **#75** **[high]** Update SM-2 algorithm to work per theme/level instead of per-word #phase-3 #progress #backend
+- [ ] **#76** **[high]** Implement GET /api/progress/dashboard endpoint #phase-3 #progress #api
+- [ ] **#77** **[high]** Implement GET /api/progress/streak endpoint #phase-3 #progress #api
+- [ ] **#78** **[high]** Implement GET /api/progress/calendar endpoint (activity heatmap data) #phase-3 #progress #api
+- [ ] **#79** **[high]** Implement POST /api/progress/update endpoint (update goal progress) #phase-3 #progress #api
+- [ ] **#80** **[high]** Create streak calculation service (with grace period logic, Monday noon GMT+0 reset) #phase-3 #progress #backend
+- [ ] **#81** **[high]** Create achievement checking service (check conditions after progress updates) #phase-3 #progress #backend
+- [ ] **#82** **[high]** Implement daily goal tracking (check completion, update streak) #phase-3 #progress #backend
+- [ ] **#83** **[high]** Frontend: Create progress store (Pinia) for dashboard data #phase-3 #progress #frontend
+- [ ] **#84** **[high]** Frontend: Update HomeView.vue as dashboard (streak, goals, CEFR progress, achievements) #phase-3 #progress #frontend
+- [ ] **#85** **[high]** Frontend: Create streak display component (current, longest, fire icon) #phase-3 #progress #frontend
+- [ ] **#86** **[high]** Frontend: Create daily goals progress component (learned/reviewed, progress bar) #phase-3 #progress #frontend
+- [ ] **#87** **[high]** Frontend: Create CEFR level progress component (progress bars per level) #phase-3 #progress #frontend
+- [ ] **#88** **[high]** Frontend: Create calendar heatmap component (activity visualization) #phase-3 #progress #frontend
+- [ ] **#89** **[high]** Frontend: Create achievements display component (unlocked badges grid) #phase-3 #progress #frontend
+- [ ] **#90** **[high]** Frontend: Create achievement unlock notification/animation #phase-3 #progress #frontend
+- [ ] **#91** **[high]** Phase 4: Word Lists #phase-4 #lists
+- [ ] **#92** **[high]** Add StudyList model to Prisma (userId, name, description, color, icon, isSystem, isPinned, wordCount) #phase-4 #lists #database
+- [ ] **#93** **[high]** Add StudyListWord model to Prisma (listId, wordId, addedAt, addedBy) #phase-4 #lists #database
+- [ ] **#94** **[high]** Add SharedList model to Prisma (listId, sharedBy, sharedWith) #phase-4 #lists #database
+- [ ] **#95** **[high]** Update Word model to add StudyListWord relation #phase-4 #lists #database
+- [ ] **#96** **[high]** Run Prisma migration for lists schema #phase-4 #lists #database
+- [ ] **#97** **[high]** Create lists routes file (apps/backend/src/routes/lists.ts) #phase-4 #lists #backend
+- [ ] **#98** **[high]** Create system list generation service (create on user registration) #phase-4 #lists #backend
+- [ ] **#99** **[high]** Create subscription tier limit service (check list count, word count per tier) #phase-4 #lists #backend
+- [ ] **#100** **[high]** Implement GET /api/lists endpoint (user's lists + shared with user) #phase-4 #lists #api
+- [ ] **#101** **[high]** Implement GET /api/lists/:id endpoint (list with words, paginated) #phase-4 #lists #api
+- [ ] **#102** **[high]** Implement POST /api/lists endpoint (create list, enforce tier limits) #phase-4 #lists #api
+- [ ] **#103** **[high]** Implement PUT /api/lists/:id endpoint (update name, description, color, icon) #phase-4 #lists #api
+- [ ] **#104** **[high]** Implement DELETE /api/lists/:id endpoint (not allowed for system lists) #phase-4 #lists #api
+- [ ] **#105** **[high]** Implement POST /api/lists/:id/words endpoint (add word, enforce tier limits) #phase-4 #lists #api
+- [ ] **#106** **[high]** Implement DELETE /api/lists/:id/words/:wordId endpoint (remove word) #phase-4 #lists #api
+- [ ] **#107** **[high]** Implement PUT /api/lists/:id/pin endpoint (pin/unpin, only 1 pinned allowed) #phase-4 #lists #api
+- [ ] **#108** **[high]** Implement POST /api/lists/:id/share endpoint (share with user by email/username) #phase-4 #lists #api
+- [ ] **#109** **[high]** Implement DELETE /api/lists/:id/share/:userId endpoint (remove access) #phase-4 #lists #api
+- [ ] **#110** **[high]** Update user registration to create system lists for new user #phase-4 #lists #backend
+- [ ] **#111** **[high]** Frontend: Create lists store (Pinia) for lists state #phase-4 #lists #frontend
+- [ ] **#112** **[high]** Frontend: Create ListsView.vue page (grid of lists) #phase-4 #lists #frontend
+- [ ] **#113** **[high]** Frontend: Create ListDetailView.vue (list words, search, add/remove) #phase-4 #lists #frontend
+- [ ] **#114** **[high]** Frontend: Create list card component (name, icon, color, word count, progress) #phase-4 #lists #frontend
+- [ ] **#115** **[high]** Frontend: Create create/edit list modal #phase-4 #lists #frontend
+- [ ] **#116** **[high]** Frontend: Create share list modal (enter email/username) #phase-4 #lists #frontend
+- [ ] **#117** **[high]** Frontend: Add list navigation link to main nav #phase-4 #lists #frontend
+- [ ] **#118** **[high]** Frontend: Add "Add to list" button on browse word cards #phase-4 #lists #frontend
+- [ ] **#119** **[high]** Frontend: Update learn/review to allow selecting list as source #phase-4 #lists #frontend
+- [ ] **#120** **[high]** Phase 5: LLM Integration #phase-5 #llm
+- [ ] **#121** **[high]** Create LLM service (apps/backend/src/lib/llm.ts) - OpenAI API compatible client #phase-5 #llm #backend
+- [ ] **#122** **[high]** Create LLM config loader (read from SystemConfig table) #phase-5 #llm #backend
+- [ ] **#123** **[high]** Implement POST /api/lists/generate endpoint (LLM word generation) #phase-5 #llm #api
+- [ ] **#124** **[high]** Create word matching service (match LLM output to database words) #phase-5 #llm #backend
+- [ ] **#125** **[high]** Add rate limiting for LLM generation (per tier: Explorer 10/month, Wordsmith unlimited) #phase-5 #llm #backend
+- [ ] **#126** **[high]** Add LlmUsage model to track usage per user (userId, count, month) #phase-5 #llm #database
+- [ ] **#127** **[high]** Add LLM usage tracking to user's monthly count #phase-5 #llm #backend
+- [ ] **#128** **[high]** Add error handling for LLM API failures #phase-5 #llm #backend
+- [ ] **#129** **[high]** Frontend: Create generate list modal (query input, preview, save) #phase-5 #llm #frontend
+- [ ] **#130** **[high]** Frontend: Add "Generate with AI" button on lists page #phase-5 #llm #frontend
+- [ ] **#131** **[high]** Frontend: Show LLM usage limit (X/10 remaining this month) #phase-5 #llm #frontend
+- [ ] **#132** **[high]** Frontend: Handle LLM errors gracefully (show message, suggest retry) #phase-5 #llm #frontend
 
 ## Completed
 
@@ -119,14 +243,1734 @@
       ],
       "createdAt": 1774319692717,
       "archived": false
-    }
-  ],
-  "nextId": 9
-}
-``` 1774319692717,
+    },
+    {
+      "id": 9,
+      "text": "Phase 1: Auth Foundation",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth"
+      ],
+      "createdAt": 1774343281733,
+      "archived": false
+    },
+    {
+      "id": 10,
+      "text": "Update Prisma schema with User model (id, email, passwordHash, username, role, googleId, subscriptionTier, timestamps)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "database"
+      ],
+      "createdAt": 1774343362033,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 11,
+      "text": "Add RefreshToken model to Prisma schema (id, userId, token, expiresAt, revoked)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "database"
+      ],
+      "createdAt": 1774343362033,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 12,
+      "text": "Add SubscriptionTier enum (FREE, EXPLORER, WORDSMITH) to Prisma schema",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "database"
+      ],
+      "createdAt": 1774343362034,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 13,
+      "text": "Add Role enum (LEARNER, ADMIN) to Prisma schema",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "database"
+      ],
+      "createdAt": 1774343362034,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 14,
+      "text": "Run Prisma migration for new auth schema",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "database"
+      ],
+      "createdAt": 1774343362035,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 15,
+      "text": "Install bcrypt and @types/bcrypt for password hashing",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "backend"
+      ],
+      "createdAt": 1774343362035,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 16,
+      "text": "Install jsonwebtoken and @types/jsonwebtoken for JWT",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "backend"
+      ],
+      "createdAt": 1774343362035,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 17,
+      "text": "Create JWT utilities (generateAccessToken, generateRefreshToken, verifyToken)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "backend"
+      ],
+      "createdAt": 1774343362035,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 18,
+      "text": "Create password utilities (hashPassword, comparePassword)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "backend"
+      ],
+      "createdAt": 1774343362035,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 19,
+      "text": "Create auth middleware (authenticate, requireAuth, requireAdmin)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "backend"
+      ],
+      "createdAt": 1774343362035,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 20,
+      "text": "Create auth routes file (apps/backend/src/routes/auth.ts)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "backend"
+      ],
+      "createdAt": 1774343362036,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 21,
+      "text": "Implement POST /api/auth/register endpoint",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "api"
+      ],
+      "createdAt": 1774343362036,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 22,
+      "text": "Implement POST /api/auth/login endpoint",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "api"
+      ],
+      "createdAt": 1774343362036,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 23,
+      "text": "Implement POST /api/auth/refresh endpoint (refresh token rotation)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "api"
+      ],
+      "createdAt": 1774343362036,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 24,
+      "text": "Implement POST /api/auth/logout endpoint",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "api"
+      ],
+      "createdAt": 1774343362036,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 25,
+      "text": "Implement POST /api/auth/logout-all endpoint",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "api"
+      ],
+      "createdAt": 1774343362036,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 26,
+      "text": "Implement GET /api/auth/me endpoint",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "api"
+      ],
+      "createdAt": 1774343362036,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 27,
+      "text": "Implement PUT /api/auth/password endpoint",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "api"
+      ],
+      "createdAt": 1774343362036,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 28,
+      "text": "Implement DELETE /api/auth/account endpoint",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "api"
+      ],
+      "createdAt": 1774343362037,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 29,
+      "text": "Implement GET /api/auth/export endpoint (GDPR)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "api"
+      ],
+      "createdAt": 1774343362037,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 30,
+      "text": "Add auth environment variables (JWT_SECRET, JWT_EXPIRES_IN, REFRESH_TOKEN_EXPIRES_IN)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "config"
+      ],
+      "createdAt": 1774343362038,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 31,
+      "text": "Update existing routes to require authentication",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "backend"
+      ],
+      "createdAt": 1774343362038,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 32,
+      "text": "Add guest access for GET /api/words/:word (limited fields)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "api"
+      ],
+      "createdAt": 1774343362038,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 33,
+      "text": "Frontend: Create auth store (Pinia) for user state management",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "frontend"
+      ],
+      "createdAt": 1774343362039,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 34,
+      "text": "Frontend: Create LoginView.vue page",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "frontend"
+      ],
+      "createdAt": 1774343362039,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 35,
+      "text": "Frontend: Create RegisterView.vue page",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "frontend"
+      ],
+      "createdAt": 1774343362040,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 36,
+      "text": "Frontend: Create auth composable (useAuth) with login/register/logout methods",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "frontend"
+      ],
+      "createdAt": 1774343362040,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 37,
+      "text": "Frontend: Add auth API service (apps/frontend/src/lib/auth.ts)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "frontend"
+      ],
+      "createdAt": 1774343362041,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 38,
+      "text": "Frontend: Add route guards (check auth on protected routes)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "frontend"
+      ],
+      "createdAt": 1774343362041,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 39,
+      "text": "Frontend: Add navigation updates (show username, logout button)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "frontend"
+      ],
+      "createdAt": 1774343362041,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 40,
+      "text": "Frontend: Handle token refresh on 401 responses",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "frontend"
+      ],
+      "createdAt": 1774343362042,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 41,
+      "text": "Frontend: Store tokens (access in memory, refresh in httpOnly cookie handled by backend)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-1",
+        "auth",
+        "frontend"
+      ],
+      "createdAt": 1774343362042,
+      "parentId": 9,
+      "archived": false
+    },
+    {
+      "id": 42,
+      "text": "Phase 2: OAuth & Admin",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "auth"
+      ],
+      "createdAt": 1774343374100,
+      "archived": false
+    },
+    {
+      "id": 43,
+      "text": "Add Google OAuth environment variables (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK_URL)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "oauth",
+        "config"
+      ],
+      "createdAt": 1774343421817,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 44,
+      "text": "Install @fastify/oauth2 for Google OAuth",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "oauth",
+        "backend"
+      ],
+      "createdAt": 1774343421817,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 45,
+      "text": "Implement GET /api/auth/google endpoint (OAuth redirect)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "oauth",
+        "backend"
+      ],
+      "createdAt": 1774343421817,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 46,
+      "text": "Implement GET /api/auth/google/callback endpoint",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "oauth",
+        "backend"
+      ],
+      "createdAt": 1774343421818,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 47,
+      "text": "Handle OAuth user creation (link existing email or create new user)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "oauth",
+        "backend"
+      ],
+      "createdAt": 1774343421818,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 48,
+      "text": "Create admin middleware (requireAdmin)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "admin",
+        "backend"
+      ],
+      "createdAt": 1774343421819,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 49,
+      "text": "Create admin routes file (apps/backend/src/routes/admin.ts)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "admin",
+        "backend"
+      ],
+      "createdAt": 1774343421819,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 50,
+      "text": "Implement GET /api/admin/users endpoint (paginated list)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "admin",
+        "api"
+      ],
+      "createdAt": 1774343421819,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 51,
+      "text": "Implement GET /api/admin/users/:id endpoint",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "admin",
+        "api"
+      ],
+      "createdAt": 1774343421820,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 52,
+      "text": "Implement PUT /api/admin/users/:id endpoint (role, subscription)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "admin",
+        "api"
+      ],
+      "createdAt": 1774343421820,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 53,
+      "text": "Implement DELETE /api/admin/users/:id endpoint",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "admin",
+        "api"
+      ],
+      "createdAt": 1774343421821,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 54,
+      "text": "Implement GET /api/admin/stats endpoint (platform statistics)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "admin",
+        "api"
+      ],
+      "createdAt": 1774343421821,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 55,
+      "text": "Add SystemConfig model to Prisma schema (id, key, value)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "admin",
+        "database"
+      ],
+      "createdAt": 1774343421821,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 56,
+      "text": "Implement GET /api/admin/config endpoint",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "admin",
+        "api"
+      ],
+      "createdAt": 1774343421821,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 57,
+      "text": "Implement PUT /api/admin/config/:key endpoint",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "admin",
+        "api"
+      ],
+      "createdAt": 1774343421821,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 58,
+      "text": "Frontend: Create AdminView.vue page",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "admin",
+        "frontend"
+      ],
+      "createdAt": 1774343421822,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 59,
+      "text": "Frontend: Create user management table component",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "admin",
+        "frontend"
+      ],
+      "createdAt": 1774343421822,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 60,
+      "text": "Frontend: Create user edit modal (role, subscription)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "admin",
+        "frontend"
+      ],
+      "createdAt": 1774343421822,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 61,
+      "text": "Frontend: Create admin config page (LLM settings)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "admin",
+        "frontend"
+      ],
+      "createdAt": 1774343421823,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 62,
+      "text": "Frontend: Add admin navigation link (only visible to admin role)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "admin",
+        "frontend"
+      ],
+      "createdAt": 1774343421823,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 63,
+      "text": "Frontend: Add \"Sign in with Google\" button to login page",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "oauth",
+        "frontend"
+      ],
+      "createdAt": 1774343421823,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 64,
+      "text": "Frontend: Create OAuth callback handler page",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-2",
+        "oauth",
+        "frontend"
+      ],
+      "createdAt": 1774343421824,
+      "parentId": 42,
+      "archived": false
+    },
+    {
+      "id": 65,
+      "text": "Phase 3: Progress System",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress"
+      ],
+      "createdAt": 1774343433283,
+      "archived": false
+    },
+    {
+      "id": 66,
+      "text": "Add UserProgress model to Prisma (userId, themeId, level, status, interval, easeFactor, nextReview, lastReview, stats)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "database"
+      ],
+      "createdAt": 1774343499042,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 67,
+      "text": "Add ProgressStatus enum (NEW, LEARNING, REVIEWING, MASTERED)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "database"
+      ],
+      "createdAt": 1774343499043,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 68,
+      "text": "Add DailyGoal model to Prisma (userId, date, targets, actuals, completed)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "database"
+      ],
+      "createdAt": 1774343499044,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 69,
+      "text": "Add UserStreak model to Prisma (userId, currentStreak, longestStreak, lastActivityDate, gracePeriodsUsed)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "database"
+      ],
+      "createdAt": 1774343499044,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 70,
+      "text": "Add Achievement model to Prisma (key, name, description, icon, category, conditionType, conditionValue)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "database"
+      ],
+      "createdAt": 1774343499045,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 71,
+      "text": "Add UserAchievement model to Prisma (userId, achievementId, unlockedAt)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "database"
+      ],
+      "createdAt": 1774343499045,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 72,
+      "text": "Run Prisma migration for progress schema",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "database"
+      ],
+      "createdAt": 1774343499046,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 73,
+      "text": "Create seed file for default achievements",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "backend"
+      ],
+      "createdAt": 1774343499046,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 74,
+      "text": "Create progress routes file (apps/backend/src/routes/progress.ts) - update existing",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "backend"
+      ],
+      "createdAt": 1774343499047,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 75,
+      "text": "Update SM-2 algorithm to work per theme/level instead of per-word",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "backend"
+      ],
+      "createdAt": 1774343499047,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 76,
+      "text": "Implement GET /api/progress/dashboard endpoint",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "api"
+      ],
+      "createdAt": 1774343499048,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 77,
+      "text": "Implement GET /api/progress/streak endpoint",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "api"
+      ],
+      "createdAt": 1774343499048,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 78,
+      "text": "Implement GET /api/progress/calendar endpoint (activity heatmap data)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "api"
+      ],
+      "createdAt": 1774343499049,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 79,
+      "text": "Implement POST /api/progress/update endpoint (update goal progress)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "api"
+      ],
+      "createdAt": 1774343499050,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 80,
+      "text": "Create streak calculation service (with grace period logic, Monday noon GMT+0 reset)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "backend"
+      ],
+      "createdAt": 1774343499050,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 81,
+      "text": "Create achievement checking service (check conditions after progress updates)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "backend"
+      ],
+      "createdAt": 1774343499050,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 82,
+      "text": "Implement daily goal tracking (check completion, update streak)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "backend"
+      ],
+      "createdAt": 1774343499050,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 83,
+      "text": "Frontend: Create progress store (Pinia) for dashboard data",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "frontend"
+      ],
+      "createdAt": 1774343499051,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 84,
+      "text": "Frontend: Update HomeView.vue as dashboard (streak, goals, CEFR progress, achievements)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "frontend"
+      ],
+      "createdAt": 1774343499051,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 85,
+      "text": "Frontend: Create streak display component (current, longest, fire icon)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "frontend"
+      ],
+      "createdAt": 1774343499051,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 86,
+      "text": "Frontend: Create daily goals progress component (learned/reviewed, progress bar)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "frontend"
+      ],
+      "createdAt": 1774343499051,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 87,
+      "text": "Frontend: Create CEFR level progress component (progress bars per level)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "frontend"
+      ],
+      "createdAt": 1774343499052,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 88,
+      "text": "Frontend: Create calendar heatmap component (activity visualization)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "frontend"
+      ],
+      "createdAt": 1774343499052,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 89,
+      "text": "Frontend: Create achievements display component (unlocked badges grid)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "frontend"
+      ],
+      "createdAt": 1774343499052,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 90,
+      "text": "Frontend: Create achievement unlock notification/animation",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-3",
+        "progress",
+        "frontend"
+      ],
+      "createdAt": 1774343499052,
+      "parentId": 65,
+      "archived": false
+    },
+    {
+      "id": 91,
+      "text": "Phase 4: Word Lists",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists"
+      ],
+      "createdAt": 1774343509703,
+      "archived": false
+    },
+    {
+      "id": 92,
+      "text": "Add StudyList model to Prisma (userId, name, description, color, icon, isSystem, isPinned, wordCount)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "database"
+      ],
+      "createdAt": 1774343563693,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 93,
+      "text": "Add StudyListWord model to Prisma (listId, wordId, addedAt, addedBy)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "database"
+      ],
+      "createdAt": 1774343563694,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 94,
+      "text": "Add SharedList model to Prisma (listId, sharedBy, sharedWith)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "database"
+      ],
+      "createdAt": 1774343563694,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 95,
+      "text": "Update Word model to add StudyListWord relation",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "database"
+      ],
+      "createdAt": 1774343563695,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 96,
+      "text": "Run Prisma migration for lists schema",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "database"
+      ],
+      "createdAt": 1774343563695,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 97,
+      "text": "Create lists routes file (apps/backend/src/routes/lists.ts)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "backend"
+      ],
+      "createdAt": 1774343563695,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 98,
+      "text": "Create system list generation service (create on user registration)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "backend"
+      ],
+      "createdAt": 1774343563696,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 99,
+      "text": "Create subscription tier limit service (check list count, word count per tier)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "backend"
+      ],
+      "createdAt": 1774343563696,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 100,
+      "text": "Implement GET /api/lists endpoint (user's lists + shared with user)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "api"
+      ],
+      "createdAt": 1774343563697,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 101,
+      "text": "Implement GET /api/lists/:id endpoint (list with words, paginated)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "api"
+      ],
+      "createdAt": 1774343563697,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 102,
+      "text": "Implement POST /api/lists endpoint (create list, enforce tier limits)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "api"
+      ],
+      "createdAt": 1774343563697,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 103,
+      "text": "Implement PUT /api/lists/:id endpoint (update name, description, color, icon)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "api"
+      ],
+      "createdAt": 1774343563697,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 104,
+      "text": "Implement DELETE /api/lists/:id endpoint (not allowed for system lists)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "api"
+      ],
+      "createdAt": 1774343563698,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 105,
+      "text": "Implement POST /api/lists/:id/words endpoint (add word, enforce tier limits)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "api"
+      ],
+      "createdAt": 1774343563698,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 106,
+      "text": "Implement DELETE /api/lists/:id/words/:wordId endpoint (remove word)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "api"
+      ],
+      "createdAt": 1774343563698,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 107,
+      "text": "Implement PUT /api/lists/:id/pin endpoint (pin/unpin, only 1 pinned allowed)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "api"
+      ],
+      "createdAt": 1774343563699,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 108,
+      "text": "Implement POST /api/lists/:id/share endpoint (share with user by email/username)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "api"
+      ],
+      "createdAt": 1774343563699,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 109,
+      "text": "Implement DELETE /api/lists/:id/share/:userId endpoint (remove access)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "api"
+      ],
+      "createdAt": 1774343563699,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 110,
+      "text": "Update user registration to create system lists for new user",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "backend"
+      ],
+      "createdAt": 1774343563700,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 111,
+      "text": "Frontend: Create lists store (Pinia) for lists state",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "frontend"
+      ],
+      "createdAt": 1774343563700,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 112,
+      "text": "Frontend: Create ListsView.vue page (grid of lists)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "frontend"
+      ],
+      "createdAt": 1774343563700,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 113,
+      "text": "Frontend: Create ListDetailView.vue (list words, search, add/remove)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "frontend"
+      ],
+      "createdAt": 1774343563700,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 114,
+      "text": "Frontend: Create list card component (name, icon, color, word count, progress)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "frontend"
+      ],
+      "createdAt": 1774343563701,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 115,
+      "text": "Frontend: Create create/edit list modal",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "frontend"
+      ],
+      "createdAt": 1774343563703,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 116,
+      "text": "Frontend: Create share list modal (enter email/username)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "frontend"
+      ],
+      "createdAt": 1774343563704,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 117,
+      "text": "Frontend: Add list navigation link to main nav",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "frontend"
+      ],
+      "createdAt": 1774343563704,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 118,
+      "text": "Frontend: Add \"Add to list\" button on browse word cards",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "frontend"
+      ],
+      "createdAt": 1774343563704,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 119,
+      "text": "Frontend: Update learn/review to allow selecting list as source",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-4",
+        "lists",
+        "frontend"
+      ],
+      "createdAt": 1774343563705,
+      "parentId": 91,
+      "archived": false
+    },
+    {
+      "id": 120,
+      "text": "Phase 5: LLM Integration",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-5",
+        "llm"
+      ],
+      "createdAt": 1774343573123,
+      "archived": false
+    },
+    {
+      "id": 121,
+      "text": "Create LLM service (apps/backend/src/lib/llm.ts) - OpenAI API compatible client",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-5",
+        "llm",
+        "backend"
+      ],
+      "createdAt": 1774343608722,
+      "parentId": 120,
+      "archived": false
+    },
+    {
+      "id": 122,
+      "text": "Create LLM config loader (read from SystemConfig table)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-5",
+        "llm",
+        "backend"
+      ],
+      "createdAt": 1774343608723,
+      "parentId": 120,
+      "archived": false
+    },
+    {
+      "id": 123,
+      "text": "Implement POST /api/lists/generate endpoint (LLM word generation)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-5",
+        "llm",
+        "api"
+      ],
+      "createdAt": 1774343608723,
+      "parentId": 120,
+      "archived": false
+    },
+    {
+      "id": 124,
+      "text": "Create word matching service (match LLM output to database words)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-5",
+        "llm",
+        "backend"
+      ],
+      "createdAt": 1774343608724,
+      "parentId": 120,
+      "archived": false
+    },
+    {
+      "id": 125,
+      "text": "Add rate limiting for LLM generation (per tier: Explorer 10/month, Wordsmith unlimited)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-5",
+        "llm",
+        "backend"
+      ],
+      "createdAt": 1774343608726,
+      "parentId": 120,
+      "archived": false
+    },
+    {
+      "id": 126,
+      "text": "Add LlmUsage model to track usage per user (userId, count, month)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-5",
+        "llm",
+        "database"
+      ],
+      "createdAt": 1774343608727,
+      "parentId": 120,
+      "archived": false
+    },
+    {
+      "id": 127,
+      "text": "Add LLM usage tracking to user's monthly count",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-5",
+        "llm",
+        "backend"
+      ],
+      "createdAt": 1774343608727,
+      "parentId": 120,
+      "archived": false
+    },
+    {
+      "id": 128,
+      "text": "Add error handling for LLM API failures",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-5",
+        "llm",
+        "backend"
+      ],
+      "createdAt": 1774343608728,
+      "parentId": 120,
+      "archived": false
+    },
+    {
+      "id": 129,
+      "text": "Frontend: Create generate list modal (query input, preview, save)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-5",
+        "llm",
+        "frontend"
+      ],
+      "createdAt": 1774343608728,
+      "parentId": 120,
+      "archived": false
+    },
+    {
+      "id": 130,
+      "text": "Frontend: Add \"Generate with AI\" button on lists page",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-5",
+        "llm",
+        "frontend"
+      ],
+      "createdAt": 1774343608729,
+      "parentId": 120,
+      "archived": false
+    },
+    {
+      "id": 131,
+      "text": "Frontend: Show LLM usage limit (X/10 remaining this month)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-5",
+        "llm",
+        "frontend"
+      ],
+      "createdAt": 1774343608729,
+      "parentId": 120,
+      "archived": false
+    },
+    {
+      "id": 132,
+      "text": "Frontend: Handle LLM errors gracefully (show message, suggest retry)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "phase-5",
+        "llm",
+        "frontend"
+      ],
+      "createdAt": 1774343608729,
+      "parentId": 120,
       "archived": false
     }
   ],
-  "nextId": 9
+  "nextId": 133
 }
 ```
