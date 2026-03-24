@@ -93,7 +93,7 @@ export function calculateNextReview(
  * Map response string to quality value
  */
 export function responseToQuality(response: 'easy' | 'medium' | 'hard' | 'forgot'): ResponseQuality {
-  const mapping = {
+  const mapping: Record<string, ResponseQuality> = {
     easy: 5,
     medium: 4,
     hard: 3,

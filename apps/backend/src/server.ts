@@ -1,15 +1,17 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
+import cookie from '@fastify/cookie';
 import { wordRoutes } from './routes/words.js';
 import { themeRoutes } from './routes/themes.js';
 import { progressRoutes } from './routes/progress.js';
 import { sessionRoutes } from './routes/sessions.js';
 import { statsRoutes } from './routes/stats.js';
 import { dataRoutes } from './routes/data.js';
+import { authRoutes } from './routes/auth.js';
 import prisma from './lib/prisma.js';
 
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = Number(process.env.PORT) || 7101;
 const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
 
 async function start() {
@@ -22,23 +24,34 @@ async function start() {
   // Register plugins
   await app.register(cors, {
     origin: true, // Allow all origins in development
+    credentials: true, // Allow cookies
   });
 
   await app.register(helmet, {
     contentSecurityPolicy: false, // Disable for development
   });
 
-  // Health check
+  await app.register(cookie, {
+    parseOptions: {}, // Use default parse options
+  });
+
+  // Health check (public)
   app.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }));
 
   // API routes
   app.register(async (instance) => {
+    // Auth routes (public)
+    instance.register(authRoutes);
+    
+    // Data routes (public for export/import)
+    instance.register(dataRoutes);
+    
+    // Other routes (will add auth middleware later)
     instance.register(wordRoutes);
     instance.register(themeRoutes);
     instance.register(progressRoutes);
     instance.register(sessionRoutes);
     instance.register(statsRoutes);
-    instance.register(dataRoutes);
   }, { prefix: '/api' });
 
   // Graceful shutdown

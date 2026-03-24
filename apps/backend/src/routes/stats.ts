@@ -181,19 +181,7 @@ export async function statsRoutes(app: FastifyInstance) {
       orderBy: { cefrLevel: 'asc' },
     });
 
-    const progressByLevel = await prisma.wordProgress.groupBy({
-      by: ['word'],
-      _count: {
-        id: true,
-      },
-      where: {
-        word: {
-          cefrLevel: { not: null },
-        },
-      },
-    });
-
-    // Get progress by level
+    // Get progress by level using raw query
     const levelProgress = await prisma.$queryRaw<Array<{ cefr_level: string; count: bigint }>>`
       SELECT w.cefr_level, COUNT(wp.id) as count
       FROM words w

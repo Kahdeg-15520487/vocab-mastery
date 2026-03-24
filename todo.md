@@ -9,23 +9,6 @@
 - [ ] **#7** Create theme-based word organization #data #organization
 - [ ] **#8** **[low]** Add Oxford 3000/5000 full integration #data #future
 - [ ] **#9** **[high]** Phase 1: Auth Foundation #phase-1 #auth
-- [ ] **#14** **[high]** Run Prisma migration for new auth schema #phase-1 #auth #database
-- [ ] **#15** **[high]** Install bcrypt and @types/bcrypt for password hashing #phase-1 #auth #backend
-- [ ] **#16** **[high]** Install jsonwebtoken and @types/jsonwebtoken for JWT #phase-1 #auth #backend
-- [ ] **#17** **[high]** Create JWT utilities (generateAccessToken, generateRefreshToken, verifyToken) #phase-1 #auth #backend
-- [ ] **#18** **[high]** Create password utilities (hashPassword, comparePassword) #phase-1 #auth #backend
-- [ ] **#19** **[high]** Create auth middleware (authenticate, requireAuth, requireAdmin) #phase-1 #auth #backend
-- [ ] **#20** **[high]** Create auth routes file (apps/backend/src/routes/auth.ts) #phase-1 #auth #backend
-- [ ] **#21** **[high]** Implement POST /api/auth/register endpoint #phase-1 #auth #api
-- [ ] **#22** **[high]** Implement POST /api/auth/login endpoint #phase-1 #auth #api
-- [ ] **#23** **[high]** Implement POST /api/auth/refresh endpoint (refresh token rotation) #phase-1 #auth #api
-- [ ] **#24** **[high]** Implement POST /api/auth/logout endpoint #phase-1 #auth #api
-- [ ] **#25** **[high]** Implement POST /api/auth/logout-all endpoint #phase-1 #auth #api
-- [ ] **#26** **[high]** Implement GET /api/auth/me endpoint #phase-1 #auth #api
-- [ ] **#27** **[high]** Implement PUT /api/auth/password endpoint #phase-1 #auth #api
-- [ ] **#28** **[high]** Implement DELETE /api/auth/account endpoint #phase-1 #auth #api
-- [ ] **#29** **[high]** Implement GET /api/auth/export endpoint (GDPR) #phase-1 #auth #api
-- [ ] **#30** **[high]** Add auth environment variables (JWT_SECRET, JWT_EXPIRES_IN, REFRESH_TOKEN_EXPIRES_IN) #phase-1 #auth #config
 - [ ] **#31** **[high]** Update existing routes to require authentication #phase-1 #auth #backend
 - [ ] **#32** **[high]** Add guest access for GET /api/words/:word (limited fields) #phase-1 #auth #api
 - [ ] **#33** **[high]** Frontend: Create auth store (Pinia) for user state management #phase-1 #auth #frontend
@@ -139,6 +122,23 @@
 - [x] **#11** **[high]** Add RefreshToken model to Prisma schema (id, userId, token, expiresAt, revoked) #phase-1 #auth #database
 - [x] **#12** **[high]** Add SubscriptionTier enum (FREE, EXPLORER, WORDSMITH) to Prisma schema #phase-1 #auth #database
 - [x] **#13** **[high]** Add Role enum (LEARNER, ADMIN) to Prisma schema #phase-1 #auth #database
+- [x] **#14** **[high]** Run Prisma migration for new auth schema #phase-1 #auth #database
+- [x] **#15** **[high]** Install bcrypt and @types/bcrypt for password hashing #phase-1 #auth #backend
+- [x] **#16** **[high]** Install jsonwebtoken and @types/jsonwebtoken for JWT #phase-1 #auth #backend
+- [x] **#17** **[high]** Create JWT utilities (generateAccessToken, generateRefreshToken, verifyToken) #phase-1 #auth #backend
+- [x] **#18** **[high]** Create password utilities (hashPassword, comparePassword) #phase-1 #auth #backend
+- [x] **#19** **[high]** Create auth middleware (authenticate, requireAuth, requireAdmin) #phase-1 #auth #backend
+- [x] **#20** **[high]** Create auth routes file (apps/backend/src/routes/auth.ts) #phase-1 #auth #backend
+- [x] **#21** **[high]** Implement POST /api/auth/register endpoint #phase-1 #auth #api
+- [x] **#22** **[high]** Implement POST /api/auth/login endpoint #phase-1 #auth #api
+- [x] **#23** **[high]** Implement POST /api/auth/refresh endpoint (refresh token rotation) #phase-1 #auth #api
+- [x] **#24** **[high]** Implement POST /api/auth/logout endpoint #phase-1 #auth #api
+- [x] **#25** **[high]** Implement POST /api/auth/logout-all endpoint #phase-1 #auth #api
+- [x] **#26** **[high]** Implement GET /api/auth/me endpoint #phase-1 #auth #api
+- [x] **#27** **[high]** Implement PUT /api/auth/password endpoint #phase-1 #auth #api
+- [x] **#28** **[high]** Implement DELETE /api/auth/account endpoint #phase-1 #auth #api
+- [x] **#29** **[high]** Implement GET /api/auth/export endpoint (GDPR) #phase-1 #auth #api
+- [x] **#30** **[high]** Add auth environment variables (JWT_SECRET, JWT_EXPIRES_IN, REFRESH_TOKEN_EXPIRES_IN) #phase-1 #auth #config
 
 <!-- Raw Data -->
 ```json
@@ -319,7 +319,7 @@
     {
       "id": 14,
       "text": "Run Prisma migration for new auth schema",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -328,12 +328,13 @@
       ],
       "createdAt": 1774343362035,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774344714724
     },
     {
       "id": 15,
       "text": "Install bcrypt and @types/bcrypt for password hashing",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -342,12 +343,13 @@
       ],
       "createdAt": 1774343362035,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774344721128
     },
     {
       "id": 16,
       "text": "Install jsonwebtoken and @types/jsonwebtoken for JWT",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -356,12 +358,13 @@
       ],
       "createdAt": 1774343362035,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774344721130
     },
     {
       "id": 17,
       "text": "Create JWT utilities (generateAccessToken, generateRefreshToken, verifyToken)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -370,12 +373,13 @@
       ],
       "createdAt": 1774343362035,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774344801397
     },
     {
       "id": 18,
       "text": "Create password utilities (hashPassword, comparePassword)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -384,12 +388,13 @@
       ],
       "createdAt": 1774343362035,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774344801398
     },
     {
       "id": 19,
       "text": "Create auth middleware (authenticate, requireAuth, requireAdmin)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -398,12 +403,13 @@
       ],
       "createdAt": 1774343362035,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774344850113
     },
     {
       "id": 20,
       "text": "Create auth routes file (apps/backend/src/routes/auth.ts)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -412,12 +418,13 @@
       ],
       "createdAt": 1774343362036,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774344961210
     },
     {
       "id": 21,
       "text": "Implement POST /api/auth/register endpoint",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -426,12 +433,13 @@
       ],
       "createdAt": 1774343362036,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774344961210
     },
     {
       "id": 22,
       "text": "Implement POST /api/auth/login endpoint",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -440,12 +448,13 @@
       ],
       "createdAt": 1774343362036,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774344961211
     },
     {
       "id": 23,
       "text": "Implement POST /api/auth/refresh endpoint (refresh token rotation)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -454,12 +463,13 @@
       ],
       "createdAt": 1774343362036,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774344961211
     },
     {
       "id": 24,
       "text": "Implement POST /api/auth/logout endpoint",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -468,12 +478,13 @@
       ],
       "createdAt": 1774343362036,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774344961212
     },
     {
       "id": 25,
       "text": "Implement POST /api/auth/logout-all endpoint",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -482,12 +493,13 @@
       ],
       "createdAt": 1774343362036,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774344961212
     },
     {
       "id": 26,
       "text": "Implement GET /api/auth/me endpoint",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -496,12 +508,13 @@
       ],
       "createdAt": 1774343362036,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774344961213
     },
     {
       "id": 27,
       "text": "Implement PUT /api/auth/password endpoint",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -510,12 +523,13 @@
       ],
       "createdAt": 1774343362036,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774344961213
     },
     {
       "id": 28,
       "text": "Implement DELETE /api/auth/account endpoint",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -524,12 +538,13 @@
       ],
       "createdAt": 1774343362037,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774344961214
     },
     {
       "id": 29,
       "text": "Implement GET /api/auth/export endpoint (GDPR)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -538,12 +553,13 @@
       ],
       "createdAt": 1774343362037,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774344961214
     },
     {
       "id": 30,
       "text": "Add auth environment variables (JWT_SECRET, JWT_EXPIRES_IN, REFRESH_TOKEN_EXPIRES_IN)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -552,7 +568,8 @@
       ],
       "createdAt": 1774343362038,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774345079419
     },
     {
       "id": 31,
