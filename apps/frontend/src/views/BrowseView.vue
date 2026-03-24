@@ -7,11 +7,13 @@ import type { Word } from '@/types'
 const wordsStore = useWordsStore()
 
 const search = ref('')
+const searchDebounced = ref('')
 const selectedTheme = ref('')
 const selectedLevel = ref('')
 const page = ref(1)
 const limit = 50
 const selectedWord = ref<Word | null>(null)
+let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
 const totalPages = computed(() => wordsStore.pagination.totalPages)
 const totalWords = computed(() => wordsStore.pagination.total)
@@ -26,7 +28,7 @@ onMounted(async () => {
 
 async function loadWords() {
   await wordsStore.fetchWords({
-    search: search.value || undefined,
+    search: searchDebounced.value || undefined,
     theme: selectedTheme.value || undefined,
     level: selectedLevel.value || undefined,
     page: page.value,
@@ -34,7 +36,16 @@ async function loadWords() {
   })
 }
 
-watch([search, selectedTheme, selectedLevel], () => {
+// Debounce search input (300ms delay)
+watch(search, (newValue) => {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    searchDebounced.value = newValue
+  }, 300)
+})
+
+// Trigger search when debounced value changes
+watch([searchDebounced, selectedTheme, selectedLevel], () => {
   page.value = 1
   loadWords()
 })
