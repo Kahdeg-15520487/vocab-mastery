@@ -7,6 +7,71 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ============================================
+// ENUMS
+// ============================================
+
+enum Role {
+  LEARNER
+  ADMIN
+}
+
+enum SubscriptionTier {
+  FREE      // Learner - $0
+  EXPLORER  // Explorer - $4.99/mo
+  WORDSMITH // Wordsmith - $9.99/mo
+}
+
+// ============================================
+// USER & AUTH
+// ============================================
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String?  @map("password_hash")
+  username      String   @unique
+  role          Role     @default(LEARNER)
+  
+  // OAuth
+  googleId      String?  @unique @map("google_id")
+  
+  // Subscription
+  subscriptionTier      SubscriptionTier @default(FREE) @map("subscription_tier")
+  subscriptionExpiresAt DateTime?        @map("subscription_expires_at")
+  
+  // Timestamps
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  lastLoginAt   DateTime? @map("last_login_at")
+  
+  // Relations
+  refreshTokens RefreshToken[]
+  
+  @@index([email])
+  @@index([googleId])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  revoked   Boolean  @default(false)
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+// ============================================
+// WORDS & THEMES
+// ============================================
+
 model Word {
   id            String        @id @default(uuid())
   word          String        @unique

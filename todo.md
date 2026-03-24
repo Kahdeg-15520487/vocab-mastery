@@ -9,10 +9,6 @@
 - [ ] **#7** Create theme-based word organization #data #organization
 - [ ] **#8** **[low]** Add Oxford 3000/5000 full integration #data #future
 - [ ] **#9** **[high]** Phase 1: Auth Foundation #phase-1 #auth
-- [ ] **#10** **[high]** Update Prisma schema with User model (id, email, passwordHash, username, role, googleId, subscriptionTier, timestamps) #phase-1 #auth #database
-- [ ] **#11** **[high]** Add RefreshToken model to Prisma schema (id, userId, token, expiresAt, revoked) #phase-1 #auth #database
-- [ ] **#12** **[high]** Add SubscriptionTier enum (FREE, EXPLORER, WORDSMITH) to Prisma schema #phase-1 #auth #database
-- [ ] **#13** **[high]** Add Role enum (LEARNER, ADMIN) to Prisma schema #phase-1 #auth #database
 - [ ] **#14** **[high]** Run Prisma migration for new auth schema #phase-1 #auth #database
 - [ ] **#15** **[high]** Install bcrypt and @types/bcrypt for password hashing #phase-1 #auth #backend
 - [ ] **#16** **[high]** Install jsonwebtoken and @types/jsonwebtoken for JWT #phase-1 #auth #backend
@@ -139,6 +135,10 @@
 - [x] **#2** **[high]** Set up project structure and initialize app #setup
 - [x] **#4** Implement core flashcard component #frontend #component
 - [x] **#5** Add spaced repetition algorithm (SM-2) #logic #learning
+- [x] **#10** **[high]** Update Prisma schema with User model (id, email, passwordHash, username, role, googleId, subscriptionTier, timestamps) #phase-1 #auth #database
+- [x] **#11** **[high]** Add RefreshToken model to Prisma schema (id, userId, token, expiresAt, revoked) #phase-1 #auth #database
+- [x] **#12** **[high]** Add SubscriptionTier enum (FREE, EXPLORER, WORDSMITH) to Prisma schema #phase-1 #auth #database
+- [x] **#13** **[high]** Add Role enum (LEARNER, ADMIN) to Prisma schema #phase-1 #auth #database
 
 <!-- Raw Data -->
 ```json
@@ -259,7 +259,7 @@
     {
       "id": 10,
       "text": "Update Prisma schema with User model (id, email, passwordHash, username, role, googleId, subscriptionTier, timestamps)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -268,12 +268,13 @@
       ],
       "createdAt": 1774343362033,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774344008934
     },
     {
       "id": 11,
       "text": "Add RefreshToken model to Prisma schema (id, userId, token, expiresAt, revoked)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -282,12 +283,13 @@
       ],
       "createdAt": 1774343362033,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774344054793
     },
     {
       "id": 12,
       "text": "Add SubscriptionTier enum (FREE, EXPLORER, WORDSMITH) to Prisma schema",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -296,12 +298,13 @@
       ],
       "createdAt": 1774343362034,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774344054793
     },
     {
       "id": 13,
       "text": "Add Role enum (LEARNER, ADMIN) to Prisma schema",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -310,7 +313,8 @@
       ],
       "createdAt": 1774343362034,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774344054794
     },
     {
       "id": 14,
