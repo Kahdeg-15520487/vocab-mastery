@@ -87,8 +87,8 @@ vocab-master/
    ```
 
 6. **Open the app**
-   - Frontend: http://localhost:5173
-   - Backend API: http://localhost:3000
+   - Frontend: http://localhost:7100
+   - Backend API: http://localhost:7101
    - Adminer (DB UI): http://localhost:8080
 
 ### One-line Setup

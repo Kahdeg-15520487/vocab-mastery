@@ -38,7 +38,7 @@ COPY docker-entrypoint.sh ./
 RUN chmod +x ./docker-entrypoint.sh
 
 # Expose port
-EXPOSE 3000
+EXPOSE 7101
 
 # Set environment
 ENV NODE_ENV=production
