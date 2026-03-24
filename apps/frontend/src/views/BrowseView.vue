@@ -2,6 +2,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useWordsStore } from '@/stores/words'
 import LevelBadge from '@/components/learning/LevelBadge.vue'
+import type { Word } from '@/types'
 
 const wordsStore = useWordsStore()
 
@@ -9,6 +10,7 @@ const search = ref('')
 const selectedTheme = ref('')
 const selectedLevel = ref('')
 const page = ref(1)
+const selectedWord = ref<Word | null>(null)
 
 onMounted(async () => {
   await Promise.all([
@@ -34,7 +36,19 @@ watch([search, selectedTheme, selectedLevel], () => {
 
 function formatSynonyms(synonyms: string[]) {
   if (!synonyms || synonyms.length === 0) return ''
-  return synonyms.slice(0, 3).join(' • ')
+  return synonyms.slice(0, 5).join(' • ')
+}
+
+function openWordDetail(word: Word) {
+  selectedWord.value = word
+}
+
+function closeWordDetail() {
+  selectedWord.value = null
+}
+
+function hasDefinition(word: Word): boolean {
+  return word.definition && word.definition.length > 0
 }
 </script>
 
@@ -76,7 +90,8 @@ function formatSynonyms(synonyms: string[]) {
       <div
         v-for="word in wordsStore.words"
         :key="word.id"
-        class="card hover:shadow-md transition-shadow"
+        class="card hover:shadow-md transition-shadow cursor-pointer"
+        @click="openWordDetail(word)"
       >
         <div class="flex items-start justify-between">
           <div class="flex-1">
@@ -87,7 +102,7 @@ function formatSynonyms(synonyms: string[]) {
               <span v-else class="badge badge-primary">Oxford 5000</span>
             </div>
             <p class="text-slate-500 text-sm mb-2">{{ word.phoneticUs }}</p>
-            <p class="text-slate-700">{{ word.definition }}</p>
+            <p class="text-slate-700 line-clamp-2">{{ word.definition }}</p>
             <p v-if="word.synonyms?.length" class="text-sm text-slate-500 mt-2">
               {{ formatSynonyms(word.synonyms) }}
             </p>
@@ -119,6 +134,124 @@ function formatSynonyms(synonyms: string[]) {
     <div v-else class="text-center py-12">
       <div class="animate-spin text-4xl mb-4">📚</div>
       <p class="text-slate-600">Loading words...</p>
+    </div>
+
+    <!-- Word Detail Modal -->
+    <div 
+      v-if="selectedWord" 
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      @click.self="closeWordDetail"
+    >
+      <div class="bg-white rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl">
+        <!-- Header -->
+        <div class="sticky top-0 bg-white border-b border-slate-200 p-4 flex items-start justify-between">
+          <div>
+            <div class="flex items-center gap-3 mb-1">
+              <h2 class="text-2xl font-bold text-slate-900">{{ selectedWord.word }}</h2>
+              <LevelBadge :level="selectedWord.cefrLevel" />
+            </div>
+            <p class="text-slate-500">{{ selectedWord.phoneticUs }}</p>
+            <p v-if="selectedWord.phoneticUk && selectedWord.phoneticUk !== selectedWord.phoneticUs" class="text-slate-400 text-sm">
+              UK: {{ selectedWord.phoneticUk }}
+            </p>
+          </div>
+          <button @click="closeWordDetail" class="text-slate-400 hover:text-slate-600 text-2xl">
+            ×
+          </button>
+        </div>
+
+        <!-- Content -->
+        <div class="p-4 space-y-4">
+          <!-- Part of Speech -->
+          <div v-if="selectedWord.partOfSpeech?.length">
+            <span class="text-sm text-slate-500">Part of Speech:</span>
+            <div class="flex gap-2 mt-1">
+              <span 
+                v-for="pos in selectedWord.partOfSpeech" 
+                :key="pos"
+                class="badge badge-secondary"
+              >
+                {{ pos }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Definition -->
+          <div v-if="hasDefinition(selectedWord)">
+            <h3 class="text-sm font-semibold text-slate-500 mb-2">Definition</h3>
+            <p class="text-slate-700 whitespace-pre-line">{{ selectedWord.definition }}</p>
+          </div>
+          <div v-else class="text-slate-400 italic">
+            No definition available yet. Run the crawler to add definitions.
+          </div>
+
+          <!-- Examples -->
+          <div v-if="selectedWord.examples?.length">
+            <h3 class="text-sm font-semibold text-slate-500 mb-2">Examples</h3>
+            <ul class="space-y-2">
+              <li 
+                v-for="(example, i) in selectedWord.examples" 
+                :key="i"
+                class="text-slate-600 pl-4 border-l-2 border-primary-200"
+              >
+                {{ example }}
+              </li>
+            </ul>
+          </div>
+
+          <!-- Synonyms -->
+          <div v-if="selectedWord.synonyms?.length">
+            <h3 class="text-sm font-semibold text-slate-500 mb-2">Synonyms</h3>
+            <div class="flex flex-wrap gap-2">
+              <span 
+                v-for="syn in selectedWord.synonyms" 
+                :key="syn"
+                class="px-2 py-1 bg-secondary-100 text-secondary-700 rounded text-sm"
+              >
+                {{ syn }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Antonyms -->
+          <div v-if="selectedWord.antonyms?.length">
+            <h3 class="text-sm font-semibold text-slate-500 mb-2">Antonyms</h3>
+            <div class="flex flex-wrap gap-2">
+              <span 
+                v-for="ant in selectedWord.antonyms" 
+                :key="ant"
+                class="px-2 py-1 bg-red-100 text-red-700 rounded text-sm"
+              >
+                {{ ant }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Themes -->
+          <div v-if="selectedWord.themes?.length">
+            <h3 class="text-sm font-semibold text-slate-500 mb-2">Themes</h3>
+            <div class="flex flex-wrap gap-2">
+              <span 
+                v-for="theme in selectedWord.themes" 
+                :key="theme"
+                class="px-2 py-1 bg-slate-100 text-slate-700 rounded text-sm"
+              >
+                {{ theme }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Word Lists -->
+          <div class="flex gap-2 text-sm text-slate-500">
+            <span v-if="selectedWord.oxfordList === '3000'" class="badge badge-secondary">
+              Oxford 3000
+            </span>
+            <span v-else class="badge badge-primary">
+              Oxford 5000
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
