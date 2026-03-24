@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useWordsStore } from '@/stores/words'
 import LevelBadge from '@/components/learning/LevelBadge.vue'
 import type { Word } from '@/types'
@@ -10,12 +10,17 @@ const search = ref('')
 const selectedTheme = ref('')
 const selectedLevel = ref('')
 const page = ref(1)
+const limit = 50
 const selectedWord = ref<Word | null>(null)
+
+const totalPages = computed(() => wordsStore.pagination.totalPages)
+const totalWords = computed(() => wordsStore.pagination.total)
+const currentPage = computed(() => wordsStore.pagination.page)
 
 onMounted(async () => {
   await Promise.all([
     wordsStore.fetchThemes(),
-    wordsStore.fetchWords({ page: page.value, limit: 20 }),
+    wordsStore.fetchWords({ page: page.value, limit }),
   ])
 })
 
@@ -25,7 +30,7 @@ async function loadWords() {
     theme: selectedTheme.value || undefined,
     level: selectedLevel.value || undefined,
     page: page.value,
-    limit: 20,
+    limit,
   })
 }
 
@@ -33,6 +38,24 @@ watch([search, selectedTheme, selectedLevel], () => {
   page.value = 1
   loadWords()
 })
+
+function goToPage(newPage: number) {
+  page.value = newPage
+  loadWords()
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+function nextPage() {
+  if (page.value < totalPages.value) {
+    goToPage(page.value + 1)
+  }
+}
+
+function prevPage() {
+  if (page.value > 1) {
+    goToPage(page.value - 1)
+  }
+}
 
 function formatSynonyms(synonyms: string[]) {
   if (!synonyms || synonyms.length === 0) return ''
@@ -50,6 +73,22 @@ function closeWordDetail() {
 function hasDefinition(word: Word): boolean {
   return word.definition && word.definition.length > 0
 }
+
+// Generate page numbers to display
+const visiblePages = computed(() => {
+  const pages: number[] = []
+  const total = totalPages.value
+  const current = currentPage.value
+  
+  let start = Math.max(1, current - 2)
+  let end = Math.min(total, current + 2)
+  
+  for (let i = start; i <= end; i++) {
+    pages.push(i)
+  }
+  
+  return pages
+})
 </script>
 
 <template>
@@ -134,6 +173,78 @@ function hasDefinition(word: Word): boolean {
     <div v-else class="text-center py-12">
       <div class="animate-spin text-4xl mb-4">📚</div>
       <p class="text-slate-600">Loading words...</p>
+    </div>
+
+    <!-- Pagination -->
+    <div v-if="totalPages > 1" class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p class="text-sm text-slate-500">
+        Showing {{ wordsStore.words.length }} of {{ totalWords }} words (Page {{ currentPage }} of {{ totalPages }})
+      </p>
+      
+      <div class="flex items-center gap-2">
+        <!-- Previous Button -->
+        <button
+          @click="prevPage"
+          :disabled="currentPage === 1"
+          :class="[
+            'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+            currentPage === 1
+              ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+              : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50'
+          ]"
+        >
+          ← Previous
+        </button>
+        
+        <!-- Page Numbers -->
+        <div class="flex items-center gap-1">
+          <button
+            v-if="currentPage > 3"
+            @click="goToPage(1)"
+            class="px-3 py-2 rounded-lg text-sm bg-white border border-slate-300 text-slate-700 hover:bg-slate-50"
+          >
+            1
+          </button>
+          <span v-if="currentPage > 4" class="px-2 text-slate-400">...</span>
+          
+          <button
+            v-for="p in visiblePages"
+            :key="p"
+            @click="goToPage(p)"
+            :class="[
+              'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+              p === currentPage
+                ? 'bg-primary-600 text-white'
+                : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50'
+            ]"
+          >
+            {{ p }}
+          </button>
+          
+          <span v-if="currentPage < totalPages - 3" class="px-2 text-slate-400">...</span>
+          <button
+            v-if="currentPage < totalPages - 2"
+            @click="goToPage(totalPages)"
+            class="px-3 py-2 rounded-lg text-sm bg-white border border-slate-300 text-slate-700 hover:bg-slate-50"
+          >
+            {{ totalPages }}
+          </button>
+        </div>
+        
+        <!-- Next Button -->
+        <button
+          @click="nextPage"
+          :disabled="currentPage === totalPages"
+          :class="[
+            'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+            currentPage === totalPages
+              ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+              : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50'
+          ]"
+        >
+          Next →
+        </button>
+      </div>
     </div>
 
     <!-- Word Detail Modal -->

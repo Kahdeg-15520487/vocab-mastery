@@ -9,6 +9,12 @@ export const useWordsStore = defineStore('words', () => {
   const currentWord = ref<Word | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const pagination = ref({
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 0,
+  })
 
   // Fetch all themes
   async function fetchThemes() {
@@ -36,6 +42,7 @@ export const useWordsStore = defineStore('words', () => {
       loading.value = true
       const data = await wordsApi.getAll(params)
       words.value = data.words
+      pagination.value = data.pagination
       return data
     } catch (e: any) {
       error.value = e.message
@@ -76,6 +83,7 @@ export const useWordsStore = defineStore('words', () => {
     currentWord,
     loading,
     error,
+    pagination,
     fetchThemes,
     fetchWords,
     fetchWord,
