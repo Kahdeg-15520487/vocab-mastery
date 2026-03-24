@@ -9,15 +9,7 @@
 - [ ] **#7** Create theme-based word organization #data #organization
 - [ ] **#8** **[low]** Add Oxford 3000/5000 full integration #data #future
 - [ ] **#9** **[high]** Phase 1: Auth Foundation #phase-1 #auth
-- [ ] **#33** **[high]** Frontend: Create auth store (Pinia) for user state management #phase-1 #auth #frontend
-- [ ] **#34** **[high]** Frontend: Create LoginView.vue page #phase-1 #auth #frontend
-- [ ] **#35** **[high]** Frontend: Create RegisterView.vue page #phase-1 #auth #frontend
-- [ ] **#36** **[high]** Frontend: Create auth composable (useAuth) with login/register/logout methods #phase-1 #auth #frontend
-- [ ] **#37** **[high]** Frontend: Add auth API service (apps/frontend/src/lib/auth.ts) #phase-1 #auth #frontend
-- [ ] **#38** **[high]** Frontend: Add route guards (check auth on protected routes) #phase-1 #auth #frontend
-- [ ] **#39** **[high]** Frontend: Add navigation updates (show username, logout button) #phase-1 #auth #frontend
 - [ ] **#40** **[high]** Frontend: Handle token refresh on 401 responses #phase-1 #auth #frontend
-- [ ] **#41** **[high]** Frontend: Store tokens (access in memory, refresh in httpOnly cookie handled by backend) #phase-1 #auth #frontend
 - [ ] **#42** **[high]** Phase 2: OAuth & Admin #phase-2 #auth
 - [ ] **#43** **[high]** Add Google OAuth environment variables (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK_URL) #phase-2 #oauth #config
 - [ ] **#44** **[high]** Install @fastify/oauth2 for Google OAuth #phase-2 #oauth #backend
@@ -139,6 +131,14 @@
 - [x] **#30** **[high]** Add auth environment variables (JWT_SECRET, JWT_EXPIRES_IN, REFRESH_TOKEN_EXPIRES_IN) #phase-1 #auth #config
 - [x] **#31** **[high]** Update existing routes to require authentication #phase-1 #auth #backend
 - [x] **#32** **[high]** Add guest access for GET /api/words/:word (limited fields) #phase-1 #auth #api
+- [x] **#33** **[high]** Frontend: Create auth store (Pinia) for user state management #phase-1 #auth #frontend
+- [x] **#34** **[high]** Frontend: Create LoginView.vue page #phase-1 #auth #frontend
+- [x] **#35** **[high]** Frontend: Create RegisterView.vue page #phase-1 #auth #frontend
+- [x] **#36** **[high]** Frontend: Create auth composable (useAuth) with login/register/logout methods #phase-1 #auth #frontend
+- [x] **#37** **[high]** Frontend: Add auth API service (apps/frontend/src/lib/auth.ts) #phase-1 #auth #frontend
+- [x] **#38** **[high]** Frontend: Add route guards (check auth on protected routes) #phase-1 #auth #frontend
+- [x] **#39** **[high]** Frontend: Add navigation updates (show username, logout button) #phase-1 #auth #frontend
+- [x] **#41** **[high]** Frontend: Store tokens (access in memory, refresh in httpOnly cookie handled by backend) #phase-1 #auth #frontend
 
 <!-- Raw Data -->
 ```json
@@ -604,7 +604,7 @@
     {
       "id": 33,
       "text": "Frontend: Create auth store (Pinia) for user state management",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -613,12 +613,13 @@
       ],
       "createdAt": 1774343362039,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774346397246
     },
     {
       "id": 34,
       "text": "Frontend: Create LoginView.vue page",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -627,12 +628,13 @@
       ],
       "createdAt": 1774343362039,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774346397247
     },
     {
       "id": 35,
       "text": "Frontend: Create RegisterView.vue page",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -641,12 +643,13 @@
       ],
       "createdAt": 1774343362040,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774346397248
     },
     {
       "id": 36,
       "text": "Frontend: Create auth composable (useAuth) with login/register/logout methods",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -655,12 +658,13 @@
       ],
       "createdAt": 1774343362040,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774346397248
     },
     {
       "id": 37,
       "text": "Frontend: Add auth API service (apps/frontend/src/lib/auth.ts)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -669,12 +673,13 @@
       ],
       "createdAt": 1774343362041,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774346397249
     },
     {
       "id": 38,
       "text": "Frontend: Add route guards (check auth on protected routes)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -683,12 +688,13 @@
       ],
       "createdAt": 1774343362041,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774346397249
     },
     {
       "id": 39,
       "text": "Frontend: Add navigation updates (show username, logout button)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -697,7 +703,8 @@
       ],
       "createdAt": 1774343362041,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774346397250
     },
     {
       "id": 40,
@@ -716,7 +723,7 @@
     {
       "id": 41,
       "text": "Frontend: Store tokens (access in memory, refresh in httpOnly cookie handled by backend)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -725,7 +732,8 @@
       ],
       "createdAt": 1774343362042,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774346460053
     },
     {
       "id": 42,
