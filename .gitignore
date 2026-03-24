@@ -49,3 +49,6 @@ oxford_5000.txt
 *.tmp
 *.temp
 .cache/
+
+# Crawler
+.crawl-progress.json

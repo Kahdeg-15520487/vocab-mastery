@@ -25,6 +25,9 @@
     "studio": "cd apps/backend && npx prisma studio",
     "setup": "npm install && npm run dev:db && npm run generate && npm run migrate:init && npm run seed",
     "setup:full": "npm run dev:db && npm run generate && npm run migrate:init && npm run seed",
+    "crawl": "npm run crawl -w apps/backend",
+    "crawl:batch": "npm run crawl -w apps/backend --",
+    "crawl:dry": "npm run crawl:dry -w apps/backend",
     "stop": "taskkill /F /IM node.exe 2>nul || echo 'Stopped'"
   },
   "devDependencies": {

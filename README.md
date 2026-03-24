@@ -166,6 +166,32 @@ npm run docker:down
 | `npm run docker:build` | Build Docker images |
 | `npm run docker:up` | Start all services with Docker |
 | `npm run docker:down` | Stop Docker services |
+| `npm run crawl` | Crawl word definitions from Oxford Dictionary |
+| `npm run crawl:batch -- --batch=100` | Crawl specific batch size |
+| `npm run crawl:dry` | Test crawler without saving |
+
+## Crawling Word Definitions
+
+The app comes with ~4,933 words from the Oxford 3000/5000 lists. To add definitions, phonetics, and examples:
+
+```bash
+# Crawl 100 words (default)
+npm run crawl
+
+# Crawl specific batch size
+npm run crawl:batch -- --batch=50
+
+# Resume from last position (automatic)
+npm run crawl
+
+# Test without saving
+npm run crawl:dry
+
+# Options
+npm run crawl -- --batch=100 --delay=2000 --no-resume
+```
+
+**Note**: The crawler respects rate limits (~1.5s between requests). Full crawl takes ~2 hours.
 
 ## Tech Stack Details
 
