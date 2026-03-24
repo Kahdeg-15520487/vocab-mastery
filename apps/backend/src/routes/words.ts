@@ -1,9 +1,10 @@
 import { FastifyInstance } from 'fastify';
 import prisma from '../lib/prisma.js';
+import { optionalAuth, authenticate } from '../middleware/auth.js';
 
 export async function wordRoutes(app: FastifyInstance) {
-  // Get all words with filters
-  app.get('/words', async (request, reply) => {
+  // Get all words with filters (requires auth)
+  app.get('/words', { preHandler: authenticate }, async (request, reply) => {
     const query = request.query as Record<string, string | undefined>;
     const theme = query.theme;
     const level = query.level;
@@ -69,8 +70,8 @@ export async function wordRoutes(app: FastifyInstance) {
     };
   });
 
-  // Get single word
-  app.get('/words/:id', async (request, reply) => {
+  // Get single word - guests get limited fields, authenticated users get full data
+  app.get('/words/:id', { preHandler: optionalAuth }, async (request, reply) => {
     const { id } = request.params as { id: string };
 
     const word = await prisma.word.findUnique({
@@ -85,6 +86,21 @@ export async function wordRoutes(app: FastifyInstance) {
       return reply.status(404).send({ error: 'Word not found' });
     }
 
+    // If user is not authenticated (guest), return limited fields only
+    if (!request.user) {
+      return {
+        id: word.id,
+        word: word.word,
+        phoneticUs: word.phoneticUs,
+        phoneticUk: word.phoneticUk,
+        cefrLevel: word.cefrLevel,
+        oxfordList: word.oxfordList,
+        definition: word.definition,
+        // NO examples, synonyms, antonyms, themes for guests
+      };
+    }
+
+    // Authenticated user gets full data
     return {
       id: word.id,
       word: word.word,
@@ -103,8 +119,8 @@ export async function wordRoutes(app: FastifyInstance) {
     };
   });
 
-  // Get words due for review
-  app.get('/words/due', async (request, reply) => {
+  // Get words due for review (requires auth)
+  app.get('/words/due', { preHandler: authenticate }, async (request, reply) => {
     const { limit = 20 } = request.query as { limit?: number };
 
     const dueWords = await prisma.word.findMany({
@@ -144,8 +160,8 @@ export async function wordRoutes(app: FastifyInstance) {
     }));
   });
 
-  // Search words
-  app.get('/words/search', async (request, reply) => {
+  // Search words (requires auth)
+  app.get('/words/search', { preHandler: authenticate }, async (request, reply) => {
     const { q } = request.query as { q: string };
 
     if (!q || q.length < 2) {
