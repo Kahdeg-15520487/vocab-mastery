@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
 
 const navItems = [
   { path: '/', label: 'Home', icon: '🏠' },
@@ -14,6 +17,11 @@ const navItems = [
 const isActive = (path: string) => {
   if (path === '/') return route.path === '/'
   return route.path.startsWith(path)
+}
+
+async function handleLogout() {
+  await authStore.logout()
+  router.push('/login')
 }
 </script>
 
@@ -42,6 +50,56 @@ const isActive = (path: string) => {
             {{ item.label }}
           </RouterLink>
         </div>
+
+        <!-- Auth section -->
+        <div class="flex items-center gap-3">
+          <template v-if="authStore.isAuthenticated">
+            <span class="text-sm text-slate-600">
+              {{ authStore.user?.username }}
+            </span>
+            <button
+              @click="handleLogout"
+              class="btn btn-secondary text-sm"
+            >
+              Logout
+            </button>
+          </template>
+          <template v-else>
+            <RouterLink to="/login" class="btn btn-secondary text-sm">
+              Login
+            </RouterLink>
+            <RouterLink to="/register" class="btn btn-primary text-sm">
+              Sign Up
+            </RouterLink>
+          </template>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Top Bar -->
+  <nav class="md:hidden bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="flex items-center justify-between px-4 h-14">
+      <RouterLink to="/" class="flex items-center gap-2">
+        <span class="text-xl">📚</span>
+        <span class="font-bold text-primary-600">Vocab Master</span>
+      </RouterLink>
+
+      <div class="flex items-center gap-2">
+        <template v-if="authStore.isAuthenticated">
+          <span class="text-sm text-slate-600">{{ authStore.user?.username }}</span>
+          <button
+            @click="handleLogout"
+            class="text-sm text-primary-600"
+          >
+            Logout
+          </button>
+        </template>
+        <template v-else>
+          <RouterLink to="/login" class="text-sm text-primary-600">
+            Login
+          </RouterLink>
+        </template>
       </div>
     </div>
   </nav>

@@ -82,7 +82,7 @@ function closeWordDetail() {
 }
 
 function hasDefinition(word: Word): boolean {
-  return word.definition && word.definition.length > 0
+  return !!(word.definition && word.definition.length > 0)
 }
 
 // Generate page numbers to display
