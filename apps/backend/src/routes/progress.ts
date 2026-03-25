@@ -1,9 +1,289 @@
 import { FastifyInstance } from 'fastify';
 import prisma from '../lib/prisma.js';
+import { authenticate } from '../middleware/auth.js';
+import { updateStreak, getStreak } from '../lib/streak.js';
+import { checkAchievements, getUserAchievements, getAllAchievementsWithStatus } from '../lib/achievements.js';
 import { calculateNextReview, responseToQuality, createInitialProgress } from '../lib/spaced-repetition.js';
 
 export async function progressRoutes(app: FastifyInstance) {
-  // Get all progress
+  // All progress routes require authentication
+  app.addHook('preHandler', authenticate);
+
+  // ============================================
+  // GET /api/progress/dashboard - Dashboard data
+  // ============================================
+  app.get('/progress/dashboard', async (request, reply) => {
+    const userId = request.user!.userId;
+
+    // Get streak
+    const streak = await getStreak(userId);
+
+    // Get today's goal
+    const today = new Date();
+    const todayStart = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    
+    let dailyGoal = await prisma.dailyGoal.findUnique({
+      where: { userId_date: { userId, date: todayStart } },
+    });
+
+    if (!dailyGoal) {
+      // Create default goal for today
+      dailyGoal = await prisma.dailyGoal.create({
+        data: {
+          userId,
+          date: todayStart,
+          wordsToLearn: 10,
+          wordsToReview: 20,
+        },
+      });
+    }
+
+    // Get CEFR level progress
+    const cefrLevels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+    const levelProgress = await Promise.all(
+      cefrLevels.map(async (level) => {
+        const totalWords = await prisma.word.count({ where: { cefrLevel: level } });
+        const learnedWords = await prisma.wordProgress.count({
+          where: { word: { cefrLevel: level }, status: { not: 'new' } },
+        });
+        const masteredWords = await prisma.wordProgress.count({
+          where: { word: { cefrLevel: level }, status: 'mastered' },
+        });
+
+        return {
+          level,
+          total: totalWords,
+          learned: learnedWords,
+          mastered: masteredWords,
+          progress: totalWords > 0 ? Math.round((learnedWords / totalWords) * 100) : 0,
+        };
+      })
+    );
+
+    // Get recent achievements (last 5)
+    const recentAchievements = await getUserAchievements(userId);
+
+    // Get activity for last 30 days
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setUTCDate(thirtyDaysAgo.getUTCDate() - 30);
+
+    const dailyGoals = await prisma.dailyGoal.findMany({
+      where: {
+        userId,
+        date: { gte: thirtyDaysAgo },
+      },
+      orderBy: { date: 'asc' },
+    });
+
+    // Get total stats
+    const totalWordsLearned = await prisma.wordProgress.count({
+      where: { status: { not: 'new' } },
+    });
+    const totalWordsMastered = await prisma.wordProgress.count({
+      where: { status: 'mastered' },
+    });
+
+    return {
+      streak: {
+        current: streak.currentStreak,
+        longest: streak.longestStreak,
+        lastActivity: streak.lastActivityDate,
+      },
+      dailyGoal: {
+        date: dailyGoal.date,
+        wordsToLearn: dailyGoal.wordsToLearn,
+        wordsToReview: dailyGoal.wordsToReview,
+        wordsLearned: dailyGoal.wordsLearned,
+        wordsReviewed: dailyGoal.wordsReviewed,
+        completed: dailyGoal.completed,
+        progress: {
+          learn: dailyGoal.wordsToLearn > 0 
+            ? Math.min(100, Math.round((dailyGoal.wordsLearned / dailyGoal.wordsToLearn) * 100))
+            : 0,
+          review: dailyGoal.wordsToReview > 0
+            ? Math.min(100, Math.round((dailyGoal.wordsReviewed / dailyGoal.wordsToReview) * 100))
+            : 0,
+        },
+      },
+      levelProgress,
+      stats: {
+        totalWordsLearned,
+        totalWordsMastered,
+      },
+      recentAchievements: recentAchievements.slice(0, 5),
+      activity: dailyGoals.map((g) => ({
+        date: g.date,
+        completed: g.completed,
+        wordsLearned: g.wordsLearned,
+        wordsReviewed: g.wordsReviewed,
+      })),
+    };
+  });
+
+  // ============================================
+  // GET /api/progress/streak - Get streak info
+  // ============================================
+  app.get('/progress/streak', async (request, reply) => {
+    const userId = request.user!.userId;
+    const streak = await getStreak(userId);
+    return streak;
+  });
+
+  // ============================================
+  // GET /api/progress/calendar - Activity heatmap
+  // ============================================
+  app.get('/progress/calendar', async (request, reply) => {
+    const userId = request.user!.userId;
+    const query = request.query as { days?: string };
+    const days = parseInt(query.days || '90', 10);
+
+    const startDate = new Date();
+    startDate.setUTCDate(startDate.getUTCDate() - days);
+
+    const dailyGoals = await prisma.dailyGoal.findMany({
+      where: {
+        userId,
+        date: { gte: startDate },
+      },
+      orderBy: { date: 'asc' },
+    });
+
+    // Generate calendar data
+    const calendar: Array<{
+      date: string;
+      level: number; // 0-4 intensity
+      wordsLearned: number;
+      wordsReviewed: number;
+      completed: boolean;
+    }> = [];
+
+    const goalMap = new Map(dailyGoals.map((g) => [g.date.toISOString().split('T')[0], g]));
+
+    for (let i = 0; i <= days; i++) {
+      const date = new Date(startDate);
+      date.setUTCDate(date.getUTCDate() + i);
+      const dateStr = date.toISOString().split('T')[0];
+      const goal = goalMap.get(dateStr);
+
+      if (goal) {
+        const totalActivity = goal.wordsLearned + goal.wordsReviewed;
+        const maxActivity = goal.wordsToLearn + goal.wordsToReview;
+        const intensity = maxActivity > 0 ? Math.min(4, Math.ceil((totalActivity / maxActivity) * 4)) : 0;
+
+        calendar.push({
+          date: dateStr,
+          level: goal.completed ? 4 : intensity,
+          wordsLearned: goal.wordsLearned,
+          wordsReviewed: goal.wordsReviewed,
+          completed: goal.completed,
+        });
+      } else {
+        calendar.push({
+          date: dateStr,
+          level: 0,
+          wordsLearned: 0,
+          wordsReviewed: 0,
+          completed: false,
+        });
+      }
+    }
+
+    return calendar;
+  });
+
+  // ============================================
+  // POST /api/progress/update - Update goal progress
+  // ============================================
+  app.post('/progress/update', async (request, reply) => {
+    const userId = request.user!.userId;
+    const body = request.body as {
+      wordsLearned?: number;
+      wordsReviewed?: number;
+    };
+
+    const today = new Date();
+    const todayStart = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+
+    // Get or create today's goal
+    let dailyGoal = await prisma.dailyGoal.findUnique({
+      where: { userId_date: { userId, date: todayStart } },
+    });
+
+    if (!dailyGoal) {
+      dailyGoal = await prisma.dailyGoal.create({
+        data: {
+          userId,
+          date: todayStart,
+          wordsToLearn: 10,
+          wordsToReview: 20,
+        },
+      });
+    }
+
+    // Update progress
+    const updateData: any = {};
+    if (body.wordsLearned !== undefined) {
+      updateData.wordsLearned = dailyGoal.wordsLearned + body.wordsLearned;
+    }
+    if (body.wordsReviewed !== undefined) {
+      updateData.wordsReviewed = dailyGoal.wordsReviewed + body.wordsReviewed;
+    }
+
+    // Check if goal is completed
+    const newLearned = updateData.wordsLearned ?? dailyGoal.wordsLearned;
+    const newReviewed = updateData.wordsReviewed ?? dailyGoal.wordsReviewed;
+    
+    const learnGoalMet = newLearned >= dailyGoal.wordsToLearn;
+    const reviewGoalMet = newReviewed >= dailyGoal.wordsToReview;
+    
+    if (learnGoalMet && reviewGoalMet && !dailyGoal.completed) {
+      updateData.completed = true;
+      updateData.completedAt = new Date();
+    }
+
+    if (Object.keys(updateData).length > 0) {
+      dailyGoal = await prisma.dailyGoal.update({
+        where: { id: dailyGoal.id },
+        data: updateData,
+      });
+    }
+
+    // Update streak if there was activity
+    if (body.wordsLearned || body.wordsReviewed) {
+      const streakResult = await updateStreak(userId);
+
+      // Check for streak achievements
+      if (streakResult.streakExtended) {
+        await checkAchievements({
+          userId,
+          type: 'streak_days',
+          value: streakResult.currentStreak,
+        });
+      }
+    }
+
+    return {
+      success: true,
+      dailyGoal: {
+        wordsLearned: dailyGoal.wordsLearned,
+        wordsReviewed: dailyGoal.wordsReviewed,
+        completed: dailyGoal.completed,
+      },
+    };
+  });
+
+  // ============================================
+  // GET /api/progress/achievements - All achievements
+  // ============================================
+  app.get('/progress/achievements', async (request, reply) => {
+    const userId = request.user!.userId;
+    const achievements = await getAllAchievementsWithStatus(userId);
+    return achievements;
+  });
+
+  // ============================================
+  // GET /api/progress - Get all word progress (legacy)
+  // ============================================
   app.get('/progress', async (request, reply) => {
     const progress = await prisma.wordProgress.findMany({
       include: {
@@ -20,7 +300,9 @@ export async function progressRoutes(app: FastifyInstance) {
     return progress;
   });
 
-  // Get progress for a specific word
+  // ============================================
+  // GET /api/progress/:wordId - Get word progress
+  // ============================================
   app.get('/progress/:wordId', async (request, reply) => {
     const { wordId } = request.params as { wordId: string };
 
@@ -36,10 +318,13 @@ export async function progressRoutes(app: FastifyInstance) {
     return progress;
   });
 
-  // Update progress after review
+  // ============================================
+  // POST /api/progress/:wordId - Update word progress
+  // ============================================
   app.post('/progress/:wordId', async (request, reply) => {
+    const userId = request.user!.userId;
     const { wordId } = request.params as { wordId: string };
-    const { response, responseTime } = request.body as { 
+    const { response, responseTime } = request.body as {
       response: 'easy' | 'medium' | 'hard' | 'forgot';
       responseTime?: number;
     };
@@ -74,6 +359,9 @@ export async function progressRoutes(app: FastifyInstance) {
 
     // Calculate new progress
     const quality = responseToQuality(response);
+    const wasNew = existingProgress.status === 'new';
+    const wasNotMastered = existingProgress.status !== 'mastered';
+    
     const updated = calculateNextReview(
       {
         wordId: existingProgress.wordId,
@@ -104,8 +392,46 @@ export async function progressRoutes(app: FastifyInstance) {
       },
     });
 
-    // Update user stats
-    await updateUserStats();
+    // Update daily goal and streak
+    const isCorrect = response !== 'forgot';
+    await updateDailyProgress(userId, isCorrect ? 0 : 1, isCorrect ? 1 : 0);
+
+    // Check achievements
+    const unlockedAchievements: string[] = [];
+    
+    if (wasNew && updated.status !== 'new') {
+      // Word was learned
+      const totalLearned = await prisma.wordProgress.count({
+        where: { status: { not: 'new' } },
+      });
+      const newUnlocked = await checkAchievements({
+        userId,
+        type: 'words_learned',
+        value: totalLearned,
+      });
+      unlockedAchievements.push(...newUnlocked);
+    }
+
+    if (wasNotMastered && updated.status === 'mastered') {
+      // Word was mastered
+      const totalMastered = await prisma.wordProgress.count({
+        where: { status: 'mastered' },
+      });
+      const newUnlocked = await checkAchievements({
+        userId,
+        type: 'words_mastered',
+        value: totalMastered,
+      });
+      unlockedAchievements.push(...newUnlocked);
+    }
+
+    // Check review achievement
+    const newUnlocked = await checkAchievements({
+      userId,
+      type: 'total_reviews',
+      value: updated.totalReviews,
+    });
+    unlockedAchievements.push(...newUnlocked);
 
     return {
       success: true,
@@ -114,11 +440,15 @@ export async function progressRoutes(app: FastifyInstance) {
         interval: progress.interval,
         nextReview: progress.nextReview,
       },
+      achievementsUnlocked: unlockedAchievements,
     };
   });
 
-  // Batch update progress
+  // ============================================
+  // POST /api/progress/batch - Batch update
+  // ============================================
   app.post('/progress/batch', async (request, reply) => {
+    const userId = request.user!.userId;
     const { updates } = request.body as {
       updates: Array<{
         wordId: string;
@@ -127,6 +457,8 @@ export async function progressRoutes(app: FastifyInstance) {
     };
 
     const results = [];
+    let wordsLearned = 0;
+    let wordsReviewed = 0;
 
     for (const update of updates) {
       const { wordId, response } = update;
@@ -184,6 +516,11 @@ export async function progressRoutes(app: FastifyInstance) {
         },
       });
 
+      // Track for daily goal
+      if (response !== 'forgot') {
+        wordsReviewed++;
+      }
+
       results.push({
         wordId,
         status: progress.status,
@@ -192,57 +529,56 @@ export async function progressRoutes(app: FastifyInstance) {
       });
     }
 
-    await updateUserStats();
+    // Update daily progress
+    await updateDailyProgress(userId, wordsLearned, wordsReviewed);
 
     return { success: true, updated: results.length, results };
   });
 }
 
-// Helper to update user stats
-async function updateUserStats() {
-  const stats = await prisma.userStats.findFirst();
+// Helper to update daily progress
+async function updateDailyProgress(userId: string, wordsLearned: number, wordsReviewed: number) {
+  const today = new Date();
+  const todayStart = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
 
-  if (!stats) {
-    await prisma.userStats.create({
+  let dailyGoal = await prisma.dailyGoal.findUnique({
+    where: { userId_date: { userId, date: todayStart } },
+  });
+
+  if (!dailyGoal) {
+    dailyGoal = await prisma.dailyGoal.create({
       data: {
-        totalWords: 0,
-        masteredWords: 0,
-        currentStreak: 0,
-        longestStreak: 0,
-        totalXP: 0,
-        level: 1,
+        userId,
+        date: todayStart,
+        wordsToLearn: 10,
+        wordsToReview: 20,
+        wordsLearned,
+        wordsReviewed,
       },
     });
-    return;
+  } else {
+    const updateData: any = {
+      wordsLearned: { increment: wordsLearned },
+      wordsReviewed: { increment: wordsReviewed },
+    };
+
+    // Check if goal is completed
+    const newLearned = dailyGoal.wordsLearned + wordsLearned;
+    const newReviewed = dailyGoal.wordsReviewed + wordsReviewed;
+
+    if (newLearned >= dailyGoal.wordsToLearn && newReviewed >= dailyGoal.wordsToReview && !dailyGoal.completed) {
+      updateData.completed = true;
+      updateData.completedAt = new Date();
+    }
+
+    await prisma.dailyGoal.update({
+      where: { id: dailyGoal.id },
+      data: updateData,
+    });
   }
 
-  const [totalWords, masteredWords] = await Promise.all([
-    prisma.wordProgress.count(),
-    prisma.wordProgress.count({ where: { status: 'mastered' } }),
-  ]);
-
-  // Check streak
-  const lastActive = new Date(stats.lastActiveDate);
-  const today = new Date();
-  const diffDays = Math.floor((today.getTime() - lastActive.getTime()) / (1000 * 60 * 60 * 24));
-
-  let currentStreak = stats.currentStreak;
-  if (diffDays === 1) {
-    currentStreak++;
-  } else if (diffDays > 1) {
-    currentStreak = 1;
+  // Update streak
+  if (wordsLearned > 0 || wordsReviewed > 0) {
+    await updateStreak(userId);
   }
-
-  await prisma.userStats.update({
-    where: { id: stats.id },
-    data: {
-      totalWords,
-      masteredWords,
-      currentStreak,
-      longestStreak: Math.max(stats.longestStreak, currentStreak),
-      lastActiveDate: today,
-      totalXP: stats.totalXP + 5, // +5 XP per review
-      level: Math.floor((stats.totalXP + 5) / 100) + 1,
-    },
-  });
 }

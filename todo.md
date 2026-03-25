@@ -9,15 +9,6 @@
 - [ ] **#7** Create theme-based word organization #data #organization
 - [ ] **#8** **[low]** Add Oxford 3000/5000 full integration #data #future
 - [ ] **#65** **[high]** Phase 3: Progress System #phase-3 #progress
-- [ ] **#74** **[high]** Create progress routes file (apps/backend/src/routes/progress.ts) - update existing #phase-3 #progress #backend
-- [ ] **#75** **[high]** Update SM-2 algorithm to work per theme/level instead of per-word #phase-3 #progress #backend
-- [ ] **#76** **[high]** Implement GET /api/progress/dashboard endpoint #phase-3 #progress #api
-- [ ] **#77** **[high]** Implement GET /api/progress/streak endpoint #phase-3 #progress #api
-- [ ] **#78** **[high]** Implement GET /api/progress/calendar endpoint (activity heatmap data) #phase-3 #progress #api
-- [ ] **#79** **[high]** Implement POST /api/progress/update endpoint (update goal progress) #phase-3 #progress #api
-- [ ] **#80** **[high]** Create streak calculation service (with grace period logic, Monday noon GMT+0 reset) #phase-3 #progress #backend
-- [ ] **#81** **[high]** Create achievement checking service (check conditions after progress updates) #phase-3 #progress #backend
-- [ ] **#82** **[high]** Implement daily goal tracking (check completion, update streak) #phase-3 #progress #backend
 - [ ] **#83** **[high]** Frontend: Create progress store (Pinia) for dashboard data #phase-3 #progress #frontend
 - [ ] **#84** **[high]** Frontend: Update HomeView.vue as dashboard (streak, goals, CEFR progress, achievements) #phase-3 #progress #frontend
 - [ ] **#85** **[high]** Frontend: Create streak display component (current, longest, fire icon) #phase-3 #progress #frontend
@@ -139,6 +130,15 @@
 - [x] **#71** **[high]** Add UserAchievement model to Prisma (userId, achievementId, unlockedAt) #phase-3 #progress #database
 - [x] **#72** **[high]** Run Prisma migration for progress schema #phase-3 #progress #database
 - [x] **#73** **[high]** Create seed file for default achievements #phase-3 #progress #backend
+- [x] **#74** **[high]** Create progress routes file (apps/backend/src/routes/progress.ts) - update existing #phase-3 #progress #backend
+- [x] **#75** **[high]** Update SM-2 algorithm to work per theme/level instead of per-word #phase-3 #progress #backend
+- [x] **#76** **[high]** Implement GET /api/progress/dashboard endpoint #phase-3 #progress #api
+- [x] **#77** **[high]** Implement GET /api/progress/streak endpoint #phase-3 #progress #api
+- [x] **#78** **[high]** Implement GET /api/progress/calendar endpoint (activity heatmap data) #phase-3 #progress #api
+- [x] **#79** **[high]** Implement POST /api/progress/update endpoint (update goal progress) #phase-3 #progress #api
+- [x] **#80** **[high]** Create streak calculation service (with grace period logic, Monday noon GMT+0 reset) #phase-3 #progress #backend
+- [x] **#81** **[high]** Create achievement checking service (check conditions after progress updates) #phase-3 #progress #backend
+- [x] **#82** **[high]** Implement daily goal tracking (check completion, update streak) #phase-3 #progress #backend
 
 <!-- Raw Data -->
 ```json
@@ -1215,7 +1215,7 @@
     {
       "id": 74,
       "text": "Create progress routes file (apps/backend/src/routes/progress.ts) - update existing",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1224,12 +1224,13 @@
       ],
       "createdAt": 1774343499047,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774410393704
     },
     {
       "id": 75,
       "text": "Update SM-2 algorithm to work per theme/level instead of per-word",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1238,12 +1239,13 @@
       ],
       "createdAt": 1774343499047,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774410393704
     },
     {
       "id": 76,
       "text": "Implement GET /api/progress/dashboard endpoint",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1252,12 +1254,13 @@
       ],
       "createdAt": 1774343499048,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774410393705
     },
     {
       "id": 77,
       "text": "Implement GET /api/progress/streak endpoint",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1266,12 +1269,13 @@
       ],
       "createdAt": 1774343499048,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774410393705
     },
     {
       "id": 78,
       "text": "Implement GET /api/progress/calendar endpoint (activity heatmap data)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1280,12 +1284,13 @@
       ],
       "createdAt": 1774343499049,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774410393706
     },
     {
       "id": 79,
       "text": "Implement POST /api/progress/update endpoint (update goal progress)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1294,12 +1299,13 @@
       ],
       "createdAt": 1774343499050,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774410393706
     },
     {
       "id": 80,
       "text": "Create streak calculation service (with grace period logic, Monday noon GMT+0 reset)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1308,12 +1314,13 @@
       ],
       "createdAt": 1774343499050,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774410393707
     },
     {
       "id": 81,
       "text": "Create achievement checking service (check conditions after progress updates)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1322,12 +1329,13 @@
       ],
       "createdAt": 1774343499050,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774410393707
     },
     {
       "id": 82,
       "text": "Implement daily goal tracking (check completion, update streak)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1336,7 +1344,8 @@
       ],
       "createdAt": 1774343499050,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774410393708
     },
     {
       "id": 83,
