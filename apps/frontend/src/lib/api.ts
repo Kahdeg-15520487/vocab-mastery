@@ -1,22 +1,138 @@
+import { authService } from './auth'
+
 const API_BASE = import.meta.env.VITE_API_URL || '/api'
+
+// Track if we're currently refreshing to prevent multiple refresh calls
+let isRefreshing = false
+let refreshPromise: Promise<string> | null = null
+
+// Queue of failed requests waiting for token refresh
+type FailedRequest = {
+  resolve: (token: string) => void
+  reject: (error: Error) => void
+}
+
+let failedQueue: FailedRequest[] = []
+
+function processQueue(error: Error | null, token: string | null) {
+  failedQueue.forEach((request) => {
+    if (error) {
+      request.reject(error)
+    } else {
+      request.resolve(token!)
+    }
+  })
+  failedQueue = []
+}
+
+async function refreshToken(): Promise<string> {
+  // If already refreshing, return the existing promise
+  if (isRefreshing && refreshPromise) {
+    return refreshPromise
+  }
+
+  isRefreshing = true
+  
+  refreshPromise = (async () => {
+    try {
+      const newToken = await authService.refresh()
+      processQueue(null, newToken)
+      return newToken
+    } catch (error) {
+      processQueue(error as Error, null)
+      // Clear auth state on refresh failure
+      authService.clearTokens()
+      // Redirect to login
+      window.location.href = '/login'
+      throw error
+    } finally {
+      isRefreshing = false
+      refreshPromise = null
+    }
+  })()
+
+  return refreshPromise
+}
 
 async function request<T>(
   endpoint: string,
-  options?: RequestInit
+  options?: RequestInit,
+  isRetry = false
 ): Promise<T> {
   const url = `${API_BASE}${endpoint}`
   
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...options?.headers as Record<string, string>,
+  }
+
+  // Add auth header if we have a token
+  const token = authService.getAccessToken()
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
   const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
     ...options,
+    headers,
+    credentials: 'include', // Include cookies for refresh token
   })
+
+  // Handle 401 - try to refresh token and retry
+  if (response.status === 401 && !isRetry) {
+    // If this is an auth endpoint, don't retry (login, register, etc.)
+    if (endpoint.startsWith('/auth/')) {
+      const error = await response.json().catch(() => ({ error: 'Unauthorized' }))
+      throw new Error(error.error || 'Unauthorized')
+    }
+
+    // Queue this request and wait for refresh
+    return new Promise<T>((resolve, reject) => {
+      failedQueue.push({
+        resolve: async (token: string) => {
+          // Retry the request with new token
+          try {
+            const retryHeaders: Record<string, string> = {
+              'Content-Type': 'application/json',
+              ...options?.headers as Record<string, string>,
+              'Authorization': `Bearer ${token}`,
+            }
+            
+            const retryResponse = await fetch(url, {
+              ...options,
+              headers: retryHeaders,
+              credentials: 'include',
+            })
+
+            if (!retryResponse.ok) {
+              const error = await retryResponse.json().catch(() => ({ error: 'Unknown error' }))
+              reject(new Error(error.error || `HTTP ${retryResponse.status}`))
+              return
+            }
+
+            resolve(retryResponse.json())
+          } catch (err) {
+            reject(err)
+          }
+        },
+        reject,
+      })
+
+      // Trigger refresh if not already doing so
+      if (!isRefreshing) {
+        refreshToken().catch(reject)
+      }
+    })
+  }
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: 'Unknown error' }))
     throw new Error(error.error || `HTTP ${response.status}`)
+  }
+
+  // Handle empty responses (204 No Content)
+  if (response.status === 204) {
+    return {} as T
   }
 
   return response.json()

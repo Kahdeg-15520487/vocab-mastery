@@ -162,6 +162,11 @@ class AuthService {
   isAuthenticated(): boolean {
     return !!this.accessToken;
   }
+
+  clearTokens(): void {
+    this.accessToken = null;
+    sessionStorage.removeItem('accessToken');
+  }
 }
 
 export const authService = new AuthService();

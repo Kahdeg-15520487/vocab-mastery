@@ -8,8 +8,6 @@
 - [ ] **#6** Build progress tracking system #frontend #data
 - [ ] **#7** Create theme-based word organization #data #organization
 - [ ] **#8** **[low]** Add Oxford 3000/5000 full integration #data #future
-- [ ] **#9** **[high]** Phase 1: Auth Foundation #phase-1 #auth
-- [ ] **#40** **[high]** Frontend: Handle token refresh on 401 responses #phase-1 #auth #frontend
 - [ ] **#42** **[high]** Phase 2: OAuth & Admin #phase-2 #auth
 - [ ] **#43** **[high]** Add Google OAuth environment variables (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK_URL) #phase-2 #oauth #config
 - [ ] **#44** **[high]** Install @fastify/oauth2 for Google OAuth #phase-2 #oauth #backend
@@ -108,6 +106,7 @@
 - [x] **#2** **[high]** Set up project structure and initialize app #setup
 - [x] **#4** Implement core flashcard component #frontend #component
 - [x] **#5** Add spaced repetition algorithm (SM-2) #logic #learning
+- [x] **#9** **[high]** Phase 1: Auth Foundation #phase-1 #auth
 - [x] **#10** **[high]** Update Prisma schema with User model (id, email, passwordHash, username, role, googleId, subscriptionTier, timestamps) #phase-1 #auth #database
 - [x] **#11** **[high]** Add RefreshToken model to Prisma schema (id, userId, token, expiresAt, revoked) #phase-1 #auth #database
 - [x] **#12** **[high]** Add SubscriptionTier enum (FREE, EXPLORER, WORDSMITH) to Prisma schema #phase-1 #auth #database
@@ -138,6 +137,7 @@
 - [x] **#37** **[high]** Frontend: Add auth API service (apps/frontend/src/lib/auth.ts) #phase-1 #auth #frontend
 - [x] **#38** **[high]** Frontend: Add route guards (check auth on protected routes) #phase-1 #auth #frontend
 - [x] **#39** **[high]** Frontend: Add navigation updates (show username, logout button) #phase-1 #auth #frontend
+- [x] **#40** **[high]** Frontend: Handle token refresh on 401 responses #phase-1 #auth #frontend
 - [x] **#41** **[high]** Frontend: Store tokens (access in memory, refresh in httpOnly cookie handled by backend) #phase-1 #auth #frontend
 
 <!-- Raw Data -->
@@ -247,14 +247,15 @@
     {
       "id": 9,
       "text": "Phase 1: Auth Foundation",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
         "auth"
       ],
       "createdAt": 1774343281733,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774405664307
     },
     {
       "id": 10,
@@ -709,7 +710,7 @@
     {
       "id": 40,
       "text": "Frontend: Handle token refresh on 401 responses",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-1",
@@ -718,7 +719,8 @@
       ],
       "createdAt": 1774343362042,
       "parentId": 9,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774405664306
     },
     {
       "id": 41,
