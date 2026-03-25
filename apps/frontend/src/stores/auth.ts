@@ -1,36 +1,32 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { authService, type User } from '@/lib/auth';
-import { AUTH_EXPIRED_EVENT } from '@/lib/api';
+import { resetAuthExpired } from '@/lib/api';
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null);
   const loading = ref(false);
   const error = ref<string | null>(null);
+  // Reactive token state - updated on login/logout/expire
+  const hasToken = ref(!!sessionStorage.getItem('accessToken'));
 
-  // Force reactivity by tracking a version number that increments on auth changes
-  const authVersion = ref(0);
+  const isAuthenticated = computed(() => !!user.value || hasToken.value);
+  const isAdmin = computed(() => user.value?.role === 'ADMIN');
 
-  const isAuthenticated = computed(() => {
-    // Touch authVersion to make this reactive
-    void authVersion.value;
-    return !!user.value || authService.isAuthenticated();
-  });
-  
-  const isAdmin = computed(() => {
-    void authVersion.value;
-    return user.value?.role === 'ADMIN';
-  });
+  // Update token state
+  function updateTokenState() {
+    hasToken.value = !!sessionStorage.getItem('accessToken');
+  }
 
   // Handle auth expired event from API layer
   function handleAuthExpired() {
     user.value = null;
-    authVersion.value++;
+    hasToken.value = false;
   }
 
   // Listen for auth expired events
   if (typeof window !== 'undefined') {
-    window.addEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+    window.addEventListener('auth:expired', handleAuthExpired);
   }
 
   async function login(email: string, password: string): Promise<boolean> {
@@ -40,6 +36,8 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await authService.login(email, password);
       user.value = response.user;
+      hasToken.value = true;
+      resetAuthExpired();
       return true;
     } catch (e: any) {
       error.value = e.message || 'Login failed';
@@ -56,6 +54,8 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await authService.register(email, password, username);
       user.value = response.user;
+      hasToken.value = true;
+      resetAuthExpired();
       return true;
     } catch (e: any) {
       error.value = e.message || 'Registration failed';
@@ -71,6 +71,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await authService.logout();
       user.value = null;
+      hasToken.value = false;
     } catch (e) {
       console.error('Logout error:', e);
     } finally {
@@ -79,8 +80,9 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function fetchUser(): Promise<void> {
-    if (!authService.isAuthenticated()) {
+    if (!sessionStorage.getItem('accessToken')) {
       user.value = null;
+      hasToken.value = false;
       return;
     }
 
@@ -89,9 +91,11 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await authService.getMe();
       user.value = response.user;
+      hasToken.value = true;
     } catch (e) {
       // Token might be expired or invalid
       user.value = null;
+      hasToken.value = false;
     } finally {
       loading.value = false;
     }
@@ -105,6 +109,7 @@ export const useAuthStore = defineStore('auth', () => {
       await authService.changePassword(currentPassword, newPassword);
       // Password change requires re-login
       user.value = null;
+      hasToken.value = false;
       return true;
     } catch (e: any) {
       error.value = e.message || 'Password change failed';
@@ -121,6 +126,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await authService.deleteAccount(password);
       user.value = null;
+      hasToken.value = false;
       return true;
     } catch (e: any) {
       error.value = e.message || 'Account deletion failed';
@@ -137,7 +143,7 @@ export const useAuthStore = defineStore('auth', () => {
   // Called when auth fails (token expired, refresh failed)
   function clearAuth() {
     user.value = null;
-    authVersion.value++;
+    hasToken.value = false;
     authService.clearTokens();
   }
 
@@ -155,5 +161,6 @@ export const useAuthStore = defineStore('auth', () => {
     deleteAccount,
     clearError,
     clearAuth,
+    updateTokenState,
   };
 });

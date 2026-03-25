@@ -5,8 +5,19 @@ const API_BASE = import.meta.env.VITE_API_URL || '/api'
 // Custom event for auth state changes
 export const AUTH_EXPIRED_EVENT = 'auth:expired'
 
+// Track if auth has expired (to prevent multiple redirects)
+let authExpired = false
+
+export function resetAuthExpired() {
+  authExpired = false
+}
+
 function notifyAuthExpired() {
+  if (authExpired) return
+  authExpired = true
   window.dispatchEvent(new CustomEvent(AUTH_EXPIRED_EVENT))
+  // Use replace to avoid adding to history
+  window.location.replace('/login')
 }
 
 // Track if we're currently refreshing to prevent multiple refresh calls
@@ -49,10 +60,8 @@ async function refreshToken(): Promise<string> {
       processQueue(error as Error, null)
       // Clear auth state on refresh failure
       authService.clearTokens()
-      // Notify app that auth expired
+      // Notify app that auth expired (this will redirect)
       notifyAuthExpired()
-      // Redirect to login
-      window.location.href = '/login'
       throw error
     } finally {
       isRefreshing = false
