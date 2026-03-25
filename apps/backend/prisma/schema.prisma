@@ -58,6 +58,7 @@ model User {
   dailyGoals       DailyGoal[]
   streak           UserStream?
   achievements     UserAchievement[]
+  studyLists       StudyList[]
   
   @@index([email])
   @@index([googleId])
@@ -237,6 +238,7 @@ model Word {
   themes        WordTheme[]
   progress      WordProgress[]
   sessionWords  SessionWord[]
+  listWords     StudyListWord[]
   createdAt     DateTime      @default(now()) @map("created_at")
   updatedAt     DateTime      @updatedAt @map("updated_at")
 
@@ -336,4 +338,61 @@ model UserStats {
   updatedAt       DateTime @updatedAt @map("updated_at")
 
   @@map("user_stats")
+}
+
+// ============================================
+// STUDY LISTS
+// ============================================
+
+model StudyList {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  name        String
+  description String?
+  color       String   @default("#6366f1")  // Tailwind indigo-500
+  icon        String   @default("📚")
+  isSystem    Boolean  @default(false)      @map("is_system")
+  isPinned    Boolean  @default(false)      @map("is_pinned")
+  wordCount   Int      @default(0)          @map("word_count")
+  createdAt   DateTime @default(now())      @map("created_at")
+  updatedAt   DateTime @updatedAt           @map("updated_at")
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  words       StudyListWord[]
+  sharedWith  SharedList[]
+  
+  @@index([userId])
+  @@index([isPinned])
+  @@map("study_lists")
+}
+
+model StudyListWord {
+  id        String    @id @default(cuid())
+  listId    String    @map("list_id")
+  wordId    String    @map("word_id")
+  addedAt   DateTime  @default(now()) @map("added_at")
+  
+  list      StudyList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  word      Word      @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  
+  @@unique([listId, wordId])
+  @@index([listId])
+  @@index([wordId])
+  @@map("study_list_words")
+}
+
+model SharedList {
+  id          String   @id @default(cuid())
+  listId      String   @map("list_id")
+  sharedBy    String   @map("shared_by")
+  sharedWith  String   @map("shared_with")
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  list        StudyList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  
+  @@unique([listId, sharedWith])
+  @@index([listId])
+  @@index([sharedWith])
+  @@index([sharedBy])
+  @@map("shared_lists")
 }

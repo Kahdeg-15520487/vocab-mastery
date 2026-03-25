@@ -8,13 +8,7 @@
 - [ ] **#6** Build progress tracking system #frontend #data
 - [ ] **#7** Create theme-based word organization #data #organization
 - [ ] **#8** **[low]** Add Oxford 3000/5000 full integration #data #future
-- [ ] **#65** **[high]** Phase 3: Progress System #phase-3 #progress
 - [ ] **#91** **[high]** Phase 4: Word Lists #phase-4 #lists
-- [ ] **#92** **[high]** Add StudyList model to Prisma (userId, name, description, color, icon, isSystem, isPinned, wordCount) #phase-4 #lists #database
-- [ ] **#93** **[high]** Add StudyListWord model to Prisma (listId, wordId, addedAt, addedBy) #phase-4 #lists #database
-- [ ] **#94** **[high]** Add SharedList model to Prisma (listId, sharedBy, sharedWith) #phase-4 #lists #database
-- [ ] **#95** **[high]** Update Word model to add StudyListWord relation #phase-4 #lists #database
-- [ ] **#96** **[high]** Run Prisma migration for lists schema #phase-4 #lists #database
 - [ ] **#97** **[high]** Create lists routes file (apps/backend/src/routes/lists.ts) #phase-4 #lists #backend
 - [ ] **#98** **[high]** Create system list generation service (create on user registration) #phase-4 #lists #backend
 - [ ] **#99** **[high]** Create subscription tier limit service (check list count, word count per tier) #phase-4 #lists #backend
@@ -114,6 +108,7 @@
 - [x] **#62** **[high]** Frontend: Add admin navigation link (only visible to admin role) #phase-2 #admin #frontend
 - [x] **#63** **[high]** Frontend: Add "Sign in with Google" button to login page #phase-2 #oauth #frontend
 - [x] **#64** **[high]** Frontend: Create OAuth callback handler page #phase-2 #oauth #frontend
+- [x] **#65** **[high]** Phase 3: Progress System #phase-3 #progress
 - [x] **#66** **[high]** Add UserProgress model to Prisma (userId, themeId, level, status, interval, easeFactor, nextReview, lastReview, stats) #phase-3 #progress #database
 - [x] **#67** **[high]** Add ProgressStatus enum (NEW, LEARNING, REVIEWING, MASTERED) #phase-3 #progress #database
 - [x] **#68** **[high]** Add DailyGoal model to Prisma (userId, date, targets, actuals, completed) #phase-3 #progress #database
@@ -139,6 +134,11 @@
 - [x] **#88** **[high]** Frontend: Create calendar heatmap component (activity visualization) #phase-3 #progress #frontend
 - [x] **#89** **[high]** Frontend: Create achievements display component (unlocked badges grid) #phase-3 #progress #frontend
 - [x] **#90** **[high]** Frontend: Create achievement unlock notification/animation #phase-3 #progress #frontend
+- [x] **#92** **[high]** Add StudyList model to Prisma (userId, name, description, color, icon, isSystem, isPinned, wordCount) #phase-4 #lists #database
+- [x] **#93** **[high]** Add StudyListWord model to Prisma (listId, wordId, addedAt, addedBy) #phase-4 #lists #database
+- [x] **#94** **[high]** Add SharedList model to Prisma (listId, sharedBy, sharedWith) #phase-4 #lists #database
+- [x] **#95** **[high]** Update Word model to add StudyListWord relation #phase-4 #lists #database
+- [x] **#96** **[high]** Run Prisma migration for lists schema #phase-4 #lists #database
 
 <!-- Raw Data -->
 ```json
@@ -1083,14 +1083,15 @@
     {
       "id": 65,
       "text": "Phase 3: Progress System",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
         "progress"
       ],
       "createdAt": 1774343433283,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774410846711
     },
     {
       "id": 66,
@@ -1482,7 +1483,7 @@
     {
       "id": 92,
       "text": "Add StudyList model to Prisma (userId, name, description, color, icon, isSystem, isPinned, wordCount)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1491,12 +1492,13 @@
       ],
       "createdAt": 1774343563693,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774411093418
     },
     {
       "id": 93,
       "text": "Add StudyListWord model to Prisma (listId, wordId, addedAt, addedBy)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1505,12 +1507,13 @@
       ],
       "createdAt": 1774343563694,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774411093418
     },
     {
       "id": 94,
       "text": "Add SharedList model to Prisma (listId, sharedBy, sharedWith)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1519,12 +1522,13 @@
       ],
       "createdAt": 1774343563694,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774411093419
     },
     {
       "id": 95,
       "text": "Update Word model to add StudyListWord relation",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1533,12 +1537,13 @@
       ],
       "createdAt": 1774343563695,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774411093419
     },
     {
       "id": 96,
       "text": "Run Prisma migration for lists schema",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1547,7 +1552,8 @@
       ],
       "createdAt": 1774343563695,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774411093420
     },
     {
       "id": 97,
