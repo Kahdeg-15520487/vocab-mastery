@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const email = ref('')
@@ -10,7 +9,6 @@ const confirmPassword = ref('')
 const error = ref('')
 const loading = ref(false)
 
-const router = useRouter()
 const authStore = useAuthStore()
 
 async function handleRegister() {
@@ -31,7 +29,8 @@ async function handleRegister() {
     const success = await authStore.register(email.value, username.value, password.value)
     
     if (success) {
-      router.push('/')
+      // Use full page navigation to ensure all state is refreshed
+      window.location.href = '/'
     } else {
       error.value = 'Registration failed'
     }

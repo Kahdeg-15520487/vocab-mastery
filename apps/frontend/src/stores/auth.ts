@@ -7,7 +7,7 @@ export const useAuthStore = defineStore('auth', () => {
   const loading = ref(false);
   const error = ref<string | null>(null);
 
-  const isAuthenticated = computed(() => authService.isAuthenticated());
+  const isAuthenticated = computed(() => !!user.value || authService.isAuthenticated());
   const isAdmin = computed(() => user.value?.role === 'ADMIN');
 
   async function login(email: string, password: string): Promise<boolean> {
