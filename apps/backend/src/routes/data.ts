@@ -226,6 +226,106 @@ export async function dataRoutes(app: FastifyInstance) {
       }, {} as Record<string, number>),
     };
   });
+
+  // Import Oxford word list (text file content)
+  app.post('/data/import-oxford', async (request, reply) => {
+    const body = request.body as { content?: string; list?: '3000' | '5000'; merge?: boolean };
+    
+    if (!body.content || !body.list) {
+      return reply.status(400).send({
+        error: 'Invalid request. Expected { content: string, list: "3000" | "5000" }',
+      });
+    }
+
+    const { content, list, merge = true } = body;
+    
+    // Parse the content
+    const parsedWords = parseOxfordContent(content, list);
+    
+    if (parsedWords.length === 0) {
+      return reply.status(400).send({
+        error: 'No words found in the file. Make sure it\'s a valid Oxford word list format.',
+      });
+    }
+
+    // If not merge mode, clear existing words for this list only
+    if (!merge) {
+      await prisma.word.deleteMany({
+        where: { oxfordList: list },
+      });
+    }
+
+    let created = 0;
+    let updated = 0;
+    let skipped = 0;
+
+    // Process in batches
+    const batchSize = 500;
+    for (let i = 0; i < parsedWords.length; i += batchSize) {
+      const batch = parsedWords.slice(i, batchSize);
+
+      for (const wordData of batch) {
+        try {
+          const existing = await prisma.word.findUnique({
+            where: { word: wordData.word },
+          });
+
+          if (existing) {
+            // Update CEFR level and Oxford list if different
+            if (existing.cefrLevel !== wordData.cefrLevel || existing.oxfordList !== wordData.oxfordList) {
+              await prisma.word.update({
+                where: { word: wordData.word },
+                data: {
+                  cefrLevel: wordData.cefrLevel,
+                  oxfordList: wordData.oxfordList,
+                  partOfSpeech: wordData.partOfSpeech,
+                },
+              });
+              updated++;
+            } else {
+              skipped++;
+            }
+          } else {
+            await prisma.word.create({
+              data: {
+                word: wordData.word,
+                phoneticUs: '',
+                phoneticUk: '',
+                partOfSpeech: wordData.partOfSpeech,
+                definition: '',
+                examples: [],
+                synonyms: [],
+                antonyms: [],
+                oxfordList: wordData.oxfordList,
+                cefrLevel: wordData.cefrLevel,
+                frequency: 0,
+              },
+            });
+            created++;
+          }
+        } catch (error: any) {
+          skipped++;
+        }
+      }
+    }
+
+    return {
+      success: true,
+      list,
+      totalParsed: parsedWords.length,
+      created,
+      updated,
+      skipped,
+      stats: {
+        A1: parsedWords.filter(w => w.cefrLevel === 'A1').length,
+        A2: parsedWords.filter(w => w.cefrLevel === 'A2').length,
+        B1: parsedWords.filter(w => w.cefrLevel === 'B1').length,
+        B2: parsedWords.filter(w => w.cefrLevel === 'B2').length,
+        C1: parsedWords.filter(w => w.cefrLevel === 'C1').length,
+        C2: parsedWords.filter(w => w.cefrLevel === 'C2').length,
+      },
+    };
+  });
 }
 
 interface ImportedWord {
@@ -241,4 +341,89 @@ interface ImportedWord {
   cefrLevel?: string;
   frequency?: number;
   themes?: string[];
+}
+
+// Part of speech mapping for Oxford format
+const POS_MAP: Record<string, string> = {
+  'n.': 'noun',
+  'v.': 'verb',
+  'adj.': 'adjective',
+  'adv.': 'adverb',
+  'prep.': 'preposition',
+  'conj.': 'conjunction',
+  'pron.': 'pronoun',
+  'det.': 'determiner',
+  'int.': 'interjection',
+  'exclam.': 'exclamation',
+  'modal.': 'modal verb',
+  'phrasal v.': 'phrasal verb',
+  'pl.': 'plural noun',
+  'sing.': 'singular noun',
+  'abbr.': 'abbreviation',
+};
+
+interface ParsedOxfordWord {
+  word: string;
+  cefrLevel: string;
+  partOfSpeech: string[];
+  oxfordList: '3000' | '5000';
+}
+
+function parseOxfordContent(content: string, oxfordList: '3000' | '5000'): ParsedOxfordWord[] {
+  const words: ParsedOxfordWord[] = [];
+  const lines = content.split('\n');
+  
+  let currentLevel = '';
+  const levelPattern = /^(A1|A2|B1|B2|C1|C2)$/;
+  const wordPattern = /^([a-zA-Z\-']+)(?:\s+(.+))?$/;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    
+    // Skip empty lines and headers
+    if (!trimmed || trimmed.startsWith('©') || trimmed.startsWith('The Oxford')) {
+      continue;
+    }
+    
+    // Skip page numbers
+    if (/^\d+\s*\/\s*\d+$/.test(trimmed)) {
+      continue;
+    }
+    
+    // Check for CEFR level
+    if (levelPattern.test(trimmed)) {
+      currentLevel = trimmed;
+      continue;
+    }
+    
+    if (!currentLevel) continue;
+    
+    // Parse word line
+    const match = trimmed.match(wordPattern);
+    if (match) {
+      const word = match[1].toLowerCase();
+      const posText = match[2] || '';
+      
+      if (/\d/.test(word) || word.startsWith('the ')) continue;
+      
+      // Parse parts of speech
+      const partsOfSpeech: string[] = [];
+      if (posText) {
+        for (const [abbrev, full] of Object.entries(POS_MAP)) {
+          if (posText.includes(abbrev) && !partsOfSpeech.includes(full)) {
+            partsOfSpeech.push(full);
+          }
+        }
+      }
+      
+      words.push({
+        word,
+        cefrLevel: currentLevel,
+        partOfSpeech: partsOfSpeech.length > 0 ? partsOfSpeech : ['noun'],
+        oxfordList,
+      });
+    }
+  }
+
+  return words;
 }

@@ -30,6 +30,23 @@ const mergeMode = ref(true)
 const importFile = ref<File | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
 
+// Oxford import state
+const oxfordImporting = ref<'3000' | '5000' | null>(null)
+const oxfordFile3000 = ref<File | null>(null)
+const oxfordFile5000 = ref<File | null>(null)
+const oxfordFileInput3000 = ref<HTMLInputElement | null>(null)
+const oxfordFileInput5000 = ref<HTMLInputElement | null>(null)
+const oxfordMergeMode = ref(true)
+const oxfordResult = ref<{
+  success: boolean
+  list: string
+  totalParsed: number
+  created: number
+  updated: number
+  skipped: number
+  stats: Record<string, number>
+} | null>(null)
+
 async function fetchStats() {
   loading.value = true
   error.value = null
@@ -146,6 +163,74 @@ async function handleImport() {
 
 function formatNumber(n: number): string {
   return n.toLocaleString()
+}
+
+function handleOxfordFileSelect(event: Event, list: '3000' | '5000') {
+  const target = event.target as HTMLInputElement
+  if (target.files && target.files.length > 0) {
+    if (list === '3000') {
+      oxfordFile3000.value = target.files[0]
+    } else {
+      oxfordFile5000.value = target.files[0]
+    }
+    oxfordResult.value = null
+  }
+}
+
+async function handleOxfordImport(list: '3000' | '5000') {
+  const file = list === '3000' ? oxfordFile3000.value : oxfordFile5000.value
+  if (!file) return
+
+  oxfordImporting.value = list
+  error.value = null
+  oxfordResult.value = null
+
+  try {
+    const content = await file.text()
+    
+    const token = sessionStorage.getItem('accessToken')
+    const response = await fetch(`${API_BASE}/data/import-oxford`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        content,
+        list,
+        merge: oxfordMergeMode.value,
+      }),
+    })
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      throw new Error(result.error || 'Failed to import Oxford list')
+    }
+
+    oxfordResult.value = result
+
+    // Refresh stats
+    await fetchStats()
+
+    // Clear file input
+    if (list === '3000') {
+      oxfordFile3000.value = null
+      if (oxfordFileInput3000.value) {
+        oxfordFileInput3000.value.value = ''
+      }
+    } else {
+      oxfordFile5000.value = null
+      if (oxfordFileInput5000.value) {
+        oxfordFileInput5000.value.value = ''
+      }
+    }
+  } catch (e: unknown) {
+    error.value = (e as Error).message
+  } finally {
+    oxfordImporting.value = null
+  }
 }
 
 onMounted(fetchStats)
@@ -307,6 +392,124 @@ onMounted(fetchStats)
     <!-- Error Display -->
     <div v-if="error" class="bg-red-50 text-red-600 p-4 rounded-lg">
       {{ error }}
+    </div>
+
+    <!-- Oxford Word Lists Import -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-lg font-semibold text-slate-800 mb-2">Oxford Word Lists</h2>
+      <p class="text-sm text-slate-600 mb-4">
+        Import official Oxford 3000 and Oxford 5000 word lists. These are text files with words organized by CEFR level (A1-C2).
+      </p>
+
+      <!-- Oxford 3000 -->
+      <div class="border border-slate-200 rounded-lg p-4 mb-4">
+        <h3 class="font-medium text-slate-800 mb-2">📚 Oxford 3000</h3>
+        <p class="text-sm text-slate-500 mb-3">Core vocabulary for A1-B2 learners (~3,000 words)</p>
+        
+        <div class="flex flex-wrap items-center gap-3">
+          <label class="flex-1 min-w-[200px]">
+            <input
+              ref="oxfordFileInput3000"
+              type="file"
+              accept=".txt"
+              @change="handleOxfordFileSelect($event, '3000')"
+              class="block w-full text-sm text-slate-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-md file:border-0
+                file:text-sm file:font-medium
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100"
+            />
+          </label>
+          <button
+            @click="handleOxfordImport('3000')"
+            :disabled="!oxfordFile3000 || oxfordImporting === '3000'"
+            class="btn btn-primary whitespace-nowrap"
+          >
+            {{ oxfordImporting === '3000' ? 'Importing...' : 'Import 3000' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Oxford 5000 -->
+      <div class="border border-slate-200 rounded-lg p-4 mb-4">
+        <h3 class="font-medium text-slate-800 mb-2">📖 Oxford 5000</h3>
+        <p class="text-sm text-slate-500 mb-3">Extended vocabulary for B2-C1 learners (~2,000 additional words)</p>
+        
+        <div class="flex flex-wrap items-center gap-3">
+          <label class="flex-1 min-w-[200px]">
+            <input
+              ref="oxfordFileInput5000"
+              type="file"
+              accept=".txt"
+              @change="handleOxfordFileSelect($event, '5000')"
+              class="block w-full text-sm text-slate-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-md file:border-0
+                file:text-sm file:font-medium
+                file:bg-purple-50 file:text-purple-700
+                hover:file:bg-purple-100"
+            />
+          </label>
+          <button
+            @click="handleOxfordImport('5000')"
+            :disabled="!oxfordFile5000 || oxfordImporting === '5000'"
+            class="btn btn-primary whitespace-nowrap"
+          >
+            {{ oxfordImporting === '5000' ? 'Importing...' : 'Import 5000' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Merge Mode for Oxford -->
+      <div class="flex items-center gap-2 mb-4">
+        <input
+          id="oxfordMergeMode"
+          type="checkbox"
+          v-model="oxfordMergeMode"
+          class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded"
+        />
+        <label for="oxfordMergeMode" class="text-sm text-slate-700">
+          Merge mode (keep existing words and their definitions)
+        </label>
+      </div>
+      <p v-if="!oxfordMergeMode" class="text-sm text-red-600 mb-4">
+        ⚠️ Warning: Without merge mode, existing words from the selected list will be deleted before import.
+      </p>
+
+      <!-- Oxford Import Result -->
+      <div v-if="oxfordResult" class="mt-4 p-4 rounded-lg bg-green-50">
+        <h3 class="font-medium text-green-800 mb-2">
+          Oxford {{ oxfordResult.list }} Import Successful
+        </h3>
+        <div class="text-sm text-green-700 space-y-1">
+          <p>Total parsed: {{ oxfordResult.totalParsed }}</p>
+          <p>Created: {{ oxfordResult.created }}</p>
+          <p>Updated: {{ oxfordResult.updated }}</p>
+          <p>Skipped: {{ oxfordResult.skipped }}</p>
+        </div>
+        <div v-if="oxfordResult.stats" class="mt-2 text-sm text-green-700">
+          <p class="font-medium">By CEFR Level:</p>
+          <div class="flex flex-wrap gap-2 mt-1">
+            <span v-for="(count, level) in oxfordResult.stats" :key="level" class="px-2 py-1 bg-green-100 rounded">
+              {{ level }}: {{ count }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Format Info -->
+      <div class="mt-4 text-sm text-slate-500 bg-slate-50 rounded-lg p-3">
+        <p class="font-medium text-slate-600 mb-1">Expected file format:</p>
+        <code class="text-xs block bg-slate-100 p-2 rounded">
+          A1<br>
+          a, an indefinite article<br>
+          about prep., adv.<br>
+          ...<br>
+          A2<br>
+          ...
+        </code>
+      </div>
     </div>
   </div>
 </template>
