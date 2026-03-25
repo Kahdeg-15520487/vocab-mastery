@@ -8,7 +8,6 @@
 - [ ] **#6** Build progress tracking system #frontend #data
 - [ ] **#7** Create theme-based word organization #data #organization
 - [ ] **#8** **[low]** Add Oxford 3000/5000 full integration #data #future
-- [ ] **#91** **[high]** Phase 4: Word Lists #phase-4 #lists
 - [ ] **#118** **[high]** Frontend: Add "Add to list" button on browse word cards #phase-4 #lists #frontend
 - [ ] **#119** **[high]** Frontend: Update learn/review to allow selecting list as source #phase-4 #lists #frontend
 - [ ] **#120** **[high]** Phase 5: LLM Integration #phase-5 #llm
@@ -113,6 +112,7 @@
 - [x] **#88** **[high]** Frontend: Create calendar heatmap component (activity visualization) #phase-3 #progress #frontend
 - [x] **#89** **[high]** Frontend: Create achievements display component (unlocked badges grid) #phase-3 #progress #frontend
 - [x] **#90** **[high]** Frontend: Create achievement unlock notification/animation #phase-3 #progress #frontend
+- [x] **#91** **[high]** Phase 4: Word Lists #phase-4 #lists
 - [x] **#92** **[high]** Add StudyList model to Prisma (userId, name, description, color, icon, isSystem, isPinned, wordCount) #phase-4 #lists #database
 - [x] **#93** **[high]** Add StudyListWord model to Prisma (listId, wordId, addedAt, addedBy) #phase-4 #lists #database
 - [x] **#94** **[high]** Add SharedList model to Prisma (listId, sharedBy, sharedWith) #phase-4 #lists #database
@@ -1471,14 +1471,15 @@
     {
       "id": 91,
       "text": "Phase 4: Word Lists",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
         "lists"
       ],
       "createdAt": 1774343509703,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774412172682
     },
     {
       "id": 92,
