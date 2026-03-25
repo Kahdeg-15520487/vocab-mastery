@@ -9,7 +9,6 @@
 - [ ] **#7** Create theme-based word organization #data #organization
 - [ ] **#8** **[low]** Add Oxford 3000/5000 full integration #data #future
 - [ ] **#65** **[high]** Phase 3: Progress System #phase-3 #progress
-- [ ] **#73** **[high]** Create seed file for default achievements #phase-3 #progress #backend
 - [ ] **#74** **[high]** Create progress routes file (apps/backend/src/routes/progress.ts) - update existing #phase-3 #progress #backend
 - [ ] **#75** **[high]** Update SM-2 algorithm to work per theme/level instead of per-word #phase-3 #progress #backend
 - [ ] **#76** **[high]** Implement GET /api/progress/dashboard endpoint #phase-3 #progress #api
@@ -139,6 +138,7 @@
 - [x] **#70** **[high]** Add Achievement model to Prisma (key, name, description, icon, category, conditionType, conditionValue) #phase-3 #progress #database
 - [x] **#71** **[high]** Add UserAchievement model to Prisma (userId, achievementId, unlockedAt) #phase-3 #progress #database
 - [x] **#72** **[high]** Run Prisma migration for progress schema #phase-3 #progress #database
+- [x] **#73** **[high]** Create seed file for default achievements #phase-3 #progress #backend
 
 <!-- Raw Data -->
 ```json
@@ -1200,7 +1200,7 @@
     {
       "id": 73,
       "text": "Create seed file for default achievements",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1209,7 +1209,8 @@
       ],
       "createdAt": 1774343499046,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774410121757
     },
     {
       "id": 74,
