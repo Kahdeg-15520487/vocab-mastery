@@ -250,6 +250,15 @@ export async function dataRoutes(app: FastifyInstance) {
 
     // If not merge mode, clear existing words for this list only
     if (!merge) {
+      await prisma.wordTheme.deleteMany({
+        where: { word: { oxfordList: list } },
+      });
+      await prisma.wordProgress.deleteMany({
+        where: { word: { oxfordList: list } },
+      });
+      await prisma.sessionWord.deleteMany({
+        where: { word: { oxfordList: list } },
+      });
       await prisma.word.deleteMany({
         where: { oxfordList: list },
       });
@@ -259,53 +268,73 @@ export async function dataRoutes(app: FastifyInstance) {
     let updated = 0;
     let skipped = 0;
 
-    // Process in batches
+    // Get existing words in batch
+    const existingWords = await prisma.word.findMany({
+      where: { word: { in: parsedWords.map(w => w.word) } },
+      select: { word: true, cefrLevel: true, oxfordList: true },
+    });
+    const existingMap = new Map(existingWords.map(w => [w.word, w]));
+
+    // Process in batches using transaction
     const batchSize = 500;
     for (let i = 0; i < parsedWords.length; i += batchSize) {
       const batch = parsedWords.slice(i, batchSize);
-
+      
+      const toCreate: ParsedOxfordWord[] = [];
+      const toUpdate: ParsedOxfordWord[] = [];
+      
       for (const wordData of batch) {
-        try {
-          const existing = await prisma.word.findUnique({
-            where: { word: wordData.word },
-          });
-
-          if (existing) {
-            // Update CEFR level and Oxford list if different
-            if (existing.cefrLevel !== wordData.cefrLevel || existing.oxfordList !== wordData.oxfordList) {
-              await prisma.word.update({
-                where: { word: wordData.word },
-                data: {
-                  cefrLevel: wordData.cefrLevel,
-                  oxfordList: wordData.oxfordList,
-                  partOfSpeech: wordData.partOfSpeech,
-                },
-              });
-              updated++;
-            } else {
-              skipped++;
-            }
+        const existing = existingMap.get(wordData.word);
+        if (existing) {
+          if (existing.cefrLevel !== wordData.cefrLevel || existing.oxfordList !== wordData.oxfordList) {
+            toUpdate.push(wordData);
           } else {
-            await prisma.word.create({
+            skipped++;
+          }
+        } else {
+          toCreate.push(wordData);
+        }
+      }
+
+      // Batch create new words
+      if (toCreate.length > 0) {
+        await prisma.$transaction(
+          toCreate.map((w) =>
+            prisma.word.create({
               data: {
-                word: wordData.word,
+                word: w.word,
                 phoneticUs: '',
                 phoneticUk: '',
-                partOfSpeech: wordData.partOfSpeech,
+                partOfSpeech: w.partOfSpeech,
                 definition: '',
                 examples: [],
                 synonyms: [],
                 antonyms: [],
-                oxfordList: wordData.oxfordList,
-                cefrLevel: wordData.cefrLevel,
+                oxfordList: w.oxfordList,
+                cefrLevel: w.cefrLevel,
                 frequency: 0,
               },
-            });
-            created++;
-          }
-        } catch (error: any) {
-          skipped++;
-        }
+            })
+          )
+        );
+        created += toCreate.length;
+      }
+
+      // Batch update existing words
+      if (toUpdate.length > 0) {
+        await prisma.$transaction(
+          toUpdate.map((w) =>
+            prisma.word.update({
+              where: { word: w.word },
+              data: {
+                cefrLevel: w.cefrLevel,
+                oxfordList: w.oxfordList,
+                partOfSpeech: w.partOfSpeech,
+              },
+            })
+          )
+        );
+        updated += toUpdate.length;
       }
     }
 
@@ -371,7 +400,8 @@ interface ParsedOxfordWord {
 
 function parseOxfordContent(content: string, oxfordList: '3000' | '5000'): ParsedOxfordWord[] {
   const words: ParsedOxfordWord[] = [];
-  const lines = content.split('\n');
+  // Handle both Unix (\n) and Windows (\r\n) line endings
+  const lines = content.replace(/\r\n/g, '\n').split('\n');
   
   let currentLevel = '';
   const levelPattern = /^(A1|A2|B1|B2|C1|C2)$/;
