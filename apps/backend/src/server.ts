@@ -22,6 +22,7 @@ async function start() {
     logger: {
       level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
     },
+    bodyLimit: 50 * 1024 * 1024, // 50MB limit for large imports
   });
 
   // Register plugins
