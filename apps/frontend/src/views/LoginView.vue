@@ -36,7 +36,7 @@ async function handleLogin() {
 
 function handleGoogleLogin() {
   // Redirect to Google OAuth endpoint
-  const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:7101/api'
+  const apiBase = import.meta.env.VITE_API_URL || '/api'
   window.location.href = `${apiBase}/auth/google`
 }
 </script>

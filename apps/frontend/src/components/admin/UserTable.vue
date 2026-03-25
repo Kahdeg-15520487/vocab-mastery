@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import UserEditModal from './UserEditModal.vue'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:7101/api'
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
 interface User {
   id: string

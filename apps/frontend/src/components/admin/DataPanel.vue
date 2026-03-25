@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:7101/api'
+// Use relative path to leverage Vite proxy in development
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
 interface DataStats {
   total: number
