@@ -14,6 +14,8 @@ const navItems = [
   { path: '/stats', label: 'Stats', icon: '📊' },
 ]
 
+const adminNavItem = { path: '/admin', label: 'Admin', icon: '⚙️' }
+
 const isActive = (path: string) => {
   if (path === '/') return route.path === '/'
   return route.path.startsWith(path)
@@ -48,6 +50,20 @@ async function handleLogout() {
             ]"
           >
             {{ item.label }}
+          </RouterLink>
+          
+          <!-- Admin link (only for admins) -->
+          <RouterLink
+            v-if="authStore.isAdmin"
+            :to="adminNavItem.path"
+            :class="[
+              'px-4 py-2 rounded-lg transition-colors',
+              isActive(adminNavItem.path)
+                ? 'bg-amber-100 text-amber-700 font-medium'
+                : 'text-slate-600 hover:bg-slate-100'
+            ]"
+          >
+            {{ adminNavItem.label }}
           </RouterLink>
         </div>
 

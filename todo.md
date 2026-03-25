@@ -9,13 +9,6 @@
 - [ ] **#7** Create theme-based word organization #data #organization
 - [ ] **#8** **[low]** Add Oxford 3000/5000 full integration #data #future
 - [ ] **#42** **[high]** Phase 2: OAuth & Admin #phase-2 #auth
-- [ ] **#58** **[high]** Frontend: Create AdminView.vue page #phase-2 #admin #frontend
-- [ ] **#59** **[high]** Frontend: Create user management table component #phase-2 #admin #frontend
-- [ ] **#60** **[high]** Frontend: Create user edit modal (role, subscription) #phase-2 #admin #frontend
-- [ ] **#61** **[high]** Frontend: Create admin config page (LLM settings) #phase-2 #admin #frontend
-- [ ] **#62** **[high]** Frontend: Add admin navigation link (only visible to admin role) #phase-2 #admin #frontend
-- [ ] **#63** **[high]** Frontend: Add "Sign in with Google" button to login page #phase-2 #oauth #frontend
-- [ ] **#64** **[high]** Frontend: Create OAuth callback handler page #phase-2 #oauth #frontend
 - [ ] **#65** **[high]** Phase 3: Progress System #phase-3 #progress
 - [ ] **#66** **[high]** Add UserProgress model to Prisma (userId, themeId, level, status, interval, easeFactor, nextReview, lastReview, stats) #phase-3 #progress #database
 - [ ] **#67** **[high]** Add ProgressStatus enum (NEW, LEARNING, REVIEWING, MASTERED) #phase-3 #progress #database
@@ -139,6 +132,13 @@
 - [x] **#55** **[high]** Add SystemConfig model to Prisma schema (id, key, value) #phase-2 #admin #database
 - [x] **#56** **[high]** Implement GET /api/admin/config endpoint #phase-2 #admin #api
 - [x] **#57** **[high]** Implement PUT /api/admin/config/:key endpoint #phase-2 #admin #api
+- [x] **#58** **[high]** Frontend: Create AdminView.vue page #phase-2 #admin #frontend
+- [x] **#59** **[high]** Frontend: Create user management table component #phase-2 #admin #frontend
+- [x] **#60** **[high]** Frontend: Create user edit modal (role, subscription) #phase-2 #admin #frontend
+- [x] **#61** **[high]** Frontend: Create admin config page (LLM settings) #phase-2 #admin #frontend
+- [x] **#62** **[high]** Frontend: Add admin navigation link (only visible to admin role) #phase-2 #admin #frontend
+- [x] **#63** **[high]** Frontend: Add "Sign in with Google" button to login page #phase-2 #oauth #frontend
+- [x] **#64** **[high]** Frontend: Create OAuth callback handler page #phase-2 #oauth #frontend
 
 <!-- Raw Data -->
 ```json
@@ -977,7 +977,7 @@
     {
       "id": 58,
       "text": "Frontend: Create AdminView.vue page",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -986,12 +986,13 @@
       ],
       "createdAt": 1774343421822,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774408791626
     },
     {
       "id": 59,
       "text": "Frontend: Create user management table component",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -1000,12 +1001,13 @@
       ],
       "createdAt": 1774343421822,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774408791626
     },
     {
       "id": 60,
       "text": "Frontend: Create user edit modal (role, subscription)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -1014,12 +1016,13 @@
       ],
       "createdAt": 1774343421822,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774408791627
     },
     {
       "id": 61,
       "text": "Frontend: Create admin config page (LLM settings)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -1028,12 +1031,13 @@
       ],
       "createdAt": 1774343421823,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774408791627
     },
     {
       "id": 62,
       "text": "Frontend: Add admin navigation link (only visible to admin role)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -1042,12 +1046,13 @@
       ],
       "createdAt": 1774343421823,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774408791627
     },
     {
       "id": 63,
       "text": "Frontend: Add \"Sign in with Google\" button to login page",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -1056,12 +1061,13 @@
       ],
       "createdAt": 1774343421823,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774408791628
     },
     {
       "id": 64,
       "text": "Frontend: Create OAuth callback handler page",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -1070,7 +1076,8 @@
       ],
       "createdAt": 1774343421824,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774408791628
     },
     {
       "id": 65,
