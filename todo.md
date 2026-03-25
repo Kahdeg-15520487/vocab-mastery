@@ -9,14 +9,6 @@
 - [ ] **#7** Create theme-based word organization #data #organization
 - [ ] **#8** **[low]** Add Oxford 3000/5000 full integration #data #future
 - [ ] **#65** **[high]** Phase 3: Progress System #phase-3 #progress
-- [ ] **#83** **[high]** Frontend: Create progress store (Pinia) for dashboard data #phase-3 #progress #frontend
-- [ ] **#84** **[high]** Frontend: Update HomeView.vue as dashboard (streak, goals, CEFR progress, achievements) #phase-3 #progress #frontend
-- [ ] **#85** **[high]** Frontend: Create streak display component (current, longest, fire icon) #phase-3 #progress #frontend
-- [ ] **#86** **[high]** Frontend: Create daily goals progress component (learned/reviewed, progress bar) #phase-3 #progress #frontend
-- [ ] **#87** **[high]** Frontend: Create CEFR level progress component (progress bars per level) #phase-3 #progress #frontend
-- [ ] **#88** **[high]** Frontend: Create calendar heatmap component (activity visualization) #phase-3 #progress #frontend
-- [ ] **#89** **[high]** Frontend: Create achievements display component (unlocked badges grid) #phase-3 #progress #frontend
-- [ ] **#90** **[high]** Frontend: Create achievement unlock notification/animation #phase-3 #progress #frontend
 - [ ] **#91** **[high]** Phase 4: Word Lists #phase-4 #lists
 - [ ] **#92** **[high]** Add StudyList model to Prisma (userId, name, description, color, icon, isSystem, isPinned, wordCount) #phase-4 #lists #database
 - [ ] **#93** **[high]** Add StudyListWord model to Prisma (listId, wordId, addedAt, addedBy) #phase-4 #lists #database
@@ -139,6 +131,14 @@
 - [x] **#80** **[high]** Create streak calculation service (with grace period logic, Monday noon GMT+0 reset) #phase-3 #progress #backend
 - [x] **#81** **[high]** Create achievement checking service (check conditions after progress updates) #phase-3 #progress #backend
 - [x] **#82** **[high]** Implement daily goal tracking (check completion, update streak) #phase-3 #progress #backend
+- [x] **#83** **[high]** Frontend: Create progress store (Pinia) for dashboard data #phase-3 #progress #frontend
+- [x] **#84** **[high]** Frontend: Update HomeView.vue as dashboard (streak, goals, CEFR progress, achievements) #phase-3 #progress #frontend
+- [x] **#85** **[high]** Frontend: Create streak display component (current, longest, fire icon) #phase-3 #progress #frontend
+- [x] **#86** **[high]** Frontend: Create daily goals progress component (learned/reviewed, progress bar) #phase-3 #progress #frontend
+- [x] **#87** **[high]** Frontend: Create CEFR level progress component (progress bars per level) #phase-3 #progress #frontend
+- [x] **#88** **[high]** Frontend: Create calendar heatmap component (activity visualization) #phase-3 #progress #frontend
+- [x] **#89** **[high]** Frontend: Create achievements display component (unlocked badges grid) #phase-3 #progress #frontend
+- [x] **#90** **[high]** Frontend: Create achievement unlock notification/animation #phase-3 #progress #frontend
 
 <!-- Raw Data -->
 ```json
@@ -1350,7 +1350,7 @@
     {
       "id": 83,
       "text": "Frontend: Create progress store (Pinia) for dashboard data",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1359,12 +1359,13 @@
       ],
       "createdAt": 1774343499051,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774410829383
     },
     {
       "id": 84,
       "text": "Frontend: Update HomeView.vue as dashboard (streak, goals, CEFR progress, achievements)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1373,12 +1374,13 @@
       ],
       "createdAt": 1774343499051,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774410829384
     },
     {
       "id": 85,
       "text": "Frontend: Create streak display component (current, longest, fire icon)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1387,12 +1389,13 @@
       ],
       "createdAt": 1774343499051,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774410829384
     },
     {
       "id": 86,
       "text": "Frontend: Create daily goals progress component (learned/reviewed, progress bar)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1401,12 +1404,13 @@
       ],
       "createdAt": 1774343499051,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774410829384
     },
     {
       "id": 87,
       "text": "Frontend: Create CEFR level progress component (progress bars per level)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1415,12 +1419,13 @@
       ],
       "createdAt": 1774343499052,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774410829384
     },
     {
       "id": 88,
       "text": "Frontend: Create calendar heatmap component (activity visualization)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1429,12 +1434,13 @@
       ],
       "createdAt": 1774343499052,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774410829385
     },
     {
       "id": 89,
       "text": "Frontend: Create achievements display component (unlocked badges grid)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1443,12 +1449,13 @@
       ],
       "createdAt": 1774343499052,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774410829385
     },
     {
       "id": 90,
       "text": "Frontend: Create achievement unlock notification/animation",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1457,7 +1464,8 @@
       ],
       "createdAt": 1774343499052,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774410829385
     },
     {
       "id": 91,
