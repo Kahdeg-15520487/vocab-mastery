@@ -7,26 +7,22 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null);
   const loading = ref(false);
   const error = ref<string | null>(null);
-  // Reactive token state - updated on login/logout/expire
+  
+  // Reactive token state - must be a ref for reactivity
   const hasToken = ref(!!sessionStorage.getItem('accessToken'));
 
   const isAuthenticated = computed(() => !!user.value || hasToken.value);
   const isAdmin = computed(() => user.value?.role === 'ADMIN');
 
-  // Update token state
-  function updateTokenState() {
-    hasToken.value = !!sessionStorage.getItem('accessToken');
-  }
-
-  // Handle auth expired event from API layer
-  function handleAuthExpired() {
-    user.value = null;
-    hasToken.value = false;
-  }
-
-  // Listen for auth expired events
-  if (typeof window !== 'undefined') {
-    window.addEventListener('auth:expired', handleAuthExpired);
+  // Sync hasToken with sessionStorage - call this when token might have changed
+  function syncTokenState() {
+    const tokenExists = !!sessionStorage.getItem('accessToken');
+    if (hasToken.value !== tokenExists) {
+      hasToken.value = tokenExists;
+    }
+    if (!tokenExists) {
+      user.value = null;
+    }
   }
 
   async function login(email: string, password: string): Promise<boolean> {
@@ -80,9 +76,9 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function fetchUser(): Promise<void> {
-    if (!sessionStorage.getItem('accessToken')) {
+    syncTokenState();
+    if (!hasToken.value) {
       user.value = null;
-      hasToken.value = false;
       return;
     }
 
@@ -91,11 +87,9 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await authService.getMe();
       user.value = response.user;
-      hasToken.value = true;
     } catch (e) {
       // Token might be expired or invalid
       user.value = null;
-      hasToken.value = false;
     } finally {
       loading.value = false;
     }
@@ -140,13 +134,6 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null;
   }
 
-  // Called when auth fails (token expired, refresh failed)
-  function clearAuth() {
-    user.value = null;
-    hasToken.value = false;
-    authService.clearTokens();
-  }
-
   return {
     user,
     loading,
@@ -160,7 +147,6 @@ export const useAuthStore = defineStore('auth', () => {
     changePassword,
     deleteAccount,
     clearError,
-    clearAuth,
-    updateTokenState,
+    syncTokenState,
   };
 });

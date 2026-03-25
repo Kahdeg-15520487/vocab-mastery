@@ -2,9 +2,6 @@ import { authService } from './auth'
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
-// Custom event for auth state changes
-export const AUTH_EXPIRED_EVENT = 'auth:expired'
-
 // Track if auth has expired (to prevent multiple redirects)
 let authExpired = false
 
@@ -12,11 +9,15 @@ export function resetAuthExpired() {
   authExpired = false
 }
 
-function notifyAuthExpired() {
+function handleAuthExpired() {
   if (authExpired) return
   authExpired = true
-  window.dispatchEvent(new CustomEvent(AUTH_EXPIRED_EVENT))
-  // Use replace to avoid adding to history
+  
+  // Clear tokens immediately
+  authService.clearTokens()
+  sessionStorage.removeItem('accessToken')
+  
+  // Redirect to login - use replace to not add to history
   window.location.replace('/login')
 }
 
@@ -58,10 +59,8 @@ async function refreshToken(): Promise<string> {
       return newToken
     } catch (error) {
       processQueue(error as Error, null)
-      // Clear auth state on refresh failure
-      authService.clearTokens()
-      // Notify app that auth expired (this will redirect)
-      notifyAuthExpired()
+      // Handle auth expiration - clears tokens and redirects
+      handleAuthExpired()
       throw error
     } finally {
       isRefreshing = false

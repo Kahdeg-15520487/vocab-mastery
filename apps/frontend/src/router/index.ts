@@ -78,8 +78,8 @@ router.beforeEach(async (to, _from, next) => {
   const requiresAuth = to.meta.requiresAuth !== false
   const requiresAdmin = to.meta.requiresAdmin === true
 
-  // Update token state from sessionStorage
-  authStore.updateTokenState()
+  // Sync token state from sessionStorage on every navigation
+  authStore.syncTokenState()
 
   // Fetch user data if not already fetched and token exists
   if (!userFetched && authStore.isAuthenticated) {
