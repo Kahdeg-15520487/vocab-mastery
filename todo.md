@@ -9,13 +9,6 @@
 - [ ] **#7** Create theme-based word organization #data #organization
 - [ ] **#8** **[low]** Add Oxford 3000/5000 full integration #data #future
 - [ ] **#91** **[high]** Phase 4: Word Lists #phase-4 #lists
-- [ ] **#111** **[high]** Frontend: Create lists store (Pinia) for lists state #phase-4 #lists #frontend
-- [ ] **#112** **[high]** Frontend: Create ListsView.vue page (grid of lists) #phase-4 #lists #frontend
-- [ ] **#113** **[high]** Frontend: Create ListDetailView.vue (list words, search, add/remove) #phase-4 #lists #frontend
-- [ ] **#114** **[high]** Frontend: Create list card component (name, icon, color, word count, progress) #phase-4 #lists #frontend
-- [ ] **#115** **[high]** Frontend: Create create/edit list modal #phase-4 #lists #frontend
-- [ ] **#116** **[high]** Frontend: Create share list modal (enter email/username) #phase-4 #lists #frontend
-- [ ] **#117** **[high]** Frontend: Add list navigation link to main nav #phase-4 #lists #frontend
 - [ ] **#118** **[high]** Frontend: Add "Add to list" button on browse word cards #phase-4 #lists #frontend
 - [ ] **#119** **[high]** Frontend: Update learn/review to allow selecting list as source #phase-4 #lists #frontend
 - [ ] **#120** **[high]** Phase 5: LLM Integration #phase-5 #llm
@@ -139,6 +132,13 @@
 - [x] **#108** **[high]** Implement POST /api/lists/:id/share endpoint (share with user by email/username) #phase-4 #lists #api
 - [x] **#109** **[high]** Implement DELETE /api/lists/:id/share/:userId endpoint (remove access) #phase-4 #lists #api
 - [x] **#110** **[high]** Update user registration to create system lists for new user #phase-4 #lists #backend
+- [x] **#111** **[high]** Frontend: Create lists store (Pinia) for lists state #phase-4 #lists #frontend
+- [x] **#112** **[high]** Frontend: Create ListsView.vue page (grid of lists) #phase-4 #lists #frontend
+- [x] **#113** **[high]** Frontend: Create ListDetailView.vue (list words, search, add/remove) #phase-4 #lists #frontend
+- [x] **#114** **[high]** Frontend: Create list card component (name, icon, color, word count, progress) #phase-4 #lists #frontend
+- [x] **#115** **[high]** Frontend: Create create/edit list modal #phase-4 #lists #frontend
+- [x] **#116** **[high]** Frontend: Create share list modal (enter email/username) #phase-4 #lists #frontend
+- [x] **#117** **[high]** Frontend: Add list navigation link to main nav #phase-4 #lists #frontend
 
 <!-- Raw Data -->
 ```json
@@ -1768,7 +1768,7 @@
     {
       "id": 111,
       "text": "Frontend: Create lists store (Pinia) for lists state",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1777,12 +1777,13 @@
       ],
       "createdAt": 1774343563700,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774412157721
     },
     {
       "id": 112,
       "text": "Frontend: Create ListsView.vue page (grid of lists)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1791,12 +1792,13 @@
       ],
       "createdAt": 1774343563700,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774412157722
     },
     {
       "id": 113,
       "text": "Frontend: Create ListDetailView.vue (list words, search, add/remove)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1805,12 +1807,13 @@
       ],
       "createdAt": 1774343563700,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774412157723
     },
     {
       "id": 114,
       "text": "Frontend: Create list card component (name, icon, color, word count, progress)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1819,12 +1822,13 @@
       ],
       "createdAt": 1774343563701,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774412157723
     },
     {
       "id": 115,
       "text": "Frontend: Create create/edit list modal",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1833,12 +1837,13 @@
       ],
       "createdAt": 1774343563703,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774412157723
     },
     {
       "id": 116,
       "text": "Frontend: Create share list modal (enter email/username)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1847,12 +1852,13 @@
       ],
       "createdAt": 1774343563704,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774412157724
     },
     {
       "id": 117,
       "text": "Frontend: Add list navigation link to main nav",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1861,7 +1867,8 @@
       ],
       "createdAt": 1774343563704,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774412157724
     },
     {
       "id": 118,
