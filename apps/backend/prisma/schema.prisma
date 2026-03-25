@@ -22,6 +22,13 @@ enum SubscriptionTier {
   WORDSMITH // Wordsmith - $9.99/mo
 }
 
+enum ProgressStatus {
+  NEW
+  LEARNING
+  REVIEWING
+  MASTERED
+}
+
 // ============================================
 // USER & AUTH
 // ============================================
@@ -46,7 +53,11 @@ model User {
   lastLoginAt   DateTime? @map("last_login_at")
   
   // Relations
-  refreshTokens RefreshToken[]
+  refreshTokens    RefreshToken[]
+  userProgress     UserProgress[]
+  dailyGoals       DailyGoal[]
+  streak           UserStream?
+  achievements     UserAchievement[]
   
   @@index([email])
   @@index([googleId])
@@ -81,6 +92,129 @@ model SystemConfig {
 
   @@index([key])
   @@map("system_config")
+}
+
+// ============================================
+// USER PROGRESS & ACHIEVEMENTS
+// ============================================
+
+model UserProgress {
+  id           String         @id @default(cuid())
+  userId       String         @map("user_id")
+  themeId      String?        @map("theme_id")
+  cefrLevel    String         @map("cefr_level")  // A1, A2, B1, B2, C1, C2
+  status       ProgressStatus @default(NEW)
+  
+  // SM-2 algorithm fields
+  interval     Int            @default(0)        // Days until next review
+  easeFactor   Float          @default(2.5)      @map("ease_factor")
+  repetitions  Int            @default(0)        // Consecutive correct reviews
+  
+  // Review tracking
+  nextReview   DateTime       @default(now())    @map("next_review")
+  lastReview   DateTime?      @map("last_review")
+  totalReviews Int            @default(0)        @map("total_reviews")
+  
+  // Stats for this level
+  wordsLearned Int            @default(0)        @map("words_learned")
+  wordsMastered Int           @default(0)        @map("words_mastered")
+  
+  createdAt    DateTime       @default(now())    @map("created_at")
+  updatedAt    DateTime       @updatedAt         @map("updated_at")
+  
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, cefrLevel, themeId])
+  @@index([userId])
+  @@index([nextReview])
+  @@index([status])
+  @@map("user_progress")
+}
+
+model DailyGoal {
+  id             String   @id @default(cuid())
+  userId         String   @map("user_id")
+  date           DateTime
+  
+  // Targets
+  wordsToLearn   Int      @default(10)    @map("words_to_learn")
+  wordsToReview  Int      @default(20)    @map("words_to_review")
+  
+  // Actuals
+  wordsLearned   Int      @default(0)     @map("words_learned")
+  wordsReviewed  Int      @default(0)     @map("words_reviewed")
+  
+  completed      Boolean  @default(false)
+  completedAt    DateTime?                @map("completed_at")
+  
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt      @map("updated_at")
+  
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+  @@map("daily_goals")
+}
+
+model UserStream {
+  id                 String   @id @default(cuid())
+  userId             String   @unique @map("user_id")
+  
+  currentStreak      Int      @default(0)    @map("current_streak")
+  longestStreak      Int      @default(0)    @map("longest_streak")
+  lastActivityDate   DateTime?                @map("last_activity_date")
+  
+  // Grace period system (2 per month allowed)
+  gracePeriodsUsed   Int      @default(0)    @map("grace_periods_used")
+  gracePeriodMonth   Int?                     @map("grace_period_month")  // YYYYMM format
+  
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt      @map("updated_at")
+  
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([lastActivityDate])
+  @@map("user_streaks")
+}
+
+model Achievement {
+  id              String   @id @default(cuid())
+  key             String   @unique          // e.g., "first_word", "streak_7"
+  name            String
+  description     String
+  icon            String                     // Emoji or icon name
+  category        String                     // "learning", "streak", "social", etc.
+  
+  // Condition to unlock
+  conditionType   String                     @map("condition_type")   // "words_learned", "streak_days", etc.
+  conditionValue  Int                        @map("condition_value")  // Threshold value
+  
+  // XP reward
+  xpReward        Int      @default(0)      @map("xp_reward")
+  
+  createdAt       DateTime @default(now())  @map("created_at")
+  
+  userAchievements UserAchievement[]
+  
+  @@index([category])
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String      @map("user_id")
+  achievementId String      @map("achievement_id")
+  unlockedAt    DateTime    @default(now())    @map("unlocked_at")
+  
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
+  
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@index([unlockedAt])
+  @@map("user_achievements")
 }
 
 // ============================================

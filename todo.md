@@ -8,15 +8,7 @@
 - [ ] **#6** Build progress tracking system #frontend #data
 - [ ] **#7** Create theme-based word organization #data #organization
 - [ ] **#8** **[low]** Add Oxford 3000/5000 full integration #data #future
-- [ ] **#42** **[high]** Phase 2: OAuth & Admin #phase-2 #auth
 - [ ] **#65** **[high]** Phase 3: Progress System #phase-3 #progress
-- [ ] **#66** **[high]** Add UserProgress model to Prisma (userId, themeId, level, status, interval, easeFactor, nextReview, lastReview, stats) #phase-3 #progress #database
-- [ ] **#67** **[high]** Add ProgressStatus enum (NEW, LEARNING, REVIEWING, MASTERED) #phase-3 #progress #database
-- [ ] **#68** **[high]** Add DailyGoal model to Prisma (userId, date, targets, actuals, completed) #phase-3 #progress #database
-- [ ] **#69** **[high]** Add UserStreak model to Prisma (userId, currentStreak, longestStreak, lastActivityDate, gracePeriodsUsed) #phase-3 #progress #database
-- [ ] **#70** **[high]** Add Achievement model to Prisma (key, name, description, icon, category, conditionType, conditionValue) #phase-3 #progress #database
-- [ ] **#71** **[high]** Add UserAchievement model to Prisma (userId, achievementId, unlockedAt) #phase-3 #progress #database
-- [ ] **#72** **[high]** Run Prisma migration for progress schema #phase-3 #progress #database
 - [ ] **#73** **[high]** Create seed file for default achievements #phase-3 #progress #backend
 - [ ] **#74** **[high]** Create progress routes file (apps/backend/src/routes/progress.ts) - update existing #phase-3 #progress #backend
 - [ ] **#75** **[high]** Update SM-2 algorithm to work per theme/level instead of per-word #phase-3 #progress #backend
@@ -117,6 +109,7 @@
 - [x] **#39** **[high]** Frontend: Add navigation updates (show username, logout button) #phase-1 #auth #frontend
 - [x] **#40** **[high]** Frontend: Handle token refresh on 401 responses #phase-1 #auth #frontend
 - [x] **#41** **[high]** Frontend: Store tokens (access in memory, refresh in httpOnly cookie handled by backend) #phase-1 #auth #frontend
+- [x] **#42** **[high]** Phase 2: OAuth & Admin #phase-2 #auth
 - [x] **#43** **[high]** Add Google OAuth environment variables (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK_URL) #phase-2 #oauth #config
 - [x] **#44** **[high]** Install @fastify/oauth2 for Google OAuth #phase-2 #oauth #backend
 - [x] **#45** **[high]** Implement GET /api/auth/google endpoint (OAuth redirect) #phase-2 #oauth #backend
@@ -139,6 +132,13 @@
 - [x] **#62** **[high]** Frontend: Add admin navigation link (only visible to admin role) #phase-2 #admin #frontend
 - [x] **#63** **[high]** Frontend: Add "Sign in with Google" button to login page #phase-2 #oauth #frontend
 - [x] **#64** **[high]** Frontend: Create OAuth callback handler page #phase-2 #oauth #frontend
+- [x] **#66** **[high]** Add UserProgress model to Prisma (userId, themeId, level, status, interval, easeFactor, nextReview, lastReview, stats) #phase-3 #progress #database
+- [x] **#67** **[high]** Add ProgressStatus enum (NEW, LEARNING, REVIEWING, MASTERED) #phase-3 #progress #database
+- [x] **#68** **[high]** Add DailyGoal model to Prisma (userId, date, targets, actuals, completed) #phase-3 #progress #database
+- [x] **#69** **[high]** Add UserStreak model to Prisma (userId, currentStreak, longestStreak, lastActivityDate, gracePeriodsUsed) #phase-3 #progress #database
+- [x] **#70** **[high]** Add Achievement model to Prisma (key, name, description, icon, category, conditionType, conditionValue) #phase-3 #progress #database
+- [x] **#71** **[high]** Add UserAchievement model to Prisma (userId, achievementId, unlockedAt) #phase-3 #progress #database
+- [x] **#72** **[high]** Run Prisma migration for progress schema #phase-3 #progress #database
 
 <!-- Raw Data -->
 ```json
@@ -740,14 +740,15 @@
     {
       "id": 42,
       "text": "Phase 2: OAuth & Admin",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
         "auth"
       ],
       "createdAt": 1774343374100,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774408822315
     },
     {
       "id": 43,
@@ -1094,7 +1095,7 @@
     {
       "id": 66,
       "text": "Add UserProgress model to Prisma (userId, themeId, level, status, interval, easeFactor, nextReview, lastReview, stats)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1103,12 +1104,13 @@
       ],
       "createdAt": 1774343499042,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774409978435
     },
     {
       "id": 67,
       "text": "Add ProgressStatus enum (NEW, LEARNING, REVIEWING, MASTERED)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1117,12 +1119,13 @@
       ],
       "createdAt": 1774343499043,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774409978436
     },
     {
       "id": 68,
       "text": "Add DailyGoal model to Prisma (userId, date, targets, actuals, completed)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1131,12 +1134,13 @@
       ],
       "createdAt": 1774343499044,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774409978436
     },
     {
       "id": 69,
       "text": "Add UserStreak model to Prisma (userId, currentStreak, longestStreak, lastActivityDate, gracePeriodsUsed)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1145,12 +1149,13 @@
       ],
       "createdAt": 1774343499044,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774409978437
     },
     {
       "id": 70,
       "text": "Add Achievement model to Prisma (key, name, description, icon, category, conditionType, conditionValue)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1159,12 +1164,13 @@
       ],
       "createdAt": 1774343499045,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774409978437
     },
     {
       "id": 71,
       "text": "Add UserAchievement model to Prisma (userId, achievementId, unlockedAt)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1173,12 +1179,13 @@
       ],
       "createdAt": 1774343499045,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774409978438
     },
     {
       "id": 72,
       "text": "Run Prisma migration for progress schema",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-3",
@@ -1187,7 +1194,8 @@
       ],
       "createdAt": 1774343499046,
       "parentId": 65,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774409978438
     },
     {
       "id": 73,
