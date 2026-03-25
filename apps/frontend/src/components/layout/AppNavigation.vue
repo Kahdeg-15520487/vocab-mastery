@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
-const router = useRouter()
 const authStore = useAuthStore()
 
 const navItems = [
@@ -23,7 +22,7 @@ const isActive = (path: string) => {
 
 async function handleLogout() {
   await authStore.logout()
-  router.push('/login')
+  window.location.href = '/login'
 }
 </script>
 
