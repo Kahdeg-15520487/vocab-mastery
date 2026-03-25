@@ -8,6 +8,7 @@ import {
   JwtPayload,
 } from '../lib/jwt.js';
 import { authenticate } from '../middleware/auth.js';
+import { createSystemLists } from '../lib/lists.js';
 
 export async function authRoutes(app: FastifyInstance) {
   // ============================================
@@ -74,6 +75,9 @@ export async function authRoutes(app: FastifyInstance) {
         subscriptionTier: 'FREE',
       },
     });
+
+    // Create system lists for new user
+    await createSystemLists(user.id);
 
     // Generate tokens
     const payload: JwtPayload = {

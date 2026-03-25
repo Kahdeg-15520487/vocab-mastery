@@ -9,20 +9,6 @@
 - [ ] **#7** Create theme-based word organization #data #organization
 - [ ] **#8** **[low]** Add Oxford 3000/5000 full integration #data #future
 - [ ] **#91** **[high]** Phase 4: Word Lists #phase-4 #lists
-- [ ] **#97** **[high]** Create lists routes file (apps/backend/src/routes/lists.ts) #phase-4 #lists #backend
-- [ ] **#98** **[high]** Create system list generation service (create on user registration) #phase-4 #lists #backend
-- [ ] **#99** **[high]** Create subscription tier limit service (check list count, word count per tier) #phase-4 #lists #backend
-- [ ] **#100** **[high]** Implement GET /api/lists endpoint (user's lists + shared with user) #phase-4 #lists #api
-- [ ] **#101** **[high]** Implement GET /api/lists/:id endpoint (list with words, paginated) #phase-4 #lists #api
-- [ ] **#102** **[high]** Implement POST /api/lists endpoint (create list, enforce tier limits) #phase-4 #lists #api
-- [ ] **#103** **[high]** Implement PUT /api/lists/:id endpoint (update name, description, color, icon) #phase-4 #lists #api
-- [ ] **#104** **[high]** Implement DELETE /api/lists/:id endpoint (not allowed for system lists) #phase-4 #lists #api
-- [ ] **#105** **[high]** Implement POST /api/lists/:id/words endpoint (add word, enforce tier limits) #phase-4 #lists #api
-- [ ] **#106** **[high]** Implement DELETE /api/lists/:id/words/:wordId endpoint (remove word) #phase-4 #lists #api
-- [ ] **#107** **[high]** Implement PUT /api/lists/:id/pin endpoint (pin/unpin, only 1 pinned allowed) #phase-4 #lists #api
-- [ ] **#108** **[high]** Implement POST /api/lists/:id/share endpoint (share with user by email/username) #phase-4 #lists #api
-- [ ] **#109** **[high]** Implement DELETE /api/lists/:id/share/:userId endpoint (remove access) #phase-4 #lists #api
-- [ ] **#110** **[high]** Update user registration to create system lists for new user #phase-4 #lists #backend
 - [ ] **#111** **[high]** Frontend: Create lists store (Pinia) for lists state #phase-4 #lists #frontend
 - [ ] **#112** **[high]** Frontend: Create ListsView.vue page (grid of lists) #phase-4 #lists #frontend
 - [ ] **#113** **[high]** Frontend: Create ListDetailView.vue (list words, search, add/remove) #phase-4 #lists #frontend
@@ -139,6 +125,20 @@
 - [x] **#94** **[high]** Add SharedList model to Prisma (listId, sharedBy, sharedWith) #phase-4 #lists #database
 - [x] **#95** **[high]** Update Word model to add StudyListWord relation #phase-4 #lists #database
 - [x] **#96** **[high]** Run Prisma migration for lists schema #phase-4 #lists #database
+- [x] **#97** **[high]** Create lists routes file (apps/backend/src/routes/lists.ts) #phase-4 #lists #backend
+- [x] **#98** **[high]** Create system list generation service (create on user registration) #phase-4 #lists #backend
+- [x] **#99** **[high]** Create subscription tier limit service (check list count, word count per tier) #phase-4 #lists #backend
+- [x] **#100** **[high]** Implement GET /api/lists endpoint (user's lists + shared with user) #phase-4 #lists #api
+- [x] **#101** **[high]** Implement GET /api/lists/:id endpoint (list with words, paginated) #phase-4 #lists #api
+- [x] **#102** **[high]** Implement POST /api/lists endpoint (create list, enforce tier limits) #phase-4 #lists #api
+- [x] **#103** **[high]** Implement PUT /api/lists/:id endpoint (update name, description, color, icon) #phase-4 #lists #api
+- [x] **#104** **[high]** Implement DELETE /api/lists/:id endpoint (not allowed for system lists) #phase-4 #lists #api
+- [x] **#105** **[high]** Implement POST /api/lists/:id/words endpoint (add word, enforce tier limits) #phase-4 #lists #api
+- [x] **#106** **[high]** Implement DELETE /api/lists/:id/words/:wordId endpoint (remove word) #phase-4 #lists #api
+- [x] **#107** **[high]** Implement PUT /api/lists/:id/pin endpoint (pin/unpin, only 1 pinned allowed) #phase-4 #lists #api
+- [x] **#108** **[high]** Implement POST /api/lists/:id/share endpoint (share with user by email/username) #phase-4 #lists #api
+- [x] **#109** **[high]** Implement DELETE /api/lists/:id/share/:userId endpoint (remove access) #phase-4 #lists #api
+- [x] **#110** **[high]** Update user registration to create system lists for new user #phase-4 #lists #backend
 
 <!-- Raw Data -->
 ```json
@@ -1558,7 +1558,7 @@
     {
       "id": 97,
       "text": "Create lists routes file (apps/backend/src/routes/lists.ts)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1567,12 +1567,13 @@
       ],
       "createdAt": 1774343563695,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774411358820
     },
     {
       "id": 98,
       "text": "Create system list generation service (create on user registration)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1581,12 +1582,13 @@
       ],
       "createdAt": 1774343563696,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774411358821
     },
     {
       "id": 99,
       "text": "Create subscription tier limit service (check list count, word count per tier)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1595,12 +1597,13 @@
       ],
       "createdAt": 1774343563696,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774411358821
     },
     {
       "id": 100,
       "text": "Implement GET /api/lists endpoint (user's lists + shared with user)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1609,12 +1612,13 @@
       ],
       "createdAt": 1774343563697,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774411358821
     },
     {
       "id": 101,
       "text": "Implement GET /api/lists/:id endpoint (list with words, paginated)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1623,12 +1627,13 @@
       ],
       "createdAt": 1774343563697,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774411358822
     },
     {
       "id": 102,
       "text": "Implement POST /api/lists endpoint (create list, enforce tier limits)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1637,12 +1642,13 @@
       ],
       "createdAt": 1774343563697,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774411358822
     },
     {
       "id": 103,
       "text": "Implement PUT /api/lists/:id endpoint (update name, description, color, icon)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1651,12 +1657,13 @@
       ],
       "createdAt": 1774343563697,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774411358822
     },
     {
       "id": 104,
       "text": "Implement DELETE /api/lists/:id endpoint (not allowed for system lists)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1665,12 +1672,13 @@
       ],
       "createdAt": 1774343563698,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774411358823
     },
     {
       "id": 105,
       "text": "Implement POST /api/lists/:id/words endpoint (add word, enforce tier limits)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1679,12 +1687,13 @@
       ],
       "createdAt": 1774343563698,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774411358823
     },
     {
       "id": 106,
       "text": "Implement DELETE /api/lists/:id/words/:wordId endpoint (remove word)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1693,12 +1702,13 @@
       ],
       "createdAt": 1774343563698,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774411358823
     },
     {
       "id": 107,
       "text": "Implement PUT /api/lists/:id/pin endpoint (pin/unpin, only 1 pinned allowed)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1707,12 +1717,13 @@
       ],
       "createdAt": 1774343563699,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774411358824
     },
     {
       "id": 108,
       "text": "Implement POST /api/lists/:id/share endpoint (share with user by email/username)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1721,12 +1732,13 @@
       ],
       "createdAt": 1774343563699,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774411358824
     },
     {
       "id": 109,
       "text": "Implement DELETE /api/lists/:id/share/:userId endpoint (remove access)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1735,12 +1747,13 @@
       ],
       "createdAt": 1774343563699,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774411358824
     },
     {
       "id": 110,
       "text": "Update user registration to create system lists for new user",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-4",
@@ -1749,7 +1762,8 @@
       ],
       "createdAt": 1774343563700,
       "parentId": 91,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774411358824
     },
     {
       "id": 111,
