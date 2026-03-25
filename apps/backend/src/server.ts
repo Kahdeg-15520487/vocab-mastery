@@ -9,6 +9,8 @@ import { sessionRoutes } from './routes/sessions.js';
 import { statsRoutes } from './routes/stats.js';
 import { dataRoutes } from './routes/data.js';
 import { authRoutes } from './routes/auth.js';
+import { adminRoutes } from './routes/admin.js';
+import { oauthRoutes } from './routes/oauth.js';
 import prisma from './lib/prisma.js';
 
 const PORT = Number(process.env.PORT) || 7101;
@@ -43,8 +45,14 @@ async function start() {
     // Auth routes (public)
     instance.register(authRoutes);
     
+    // OAuth routes (public)
+    instance.register(oauthRoutes);
+    
     // Data routes (public for export/import)
     instance.register(dataRoutes);
+    
+    // Admin routes (requires admin role)
+    instance.register(adminRoutes);
     
     // Other routes (will add auth middleware later)
     instance.register(wordRoutes);

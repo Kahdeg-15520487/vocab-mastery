@@ -9,21 +9,6 @@
 - [ ] **#7** Create theme-based word organization #data #organization
 - [ ] **#8** **[low]** Add Oxford 3000/5000 full integration #data #future
 - [ ] **#42** **[high]** Phase 2: OAuth & Admin #phase-2 #auth
-- [ ] **#43** **[high]** Add Google OAuth environment variables (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK_URL) #phase-2 #oauth #config
-- [ ] **#44** **[high]** Install @fastify/oauth2 for Google OAuth #phase-2 #oauth #backend
-- [ ] **#45** **[high]** Implement GET /api/auth/google endpoint (OAuth redirect) #phase-2 #oauth #backend
-- [ ] **#46** **[high]** Implement GET /api/auth/google/callback endpoint #phase-2 #oauth #backend
-- [ ] **#47** **[high]** Handle OAuth user creation (link existing email or create new user) #phase-2 #oauth #backend
-- [ ] **#48** **[high]** Create admin middleware (requireAdmin) #phase-2 #admin #backend
-- [ ] **#49** **[high]** Create admin routes file (apps/backend/src/routes/admin.ts) #phase-2 #admin #backend
-- [ ] **#50** **[high]** Implement GET /api/admin/users endpoint (paginated list) #phase-2 #admin #api
-- [ ] **#51** **[high]** Implement GET /api/admin/users/:id endpoint #phase-2 #admin #api
-- [ ] **#52** **[high]** Implement PUT /api/admin/users/:id endpoint (role, subscription) #phase-2 #admin #api
-- [ ] **#53** **[high]** Implement DELETE /api/admin/users/:id endpoint #phase-2 #admin #api
-- [ ] **#54** **[high]** Implement GET /api/admin/stats endpoint (platform statistics) #phase-2 #admin #api
-- [ ] **#55** **[high]** Add SystemConfig model to Prisma schema (id, key, value) #phase-2 #admin #database
-- [ ] **#56** **[high]** Implement GET /api/admin/config endpoint #phase-2 #admin #api
-- [ ] **#57** **[high]** Implement PUT /api/admin/config/:key endpoint #phase-2 #admin #api
 - [ ] **#58** **[high]** Frontend: Create AdminView.vue page #phase-2 #admin #frontend
 - [ ] **#59** **[high]** Frontend: Create user management table component #phase-2 #admin #frontend
 - [ ] **#60** **[high]** Frontend: Create user edit modal (role, subscription) #phase-2 #admin #frontend
@@ -139,6 +124,21 @@
 - [x] **#39** **[high]** Frontend: Add navigation updates (show username, logout button) #phase-1 #auth #frontend
 - [x] **#40** **[high]** Frontend: Handle token refresh on 401 responses #phase-1 #auth #frontend
 - [x] **#41** **[high]** Frontend: Store tokens (access in memory, refresh in httpOnly cookie handled by backend) #phase-1 #auth #frontend
+- [x] **#43** **[high]** Add Google OAuth environment variables (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK_URL) #phase-2 #oauth #config
+- [x] **#44** **[high]** Install @fastify/oauth2 for Google OAuth #phase-2 #oauth #backend
+- [x] **#45** **[high]** Implement GET /api/auth/google endpoint (OAuth redirect) #phase-2 #oauth #backend
+- [x] **#46** **[high]** Implement GET /api/auth/google/callback endpoint #phase-2 #oauth #backend
+- [x] **#47** **[high]** Handle OAuth user creation (link existing email or create new user) #phase-2 #oauth #backend
+- [x] **#48** **[high]** Create admin middleware (requireAdmin) #phase-2 #admin #backend
+- [x] **#49** **[high]** Create admin routes file (apps/backend/src/routes/admin.ts) #phase-2 #admin #backend
+- [x] **#50** **[high]** Implement GET /api/admin/users endpoint (paginated list) #phase-2 #admin #api
+- [x] **#51** **[high]** Implement GET /api/admin/users/:id endpoint #phase-2 #admin #api
+- [x] **#52** **[high]** Implement PUT /api/admin/users/:id endpoint (role, subscription) #phase-2 #admin #api
+- [x] **#53** **[high]** Implement DELETE /api/admin/users/:id endpoint #phase-2 #admin #api
+- [x] **#54** **[high]** Implement GET /api/admin/stats endpoint (platform statistics) #phase-2 #admin #api
+- [x] **#55** **[high]** Add SystemConfig model to Prisma schema (id, key, value) #phase-2 #admin #database
+- [x] **#56** **[high]** Implement GET /api/admin/config endpoint #phase-2 #admin #api
+- [x] **#57** **[high]** Implement PUT /api/admin/config/:key endpoint #phase-2 #admin #api
 
 <!-- Raw Data -->
 ```json
@@ -752,7 +752,7 @@
     {
       "id": 43,
       "text": "Add Google OAuth environment variables (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK_URL)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -761,12 +761,13 @@
       ],
       "createdAt": 1774343421817,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774407739534
     },
     {
       "id": 44,
       "text": "Install @fastify/oauth2 for Google OAuth",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -775,12 +776,13 @@
       ],
       "createdAt": 1774343421817,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774407739534
     },
     {
       "id": 45,
       "text": "Implement GET /api/auth/google endpoint (OAuth redirect)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -789,12 +791,13 @@
       ],
       "createdAt": 1774343421817,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774408058876
     },
     {
       "id": 46,
       "text": "Implement GET /api/auth/google/callback endpoint",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -803,12 +806,13 @@
       ],
       "createdAt": 1774343421818,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774408058876
     },
     {
       "id": 47,
       "text": "Handle OAuth user creation (link existing email or create new user)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -817,12 +821,13 @@
       ],
       "createdAt": 1774343421818,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774408058876
     },
     {
       "id": 48,
       "text": "Create admin middleware (requireAdmin)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -831,12 +836,13 @@
       ],
       "createdAt": 1774343421819,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774408058877
     },
     {
       "id": 49,
       "text": "Create admin routes file (apps/backend/src/routes/admin.ts)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -845,12 +851,13 @@
       ],
       "createdAt": 1774343421819,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774408058877
     },
     {
       "id": 50,
       "text": "Implement GET /api/admin/users endpoint (paginated list)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -859,12 +866,13 @@
       ],
       "createdAt": 1774343421819,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774408058877
     },
     {
       "id": 51,
       "text": "Implement GET /api/admin/users/:id endpoint",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -873,12 +881,13 @@
       ],
       "createdAt": 1774343421820,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774408058878
     },
     {
       "id": 52,
       "text": "Implement PUT /api/admin/users/:id endpoint (role, subscription)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -887,12 +896,13 @@
       ],
       "createdAt": 1774343421820,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774408058878
     },
     {
       "id": 53,
       "text": "Implement DELETE /api/admin/users/:id endpoint",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -901,12 +911,13 @@
       ],
       "createdAt": 1774343421821,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774408058878
     },
     {
       "id": 54,
       "text": "Implement GET /api/admin/stats endpoint (platform statistics)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -915,12 +926,13 @@
       ],
       "createdAt": 1774343421821,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774408058878
     },
     {
       "id": 55,
       "text": "Add SystemConfig model to Prisma schema (id, key, value)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -929,12 +941,13 @@
       ],
       "createdAt": 1774343421821,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774407739534
     },
     {
       "id": 56,
       "text": "Implement GET /api/admin/config endpoint",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -943,12 +956,13 @@
       ],
       "createdAt": 1774343421821,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774408058879
     },
     {
       "id": 57,
       "text": "Implement PUT /api/admin/config/:key endpoint",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "phase-2",
@@ -957,7 +971,8 @@
       ],
       "createdAt": 1774343421821,
       "parentId": 42,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774408058879
     },
     {
       "id": 58,
