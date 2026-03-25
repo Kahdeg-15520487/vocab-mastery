@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -231,6 +230,23 @@ const themes = [
 
 async function main() {
   console.log('Seeding database...');
+
+  // Create default admin user
+  console.log('Creating default admin user...');
+  const adminPasswordHash = await bcrypt.hash('admin1234@!', 10);
+  await prisma.user.upsert({
+    where: { username: 'admin' },
+    update: {},
+    create: {
+      id: 'admin-00000000-0000-0000-0000-000000000001',
+      email: 'admin@vocab.master',
+      username: 'admin',
+      passwordHash: adminPasswordHash,
+      role: 'ADMIN',
+      subscriptionTier: 'WORDSMITH',
+    },
+  });
+  console.log('Admin user created: admin / admin1234@!');
 
   // Create themes
   console.log('Creating themes...');
