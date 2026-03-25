@@ -1,14 +1,37 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { authService, type User } from '@/lib/auth';
+import { AUTH_EXPIRED_EVENT } from '@/lib/api';
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null);
   const loading = ref(false);
   const error = ref<string | null>(null);
 
-  const isAuthenticated = computed(() => !!user.value || authService.isAuthenticated());
-  const isAdmin = computed(() => user.value?.role === 'ADMIN');
+  // Force reactivity by tracking a version number that increments on auth changes
+  const authVersion = ref(0);
+
+  const isAuthenticated = computed(() => {
+    // Touch authVersion to make this reactive
+    void authVersion.value;
+    return !!user.value || authService.isAuthenticated();
+  });
+  
+  const isAdmin = computed(() => {
+    void authVersion.value;
+    return user.value?.role === 'ADMIN';
+  });
+
+  // Handle auth expired event from API layer
+  function handleAuthExpired() {
+    user.value = null;
+    authVersion.value++;
+  }
+
+  // Listen for auth expired events
+  if (typeof window !== 'undefined') {
+    window.addEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+  }
 
   async function login(email: string, password: string): Promise<boolean> {
     loading.value = true;
@@ -111,6 +134,13 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null;
   }
 
+  // Called when auth fails (token expired, refresh failed)
+  function clearAuth() {
+    user.value = null;
+    authVersion.value++;
+    authService.clearTokens();
+  }
+
   return {
     user,
     loading,
@@ -124,5 +154,6 @@ export const useAuthStore = defineStore('auth', () => {
     changePassword,
     deleteAccount,
     clearError,
+    clearAuth,
   };
 });
