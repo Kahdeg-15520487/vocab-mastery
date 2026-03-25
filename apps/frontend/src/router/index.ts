@@ -69,11 +69,20 @@ const router = createRouter({
   routes,
 })
 
+// Track if user has been fetched
+let userFetched = false
+
 // Navigation guard for protected routes
 router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore()
   const requiresAuth = to.meta.requiresAuth !== false
   const requiresAdmin = to.meta.requiresAdmin === true
+
+  // Fetch user data if not already fetched and token exists
+  if (!userFetched && authStore.isAuthenticated) {
+    await authStore.fetchUser()
+    userFetched = true
+  }
 
   if (requiresAuth && !authStore.isAuthenticated) {
     // Redirect to login if not authenticated
