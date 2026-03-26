@@ -70,9 +70,12 @@ async function handleLogout() {
         <!-- Auth section -->
         <div class="flex items-center gap-3">
           <template v-if="authStore.isAuthenticated">
-            <span class="text-sm text-slate-600">
+            <RouterLink
+              to="/settings"
+              class="text-sm text-slate-600 hover:text-slate-900"
+            >
               {{ authStore.user?.username }}
-            </span>
+            </RouterLink>
             <button
               @click="handleLogout"
               class="btn btn-secondary text-sm"
@@ -103,7 +106,7 @@ async function handleLogout() {
 
       <div class="flex items-center gap-2">
         <template v-if="authStore.isAuthenticated">
-          <span class="text-sm text-slate-600">{{ authStore.user?.username }}</span>
+          <RouterLink to="/settings" class="text-sm text-slate-600">{{ authStore.user?.username }}</RouterLink>
           <button
             @click="handleLogout"
             class="text-sm text-primary-600"
