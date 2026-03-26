@@ -6,6 +6,8 @@ let cachedConfig: {
   provider: string;
   model: string;
   apiKey?: string;
+  baseUrl?: string;
+  context?: string;
 } | null = null;
 
 // Available themes for categorization
@@ -40,13 +42,15 @@ export async function getLLMConfig(): Promise<{
   provider: string;
   model: string;
   apiKey?: string;
+  baseUrl?: string;
+  context?: string;
 }> {
   if (cachedConfig) return cachedConfig;
 
   try {
     const configs = await prisma.systemConfig.findMany({
       where: {
-        key: { in: ['llm.provider', 'llm.model', 'llm.api_key'] }
+        key: { in: ['llm.provider', 'llm.model', 'llm.api_key', 'llm.base_url', 'llm.context'] }
       }
     });
 
@@ -56,6 +60,8 @@ export async function getLLMConfig(): Promise<{
       provider: configMap['llm.provider'] || process.env.LLM_PROVIDER || 'openai',
       model: configMap['llm.model'] || process.env.LLM_MODEL || 'gpt-4o-mini',
       apiKey: configMap['llm.api_key'] || process.env.OPENAI_API_KEY,
+      baseUrl: configMap['llm.base_url'] || process.env.LLM_BASE_URL,
+      context: configMap['llm.context'] || process.env.LLM_CONTEXT || 'You are a helpful assistant.',
     };
 
     return cachedConfig;
@@ -65,6 +71,8 @@ export async function getLLMConfig(): Promise<{
       provider: process.env.LLM_PROVIDER || 'openai',
       model: process.env.LLM_MODEL || 'gpt-4o-mini',
       apiKey: process.env.OPENAI_API_KEY,
+      baseUrl: process.env.LLM_BASE_URL,
+      context: process.env.LLM_CONTEXT || 'You are a helpful assistant.',
     };
   }
 }
@@ -87,6 +95,20 @@ export async function categorizeWord(
   try {
     const config = await getLLMConfig();
     
+    // Set environment variables for custom provider configuration
+    // pi-ai uses these env vars internally
+    if (config.baseUrl) {
+      process.env.OPENAI_BASE_URL = config.baseUrl;
+    }
+    if (config.apiKey) {
+      // Map provider to appropriate env var
+      if (config.provider === 'anthropic') {
+        process.env.ANTHROPIC_API_KEY = config.apiKey;
+      } else {
+        process.env.OPENAI_API_KEY = config.apiKey;
+      }
+    }
+    
     // Get the model
     const model = getModel(config.provider as any, config.model as any);
     
@@ -100,9 +122,9 @@ export async function categorizeWord(
     }
     prompt += `\n\nReturn ONLY the category slug (one of: ${themeSlugs.join(', ')}). No explanation.`;
     
-    // Create context
+    // Create context with custom system prompt if provided
     const context: Context = {
-      systemPrompt: SYSTEM_PROMPT,
+      systemPrompt: config.context || SYSTEM_PROMPT,
       messages: [
         { role: 'user', content: prompt, timestamp: Date.now() }
       ]

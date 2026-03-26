@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { adminApi } from '@/lib/api'
 
 interface LLMConfig {
   provider: string
-  model: string
+  baseUrl: string
   apiKey: string | null
+  model: string
+  context: string
   hasApiKey: boolean
 }
 
@@ -18,8 +20,10 @@ interface LLMStatus {
 
 const llmConfig = ref<LLMConfig>({
   provider: 'openai',
-  model: 'gpt-4o-mini',
+  baseUrl: '',
   apiKey: null,
+  model: '',
+  context: '',
   hasApiKey: false,
 })
 const llmStatus = ref<LLMStatus | null>(null)
@@ -29,16 +33,47 @@ const testing = ref(false)
 const error = ref<string | null>(null)
 const success = ref<string | null>(null)
 
-const providers = [
-  { value: 'openai', label: 'OpenAI', models: ['gpt-4o-mini', 'gpt-4o', 'gpt-4-turbo', 'gpt-3.5-turbo'] },
-  { value: 'anthropic', label: 'Anthropic', models: ['claude-3-haiku-20240307', 'claude-3-sonnet-20240229', 'claude-3-opus-20240229'] },
+const presets = [
+  { 
+    name: 'OpenAI', 
+    provider: 'openai',
+    baseUrl: 'https://api.openai.com/v1',
+    models: ['gpt-4o-mini', 'gpt-4o', 'gpt-4-turbo', 'gpt-3.5-turbo'],
+    context: 'You are a helpful assistant.'
+  },
+  { 
+    name: 'Anthropic', 
+    provider: 'anthropic',
+    baseUrl: 'https://api.anthropic.com/v1',
+    models: ['claude-3-haiku-20240307', 'claude-3-sonnet-20240229', 'claude-3-opus-20240229'],
+    context: 'You are a helpful assistant.'
+  },
+  { 
+    name: 'Groq', 
+    provider: 'groq',
+    baseUrl: 'https://api.groq.com/openai/v1',
+    models: ['llama-3.1-8b-instant', 'llama-3.1-70b-versatile', 'mixtral-8x7b-32768'],
+    context: 'You are a helpful assistant.'
+  },
+  { 
+    name: 'OpenRouter', 
+    provider: 'openrouter',
+    baseUrl: 'https://openrouter.ai/api/v1',
+    models: ['openai/gpt-4o-mini', 'anthropic/claude-3-haiku', 'meta-llama/llama-3.1-8b-instruct'],
+    context: 'You are a helpful assistant.'
+  },
+  { 
+    name: 'Custom', 
+    provider: 'custom',
+    baseUrl: '',
+    models: [],
+    context: 'You are a helpful assistant.'
+  },
 ]
 
-const currentProvider = computed(() => 
-  providers.find(p => p.value === llmConfig.value.provider) || providers[0]
-)
-
+const selectedPreset = ref(0)
 const showApiKey = ref(false)
+const customModel = ref('')
 
 onMounted(async () => {
   await Promise.all([loadLLMConfig(), checkLLMStatus()])
@@ -56,7 +91,18 @@ async function loadLLMConfig() {
     })
 
     if (!response.ok) throw new Error('Failed to fetch LLM config')
-    llmConfig.value = await response.json()
+    const data = await response.json()
+    llmConfig.value = data
+    
+    // Find matching preset
+    const presetIndex = presets.findIndex(p => 
+      p.baseUrl === data.baseUrl || p.provider === data.provider
+    )
+    selectedPreset.value = presetIndex >= 0 ? presetIndex : presets.length - 1 // Custom
+    
+    if (data.model && !getCurrentPreset().models.includes(data.model)) {
+      customModel.value = data.model
+    }
   } catch (e: any) {
     error.value = e.message
   } finally {
@@ -76,6 +122,21 @@ async function checkLLMStatus() {
   }
 }
 
+function getCurrentPreset() {
+  return presets[selectedPreset.value] || presets[presets.length - 1]
+}
+
+function onPresetChange() {
+  const preset = getCurrentPreset()
+  llmConfig.value.provider = preset.provider
+  llmConfig.value.baseUrl = preset.baseUrl
+  llmConfig.value.context = preset.context
+  if (preset.models.length > 0) {
+    llmConfig.value.model = preset.models[0]
+    customModel.value = ''
+  }
+}
+
 async function saveLLMConfig() {
   saving.value = true
   error.value = null
@@ -92,8 +153,10 @@ async function saveLLMConfig() {
       credentials: 'include',
       body: JSON.stringify({
         provider: llmConfig.value.provider,
-        model: llmConfig.value.model,
+        baseUrl: llmConfig.value.baseUrl,
+        model: customModel.value || llmConfig.value.model,
         apiKey: llmConfig.value.apiKey || undefined,
+        context: llmConfig.value.context || undefined,
       }),
     })
 
@@ -122,11 +185,6 @@ async function testConnection() {
     success.value = `Connection successful! Using ${llmStatus.value.provider} (${llmStatus.value.model})`
   }
 }
-
-function onProviderChange() {
-  // Set default model for provider
-  llmConfig.value.model = currentProvider.value.models[0]
-}
 </script>
 
 <template>
@@ -136,7 +194,7 @@ function onProviderChange() {
       <div class="flex items-center justify-between mb-4">
         <div>
           <h2 class="text-lg font-semibold text-slate-800">LLM Provider Configuration</h2>
-          <p class="text-sm text-slate-600">Configure the AI provider for word categorization.</p>
+          <p class="text-sm text-slate-600">Configure any OpenAI-compatible API provider.</p>
         </div>
         
         <!-- Status Badge -->
@@ -171,28 +229,32 @@ function onProviderChange() {
 
       <!-- Config Form -->
       <div v-else class="space-y-4">
-        <!-- Provider Selection -->
+        <!-- Provider Preset -->
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Provider</label>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Provider Preset</label>
           <select 
-            v-model="llmConfig.provider" 
-            @change="onProviderChange"
+            v-model="selectedPreset" 
+            @change="onPresetChange"
             class="input"
           >
-            <option v-for="p in providers" :key="p.value" :value="p.value">
-              {{ p.label }}
+            <option v-for="(preset, index) in presets" :key="index" :value="index">
+              {{ preset.name }}
             </option>
           </select>
         </div>
 
-        <!-- Model Selection -->
+        <!-- Base URL -->
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Model</label>
-          <select v-model="llmConfig.model" class="input">
-            <option v-for="m in currentProvider.models" :key="m" :value="m">
-              {{ m }}
-            </option>
-          </select>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Base URL</label>
+          <input
+            v-model="llmConfig.baseUrl"
+            type="url"
+            placeholder="https://api.example.com/v1"
+            class="input"
+          />
+          <p class="text-xs text-slate-500 mt-1">
+            OpenAI-compatible API endpoint
+          </p>
         </div>
 
         <!-- API Key -->
@@ -215,6 +277,42 @@ function onProviderChange() {
           </div>
           <p class="text-xs text-slate-500 mt-1">
             {{ llmConfig.hasApiKey ? 'API key is set' : 'No API key configured' }}
+          </p>
+        </div>
+
+        <!-- Model -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Model</label>
+          
+          <!-- Preset Models -->
+          <template v-if="getCurrentPreset().models.length > 0">
+            <select v-model="llmConfig.model" class="input mb-2">
+              <option v-for="m in getCurrentPreset().models" :key="m" :value="m">
+                {{ m }}
+              </option>
+            </select>
+            <p class="text-xs text-slate-500 mb-2">Or enter a custom model:</p>
+          </template>
+          
+          <input
+            v-model="customModel"
+            type="text"
+            :placeholder="getCurrentPreset().models.length > 0 ? 'Custom model name (optional)' : 'model-name'"
+            class="input"
+          />
+        </div>
+
+        <!-- Context / System Prompt -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">System Prompt / Context</label>
+          <textarea
+            v-model="llmConfig.context"
+            rows="3"
+            placeholder="You are a helpful assistant."
+            class="input resize-none"
+          />
+          <p class="text-xs text-slate-500 mt-1">
+            System prompt sent with each request (optional)
           </p>
         </div>
 
@@ -260,27 +358,34 @@ function onProviderChange() {
       </div>
     </div>
 
-    <!-- Setup Instructions -->
-    <div class="card bg-blue-50 border border-blue-200">
-      <h3 class="font-semibold text-blue-800 mb-2">📋 Setup Instructions</h3>
+    <!-- Provider Examples -->
+    <div class="card bg-slate-50 border border-slate-200">
+      <h3 class="font-semibold text-slate-700 mb-3">📋 Popular OpenAI-Compatible Providers</h3>
       
-      <div class="text-sm text-blue-700 space-y-3">
-        <div>
-          <p class="font-medium">OpenAI:</p>
-          <ol class="list-decimal list-inside ml-2 space-y-1">
-            <li>Get an API key from <a href="https://platform.openai.com/api-keys" target="_blank" class="underline">platform.openai.com</a></li>
-            <li>Paste the API key above</li>
-            <li>Click "Test Connection" to verify</li>
-          </ol>
+      <div class="text-sm text-slate-600 space-y-2">
+        <div class="flex justify-between items-center py-1 border-b border-slate-200">
+          <span class="font-medium">OpenAI</span>
+          <code class="text-xs bg-slate-200 px-2 py-0.5 rounded">https://api.openai.com/v1</code>
         </div>
-        
-        <div>
-          <p class="font-medium">Anthropic:</p>
-          <ol class="list-decimal list-inside ml-2 space-y-1">
-            <li>Get an API key from <a href="https://console.anthropic.com" target="_blank" class="underline">console.anthropic.com</a></li>
-            <li>Paste the API key above</li>
-            <li>Click "Test Connection" to verify</li>
-          </ol>
+        <div class="flex justify-between items-center py-1 border-b border-slate-200">
+          <span class="font-medium">Anthropic</span>
+          <code class="text-xs bg-slate-200 px-2 py-0.5 rounded">https://api.anthropic.com/v1</code>
+        </div>
+        <div class="flex justify-between items-center py-1 border-b border-slate-200">
+          <span class="font-medium">Groq</span>
+          <code class="text-xs bg-slate-200 px-2 py-0.5 rounded">https://api.groq.com/openai/v1</code>
+        </div>
+        <div class="flex justify-between items-center py-1 border-b border-slate-200">
+          <span class="font-medium">OpenRouter</span>
+          <code class="text-xs bg-slate-200 px-2 py-0.5 rounded">https://openrouter.ai/api/v1</code>
+        </div>
+        <div class="flex justify-between items-center py-1 border-b border-slate-200">
+          <span class="font-medium">Azure OpenAI</span>
+          <code class="text-xs bg-slate-200 px-2 py-0.5 rounded">https://YOUR_RESOURCE.openai.azure.com</code>
+        </div>
+        <div class="flex justify-between items-center py-1">
+          <span class="font-medium">Local (LM Studio, etc)</span>
+          <code class="text-xs bg-slate-200 px-2 py-0.5 rounded">http://localhost:1234/v1</code>
         </div>
       </div>
     </div>

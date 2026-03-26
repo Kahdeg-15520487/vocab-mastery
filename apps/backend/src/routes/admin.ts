@@ -347,7 +347,9 @@ export async function adminRoutes(app: FastifyInstance) {
     // Mask sensitive values
     return {
       provider: config.provider,
+      baseUrl: config.baseUrl || '',
       model: config.model,
+      context: config.context || '',
       apiKey: config.apiKey ? '••••••••' + config.apiKey.slice(-4) : null,
       hasApiKey: !!config.apiKey,
     };
@@ -357,13 +359,15 @@ export async function adminRoutes(app: FastifyInstance) {
   app.put('/admin/llm/config', async (request, reply) => {
     const body = request.body as {
       provider?: string;
+      baseUrl?: string;
       model?: string;
       apiKey?: string;
+      context?: string;
     };
 
     const updates: Promise<any>[] = [];
 
-    if (body.provider) {
+    if (body.provider !== undefined) {
       updates.push(
         prisma.systemConfig.upsert({
           where: { key: 'llm.provider' },
@@ -373,7 +377,17 @@ export async function adminRoutes(app: FastifyInstance) {
       );
     }
 
-    if (body.model) {
+    if (body.baseUrl !== undefined) {
+      updates.push(
+        prisma.systemConfig.upsert({
+          where: { key: 'llm.base_url' },
+          update: { value: body.baseUrl },
+          create: { key: 'llm.base_url', value: body.baseUrl },
+        })
+      );
+    }
+
+    if (body.model !== undefined) {
       updates.push(
         prisma.systemConfig.upsert({
           where: { key: 'llm.model' },
@@ -396,6 +410,16 @@ export async function adminRoutes(app: FastifyInstance) {
       }
     }
 
+    if (body.context !== undefined) {
+      updates.push(
+        prisma.systemConfig.upsert({
+          where: { key: 'llm.context' },
+          update: { value: body.context },
+          create: { key: 'llm.context', value: body.context },
+        })
+      );
+    }
+
     await Promise.all(updates);
     
     // Clear cache
@@ -405,7 +429,9 @@ export async function adminRoutes(app: FastifyInstance) {
     const config = await getLLMConfig();
     return {
       provider: config.provider,
+      baseUrl: config.baseUrl || '',
       model: config.model,
+      context: config.context || '',
       apiKey: config.apiKey ? '••••••••' + config.apiKey.slice(-4) : null,
       hasApiKey: !!config.apiKey,
     };
