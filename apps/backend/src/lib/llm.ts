@@ -1,4 +1,5 @@
 import { getModel, completeSimple, type Context, type Tool } from '@mariozechner/pi-ai';
+import OpenAI from 'openai';
 import prisma from './prisma.js';
 
 // Config cache
@@ -95,22 +96,8 @@ export async function categorizeWord(
   try {
     const config = await getLLMConfig();
     
-    // Set environment variables for custom provider configuration
-    // pi-ai uses these env vars internally
-    if (config.baseUrl) {
-      process.env.OPENAI_BASE_URL = config.baseUrl;
-    }
-    if (config.apiKey) {
-      // Map provider to appropriate env var
-      if (config.provider === 'anthropic') {
-        process.env.ANTHROPIC_API_KEY = config.apiKey;
-      } else {
-        process.env.OPENAI_API_KEY = config.apiKey;
-      }
-    }
-    
-    // Get the model
-    const model = getModel(config.provider as any, config.model as any);
+    // Known providers in pi-ai that we can use directly
+    const piAiProviders = ['openai', 'anthropic', 'google', 'groq', 'openrouter', 'mistral', 'cerebras', 'xai'];
     
     // Build user prompt
     let prompt = `Categorize this English word:\n\nWord: "${word}"`;
@@ -122,26 +109,87 @@ export async function categorizeWord(
     }
     prompt += `\n\nReturn ONLY the category slug (one of: ${themeSlugs.join(', ')}). No explanation.`;
     
-    // Create context with custom system prompt if provided
-    const context: Context = {
-      systemPrompt: config.context || SYSTEM_PROMPT,
-      messages: [
-        { role: 'user', content: prompt, timestamp: Date.now() }
-      ]
-    };
+    const systemPrompt = config.context || SYSTEM_PROMPT;
     
-    // Get response
-    const response = await completeSimple(model, context);
+    // Check if we should use pi-ai or direct OpenAI SDK
+    const useDirectSDK = !piAiProviders.includes(config.provider.toLowerCase()) || 
+      (config.baseUrl && !config.baseUrl.includes('openai.com') && !config.baseUrl.includes('anthropic.com'));
     
-    // Extract text from response
-    const text = response.content
-      .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
-      .map(c => c.text)
-      .join('')
-      .trim()
-      .toLowerCase();
+    let responseText: string;
     
-    return extractCategory(text);
+    if (useDirectSDK) {
+      // Use OpenAI SDK directly for custom providers
+      const openai = new OpenAI({
+        apiKey: config.apiKey || process.env.OPENAI_API_KEY,
+        baseURL: config.baseUrl || undefined,
+      });
+      
+      const response = await openai.chat.completions.create({
+        model: config.model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt },
+        ],
+        max_tokens: 100,
+        temperature: 0.3,
+      });
+      
+      responseText = response.choices[0]?.message?.content?.trim().toLowerCase() || 'general';
+    } else {
+      // Use pi-ai for known providers
+      const effectiveProvider = config.provider.toLowerCase();
+      
+      // Set environment variables for pi-ai
+      if (config.apiKey) {
+        if (effectiveProvider === 'anthropic') {
+          process.env.ANTHROPIC_API_KEY = config.apiKey;
+        } else {
+          process.env.OPENAI_API_KEY = config.apiKey;
+        }
+      }
+      
+      // Get a known model for the provider
+      const model = getModel(effectiveProvider as any, config.model as any);
+      
+      if (!model) {
+        // Fallback to direct SDK if model not found
+        const openai = new OpenAI({
+          apiKey: config.apiKey || process.env.OPENAI_API_KEY,
+          baseURL: config.baseUrl || undefined,
+        });
+        
+        const response = await openai.chat.completions.create({
+          model: config.model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: prompt },
+          ],
+          max_tokens: 100,
+          temperature: 0.3,
+        });
+        
+        responseText = response.choices[0]?.message?.content?.trim().toLowerCase() || 'general';
+      } else {
+        // Use pi-ai
+        const context: Context = {
+          systemPrompt,
+          messages: [
+            { role: 'user', content: prompt, timestamp: Date.now() }
+          ]
+        };
+        
+        const response = await completeSimple(model, context);
+        
+        responseText = response.content
+          .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
+          .map(c => c.text)
+          .join('')
+          .trim()
+          .toLowerCase();
+      }
+    }
+    
+    return extractCategory(responseText);
     
   } catch (error) {
     console.error(`Failed to categorize "${word}":`, error);
