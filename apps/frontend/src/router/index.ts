@@ -57,6 +57,18 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/lists',
+    name: 'lists',
+    component: () => import('@/views/ListsView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/lists/:id',
+    name: 'list-detail',
+    component: () => import('@/views/ListView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/admin',
     name: 'admin',
     component: () => import('@/views/AdminView.vue'),
