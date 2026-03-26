@@ -20,6 +20,35 @@ export interface AuthError {
   error: string;
 }
 
+// Decode JWT payload without verification (just to check expiration)
+function decodeJwtPayload(token: string): { exp?: number; [key: string]: any } | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1]));
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+// Check if token is expired or about to expire (within 30 seconds)
+export function isTokenExpired(token: string | null): boolean {
+  if (!token) return true;
+  const payload = decodeJwtPayload(token);
+  if (!payload?.exp) return true;
+  // Add 30 second buffer
+  return Date.now() >= (payload.exp * 1000) - 30000;
+}
+
+// Get time until token expires (in ms)
+export function getTimeUntilExpiry(token: string | null): number {
+  if (!token) return 0;
+  const payload = decodeJwtPayload(token);
+  if (!payload?.exp) return 0;
+  return Math.max(0, (payload.exp * 1000) - Date.now());
+}
+
 class AuthService {
   private accessToken: string | null = null;
 
