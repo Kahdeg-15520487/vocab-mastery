@@ -2,6 +2,18 @@ import { FastifyInstance } from 'fastify';
 import prisma from '../lib/prisma.js';
 import { requireAdmin } from '../middleware/auth.js';
 import { categorizeWord, categorizeWordsBatch, checkLLMAvailability, clearLLMConfigCache, getLLMConfig, testProviderConfig, THEMES } from '../lib/llm.js';
+import {
+  createJob,
+  getJob,
+  getJobs,
+  cancelJob,
+  deleteJob,
+  startJobRunner,
+  stopJobRunner,
+} from '../lib/jobs.js';
+
+// Import job handlers to register them
+import '../lib/categorize-job.js';
 
 export async function adminRoutes(app: FastifyInstance) {
   // All admin routes require admin role
@@ -833,27 +845,13 @@ export async function adminRoutes(app: FastifyInstance) {
 
     return { word: word.word, category, tagged: !!theme };
   });
-}
 
-// ============================================
-// Job Management Endpoints
-// ============================================
+  // ============================================
+  // Job Management Endpoints
+  // ============================================
 
-import {
-  createJob,
-  getJob,
-  getJobs,
-  cancelJob,
-  deleteJob,
-  startJobRunner,
-  stopJobRunner,
-} from '../lib/jobs.js';
-
-// Import job handlers to register them
-import '../lib/categorize-job.js';
-
-// GET /api/admin/jobs - List all jobs
-app.get('/admin/jobs', async (request, reply) => {
+  // GET /api/admin/jobs - List all jobs
+  app.get('/admin/jobs', async (request, reply) => {
   const query = request.query as {
     status?: string;
     type?: string;
@@ -958,3 +956,4 @@ app.post('/admin/jobs/runner/stop', async (request, reply) => {
   stopJobRunner();
   return { message: 'Job runner stopped' };
 });
+}
