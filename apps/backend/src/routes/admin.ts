@@ -349,7 +349,6 @@ export async function adminRoutes(app: FastifyInstance) {
       provider: config.provider,
       model: config.model,
       apiKey: config.apiKey ? '••••••••' + config.apiKey.slice(-4) : null,
-      baseUrl: config.baseUrl || null,
       hasApiKey: !!config.apiKey,
     };
   });
@@ -360,7 +359,6 @@ export async function adminRoutes(app: FastifyInstance) {
       provider?: string;
       model?: string;
       apiKey?: string;
-      baseUrl?: string;
     };
 
     const updates: Promise<any>[] = [];
@@ -398,16 +396,6 @@ export async function adminRoutes(app: FastifyInstance) {
       }
     }
 
-    if (body.baseUrl !== undefined) {
-      updates.push(
-        prisma.systemConfig.upsert({
-          where: { key: 'llm.base_url' },
-          update: { value: body.baseUrl || '' },
-          create: { key: 'llm.base_url', value: body.baseUrl || '' },
-        })
-      );
-    }
-
     await Promise.all(updates);
     
     // Clear cache
@@ -419,7 +407,6 @@ export async function adminRoutes(app: FastifyInstance) {
       provider: config.provider,
       model: config.model,
       apiKey: config.apiKey ? '••••••••' + config.apiKey.slice(-4) : null,
-      baseUrl: config.baseUrl || null,
       hasApiKey: !!config.apiKey,
     };
   });

@@ -6,7 +6,6 @@ let cachedConfig: {
   provider: string;
   model: string;
   apiKey?: string;
-  baseUrl?: string;
 } | null = null;
 
 // Available themes for categorization
@@ -41,14 +40,13 @@ export async function getLLMConfig(): Promise<{
   provider: string;
   model: string;
   apiKey?: string;
-  baseUrl?: string;
 }> {
   if (cachedConfig) return cachedConfig;
 
   try {
     const configs = await prisma.systemConfig.findMany({
       where: {
-        key: { in: ['llm.provider', 'llm.model', 'llm.api_key', 'llm.base_url'] }
+        key: { in: ['llm.provider', 'llm.model', 'llm.api_key'] }
       }
     });
 
@@ -58,7 +56,6 @@ export async function getLLMConfig(): Promise<{
       provider: configMap['llm.provider'] || process.env.LLM_PROVIDER || 'openai',
       model: configMap['llm.model'] || process.env.LLM_MODEL || 'gpt-4o-mini',
       apiKey: configMap['llm.api_key'] || process.env.OPENAI_API_KEY,
-      baseUrl: configMap['llm.base_url'] || process.env.OLLAMA_BASE_URL,
     };
 
     return cachedConfig;
@@ -68,7 +65,6 @@ export async function getLLMConfig(): Promise<{
       provider: process.env.LLM_PROVIDER || 'openai',
       model: process.env.LLM_MODEL || 'gpt-4o-mini',
       apiKey: process.env.OPENAI_API_KEY,
-      baseUrl: process.env.OLLAMA_BASE_URL,
     };
   }
 }

@@ -6,7 +6,6 @@ interface LLMConfig {
   provider: string
   model: string
   apiKey: string | null
-  baseUrl: string | null
   hasApiKey: boolean
 }
 
@@ -21,7 +20,6 @@ const llmConfig = ref<LLMConfig>({
   provider: 'openai',
   model: 'gpt-4o-mini',
   apiKey: null,
-  baseUrl: null,
   hasApiKey: false,
 })
 const llmStatus = ref<LLMStatus | null>(null)
@@ -34,7 +32,6 @@ const success = ref<string | null>(null)
 const providers = [
   { value: 'openai', label: 'OpenAI', models: ['gpt-4o-mini', 'gpt-4o', 'gpt-4-turbo', 'gpt-3.5-turbo'] },
   { value: 'anthropic', label: 'Anthropic', models: ['claude-3-haiku-20240307', 'claude-3-sonnet-20240229', 'claude-3-opus-20240229'] },
-  { value: 'ollama', label: 'Ollama (Local)', models: ['llama3.2', 'llama3.1', 'mistral', 'codellama'] },
 ]
 
 const currentProvider = computed(() => 
@@ -97,7 +94,6 @@ async function saveLLMConfig() {
         provider: llmConfig.value.provider,
         model: llmConfig.value.model,
         apiKey: llmConfig.value.apiKey || undefined,
-        baseUrl: llmConfig.value.baseUrl || undefined,
       }),
     })
 
@@ -130,11 +126,6 @@ async function testConnection() {
 function onProviderChange() {
   // Set default model for provider
   llmConfig.value.model = currentProvider.value.models[0]
-  
-  // Clear API key if switching to Ollama
-  if (llmConfig.value.provider === 'ollama') {
-    llmConfig.value.baseUrl = llmConfig.value.baseUrl || 'http://localhost:11434'
-  }
 }
 </script>
 
@@ -204,8 +195,8 @@ function onProviderChange() {
           </select>
         </div>
 
-        <!-- API Key (for OpenAI/Anthropic) -->
-        <div v-if="llmConfig.provider !== 'ollama'">
+        <!-- API Key -->
+        <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">API Key</label>
           <div class="relative">
             <input
@@ -224,20 +215,6 @@ function onProviderChange() {
           </div>
           <p class="text-xs text-slate-500 mt-1">
             {{ llmConfig.hasApiKey ? 'API key is set' : 'No API key configured' }}
-          </p>
-        </div>
-
-        <!-- Base URL (for Ollama) -->
-        <div v-if="llmConfig.provider === 'ollama'">
-          <label class="block text-sm font-medium text-slate-700 mb-1">Ollama Base URL</label>
-          <input
-            v-model="llmConfig.baseUrl"
-            type="text"
-            placeholder="http://localhost:11434"
-            class="input"
-          />
-          <p class="text-xs text-slate-500 mt-1">
-            Make sure Ollama is running: <code class="bg-slate-100 px-1 rounded">ollama serve</code>
           </p>
         </div>
 
@@ -298,12 +275,11 @@ function onProviderChange() {
         </div>
         
         <div>
-          <p class="font-medium">Ollama (Free, Local):</p>
+          <p class="font-medium">Anthropic:</p>
           <ol class="list-decimal list-inside ml-2 space-y-1">
-            <li>Install Ollama from <a href="https://ollama.ai" target="_blank" class="underline">ollama.ai</a></li>
-            <li>Run: <code class="bg-blue-100 px-1 rounded">ollama pull llama3.2</code></li>
-            <li>Run: <code class="bg-blue-100 px-1 rounded">ollama serve</code></li>
-            <li>Select "Ollama (Local)" as provider</li>
+            <li>Get an API key from <a href="https://console.anthropic.com" target="_blank" class="underline">console.anthropic.com</a></li>
+            <li>Paste the API key above</li>
+            <li>Click "Test Connection" to verify</li>
           </ol>
         </div>
       </div>

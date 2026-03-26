@@ -294,7 +294,7 @@ export const adminApi = {
 
   getLLMConfig: () => request<any>('/admin/llm/config'),
 
-  updateLLMConfig: (config: { provider?: string; model?: string; apiKey?: string; baseUrl?: string }) =>
+  updateLLMConfig: (config: { provider?: string; model?: string; apiKey?: string }) =>
     request<any>('/admin/llm/config', {
       method: 'PUT',
       body: JSON.stringify(config),

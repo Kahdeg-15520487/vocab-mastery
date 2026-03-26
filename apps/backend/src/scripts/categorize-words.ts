@@ -46,12 +46,10 @@ async function categorizeWords(options: { limit?: number; uncategorizedOnly?: bo
   
   if (!status.available) {
     console.error(`❌ LLM not available: ${status.error}`);
-    console.log('\nTo use Ollama:');
-    console.log('  1. Install Ollama: https://ollama.ai');
-    console.log('  2. Run: ollama pull llama3.2');
-    console.log('  3. Run: ollama serve');
     console.log('\nTo use OpenAI:');
-    console.log('  Set OPENAI_API_KEY in .env and LLM_PROVIDER=openai');
+    console.log('  1. Get API key from https://platform.openai.com/api-keys');
+    console.log('  2. Set OPENAI_API_KEY in .env or configure in Admin Panel');
+    console.log('\nOr configure via Admin Panel > Config tab');
     process.exit(1);
   }
   
@@ -179,10 +177,9 @@ Options:
   --help        Show this help
 
 Environment:
-  LLM_PROVIDER  "ollama" (default) or "openai"
-  OLLAMA_BASE_URL  Ollama server URL (default: http://localhost:11434)
-  OLLAMA_MODEL  Model to use (default: llama3.2)
-  OPENAI_API_KEY  Required if LLM_PROVIDER=openai
+  LLM_PROVIDER   "openai" (default) or "anthropic"
+  LLM_MODEL      Model to use (default: gpt-4o-mini)
+  OPENAI_API_KEY Required if LLM_PROVIDER=openai
 `);
       process.exit(0);
     }
