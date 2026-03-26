@@ -96,11 +96,20 @@ async function callLLM(systemPrompt: string, userPrompt: string, config: Awaited
   const useDirectSDK = !piAiProviders.includes(config.provider.toLowerCase()) || 
     (config.baseUrl && !config.baseUrl.includes('openai.com') && !config.baseUrl.includes('anthropic.com'));
   
+  console.log(`[LLM] Calling ${config.provider} (${config.model}) via ${useDirectSDK ? 'direct SDK' : 'pi-ai'}`);
+  console.log(`[LLM] Base URL: ${config.baseUrl || 'default'}`);
+  console.log(`[LLM] System prompt length: ${systemPrompt.length} chars`);
+  console.log(`[LLM] User prompt length: ${userPrompt.length} chars`);
+  
+  const startTime = Date.now();
+  
   if (useDirectSDK) {
     const openai = new OpenAI({
       apiKey: config.apiKey || process.env.OPENAI_API_KEY,
       baseURL: config.baseUrl || undefined,
     });
+    
+    console.log(`[LLM] Sending request to ${config.baseUrl || 'OpenAI default'}...`);
     
     const response = await openai.chat.completions.create({
       model: config.model,
@@ -112,7 +121,14 @@ async function callLLM(systemPrompt: string, userPrompt: string, config: Awaited
       temperature: 0.3,
     });
     
-    return response.choices[0]?.message?.content?.trim() || '';
+    const elapsed = Date.now() - startTime;
+    const content = response.choices[0]?.message?.content?.trim() || '';
+    
+    console.log(`[LLM] Response received in ${elapsed}ms`);
+    console.log(`[LLM] Response length: ${content.length} chars`);
+    console.log(`[LLM] Tokens used: ${response.usage ? `prompt=${response.usage.prompt_tokens}, completion=${response.usage.completion_tokens}, total=${response.usage.total_tokens}` : 'N/A'}`);
+    
+    return content;
   } else {
     const effectiveProvider = config.provider.toLowerCase();
     
@@ -127,6 +143,7 @@ async function callLLM(systemPrompt: string, userPrompt: string, config: Awaited
     const model = getModel(effectiveProvider as any, config.model as any);
     
     if (!model) {
+      console.log(`[LLM] Model "${config.model}" not found in pi-ai, falling back to direct SDK`);
       const openai = new OpenAI({
         apiKey: config.apiKey || process.env.OPENAI_API_KEY,
         baseURL: config.baseUrl || undefined,
@@ -142,7 +159,13 @@ async function callLLM(systemPrompt: string, userPrompt: string, config: Awaited
         temperature: 0.3,
       });
       
-      return response.choices[0]?.message?.content?.trim() || '';
+      const elapsed = Date.now() - startTime;
+      const content = response.choices[0]?.message?.content?.trim() || '';
+      
+      console.log(`[LLM] Response received in ${elapsed}ms`);
+      console.log(`[LLM] Response length: ${content.length} chars`);
+      
+      return content;
     }
     
     const context: Context = {
@@ -152,13 +175,24 @@ async function callLLM(systemPrompt: string, userPrompt: string, config: Awaited
       ]
     };
     
+    console.log(`[LLM] Sending request via pi-ai...`);
+    
     const response = await completeSimple(model, context);
     
-    return response.content
+    const elapsed = Date.now() - startTime;
+    const content = response.content
       .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
       .map(c => c.text)
       .join('')
       .trim();
+    
+    console.log(`[LLM] Response received in ${elapsed}ms`);
+    console.log(`[LLM] Response length: ${content.length} chars`);
+    if (response.usage) {
+      console.log(`[LLM] Tokens: input=${response.usage.input}, output=${response.usage.output}, total=${response.usage.totalTokens}`);
+    }
+    
+    return content;
   }
 }
 
@@ -203,6 +237,8 @@ export async function categorizeWordsBatch(
 ): Promise<Array<{ word: string; category: string }>> {
   if (words.length === 0) return [];
   
+  console.log(`[LLM] Starting batch categorization of ${words.length} words`);
+  
   try {
     const config = await getLLMConfig();
     
@@ -227,10 +263,26 @@ ${wordsList}
 
 Return ONLY a valid JSON object like: {"word1": "category", "word2": "category", ...}`;
 
+    console.log(`[LLM] Prompt built: ${wordsList.split('\n').length} word entries`);
+    
+    const startTime = Date.now();
     const responseText = await callLLM(BATCH_SYSTEM_PROMPT, prompt, config);
+    const elapsed = Date.now() - startTime;
+    
+    console.log(`[LLM] Batch request completed in ${elapsed}ms`);
     
     // Parse JSON response
     const categories = parseCategoriesJson(responseText, words.map(w => w.word));
+    
+    console.log(`[LLM] Parsed ${Object.keys(categories).length} categories from response`);
+    
+    // Log category distribution
+    const distribution: Record<string, number> = {};
+    for (const word of words) {
+      const cat = categories[word.word.toLowerCase()] || 'general';
+      distribution[cat] = (distribution[cat] || 0) + 1;
+    }
+    console.log(`[LLM] Category distribution: ${JSON.stringify(distribution)}`);
     
     if (options?.onProgress) {
       options.onProgress(words.length, words.length);
@@ -241,8 +293,9 @@ Return ONLY a valid JSON object like: {"word1": "category", "word2": "category",
       category: categories[w.word.toLowerCase()] || 'general',
     }));
     
-  } catch (error) {
-    console.error('Batch categorization failed:', error);
+  } catch (error: any) {
+    console.error(`[LLM] Batch categorization failed:`, error.message);
+    console.error(`[LLM] Error stack:`, error.stack);
     // Return all as general on failure
     return words.map(w => ({ word: w.word, category: 'general' }));
   }
