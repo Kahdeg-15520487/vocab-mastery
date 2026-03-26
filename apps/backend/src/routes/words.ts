@@ -21,7 +21,12 @@ export async function wordRoutes(app: FastifyInstance) {
       where.word = { contains: search, mode: 'insensitive' };
     }
     if (theme) {
-      where.themes = { some: { theme: { slug: theme } } };
+      // Special case: 'none' means uncategorized words (no themes)
+      if (theme === 'none') {
+        where.themes = { none: {} };
+      } else {
+        where.themes = { some: { theme: { slug: theme } } };
+      }
     }
 
     const [words, total] = await Promise.all([
