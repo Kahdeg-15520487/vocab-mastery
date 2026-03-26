@@ -26,7 +26,7 @@ async function handleRegister() {
   error.value = ''
 
   try {
-    const success = await authStore.register(email.value, username.value, password.value)
+    const success = await authStore.register(email.value, password.value, username.value)
     
     if (success) {
       // Use full page navigation to ensure all state is refreshed
