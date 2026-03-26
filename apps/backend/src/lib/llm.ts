@@ -25,16 +25,18 @@ const THEMES = [
 
 const themeSlugs = [...THEMES.map(t => t.slug), 'general'];
 
-const SYSTEM_PROMPT = `You are a word categorization assistant. Your task is to categorize English vocabulary words into exactly one category.
+const BATCH_SYSTEM_PROMPT = `You are a word categorization assistant. Your task is to categorize English vocabulary words into categories.
 
 Available categories:
 ${THEMES.map(t => `- ${t.slug}: ${t.name} (${t.description})`).join('\n')}
+- general: for words that don't fit any specific category
 
 Rules:
-1. Return ONLY the category slug (one word)
-2. If a word doesn't clearly fit any category, return "general"
+1. Return a valid JSON object where keys are words and values are category slugs
+2. If a word doesn't clearly fit any category, use "general"
 3. Be consistent - similar words should get the same category
-4. Consider the word's primary/most common meaning`;
+4. Consider the word's primary/most common meaning
+5. Return ONLY the JSON object, no explanation`;
 
 /**
  * Get LLM config from database or environment
@@ -86,39 +88,45 @@ export function clearLLMConfigCache() {
 }
 
 /**
- * Categorize a word using LLM
+ * Call LLM API (either pi-ai or direct OpenAI SDK)
  */
-export async function categorizeWord(
-  word: string,
-  definition?: string,
-  partOfSpeech?: string[]
-): Promise<string> {
-  try {
-    const config = await getLLMConfig();
+async function callLLM(systemPrompt: string, userPrompt: string, config: Awaited<ReturnType<typeof getLLMConfig>>): Promise<string> {
+  const piAiProviders = ['openai', 'anthropic', 'google', 'groq', 'openrouter', 'mistral', 'cerebras', 'xai'];
+  
+  const useDirectSDK = !piAiProviders.includes(config.provider.toLowerCase()) || 
+    (config.baseUrl && !config.baseUrl.includes('openai.com') && !config.baseUrl.includes('anthropic.com'));
+  
+  if (useDirectSDK) {
+    const openai = new OpenAI({
+      apiKey: config.apiKey || process.env.OPENAI_API_KEY,
+      baseURL: config.baseUrl || undefined,
+    });
     
-    // Known providers in pi-ai that we can use directly
-    const piAiProviders = ['openai', 'anthropic', 'google', 'groq', 'openrouter', 'mistral', 'cerebras', 'xai'];
+    const response = await openai.chat.completions.create({
+      model: config.model,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      max_tokens: 4096,
+      temperature: 0.3,
+    });
     
-    // Build user prompt
-    let prompt = `Categorize this English word:\n\nWord: "${word}"`;
-    if (partOfSpeech?.length) {
-      prompt += `\nPart of speech: ${partOfSpeech.join(', ')}`;
+    return response.choices[0]?.message?.content?.trim() || '';
+  } else {
+    const effectiveProvider = config.provider.toLowerCase();
+    
+    if (config.apiKey) {
+      if (effectiveProvider === 'anthropic') {
+        process.env.ANTHROPIC_API_KEY = config.apiKey;
+      } else {
+        process.env.OPENAI_API_KEY = config.apiKey;
+      }
     }
-    if (definition) {
-      prompt += `\nDefinition: ${definition.slice(0, 500)}`;
-    }
-    prompt += `\n\nReturn ONLY the category slug (one of: ${themeSlugs.join(', ')}). No explanation.`;
     
-    const systemPrompt = config.context || SYSTEM_PROMPT;
+    const model = getModel(effectiveProvider as any, config.model as any);
     
-    // Check if we should use pi-ai or direct OpenAI SDK
-    const useDirectSDK = !piAiProviders.includes(config.provider.toLowerCase()) || 
-      (config.baseUrl && !config.baseUrl.includes('openai.com') && !config.baseUrl.includes('anthropic.com'));
-    
-    let responseText: string;
-    
-    if (useDirectSDK) {
-      // Use OpenAI SDK directly for custom providers
+    if (!model) {
       const openai = new OpenAI({
         apiKey: config.apiKey || process.env.OPENAI_API_KEY,
         baseURL: config.baseUrl || undefined,
@@ -128,68 +136,56 @@ export async function categorizeWord(
         model: config.model,
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: prompt },
+          { role: 'user', content: userPrompt },
         ],
-        max_tokens: 100,
+        max_tokens: 4096,
         temperature: 0.3,
       });
       
-      responseText = response.choices[0]?.message?.content?.trim().toLowerCase() || 'general';
-    } else {
-      // Use pi-ai for known providers
-      const effectiveProvider = config.provider.toLowerCase();
-      
-      // Set environment variables for pi-ai
-      if (config.apiKey) {
-        if (effectiveProvider === 'anthropic') {
-          process.env.ANTHROPIC_API_KEY = config.apiKey;
-        } else {
-          process.env.OPENAI_API_KEY = config.apiKey;
-        }
-      }
-      
-      // Get a known model for the provider
-      const model = getModel(effectiveProvider as any, config.model as any);
-      
-      if (!model) {
-        // Fallback to direct SDK if model not found
-        const openai = new OpenAI({
-          apiKey: config.apiKey || process.env.OPENAI_API_KEY,
-          baseURL: config.baseUrl || undefined,
-        });
-        
-        const response = await openai.chat.completions.create({
-          model: config.model,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: prompt },
-          ],
-          max_tokens: 100,
-          temperature: 0.3,
-        });
-        
-        responseText = response.choices[0]?.message?.content?.trim().toLowerCase() || 'general';
-      } else {
-        // Use pi-ai
-        const context: Context = {
-          systemPrompt,
-          messages: [
-            { role: 'user', content: prompt, timestamp: Date.now() }
-          ]
-        };
-        
-        const response = await completeSimple(model, context);
-        
-        responseText = response.content
-          .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
-          .map(c => c.text)
-          .join('')
-          .trim()
-          .toLowerCase();
-      }
+      return response.choices[0]?.message?.content?.trim() || '';
     }
     
-    return extractCategory(responseText);
+    const context: Context = {
+      systemPrompt,
+      messages: [
+        { role: 'user', content: userPrompt, timestamp: Date.now() }
+      ]
+    };
+    
+    const response = await completeSimple(model, context);
+    
+    return response.content
+      .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
+      .map(c => c.text)
+      .join('')
+      .trim();
+  }
+}
+
+/**
+ * Categorize a single word using LLM
+ */
+export async function categorizeWord(
+  word: string,
+  definition?: string,
+  partOfSpeech?: string[]
+): Promise<string> {
+  try {
+    const config = await getLLMConfig();
+    
+    let prompt = `Categorize this English word:\n\nWord: "${word}"`;
+    if (partOfSpeech?.length) {
+      prompt += `\nPart of speech: ${partOfSpeech.join(', ')}`;
+    }
+    if (definition) {
+      prompt += `\nDefinition: ${definition.slice(0, 500)}`;
+    }
+    prompt += `\n\nReturn ONLY the category slug (one of: ${themeSlugs.join(', ')}). No explanation.`;
+    
+    const systemPrompt = BATCH_SYSTEM_PROMPT;
+    const responseText = await callLLM(systemPrompt, prompt, config);
+    
+    return extractCategory(responseText.toLowerCase());
     
   } catch (error) {
     console.error(`Failed to categorize "${word}":`, error);
@@ -197,23 +193,123 @@ export async function categorizeWord(
   }
 }
 
+/**
+ * Batch categorize multiple words in a SINGLE LLM request
+ * This is much more efficient than individual requests
+ */
+export async function categorizeWordsBatch(
+  words: Array<{ word: string; definition?: string; partOfSpeech?: string[] }>,
+  options?: { onProgress?: (done: number, total: number) => void }
+): Promise<Array<{ word: string; category: string }>> {
+  if (words.length === 0) return [];
+  
+  try {
+    const config = await getLLMConfig();
+    
+    // Build the prompt with all words
+    const wordsList = words.map((w, i) => {
+      let entry = `${i + 1}. "${w.word}"`;
+      if (w.partOfSpeech?.length) {
+        entry += ` (${w.partOfSpeech.join(', ')})`;
+      }
+      if (w.definition) {
+        // Truncate long definitions
+        const def = w.definition.length > 100 ? w.definition.slice(0, 100) + '...' : w.definition;
+        entry += `: ${def}`;
+      }
+      return entry;
+    }).join('\n');
+    
+    const prompt = `Categorize the following ${words.length} English words. Return a JSON object where each key is the word and value is the category slug.
+
+Words:
+${wordsList}
+
+Return ONLY a valid JSON object like: {"word1": "category", "word2": "category", ...}`;
+
+    const responseText = await callLLM(BATCH_SYSTEM_PROMPT, prompt, config);
+    
+    // Parse JSON response
+    const categories = parseCategoriesJson(responseText, words.map(w => w.word));
+    
+    if (options?.onProgress) {
+      options.onProgress(words.length, words.length);
+    }
+    
+    return words.map(w => ({
+      word: w.word,
+      category: categories[w.word.toLowerCase()] || 'general',
+    }));
+    
+  } catch (error) {
+    console.error('Batch categorization failed:', error);
+    // Return all as general on failure
+    return words.map(w => ({ word: w.word, category: 'general' }));
+  }
+}
+
+/**
+ * Parse JSON response from LLM, with fallback extraction
+ */
+function parseCategoriesJson(text: string, expectedWords: string[]): Record<string, string> {
+  const result: Record<string, string> = {};
+  
+  // Try to extract JSON from the response
+  let jsonStr = text;
+  
+  // Find JSON object in response
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    jsonStr = jsonMatch[0];
+  }
+  
+  try {
+    const parsed = JSON.parse(jsonStr);
+    
+    // Normalize keys to lowercase and validate categories
+    for (const [word, category] of Object.entries(parsed)) {
+      const normalizedWord = word.toLowerCase().trim();
+      const normalizedCategory = String(category).toLowerCase().trim();
+      
+      if (themeSlugs.includes(normalizedCategory)) {
+        result[normalizedWord] = normalizedCategory;
+      } else {
+        result[normalizedWord] = extractCategory(normalizedCategory);
+      }
+    }
+  } catch (e) {
+    console.error('Failed to parse JSON:', e);
+    // Try line-by-line extraction
+    const lines = text.split('\n');
+    for (const line of lines) {
+      // Try patterns like: "word": "category" or word: category
+      const match = line.match(/["']?(\w+)["']?\s*[:=]\s*["']?(\w+)["']?/);
+      if (match) {
+        const word = match[1].toLowerCase();
+        const category = match[2].toLowerCase();
+        if (themeSlugs.includes(category)) {
+          result[word] = category;
+        }
+      }
+    }
+  }
+  
+  return result;
+}
+
 function extractCategory(text: string): string {
-  // Clean up the response - remove punctuation and whitespace
   const cleaned = text.replace(/[^a-z]/g, '').trim();
   
-  // Check if it's a valid category
   if (themeSlugs.includes(cleaned)) {
     return cleaned;
   }
   
-  // Try to find partial match
   for (const cat of themeSlugs) {
     if (cleaned.includes(cat) || cat.includes(cleaned)) {
       return cat;
     }
   }
   
-  // Check for words that might indicate a category
   const categoryHints: Record<string, string[]> = {
     technology: ['tech', 'computer', 'software', 'digital', 'internet', 'web'],
     business: ['business', 'work', 'corporate', 'finance', 'office', 'professional'],
@@ -235,34 +331,15 @@ function extractCategory(text: string): string {
 }
 
 /**
- * Batch categorize multiple words with concurrency control
+ * Batch categorize multiple words with concurrency control (legacy - individual requests)
+ * Use categorizeWordsBatch for efficiency
  */
 export async function categorizeWords(
   words: Array<{ word: string; definition?: string; partOfSpeech?: string[] }>,
   options?: { concurrency?: number; onProgress?: (done: number, total: number) => void }
 ): Promise<Array<{ word: string; category: string }>> {
-  const concurrency = options?.concurrency || 5;
-  const results: Array<{ word: string; category: string }> = [];
-  
-  // Process in batches
-  for (let i = 0; i < words.length; i += concurrency) {
-    const batch = words.slice(i, i + concurrency);
-    
-    const batchResults = await Promise.all(
-      batch.map(async (w) => ({
-        word: w.word,
-        category: await categorizeWord(w.word, w.definition, w.partOfSpeech),
-      }))
-    );
-    
-    results.push(...batchResults);
-    
-    if (options?.onProgress) {
-      options.onProgress(results.length, words.length);
-    }
-  }
-  
-  return results;
+  // Use the new batch function for efficiency
+  return categorizeWordsBatch(words, options);
 }
 
 /**
@@ -280,7 +357,6 @@ export async function checkLLMAvailability(): Promise<{
     // Test with a simple categorization
     const result = await categorizeWord('test', 'a procedure intended to establish quality', ['noun']);
     
-    // If we got a valid result, it's working
     if (result) {
       return { available: true, provider: config.provider, model: config.model };
     }

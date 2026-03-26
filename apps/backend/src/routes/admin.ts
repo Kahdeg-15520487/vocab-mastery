@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import prisma from '../lib/prisma.js';
 import { requireAdmin } from '../middleware/auth.js';
-import { categorizeWord, categorizeWords, checkLLMAvailability, clearLLMConfigCache, getLLMConfig, THEMES } from '../lib/llm.js';
+import { categorizeWord, categorizeWordsBatch, checkLLMAvailability, clearLLMConfigCache, getLLMConfig, THEMES } from '../lib/llm.js';
 
 export async function adminRoutes(app: FastifyInstance) {
   // All admin routes require admin role
@@ -525,6 +525,7 @@ export async function adminRoutes(app: FastifyInstance) {
     const limit = body.limit || 100;
     const overwrite = body.overwrite || false;
     const themeSlugs = body.themeSlugs || THEMES.map(t => t.slug);
+    const CHUNK_SIZE = 100; // Words per LLM request
 
     // Get themes
     const themes = await prisma.theme.findMany({
@@ -550,19 +551,33 @@ export async function adminRoutes(app: FastifyInstance) {
       return { message: 'No words to categorize', categorized: 0 };
     }
 
-    // Categorize words
-    const results = await categorizeWords(
-      words.map(w => ({
-        word: w.word,
-        definition: w.definition || undefined,
-        partOfSpeech: w.partOfSpeech as string[] | undefined,
-      })),
-      { concurrency: 10 }
-    );
+    // Process in chunks to avoid token limits
+    const allResults: Array<{ word: string; category: string }> = [];
+    const chunks = [];
+    for (let i = 0; i < words.length; i += CHUNK_SIZE) {
+      chunks.push(words.slice(i, i + CHUNK_SIZE));
+    }
+
+    console.log(`Categorizing ${words.length} words in ${chunks.length} chunk(s)...`);
+
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i];
+      console.log(`Processing chunk ${i + 1}/${chunks.length} (${chunk.length} words)...`);
+      
+      const chunkResults = await categorizeWordsBatch(
+        chunk.map(w => ({
+          word: w.word,
+          definition: w.definition || undefined,
+          partOfSpeech: w.partOfSpeech as string[] | undefined,
+        }))
+      );
+      
+      allResults.push(...chunkResults);
+    }
 
     // Build wordId -> category map
     const wordCategoryMap = new Map(
-      results.map((r, i) => [words[i].id, r.category])
+      allResults.map((r, i) => [words[i].id, r.category])
     );
 
     // Clear existing themes if overwrite
@@ -593,13 +608,13 @@ export async function adminRoutes(app: FastifyInstance) {
 
     // Count by category
     const categoryCounts: Record<string, number> = {};
-    for (const r of results) {
+    for (const r of allResults) {
       categoryCounts[r.category] = (categoryCounts[r.category] || 0) + 1;
     }
 
     return {
-      message: `Categorized ${results.length} words`,
-      total: results.length,
+      message: `Categorized ${allResults.length} words`,
+      total: allResults.length,
       tagged: themeInserts.length,
       categoryCounts,
     };
