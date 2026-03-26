@@ -12,6 +12,7 @@ const showAddWords = ref(false)
 const searchQuery = ref('')
 const searchResults = ref<any[]>([])
 const searching = ref(false)
+let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
 const list = computed<ListDetail | null>(() => listsStore.currentList)
 
@@ -20,7 +21,7 @@ onMounted(() => {
 })
 
 async function searchWords() {
-  if (!searchQuery.value.trim()) {
+  if (!searchQuery.value.trim() || searchQuery.value.length < 2) {
     searchResults.value = []
     return
   }
@@ -33,12 +34,21 @@ async function searchWords() {
       credentials: 'include',
     })
     const data = await response.json()
-    searchResults.value = data.words || []
+    // API returns array directly, not { words: [...] }
+    searchResults.value = Array.isArray(data) ? data : (data.words || [])
   } catch (e) {
     console.error('Search failed:', e)
   } finally {
     searching.value = false
   }
+}
+
+// Debounced search
+function onSearchInput() {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    searchWords()
+  }, 300)
 }
 
 async function addWord(wordId: string) {
@@ -137,7 +147,7 @@ function goBack() {
         <div class="flex gap-2 mb-4">
           <input
             v-model="searchQuery"
-            @input="searchWords"
+            @input="onSearchInput"
             type="text"
             placeholder="Search for words to add..."
             class="input flex-1"
@@ -169,7 +179,12 @@ function goBack() {
         </div>
         
         <p v-else-if="searchQuery && !searching" class="text-slate-500 text-center py-4">
-          No words found. Try a different search.
+          <template v-if="searchQuery.length < 2">
+            Type at least 2 characters to search.
+          </template>
+          <template v-else>
+            No words found. Try a different search.
+          </template>
         </p>
       </div>
 

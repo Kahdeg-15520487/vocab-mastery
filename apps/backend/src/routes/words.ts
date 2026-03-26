@@ -162,22 +162,25 @@ export async function wordRoutes(app: FastifyInstance) {
 
   // Search words (requires auth)
   app.get('/words/search', { preHandler: authenticate }, async (request, reply) => {
-    const { q } = request.query as { q: string };
+    const { q, limit } = request.query as { q: string; limit?: string };
 
     if (!q || q.length < 2) {
       return reply.status(400).send({ error: 'Query must be at least 2 characters' });
     }
 
+    const takeLimit = Math.min(parseInt(limit || '20', 10), 50);
+
     const words = await prisma.word.findMany({
       where: {
         word: { contains: q, mode: 'insensitive' },
       },
-      take: 10,
+      take: takeLimit,
       select: {
         id: true,
         word: true,
         definition: true,
         cefrLevel: true,
+        phoneticUs: true,
       },
     });
 
