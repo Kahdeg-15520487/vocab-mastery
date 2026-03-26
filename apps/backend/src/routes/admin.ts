@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import prisma from '../lib/prisma.js';
 import { requireAdmin } from '../middleware/auth.js';
-import { categorizeWord, categorizeWordsBatch, checkLLMAvailability, clearLLMConfigCache, getLLMConfig, THEMES } from '../lib/llm.js';
+import { categorizeWord, categorizeWordsBatch, checkLLMAvailability, clearLLMConfigCache, getLLMConfig, testProviderConfig, THEMES } from '../lib/llm.js';
 
 export async function adminRoutes(app: FastifyInstance) {
   // All admin routes require admin role
@@ -337,96 +337,264 @@ export async function adminRoutes(app: FastifyInstance) {
   });
 
   // ============================================
-  // LLM Configuration Endpoints
+  // LLM Provider Management Endpoints
   // ============================================
 
-  // GET /api/admin/llm/config - Get current LLM config (masked)
-  app.get('/admin/llm/config', async (request, reply) => {
-    const config = await getLLMConfig();
+  // GET /api/admin/llm/providers - List all providers
+  app.get('/admin/llm/providers', async (request, reply) => {
+    const providers = await prisma.llmProvider.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
     
-    // Mask sensitive values
+    // Mask API keys
+    return providers.map(p => ({
+      ...p,
+      apiKey: p.apiKey ? '••••••••' + p.apiKey.slice(-4) : null,
+      hasApiKey: !!p.apiKey,
+    }));
+  });
+
+  // GET /api/admin/llm/providers/:id - Get single provider
+  app.get('/admin/llm/providers/:id', async (request, reply) => {
+    const params = request.params as { id: string };
+    
+    const provider = await prisma.llmProvider.findUnique({
+      where: { id: params.id },
+    });
+    
+    if (!provider) {
+      return reply.status(404).send({ error: 'Provider not found' });
+    }
+    
     return {
-      provider: config.provider,
-      baseUrl: config.baseUrl || '',
-      model: config.model,
-      context: config.context || '',
-      apiKey: config.apiKey ? '••••••••' + config.apiKey.slice(-4) : null,
-      hasApiKey: !!config.apiKey,
+      ...provider,
+      apiKey: provider.apiKey ? '••••••••' + provider.apiKey.slice(-4) : null,
+      hasApiKey: !!provider.apiKey,
     };
   });
 
-  // PUT /api/admin/llm/config - Update LLM config
-  app.put('/admin/llm/config', async (request, reply) => {
+  // POST /api/admin/llm/providers - Create new provider
+  app.post('/admin/llm/providers', async (request, reply) => {
     const body = request.body as {
-      provider?: string;
+      name: string;
+      provider: string;
+      model: string;
       baseUrl?: string;
-      model?: string;
       apiKey?: string;
       context?: string;
+      isActive?: boolean;
     };
 
-    const updates: Promise<any>[] = [];
-
-    if (body.provider !== undefined) {
-      updates.push(
-        prisma.systemConfig.upsert({
-          where: { key: 'llm.provider' },
-          update: { value: body.provider },
-          create: { key: 'llm.provider', value: body.provider },
-        })
-      );
+    if (!body.name || !body.provider || !body.model) {
+      return reply.status(400).send({ error: 'Name, provider, and model are required' });
     }
 
-    if (body.baseUrl !== undefined) {
-      updates.push(
-        prisma.systemConfig.upsert({
-          where: { key: 'llm.base_url' },
-          update: { value: body.baseUrl },
-          create: { key: 'llm.base_url', value: body.baseUrl },
-        })
-      );
+    // Check for duplicate name
+    const existing = await prisma.llmProvider.findUnique({
+      where: { name: body.name },
+    });
+    
+    if (existing) {
+      return reply.status(409).send({ error: 'Provider with this name already exists' });
     }
 
-    if (body.model !== undefined) {
-      updates.push(
-        prisma.systemConfig.upsert({
-          where: { key: 'llm.model' },
-          update: { value: body.model },
-          create: { key: 'llm.model', value: body.model },
-        })
-      );
+    // If setting as active, deactivate others
+    if (body.isActive) {
+      await prisma.llmProvider.updateMany({
+        where: { isActive: true },
+        data: { isActive: false },
+      });
     }
 
-    if (body.apiKey !== undefined) {
-      // Only update if not empty and not the masked placeholder
-      if (body.apiKey && !body.apiKey.startsWith('••••')) {
-        updates.push(
-          prisma.systemConfig.upsert({
-            where: { key: 'llm.api_key' },
-            update: { value: body.apiKey },
-            create: { key: 'llm.api_key', value: body.apiKey },
-          })
-        );
+    const newProvider = await prisma.llmProvider.create({
+      data: {
+        name: body.name,
+        provider: body.provider,
+        model: body.model,
+        baseUrl: body.baseUrl || null,
+        apiKey: body.apiKey || null,
+        context: body.context || null,
+        isActive: body.isActive ?? false,
+      },
+    });
+
+    // Clear cache if this is now active
+    if (newProvider.isActive) {
+      clearLLMConfigCache();
+    }
+
+    return {
+      ...newProvider,
+      apiKey: newProvider.apiKey ? '••••••••' + newProvider.apiKey.slice(-4) : null,
+      hasApiKey: !!newProvider.apiKey,
+    };
+  });
+
+  // PUT /api/admin/llm/providers/:id - Update provider
+  app.put('/admin/llm/providers/:id', async (request, reply) => {
+    const params = request.params as { id: string };
+    const body = request.body as {
+      name?: string;
+      provider?: string;
+      model?: string;
+      baseUrl?: string;
+      apiKey?: string;
+      context?: string;
+      isActive?: boolean;
+    };
+
+    const existing = await prisma.llmProvider.findUnique({
+      where: { id: params.id },
+    });
+
+    if (!existing) {
+      return reply.status(404).send({ error: 'Provider not found' });
+    }
+
+    // Check for duplicate name if name is being changed
+    if (body.name && body.name !== existing.name) {
+      const duplicate = await prisma.llmProvider.findUnique({
+        where: { name: body.name },
+      });
+      if (duplicate) {
+        return reply.status(409).send({ error: 'Provider with this name already exists' });
       }
     }
 
-    if (body.context !== undefined) {
-      updates.push(
-        prisma.systemConfig.upsert({
-          where: { key: 'llm.context' },
-          update: { value: body.context },
-          create: { key: 'llm.context', value: body.context },
-        })
-      );
+    // If setting as active, deactivate others
+    if (body.isActive) {
+      await prisma.llmProvider.updateMany({
+        where: { isActive: true, id: { not: params.id } },
+        data: { isActive: false },
+      });
     }
 
-    await Promise.all(updates);
+    // Build update data
+    const updateData: any = {};
+    if (body.name !== undefined) updateData.name = body.name;
+    if (body.provider !== undefined) updateData.provider = body.provider;
+    if (body.model !== undefined) updateData.model = body.model;
+    if (body.baseUrl !== undefined) updateData.baseUrl = body.baseUrl || null;
+    if (body.context !== undefined) updateData.context = body.context || null;
+    if (body.isActive !== undefined) updateData.isActive = body.isActive;
     
+    // Only update API key if it's a new value (not the masked placeholder)
+    if (body.apiKey !== undefined && body.apiKey && !body.apiKey.startsWith('••••')) {
+      updateData.apiKey = body.apiKey;
+    }
+
+    const updated = await prisma.llmProvider.update({
+      where: { id: params.id },
+      data: updateData,
+    });
+
     // Clear cache
     clearLLMConfigCache();
 
-    // Return updated config
+    return {
+      ...updated,
+      apiKey: updated.apiKey ? '••••••••' + updated.apiKey.slice(-4) : null,
+      hasApiKey: !!updated.apiKey,
+    };
+  });
+
+  // DELETE /api/admin/llm/providers/:id - Delete provider
+  app.delete('/admin/llm/providers/:id', async (request, reply) => {
+    const params = request.params as { id: string };
+
+    const provider = await prisma.llmProvider.findUnique({
+      where: { id: params.id },
+    });
+
+    if (!provider) {
+      return reply.status(404).send({ error: 'Provider not found' });
+    }
+
+    await prisma.llmProvider.delete({
+      where: { id: params.id },
+    });
+
+    // Clear cache if deleted provider was active
+    if (provider.isActive) {
+      clearLLMConfigCache();
+    }
+
+    return { success: true };
+  });
+
+  // PUT /api/admin/llm/providers/:id/activate - Set active provider
+  app.put('/admin/llm/providers/:id/activate', async (request, reply) => {
+    const params = request.params as { id: string };
+
+    const provider = await prisma.llmProvider.findUnique({
+      where: { id: params.id },
+    });
+
+    if (!provider) {
+      return reply.status(404).send({ error: 'Provider not found' });
+    }
+
+    // Deactivate all providers
+    await prisma.llmProvider.updateMany({
+      where: { isActive: true },
+      data: { isActive: false },
+    });
+
+    // Activate this one
+    await prisma.llmProvider.update({
+      where: { id: params.id },
+      data: { isActive: true },
+    });
+
+    // Clear cache
+    clearLLMConfigCache();
+
+    return { success: true };
+  });
+
+  // POST /api/admin/llm/providers/:id/test - Test provider connection
+  app.post('/admin/llm/providers/:id/test', async (request, reply) => {
+    const params = request.params as { id: string };
+
+    const provider = await prisma.llmProvider.findUnique({
+      where: { id: params.id },
+    });
+
+    if (!provider) {
+      return reply.status(404).send({ error: 'Provider not found' });
+    }
+
+    const result = await testProviderConfig({
+      provider: provider.provider,
+      model: provider.model,
+      apiKey: provider.apiKey || undefined,
+      baseUrl: provider.baseUrl || undefined,
+    });
+
+    return result;
+  });
+
+  // POST /api/admin/llm/test - Test a provider config without saving
+  app.post('/admin/llm/test', async (request, reply) => {
+    const body = request.body as {
+      provider: string;
+      model: string;
+      apiKey?: string;
+      baseUrl?: string;
+    };
+
+    if (!body.provider || !body.model) {
+      return reply.status(400).send({ error: 'Provider and model are required' });
+    }
+
+    const result = await testProviderConfig(body);
+    return result;
+  });
+
+  // GET /api/admin/llm/config - Get active LLM config (for backwards compatibility)
+  app.get('/admin/llm/config', async (request, reply) => {
     const config = await getLLMConfig();
+    
     return {
       provider: config.provider,
       baseUrl: config.baseUrl || '',

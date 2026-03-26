@@ -1,9 +1,10 @@
-import { getModel, completeSimple, type Context, type Tool } from '@mariozechner/pi-ai';
+import { getModel, completeSimple, type Context } from '@mariozechner/pi-ai';
 import OpenAI from 'openai';
 import prisma from './prisma.js';
 
 // Config cache
 let cachedConfig: {
+  id: string;
   provider: string;
   model: string;
   apiKey?: string;
@@ -39,9 +40,10 @@ Rules:
 5. Return ONLY the JSON object, no explanation`;
 
 /**
- * Get LLM config from database or environment
+ * Get active LLM config from database
  */
 export async function getLLMConfig(): Promise<{
+  id: string;
   provider: string;
   model: string;
   apiKey?: string;
@@ -51,6 +53,24 @@ export async function getLLMConfig(): Promise<{
   if (cachedConfig) return cachedConfig;
 
   try {
+    // Get active provider from new LlmProvider table
+    const activeProvider = await prisma.llmProvider.findFirst({
+      where: { isActive: true },
+    });
+
+    if (activeProvider) {
+      cachedConfig = {
+        id: activeProvider.id,
+        provider: activeProvider.provider,
+        model: activeProvider.model,
+        apiKey: activeProvider.apiKey || undefined,
+        baseUrl: activeProvider.baseUrl || undefined,
+        context: activeProvider.context || undefined,
+      };
+      return cachedConfig;
+    }
+
+    // Fallback to legacy SystemConfig (for backwards compatibility)
     const configs = await prisma.systemConfig.findMany({
       where: {
         key: { in: ['llm.provider', 'llm.model', 'llm.api_key', 'llm.base_url', 'llm.context'] }
@@ -59,23 +79,38 @@ export async function getLLMConfig(): Promise<{
 
     const configMap = Object.fromEntries(configs.map(c => [c.key, c.value]));
 
-    cachedConfig = {
-      provider: configMap['llm.provider'] || process.env.LLM_PROVIDER || 'openai',
-      model: configMap['llm.model'] || process.env.LLM_MODEL || 'gpt-4o-mini',
-      apiKey: configMap['llm.api_key'] || process.env.OPENAI_API_KEY,
-      baseUrl: configMap['llm.base_url'] || process.env.LLM_BASE_URL,
-      context: configMap['llm.context'] || process.env.LLM_CONTEXT || 'You are a helpful assistant.',
-    };
+    if (Object.keys(configMap).length > 0) {
+      cachedConfig = {
+        id: 'legacy',
+        provider: configMap['llm.provider'] || 'openai',
+        model: configMap['llm.model'] || 'gpt-4o-mini',
+        apiKey: configMap['llm.api_key'] || undefined,
+        baseUrl: configMap['llm.base_url'] || undefined,
+        context: configMap['llm.context'] || undefined,
+      };
+      return cachedConfig;
+    }
 
-    return cachedConfig;
-  } catch (error) {
-    // Fallback to env vars if database fails
-    return {
+    // Final fallback to env vars
+    cachedConfig = {
+      id: 'env',
       provider: process.env.LLM_PROVIDER || 'openai',
       model: process.env.LLM_MODEL || 'gpt-4o-mini',
       apiKey: process.env.OPENAI_API_KEY,
       baseUrl: process.env.LLM_BASE_URL,
-      context: process.env.LLM_CONTEXT || 'You are a helpful assistant.',
+      context: process.env.LLM_CONTEXT,
+    };
+    
+    return cachedConfig;
+  } catch (error) {
+    // Fallback to env vars if database fails
+    return {
+      id: 'env',
+      provider: process.env.LLM_PROVIDER || 'openai',
+      model: process.env.LLM_MODEL || 'gpt-4o-mini',
+      apiKey: process.env.OPENAI_API_KEY,
+      baseUrl: process.env.LLM_BASE_URL,
+      context: process.env.LLM_CONTEXT,
     };
   }
 }
@@ -90,26 +125,21 @@ export function clearLLMConfigCache() {
 /**
  * Call LLM API (either pi-ai or direct OpenAI SDK)
  */
-async function callLLM(systemPrompt: string, userPrompt: string, config: Awaited<ReturnType<typeof getLLMConfig>>): Promise<string> {
+async function callLLM(
+  systemPrompt: string, 
+  userPrompt: string, 
+  config: Awaited<ReturnType<typeof getLLMConfig>>
+): Promise<string> {
   const piAiProviders = ['openai', 'anthropic', 'google', 'groq', 'openrouter', 'mistral', 'cerebras', 'xai'];
   
   const useDirectSDK = !piAiProviders.includes(config.provider.toLowerCase()) || 
     (config.baseUrl && !config.baseUrl.includes('openai.com') && !config.baseUrl.includes('anthropic.com'));
-  
-  console.log(`[LLM] Calling ${config.provider} (${config.model}) via ${useDirectSDK ? 'direct SDK' : 'pi-ai'}`);
-  console.log(`[LLM] Base URL: ${config.baseUrl || 'default'}`);
-  console.log(`[LLM] System prompt length: ${systemPrompt.length} chars`);
-  console.log(`[LLM] User prompt length: ${userPrompt.length} chars`);
-  
-  const startTime = Date.now();
   
   if (useDirectSDK) {
     const openai = new OpenAI({
       apiKey: config.apiKey || process.env.OPENAI_API_KEY,
       baseURL: config.baseUrl || undefined,
     });
-    
-    console.log(`[LLM] Sending request to ${config.baseUrl || 'OpenAI default'}...`);
     
     const response = await openai.chat.completions.create({
       model: config.model,
@@ -121,14 +151,7 @@ async function callLLM(systemPrompt: string, userPrompt: string, config: Awaited
       temperature: 0.3,
     });
     
-    const elapsed = Date.now() - startTime;
-    const content = response.choices[0]?.message?.content?.trim() || '';
-    
-    console.log(`[LLM] Response received in ${elapsed}ms`);
-    console.log(`[LLM] Response length: ${content.length} chars`);
-    console.log(`[LLM] Tokens used: ${response.usage ? `prompt=${response.usage.prompt_tokens}, completion=${response.usage.completion_tokens}, total=${response.usage.total_tokens}` : 'N/A'}`);
-    
-    return content;
+    return response.choices[0]?.message?.content?.trim() || '';
   } else {
     const effectiveProvider = config.provider.toLowerCase();
     
@@ -143,7 +166,6 @@ async function callLLM(systemPrompt: string, userPrompt: string, config: Awaited
     const model = getModel(effectiveProvider as any, config.model as any);
     
     if (!model) {
-      console.log(`[LLM] Model "${config.model}" not found in pi-ai, falling back to direct SDK`);
       const openai = new OpenAI({
         apiKey: config.apiKey || process.env.OPENAI_API_KEY,
         baseURL: config.baseUrl || undefined,
@@ -159,13 +181,7 @@ async function callLLM(systemPrompt: string, userPrompt: string, config: Awaited
         temperature: 0.3,
       });
       
-      const elapsed = Date.now() - startTime;
-      const content = response.choices[0]?.message?.content?.trim() || '';
-      
-      console.log(`[LLM] Response received in ${elapsed}ms`);
-      console.log(`[LLM] Response length: ${content.length} chars`);
-      
-      return content;
+      return response.choices[0]?.message?.content?.trim() || '';
     }
     
     const context: Context = {
@@ -175,24 +191,13 @@ async function callLLM(systemPrompt: string, userPrompt: string, config: Awaited
       ]
     };
     
-    console.log(`[LLM] Sending request via pi-ai...`);
-    
     const response = await completeSimple(model, context);
     
-    const elapsed = Date.now() - startTime;
-    const content = response.content
+    return response.content
       .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
       .map(c => c.text)
       .join('')
       .trim();
-    
-    console.log(`[LLM] Response received in ${elapsed}ms`);
-    console.log(`[LLM] Response length: ${content.length} chars`);
-    if (response.usage) {
-      console.log(`[LLM] Tokens: input=${response.usage.input}, output=${response.usage.output}, total=${response.usage.totalTokens}`);
-    }
-    
-    return content;
   }
 }
 
@@ -229,7 +234,6 @@ export async function categorizeWord(
 
 /**
  * Batch categorize multiple words in a SINGLE LLM request
- * This is much more efficient than individual requests
  */
 export async function categorizeWordsBatch(
   words: Array<{ word: string; definition?: string; partOfSpeech?: string[] }>,
@@ -237,19 +241,15 @@ export async function categorizeWordsBatch(
 ): Promise<Array<{ word: string; category: string }>> {
   if (words.length === 0) return [];
   
-  console.log(`[LLM] Starting batch categorization of ${words.length} words`);
-  
   try {
     const config = await getLLMConfig();
     
-    // Build the prompt with all words
     const wordsList = words.map((w, i) => {
       let entry = `${i + 1}. "${w.word}"`;
       if (w.partOfSpeech?.length) {
         entry += ` (${w.partOfSpeech.join(', ')})`;
       }
       if (w.definition) {
-        // Truncate long definitions
         const def = w.definition.length > 100 ? w.definition.slice(0, 100) + '...' : w.definition;
         entry += `: ${def}`;
       }
@@ -263,26 +263,9 @@ ${wordsList}
 
 Return ONLY a valid JSON object like: {"word1": "category", "word2": "category", ...}`;
 
-    console.log(`[LLM] Prompt built: ${wordsList.split('\n').length} word entries`);
-    
-    const startTime = Date.now();
     const responseText = await callLLM(BATCH_SYSTEM_PROMPT, prompt, config);
-    const elapsed = Date.now() - startTime;
     
-    console.log(`[LLM] Batch request completed in ${elapsed}ms`);
-    
-    // Parse JSON response
     const categories = parseCategoriesJson(responseText, words.map(w => w.word));
-    
-    console.log(`[LLM] Parsed ${Object.keys(categories).length} categories from response`);
-    
-    // Log category distribution
-    const distribution: Record<string, number> = {};
-    for (const word of words) {
-      const cat = categories[word.word.toLowerCase()] || 'general';
-      distribution[cat] = (distribution[cat] || 0) + 1;
-    }
-    console.log(`[LLM] Category distribution: ${JSON.stringify(distribution)}`);
     
     if (options?.onProgress) {
       options.onProgress(words.length, words.length);
@@ -293,24 +276,19 @@ Return ONLY a valid JSON object like: {"word1": "category", "word2": "category",
       category: categories[w.word.toLowerCase()] || 'general',
     }));
     
-  } catch (error: any) {
-    console.error(`[LLM] Batch categorization failed:`, error.message);
-    console.error(`[LLM] Error stack:`, error.stack);
-    // Return all as general on failure
+  } catch (error) {
+    console.error('Batch categorization failed:', error);
     return words.map(w => ({ word: w.word, category: 'general' }));
   }
 }
 
 /**
- * Parse JSON response from LLM, with fallback extraction
+ * Parse JSON response from LLM
  */
 function parseCategoriesJson(text: string, expectedWords: string[]): Record<string, string> {
   const result: Record<string, string> = {};
   
-  // Try to extract JSON from the response
   let jsonStr = text;
-  
-  // Find JSON object in response
   const jsonMatch = text.match(/\{[\s\S]*\}/);
   if (jsonMatch) {
     jsonStr = jsonMatch[0];
@@ -319,7 +297,6 @@ function parseCategoriesJson(text: string, expectedWords: string[]): Record<stri
   try {
     const parsed = JSON.parse(jsonStr);
     
-    // Normalize keys to lowercase and validate categories
     for (const [word, category] of Object.entries(parsed)) {
       const normalizedWord = word.toLowerCase().trim();
       const normalizedCategory = String(category).toLowerCase().trim();
@@ -332,10 +309,8 @@ function parseCategoriesJson(text: string, expectedWords: string[]): Record<stri
     }
   } catch (e) {
     console.error('Failed to parse JSON:', e);
-    // Try line-by-line extraction
     const lines = text.split('\n');
     for (const line of lines) {
-      // Try patterns like: "word": "category" or word: category
       const match = line.match(/["']?(\w+)["']?\s*[:=]\s*["']?(\w+)["']?/);
       if (match) {
         const word = match[1].toLowerCase();
@@ -384,14 +359,12 @@ function extractCategory(text: string): string {
 }
 
 /**
- * Batch categorize multiple words with concurrency control (legacy - individual requests)
- * Use categorizeWordsBatch for efficiency
+ * Batch categorize with progress callback
  */
 export async function categorizeWords(
   words: Array<{ word: string; definition?: string; partOfSpeech?: string[] }>,
   options?: { concurrency?: number; onProgress?: (done: number, total: number) => void }
 ): Promise<Array<{ word: string; category: string }>> {
-  // Use the new batch function for efficiency
   return categorizeWordsBatch(words, options);
 }
 
@@ -400,14 +373,13 @@ export async function categorizeWords(
  */
 export async function checkLLMAvailability(): Promise<{ 
   available: boolean; 
-  provider: string; 
+  provider?: string;
   model?: string; 
   error?: string 
 }> {
   try {
     const config = await getLLMConfig();
     
-    // Test with a simple categorization
     const result = await categorizeWord('test', 'a procedure intended to establish quality', ['noun']);
     
     if (result) {
@@ -417,12 +389,78 @@ export async function checkLLMAvailability(): Promise<{
     return { available: false, provider: config.provider, error: 'No response from model' };
     
   } catch (error: any) {
-    const config = await getLLMConfig();
     return { 
       available: false, 
-      provider: config.provider, 
       error: error.message || 'Connection failed' 
     };
+  }
+}
+
+/**
+ * Test a specific provider configuration
+ */
+export async function testProviderConfig(config: {
+  provider: string;
+  model: string;
+  apiKey?: string;
+  baseUrl?: string;
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const piAiProviders = ['openai', 'anthropic', 'google', 'groq', 'openrouter', 'mistral', 'cerebras', 'xai'];
+    const useDirectSDK = !piAiProviders.includes(config.provider.toLowerCase()) || 
+      (config.baseUrl && !config.baseUrl.includes('openai.com') && !config.baseUrl.includes('anthropic.com'));
+    
+    if (useDirectSDK) {
+      const openai = new OpenAI({
+        apiKey: config.apiKey || process.env.OPENAI_API_KEY,
+        baseURL: config.baseUrl || undefined,
+      });
+      
+      await openai.chat.completions.create({
+        model: config.model,
+        messages: [
+          { role: 'user', content: 'Say "ok"' },
+        ],
+        max_tokens: 10,
+      });
+    } else {
+      const effectiveProvider = config.provider.toLowerCase();
+      
+      if (config.apiKey) {
+        if (effectiveProvider === 'anthropic') {
+          process.env.ANTHROPIC_API_KEY = config.apiKey;
+        } else {
+          process.env.OPENAI_API_KEY = config.apiKey;
+        }
+      }
+      
+      const model = getModel(effectiveProvider as any, config.model as any);
+      
+      if (!model) {
+        // Try direct SDK as fallback
+        const openai = new OpenAI({
+          apiKey: config.apiKey,
+          baseURL: config.baseUrl || undefined,
+        });
+        
+        await openai.chat.completions.create({
+          model: config.model,
+          messages: [{ role: 'user', content: 'Say "ok"' }],
+          max_tokens: 10,
+        });
+      } else {
+        const context: Context = {
+          systemPrompt: 'You are a helpful assistant.',
+          messages: [{ role: 'user', content: 'Say "ok"', timestamp: Date.now() }]
+        };
+        
+        await completeSimple(model, context);
+      }
+    }
+    
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Connection failed' };
   }
 }
 
