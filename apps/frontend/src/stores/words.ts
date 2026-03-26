@@ -40,12 +40,14 @@ export const useWordsStore = defineStore('words', () => {
   }) {
     try {
       loading.value = true
+      error.value = null
       const data = await wordsApi.getAll(params)
       words.value = data.words
       pagination.value = data.pagination
       return data
     } catch (e: any) {
       error.value = e.message
+      console.error('Failed to fetch words:', e.message)
       return null
     } finally {
       loading.value = false

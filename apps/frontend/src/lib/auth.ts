@@ -185,11 +185,13 @@ class AuthService {
   }
 
   getAccessToken(): string | null {
-    return this.accessToken;
+    // Always read from sessionStorage to ensure we have the latest token
+    // The private accessToken may be out of sync after page refreshes or redirects
+    return sessionStorage.getItem('accessToken');
   }
 
   isAuthenticated(): boolean {
-    return !!this.accessToken;
+    return !!this.getAccessToken();
   }
 
   clearTokens(): void {
