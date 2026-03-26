@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import prisma from '../lib/prisma.js';
 import { requireAdmin } from '../middleware/auth.js';
+import { categorizeWord, categorizeWords, checkLLMAvailability, THEMES } from '../lib/llm.js';
 
 export async function adminRoutes(app: FastifyInstance) {
   // All admin routes require admin role
@@ -328,5 +329,219 @@ export async function adminRoutes(app: FastifyInstance) {
     });
 
     return config;
+  });
+
+  // ============================================
+  // LLM Categorization Endpoints
+  // ============================================
+
+  // GET /api/admin/llm/status - Check LLM availability
+  app.get('/admin/llm/status', async (request, reply) => {
+    const status = await checkLLMAvailability();
+    return status;
+  });
+
+  // GET /api/admin/categorization/stats - Get categorization progress
+  app.get('/admin/categorization/stats', async (request, reply) => {
+    const [totalWords, categorizedWordsRaw, wordsByTheme] = await Promise.all([
+      prisma.word.count(),
+      prisma.wordTheme.groupBy({
+        by: ['wordId'],
+        _count: { _all: true },
+      }),
+      prisma.wordTheme.groupBy({
+        by: ['themeId'],
+        _count: { wordId: true },
+      }),
+    ]);
+
+    const categorizedWords = categorizedWordsRaw.length;
+
+    // Get theme names
+    const themes = await prisma.theme.findMany();
+    const themeMap = Object.fromEntries(themes.map(t => [t.id, t]));
+
+    const themeStats = wordsByTheme.map(item => ({
+      themeId: item.themeId,
+      themeSlug: themeMap[item.themeId]?.slug || 'unknown',
+      themeName: themeMap[item.themeId]?.name || 'Unknown',
+      count: item._count.wordId,
+    }));
+
+    return {
+      totalWords,
+      categorizedWords,
+      uncategorizedWords: totalWords - categorizedWords,
+      themeStats,
+    };
+  });
+
+  // POST /api/admin/categorize/preview - Preview categorization for a word
+  app.post('/admin/categorize/preview', async (request, reply) => {
+    const body = request.body as { word?: string; wordId?: string };
+
+    if (!body.word && !body.wordId) {
+      return reply.status(400).send({ error: 'word or wordId is required' });
+    }
+
+    let wordData: { word: string; definition: string | null; partOfSpeech: any };
+    
+    if (body.wordId) {
+      const word = await prisma.word.findUnique({
+        where: { id: body.wordId },
+        select: { word: true, definition: true, partOfSpeech: true },
+      });
+      if (!word) {
+        return reply.status(404).send({ error: 'Word not found' });
+      }
+      wordData = word;
+    } else {
+      wordData = { word: body.word!, definition: null, partOfSpeech: null };
+    }
+
+    const category = await categorizeWord(
+      wordData.word,
+      wordData.definition || undefined,
+      wordData.partOfSpeech as string[] | undefined
+    );
+
+    return { word: wordData.word, category };
+  });
+
+  // POST /api/admin/categorize/batch - Batch categorize uncategorized words
+  app.post('/admin/categorize/batch', async (request, reply) => {
+    const body = request.body as { 
+      limit?: number; 
+      overwrite?: boolean;
+      themeSlugs?: string[];
+    };
+    
+    const limit = body.limit || 100;
+    const overwrite = body.overwrite || false;
+    const themeSlugs = body.themeSlugs || THEMES.map(t => t.slug);
+
+    // Get themes
+    const themes = await prisma.theme.findMany({
+      where: { slug: { in: themeSlugs } },
+    });
+    const themeBySlug = Object.fromEntries(themes.map(t => [t.slug, t]));
+
+    // Get uncategorized words (or all if overwrite)
+    const words = await prisma.word.findMany({
+      where: body.overwrite ? {} : {
+        themes: { none: {} },
+      },
+      select: {
+        id: true,
+        word: true,
+        definition: true,
+        partOfSpeech: true,
+      },
+      take: limit,
+    });
+
+    if (words.length === 0) {
+      return { message: 'No words to categorize', categorized: 0 };
+    }
+
+    // Categorize words
+    const results = await categorizeWords(
+      words.map(w => ({
+        word: w.word,
+        definition: w.definition || undefined,
+        partOfSpeech: w.partOfSpeech as string[] | undefined,
+      })),
+      { concurrency: 10 }
+    );
+
+    // Build wordId -> category map
+    const wordCategoryMap = new Map(
+      results.map((r, i) => [words[i].id, r.category])
+    );
+
+    // Clear existing themes if overwrite
+    if (overwrite) {
+      await prisma.wordTheme.deleteMany({
+        where: { wordId: { in: words.map(w => w.id) } },
+      });
+    }
+
+    // Insert new theme associations
+    const themeInserts: Array<{ wordId: string; themeId: string }> = [];
+    
+    for (const [wordId, category] of wordCategoryMap) {
+      if (category !== 'general' && themeBySlug[category]) {
+        themeInserts.push({
+          wordId,
+          themeId: themeBySlug[category].id,
+        });
+      }
+    }
+
+    if (themeInserts.length > 0) {
+      await prisma.wordTheme.createMany({
+        data: themeInserts,
+        skipDuplicates: true,
+      });
+    }
+
+    // Count by category
+    const categoryCounts: Record<string, number> = {};
+    for (const r of results) {
+      categoryCounts[r.category] = (categoryCounts[r.category] || 0) + 1;
+    }
+
+    return {
+      message: `Categorized ${results.length} words`,
+      total: results.length,
+      tagged: themeInserts.length,
+      categoryCounts,
+    };
+  });
+
+  // POST /api/admin/categorize/single - Categorize and save a single word
+  app.post('/admin/categorize/single', async (request, reply) => {
+    const body = request.body as { wordId: string };
+
+    if (!body.wordId) {
+      return reply.status(400).send({ error: 'wordId is required' });
+    }
+
+    const word = await prisma.word.findUnique({
+      where: { id: body.wordId },
+      select: { id: true, word: true, definition: true, partOfSpeech: true },
+    });
+
+    if (!word) {
+      return reply.status(404).send({ error: 'Word not found' });
+    }
+
+    const category = await categorizeWord(
+      word.word,
+      word.definition || undefined,
+      word.partOfSpeech as string[] | undefined
+    );
+
+    // Get theme
+    const theme = await prisma.theme.findUnique({
+      where: { slug: category },
+    });
+
+    // Clear existing themes for this word
+    await prisma.wordTheme.deleteMany({
+      where: { wordId: word.id },
+    });
+
+    // Add new theme if not 'general'
+    if (theme && category !== 'general') {
+      await prisma.wordTheme.create({
+        data: {
+          wordId: word.id,
+          themeId: theme.id,
+        },
+      });
+    }
+
+    return { word: word.word, category, tagged: !!theme };
   });
 }

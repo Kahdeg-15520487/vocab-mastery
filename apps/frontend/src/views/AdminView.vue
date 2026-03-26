@@ -4,13 +4,15 @@ import UserTable from '@/components/admin/UserTable.vue'
 import ConfigPanel from '@/components/admin/ConfigPanel.vue'
 import StatsPanel from '@/components/admin/StatsPanel.vue'
 import DataPanel from '@/components/admin/DataPanel.vue'
+import CategorizationPanel from '@/components/admin/CategorizationPanel.vue'
 
-const activeTab = ref<'users' | 'stats' | 'config' | 'data'>('users')
+const activeTab = ref<'users' | 'stats' | 'data' | 'categorize' | 'config'>('users')
 
 const tabs = [
   { key: 'users', label: 'Users', icon: '👥' },
   { key: 'stats', label: 'Stats', icon: '📊' },
   { key: 'data', label: 'Data', icon: '📦' },
+  { key: 'categorize', label: 'Categorize', icon: '🏷️' },
   { key: 'config', label: 'Config', icon: '⚙️' },
 ]
 </script>
@@ -54,6 +56,10 @@ const tabs = [
 
     <div v-else-if="activeTab === 'data'">
       <DataPanel />
+    </div>
+
+    <div v-else-if="activeTab === 'categorize'">
+      <CategorizationPanel />
     </div>
 
     <div v-else-if="activeTab === 'config'">

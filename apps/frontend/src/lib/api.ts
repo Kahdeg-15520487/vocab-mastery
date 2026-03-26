@@ -253,3 +253,62 @@ export const statsApi = {
 
   getLevelDistribution: () => request<any>('/stats/level-distribution'),
 }
+
+// Admin API
+export const adminApi = {
+  getStats: () => request<any>('/admin/stats'),
+  
+  getUsers: (params?: { page?: number; limit?: number; search?: string; tier?: string }) => {
+    const searchParams = new URLSearchParams()
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          searchParams.append(key, String(value))
+        }
+      })
+    }
+    return request<any>(`/admin/users?${searchParams}`)
+  },
+
+  updateUser: (userId: string, data: { role?: string; subscriptionTier?: string }) =>
+    request<any>(`/admin/users/${userId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
+  deleteUser: (userId: string) =>
+    request<any>(`/admin/users/${userId}`, {
+      method: 'DELETE',
+    }),
+
+  getConfig: () => request<any>('/admin/config'),
+
+  updateConfig: (key: string, value: any) =>
+    request<any>(`/admin/config/${key}`, {
+      method: 'PUT',
+      body: JSON.stringify({ value }),
+    }),
+
+  // LLM Categorization
+  checkLLMStatus: () => request<any>('/admin/llm/status'),
+
+  getCategorizationStats: () => request<any>('/admin/categorization/stats'),
+
+  previewCategorization: (word: string) =>
+    request<any>('/admin/categorize/preview', {
+      method: 'POST',
+      body: JSON.stringify({ word }),
+    }),
+
+  batchCategorize: (limit: number, overwrite?: boolean) =>
+    request<any>('/admin/categorize/batch', {
+      method: 'POST',
+      body: JSON.stringify({ limit, overwrite }),
+    }),
+
+  categorizeSingle: (wordId: string) =>
+    request<any>('/admin/categorize/single', {
+      method: 'POST',
+      body: JSON.stringify({ wordId }),
+    }),
+}

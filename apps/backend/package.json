@@ -16,6 +16,8 @@
     "crawl": "tsx src/crawler/index.ts",
     "crawl:batch": "tsx src/crawler/index.ts --batch=100",
     "crawl:dry": "tsx src/crawler/index.ts --dry-run",
+    "categorize": "tsx src/scripts/categorize-words.ts",
+    "categorize:dry": "tsx src/scripts/categorize-words.ts --dry-run --limit=20",
     "export": "tsx src/scripts/export.ts",
     "import": "tsx src/scripts/import.ts",
     "studio": "prisma studio"
@@ -25,6 +27,7 @@
     "@fastify/cors": "^8.5.0",
     "@fastify/helmet": "^10.1.1",
     "@fastify/oauth2": "^7.9.0",
+    "@mariozechner/pi-ai": "^0.22.5",
     "@prisma/client": "^5.22.0",
     "axios": "^1.13.6",
     "bcrypt": "^6.0.0",
