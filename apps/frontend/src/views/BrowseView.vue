@@ -119,7 +119,7 @@ const visiblePages = computed(() => {
         </div>
         <select v-model="selectedTheme" class="input">
           <option value="">All Themes</option>
-          <option value="none">📝 General (Uncategorized)</option>
+          <option value="none">📝 General</option>
           <option v-for="theme in wordsStore.themes" :key="theme.id" :value="theme.slug">
             {{ theme.icon }} {{ theme.name }}
           </option>
