@@ -1,7 +1,13 @@
 import { getModel, completeSimple, type Context, type Tool } from '@mariozechner/pi-ai';
+import prisma from './prisma.js';
 
-const LLM_PROVIDER = process.env.LLM_PROVIDER || 'openai';
-const LLM_MODEL = process.env.LLM_MODEL || 'gpt-4o-mini';
+// Config cache
+let cachedConfig: {
+  provider: string;
+  model: string;
+  apiKey?: string;
+  baseUrl?: string;
+} | null = null;
 
 // Available themes for categorization
 const THEMES = [
@@ -29,6 +35,52 @@ Rules:
 4. Consider the word's primary/most common meaning`;
 
 /**
+ * Get LLM config from database or environment
+ */
+export async function getLLMConfig(): Promise<{
+  provider: string;
+  model: string;
+  apiKey?: string;
+  baseUrl?: string;
+}> {
+  if (cachedConfig) return cachedConfig;
+
+  try {
+    const configs = await prisma.systemConfig.findMany({
+      where: {
+        key: { in: ['llm.provider', 'llm.model', 'llm.api_key', 'llm.base_url'] }
+      }
+    });
+
+    const configMap = Object.fromEntries(configs.map(c => [c.key, c.value]));
+
+    cachedConfig = {
+      provider: configMap['llm.provider'] || process.env.LLM_PROVIDER || 'openai',
+      model: configMap['llm.model'] || process.env.LLM_MODEL || 'gpt-4o-mini',
+      apiKey: configMap['llm.api_key'] || process.env.OPENAI_API_KEY,
+      baseUrl: configMap['llm.base_url'] || process.env.OLLAMA_BASE_URL,
+    };
+
+    return cachedConfig;
+  } catch (error) {
+    // Fallback to env vars if database fails
+    return {
+      provider: process.env.LLM_PROVIDER || 'openai',
+      model: process.env.LLM_MODEL || 'gpt-4o-mini',
+      apiKey: process.env.OPENAI_API_KEY,
+      baseUrl: process.env.OLLAMA_BASE_URL,
+    };
+  }
+}
+
+/**
+ * Clear config cache (call when config changes)
+ */
+export function clearLLMConfigCache() {
+  cachedConfig = null;
+}
+
+/**
  * Categorize a word using LLM
  */
 export async function categorizeWord(
@@ -37,8 +89,10 @@ export async function categorizeWord(
   partOfSpeech?: string[]
 ): Promise<string> {
   try {
+    const config = await getLLMConfig();
+    
     // Get the model
-    const model = getModel(LLM_PROVIDER as any, LLM_MODEL as any);
+    const model = getModel(config.provider as any, config.model as any);
     
     // Build user prompt
     let prompt = `Categorize this English word:\n\nWord: "${word}"`;
@@ -155,20 +209,23 @@ export async function checkLLMAvailability(): Promise<{
   error?: string 
 }> {
   try {
+    const config = await getLLMConfig();
+    
     // Test with a simple categorization
     const result = await categorizeWord('test', 'a procedure intended to establish quality', ['noun']);
     
     // If we got a valid result, it's working
     if (result) {
-      return { available: true, provider: LLM_PROVIDER, model: LLM_MODEL };
+      return { available: true, provider: config.provider, model: config.model };
     }
     
-    return { available: false, provider: LLM_PROVIDER, error: 'No response from model' };
+    return { available: false, provider: config.provider, error: 'No response from model' };
     
   } catch (error: any) {
+    const config = await getLLMConfig();
     return { 
       available: false, 
-      provider: LLM_PROVIDER, 
+      provider: config.provider, 
       error: error.message || 'Connection failed' 
     };
   }

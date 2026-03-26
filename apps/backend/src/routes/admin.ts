@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import prisma from '../lib/prisma.js';
 import { requireAdmin } from '../middleware/auth.js';
-import { categorizeWord, categorizeWords, checkLLMAvailability, THEMES } from '../lib/llm.js';
+import { categorizeWord, categorizeWords, checkLLMAvailability, clearLLMConfigCache, getLLMConfig, THEMES } from '../lib/llm.js';
 
 export async function adminRoutes(app: FastifyInstance) {
   // All admin routes require admin role
@@ -328,7 +328,100 @@ export async function adminRoutes(app: FastifyInstance) {
       create: { key: params.key, value: body.value },
     });
 
+    // Clear LLM config cache if it's an LLM-related config
+    if (params.key.startsWith('llm.')) {
+      clearLLMConfigCache();
+    }
+
     return config;
+  });
+
+  // ============================================
+  // LLM Configuration Endpoints
+  // ============================================
+
+  // GET /api/admin/llm/config - Get current LLM config (masked)
+  app.get('/admin/llm/config', async (request, reply) => {
+    const config = await getLLMConfig();
+    
+    // Mask sensitive values
+    return {
+      provider: config.provider,
+      model: config.model,
+      apiKey: config.apiKey ? '••••••••' + config.apiKey.slice(-4) : null,
+      baseUrl: config.baseUrl || null,
+      hasApiKey: !!config.apiKey,
+    };
+  });
+
+  // PUT /api/admin/llm/config - Update LLM config
+  app.put('/admin/llm/config', async (request, reply) => {
+    const body = request.body as {
+      provider?: string;
+      model?: string;
+      apiKey?: string;
+      baseUrl?: string;
+    };
+
+    const updates: Promise<any>[] = [];
+
+    if (body.provider) {
+      updates.push(
+        prisma.systemConfig.upsert({
+          where: { key: 'llm.provider' },
+          update: { value: body.provider },
+          create: { key: 'llm.provider', value: body.provider },
+        })
+      );
+    }
+
+    if (body.model) {
+      updates.push(
+        prisma.systemConfig.upsert({
+          where: { key: 'llm.model' },
+          update: { value: body.model },
+          create: { key: 'llm.model', value: body.model },
+        })
+      );
+    }
+
+    if (body.apiKey !== undefined) {
+      // Only update if not empty and not the masked placeholder
+      if (body.apiKey && !body.apiKey.startsWith('••••')) {
+        updates.push(
+          prisma.systemConfig.upsert({
+            where: { key: 'llm.api_key' },
+            update: { value: body.apiKey },
+            create: { key: 'llm.api_key', value: body.apiKey },
+          })
+        );
+      }
+    }
+
+    if (body.baseUrl !== undefined) {
+      updates.push(
+        prisma.systemConfig.upsert({
+          where: { key: 'llm.base_url' },
+          update: { value: body.baseUrl || '' },
+          create: { key: 'llm.base_url', value: body.baseUrl || '' },
+        })
+      );
+    }
+
+    await Promise.all(updates);
+    
+    // Clear cache
+    clearLLMConfigCache();
+
+    // Return updated config
+    const config = await getLLMConfig();
+    return {
+      provider: config.provider,
+      model: config.model,
+      apiKey: config.apiKey ? '••••••••' + config.apiKey.slice(-4) : null,
+      baseUrl: config.baseUrl || null,
+      hasApiKey: !!config.apiKey,
+    };
   });
 
   // ============================================
