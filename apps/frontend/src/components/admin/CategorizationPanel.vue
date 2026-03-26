@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { adminApi } from '@/lib/api'
+import { ref, onMounted, computed, onUnmounted } from 'vue'
 
 interface CategoryStats {
   themeId: string
@@ -18,20 +17,36 @@ interface CategorizationStats {
 
 interface LLMStatus {
   available: boolean
-  provider: string
+  provider?: string
   model?: string
   error?: string
 }
 
+interface Job {
+  id: string
+  type: string
+  status: string
+  progress: number
+  totalItems: number
+  processedItems: number
+  result: any
+  error: string | null
+  createdAt: string
+  startedAt: string | null
+  completedAt: string | null
+}
+
 const llmStatus = ref<LLMStatus | null>(null)
 const stats = ref<CategorizationStats | null>(null)
+const jobs = ref<Job[]>([])
+const activeJob = ref<Job | null>(null)
 const loading = ref(false)
-const categorizing = ref(false)
 const previewWord = ref('')
 const previewResult = ref<{ word: string; category: string } | null>(null)
-const batchResult = ref<{ message: string; total: number; tagged: number; categoryCounts: Record<string, number> } | null>(null)
 const error = ref<string | null>(null)
-const batchSize = ref(100)
+const success = ref<string | null>(null)
+
+let pollInterval: ReturnType<typeof setInterval> | null = null
 
 const progress = computed(() => {
   if (!stats.value) return 0
@@ -39,25 +54,62 @@ const progress = computed(() => {
 })
 
 onMounted(async () => {
-  await Promise.all([checkLLM(), loadStats()])
+  await Promise.all([checkLLM(), loadStats(), loadJobs()])
+  
+  // Poll for job updates
+  pollInterval = setInterval(() => {
+    loadJobs()
+  }, 2000)
+})
+
+onUnmounted(() => {
+  if (pollInterval) clearInterval(pollInterval)
 })
 
 async function checkLLM() {
   try {
-    llmStatus.value = await adminApi.checkLLMStatus()
+    const token = sessionStorage.getItem('accessToken')
+    const response = await fetch('/api/admin/llm/status', {
+      headers: { 'Authorization': `Bearer ${token}` },
+      credentials: 'include',
+    })
+    llmStatus.value = await response.json()
   } catch (e: any) {
-    llmStatus.value = { available: false, provider: 'unknown', error: e.message }
+    llmStatus.value = { available: false, error: e.message }
   }
 }
 
 async function loadStats() {
-  loading.value = true
   try {
-    stats.value = await adminApi.getCategorizationStats()
+    const token = sessionStorage.getItem('accessToken')
+    const response = await fetch('/api/admin/categorization/stats', {
+      headers: { 'Authorization': `Bearer ${token}` },
+      credentials: 'include',
+    })
+    stats.value = await response.json()
   } catch (e: any) {
-    error.value = e.message
-  } finally {
-    loading.value = false
+    console.error('Failed to load stats:', e)
+  }
+}
+
+async function loadJobs() {
+  try {
+    const token = sessionStorage.getItem('accessToken')
+    const response = await fetch('/api/admin/jobs?limit=10', {
+      headers: { 'Authorization': `Bearer ${token}` },
+      credentials: 'include',
+    })
+    jobs.value = await response.json()
+    
+    // Find running/pending job
+    activeJob.value = jobs.value.find(j => j.status === 'RUNNING' || j.status === 'PENDING') || null
+    
+    // Refresh stats if a job just completed
+    if (activeJob.value === null && jobs.value.some(j => j.status === 'COMPLETED')) {
+      await loadStats()
+    }
+  } catch (e: any) {
+    console.error('Failed to load jobs:', e)
   }
 }
 
@@ -69,7 +121,17 @@ async function previewCategorization() {
   error.value = null
   
   try {
-    previewResult.value = await adminApi.previewCategorization(previewWord.value.trim())
+    const token = sessionStorage.getItem('accessToken')
+    const response = await fetch('/api/admin/categorize/preview', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ word: previewWord.value.trim() }),
+    })
+    previewResult.value = await response.json()
   } catch (e: any) {
     error.value = e.message
   } finally {
@@ -77,39 +139,82 @@ async function previewCategorization() {
   }
 }
 
-async function runBatchCategorization() {
-  if (!confirm(`Categorize up to ${batchSize.value} uncategorized words?`)) return
-  
-  categorizing.value = true
-  batchResult.value = null
+async function startCategorizeJob(limit: number) {
   error.value = null
+  success.value = null
+  
+  const confirmMsg = limit === 0 
+    ? 'Categorize ALL uncategorized words? This will run in the background.'
+    : `Categorize up to ${limit} uncategorized words?`
+  
+  if (!confirm(confirmMsg)) return
   
   try {
-    batchResult.value = await adminApi.batchCategorize(batchSize.value)
-    await loadStats()
+    const token = sessionStorage.getItem('accessToken')
+    const response = await fetch('/api/admin/jobs/categorize', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ 
+        limit: limit || undefined,
+      }),
+    })
+    
+    const job = await response.json()
+    success.value = `Job created! ID: ${job.id}`
+    await loadJobs()
   } catch (e: any) {
     error.value = e.message
-  } finally {
-    categorizing.value = false
   }
 }
 
-async function categorizeAll() {
-  const uncategorized = stats.value?.uncategorizedWords || 0
-  if (!confirm(`Categorize ALL ${uncategorized} uncategorized words? This may take a while.`)) return
-  
-  categorizing.value = true
-  batchResult.value = null
-  error.value = null
+async function cancelJob(jobId: string) {
+  if (!confirm('Cancel this job?')) return
   
   try {
-    batchResult.value = await adminApi.batchCategorize(uncategorized)
-    await loadStats()
+    const token = sessionStorage.getItem('accessToken')
+    await fetch(`/api/admin/jobs/${jobId}/cancel`, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${token}` },
+      credentials: 'include',
+    })
+    await loadJobs()
   } catch (e: any) {
     error.value = e.message
-  } finally {
-    categorizing.value = false
   }
+}
+
+async function deleteJob(jobId: string) {
+  try {
+    const token = sessionStorage.getItem('accessToken')
+    await fetch(`/api/admin/jobs/${jobId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` },
+      credentials: 'include',
+    })
+    await loadJobs()
+  } catch (e: any) {
+    error.value = e.message
+  }
+}
+
+function getStatusColor(status: string): string {
+  switch (status) {
+    case 'PENDING': return 'bg-yellow-100 text-yellow-800'
+    case 'RUNNING': return 'bg-blue-100 text-blue-800'
+    case 'COMPLETED': return 'bg-green-100 text-green-800'
+    case 'FAILED': return 'bg-red-100 text-red-800'
+    case 'CANCELLED': return 'bg-gray-100 text-gray-800'
+    default: return 'bg-gray-100 text-gray-800'
+  }
+}
+
+function formatDate(date: string | null): string {
+  if (!date) return '-'
+  return new Date(date).toLocaleString()
 }
 
 function getThemeIcon(slug: string): string {
@@ -157,6 +262,11 @@ function getThemeIcon(slug: string): string {
       <p class="text-red-700">{{ error }}</p>
     </div>
 
+    <!-- Success -->
+    <div v-if="success" class="card bg-green-50 border border-green-200">
+      <p class="text-green-700">{{ success }}</p>
+    </div>
+
     <!-- Progress -->
     <div v-if="stats" class="card">
       <h3 class="font-semibold text-slate-700 mb-3">Categorization Progress</h3>
@@ -188,6 +298,39 @@ function getThemeIcon(slug: string): string {
           <p class="text-lg font-bold text-slate-900">{{ theme.count.toLocaleString() }}</p>
         </div>
       </div>
+    </div>
+
+    <!-- Active Job -->
+    <div v-if="activeJob" class="card border-2 border-blue-300 bg-blue-50">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-blue-800">
+          {{ activeJob.status === 'RUNNING' ? '⏳ Running Job' : '⏸️ Pending Job' }}
+        </h3>
+        <span :class="['badge', getStatusColor(activeJob.status)]">
+          {{ activeJob.status }}
+        </span>
+      </div>
+      
+      <div class="mb-3">
+        <div class="flex justify-between text-sm text-blue-700 mb-1">
+          <span>{{ activeJob.processedItems }} / {{ activeJob.totalItems }} words</span>
+          <span>{{ activeJob.progress }}%</span>
+        </div>
+        <div class="h-2 bg-blue-200 rounded-full overflow-hidden">
+          <div 
+            class="h-full bg-blue-600 transition-all duration-300"
+            :style="{ width: `${activeJob.progress}%` }"
+          />
+        </div>
+      </div>
+      
+      <button
+        v-if="activeJob.status === 'RUNNING' || activeJob.status === 'PENDING'"
+        @click="cancelJob(activeJob.id)"
+        class="btn bg-red-100 hover:bg-red-200 text-red-700 text-sm"
+      >
+        Cancel Job
+      </button>
     </div>
 
     <!-- Preview -->
@@ -225,64 +368,90 @@ function getThemeIcon(slug: string): string {
       </div>
     </div>
 
-    <!-- Batch Categorization -->
+    <!-- Start Job -->
     <div class="card">
-      <h3 class="font-semibold text-slate-700 mb-3">Batch Categorization</h3>
+      <h3 class="font-semibold text-slate-700 mb-3">Start Categorization Job</h3>
       <p class="text-sm text-slate-500 mb-3">
-        Categorize uncategorized words using the LLM.
+        Jobs run in the background. You can close this page and check progress later.
       </p>
 
       <div class="flex flex-wrap gap-3">
-        <div class="flex items-center gap-2">
-          <label class="text-sm text-slate-600">Batch size:</label>
-          <select v-model="batchSize" class="input w-24">
-            <option :value="50">50</option>
-            <option :value="100">100</option>
-            <option :value="250">250</option>
-            <option :value="500">500</option>
-            <option :value="1000">1000</option>
-          </select>
-        </div>
-        
         <button 
-          @click="runBatchCategorization"
-          :disabled="categorizing || !llmStatus?.available"
+          @click="startCategorizeJob(100)"
+          :disabled="!llmStatus?.available || !!activeJob"
           class="btn btn-primary"
         >
-          {{ categorizing ? 'Categorizing...' : `Categorize ${batchSize} Words` }}
+          Categorize 100 Words
         </button>
-
         <button 
-          v-if="stats && stats.uncategorizedWords > 0"
-          @click="categorizeAll"
-          :disabled="categorizing || !llmStatus?.available"
+          @click="startCategorizeJob(500)"
+          :disabled="!llmStatus?.available || !!activeJob"
           class="btn btn-secondary"
         >
-          Categorize All ({{ stats.uncategorizedWords.toLocaleString() }})
+          Categorize 500 Words
+        </button>
+        <button 
+          @click="startCategorizeJob(0)"
+          :disabled="!llmStatus?.available || !!activeJob || !stats?.uncategorizedWords"
+          class="btn btn-secondary"
+        >
+          Categorize All ({{ stats?.uncategorizedWords?.toLocaleString() || 0 }})
         </button>
       </div>
+    </div>
 
-      <!-- Batch Result -->
-      <div v-if="batchResult" class="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
-        <p class="font-medium text-green-800 mb-2">{{ batchResult.message }}</p>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
-          <div>
-            <span class="text-green-600">Total:</span>
-            <span class="font-medium">{{ batchResult.total }}</span>
+    <!-- Job History -->
+    <div class="card">
+      <h3 class="font-semibold text-slate-700 mb-3">Job History</h3>
+      
+      <div v-if="jobs.length === 0" class="text-slate-500 text-sm">
+        No jobs yet.
+      </div>
+      
+      <div v-else class="space-y-3">
+        <div 
+          v-for="job in jobs" 
+          :key="job.id"
+          class="border border-slate-200 rounded-lg p-3"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-xs text-slate-500">{{ job.id.slice(0, 8) }}</span>
+              <span :class="['badge text-xs', getStatusColor(job.status)]">
+                {{ job.status }}
+              </span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-500">{{ formatDate(job.createdAt) }}</span>
+              <button 
+                v-if="job.status !== 'RUNNING' && job.status !== 'PENDING'"
+                @click="deleteJob(job.id)"
+                class="text-slate-400 hover:text-red-600 text-xs"
+              >
+                ✕
+              </button>
+            </div>
           </div>
-          <div>
-            <span class="text-green-600">Tagged:</span>
-            <span class="font-medium">{{ batchResult.tagged }}</span>
+          
+          <div class="text-sm text-slate-600">
+            {{ job.processedItems }} / {{ job.totalItems }} words ({{ job.progress }}%)
           </div>
-        </div>
-        <div v-if="batchResult.categoryCounts" class="mt-3 flex flex-wrap gap-2">
-          <span 
-            v-for="(count, category) in batchResult.categoryCounts" 
-            :key="category"
-            class="badge badge-secondary"
-          >
-            {{ getThemeIcon(category as string) }} {{ category }}: {{ count }}
-          </span>
+          
+          <div v-if="job.status === 'COMPLETED' && job.result" class="mt-2 text-sm">
+            <div class="flex flex-wrap gap-1">
+              <span 
+                v-for="(count, category) in job.result.categoryCounts" 
+                :key="category"
+                class="badge badge-secondary text-xs"
+              >
+                {{ getThemeIcon(String(category)) }} {{ category }}: {{ count }}
+              </span>
+            </div>
+          </div>
+          
+          <div v-if="job.error" class="mt-2 text-sm text-red-600">
+            {{ job.error }}
+          </div>
         </div>
       </div>
     </div>
@@ -291,10 +460,10 @@ function getThemeIcon(slug: string): string {
     <div class="card bg-blue-50 border border-blue-200">
       <h3 class="font-semibold text-blue-800 mb-2">ℹ️ How it works</h3>
       <ul class="text-sm text-blue-700 space-y-1">
-        <li>• The LLM analyzes each word's definition and categorizes it into one of 8 themes</li>
-        <li>• Words that don't fit any theme are marked as "general"</li>
-        <li>• Each word gets exactly one category (or general)</li>
-        <li>• You can re-run categorization to update themes</li>
+        <li>• Jobs run in the background - you can close this page</li>
+        <li>• Each job processes words in batches of 100</li>
+        <li>• Progress is saved automatically</li>
+        <li>• You can cancel a running job at any time</li>
       </ul>
     </div>
   </div>

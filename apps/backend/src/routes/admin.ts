@@ -834,3 +834,127 @@ export async function adminRoutes(app: FastifyInstance) {
     return { word: word.word, category, tagged: !!theme };
   });
 }
+
+// ============================================
+// Job Management Endpoints
+// ============================================
+
+import {
+  createJob,
+  getJob,
+  getJobs,
+  cancelJob,
+  deleteJob,
+  startJobRunner,
+  stopJobRunner,
+} from '../lib/jobs.js';
+
+// Import job handlers to register them
+import '../lib/categorize-job.js';
+
+// GET /api/admin/jobs - List all jobs
+app.get('/admin/jobs', async (request, reply) => {
+  const query = request.query as {
+    status?: string;
+    type?: string;
+    limit?: string;
+  };
+
+  return getJobs({
+    status: query.status as any,
+    type: query.type as any,
+    limit: query.limit ? parseInt(query.limit) : 50,
+  });
+});
+
+// GET /api/admin/jobs/:id - Get job details
+app.get('/admin/jobs/:id', async (request, reply) => {
+  const params = request.params as { id: string };
+  
+  const job = await getJob(params.id);
+  
+  if (!job) {
+    return reply.status(404).send({ error: 'Job not found' });
+  }
+  
+  return job;
+});
+
+// POST /api/admin/jobs - Create a new job
+app.post('/admin/jobs', async (request, reply) => {
+  const body = request.body as {
+    type: string;
+    payload: any;
+    priority?: number;
+  };
+
+  if (!body.type) {
+    return reply.status(400).send({ error: 'Job type is required' });
+  }
+
+  const validTypes = ['CATEGORIZE_WORDS', 'IMPORT_WORDS', 'EXPORT_DATA', 'CLEANUP'];
+  if (!validTypes.includes(body.type)) {
+    return reply.status(400).send({ error: `Invalid job type. Valid types: ${validTypes.join(', ')}` });
+  }
+
+  const job = await createJob(body.type as any, body.payload || {}, {
+    priority: body.priority,
+  });
+
+  return job;
+});
+
+// POST /api/admin/jobs/categorize - Create categorize job (convenience)
+app.post('/admin/jobs/categorize', async (request, reply) => {
+  const body = request.body as {
+    limit?: number;
+    overwrite?: boolean;
+    themeSlugs?: string[];
+  };
+
+  const job = await createJob('CATEGORIZE_WORDS', {
+    limit: body.limit,
+    overwrite: body.overwrite,
+    themeSlugs: body.themeSlugs,
+  });
+
+  return job;
+});
+
+// PUT /api/admin/jobs/:id/cancel - Cancel a job
+app.put('/admin/jobs/:id/cancel', async (request, reply) => {
+  const params = request.params as { id: string };
+  
+  const success = await cancelJob(params.id);
+  
+  if (!success) {
+    return reply.status(400).send({ error: 'Cannot cancel job (not found or already completed)' });
+  }
+  
+  return { success: true };
+});
+
+// DELETE /api/admin/jobs/:id - Delete a job
+app.delete('/admin/jobs/:id', async (request, reply) => {
+  const params = request.params as { id: string };
+  
+  const success = await deleteJob(params.id);
+  
+  if (!success) {
+    return reply.status(404).send({ error: 'Job not found' });
+  }
+  
+  return { success: true };
+});
+
+// POST /api/admin/jobs/runner/start - Start job runner
+app.post('/admin/jobs/runner/start', async (request, reply) => {
+  startJobRunner(5000);
+  return { message: 'Job runner started' };
+});
+
+// POST /api/admin/jobs/runner/stop - Stop job runner
+app.post('/admin/jobs/runner/stop', async (request, reply) => {
+  stopJobRunner();
+  return { message: 'Job runner stopped' };
+});

@@ -13,6 +13,7 @@ import { adminRoutes } from './routes/admin.js';
 import { oauthRoutes } from './routes/oauth.js';
 import { listsRoutes } from './routes/lists.js';
 import prisma from './lib/prisma.js';
+import { startJobRunner, stopJobRunner } from './lib/jobs.js';
 
 const PORT = Number(process.env.PORT) || 7101;
 const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
@@ -68,6 +69,7 @@ async function start() {
   // Graceful shutdown
   const shutdown = async () => {
     app.log.info('Shutting down gracefully...');
+    stopJobRunner();
     await prisma.$disconnect();
     await app.close();
     process.exit(0);
@@ -80,6 +82,10 @@ async function start() {
   try {
     await app.listen({ port: PORT, host: HOST });
     app.log.info(`Server running at http://${HOST}:${PORT}`);
+    
+    // Start job runner after server is up
+    startJobRunner(5000);
+    app.log.info('Job runner started');
   } catch (err) {
     app.log.error(err);
     process.exit(1);

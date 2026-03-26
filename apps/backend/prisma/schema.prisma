@@ -59,6 +59,7 @@ model User {
   streak           UserStream?
   achievements     UserAchievement[]
   studyLists       StudyList[]
+  jobs             Job[]
   
   @@index([email])
   @@index([googleId])
@@ -101,18 +102,70 @@ model SystemConfig {
 
 model LlmProvider {
   id        String   @id @default(cuid())
-  name      String   @unique                    // Display name e.g. "OpenAI GPT-4"
-  provider  String                              // Provider type: openai, anthropic, custom
-  model     String                              // Model ID: gpt-4o-mini, claude-3-haiku, etc.
-  baseUrl   String?  @map("base_url")          // Custom base URL for non-standard providers
-  apiKey    String?  @map("api_key")           // API key (encrypted in production)
-  context   String?                             // Custom system prompt
+  name      String   @unique
+  provider  String
+  model     String
+  baseUrl   String?  @map("base_url")
+  apiKey    String?  @map("api_key")
+  context   String?
   isActive  Boolean  @default(false) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([isActive])
   @@map("llm_providers")
+}
+
+// ============================================
+// JOBS / TASKS
+// ============================================
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum JobType {
+  CATEGORIZE_WORDS
+  IMPORT_WORDS
+  EXPORT_DATA
+  CLEANUP
+}
+
+model Job {
+  id          String     @id @default(cuid())
+  type        JobType
+  status      JobStatus  @default(PENDING)
+  priority    Int        @default(0)              // Higher = more important
+  
+  // Job configuration
+  payload     Json                                // Job parameters
+  
+  // Progress tracking
+  progress    Int        @default(0)              // 0-100 percentage
+  totalItems  Int        @default(0)              // Total items to process
+  processedItems Int     @default(0)              // Items processed so far
+  
+  // Results
+  result      Json?                               // Job result data
+  error       String?                             // Error message if failed
+  
+  // Timestamps
+  createdAt   DateTime   @default(now()) @map("created_at")
+  startedAt   DateTime?  @map("started_at")
+  completedAt DateTime?  @map("completed_at")
+  
+  // Owner (optional - for user-specific jobs)
+  userId      String?    @map("user_id")
+  user        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status, priority])
+  @@index([type])
+  @@index([userId])
+  @@map("jobs")
 }
 
 // ============================================
