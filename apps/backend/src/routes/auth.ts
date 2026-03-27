@@ -210,8 +210,19 @@ export async function authRoutes(app: FastifyInstance) {
       include: { user: true },
     });
 
-    if (!storedToken || storedToken.revoked) {
+    if (!storedToken) {
       return reply.status(401).send({ error: 'Invalid refresh token' });
+    }
+
+    // Token reuse detection: if already revoked, the token was already used
+    // This indicates a potential token theft — revoke ALL tokens for this user
+    if (storedToken.revoked) {
+      console.warn(`⚠️ Refresh token reuse detected for user ${storedToken.userId}. Revoking all tokens.`);
+      await prisma.refreshToken.updateMany({
+        where: { userId: storedToken.userId },
+        data: { revoked: true },
+      });
+      return reply.status(401).send({ error: 'Token reuse detected. All sessions revoked.' });
     }
 
     // Check if expired

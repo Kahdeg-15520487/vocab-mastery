@@ -8,7 +8,6 @@
 - [ ] **#153** **[low]** 🟡 #21: Simplify parseCategoriesJson — reduce regex complexity #backend #llm
 - [ ] **#154** **[low]** 🟡 #22: Optimize StudyList wordCount query — use _count instead of include #backend #perf
 - [ ] **#156** **[low]** 🟡 #24: Make daily goal defaults configurable per user #backend
-- [ ] **#158** **[low]** 🔵 #26: Standardize error response format across all routes #backend
 - [ ] **#160** **[low]** 🔵 #28: Add userId to UserStats or remove the model #backend #schema
 - [ ] **#161** **[low]** 🔵 #29: Rename UserProgress → UserLevelProgress for clarity #backend #schema
 - [ ] **#162** **[low]** 🔵 #30: Rename UserStream → UserStreak #backend #schema
@@ -37,6 +36,7 @@
 - [x] **#152** **[low]** 🟡 #20: Restrict CORS in production #backend #security
 - [x] **#155** 🟡 #23: Stop polling in CategorizationPanel when no active job #frontend #perf
 - [x] **#157** **[low]** 🔵 #25: Remove unused `openai` package from dependencies #backend
+- [x] **#158** **[low]** 🔵 #26: Standardize error response format across all routes #backend
 - [x] **#159** **[low]** 🔵 #27: Replace magic string status values with constants/enum #backend
 - [x] **#163** **[low]** 🔵 #31: Wrap batch progress updates in a transaction #backend
 - [x] **#164** **[low]** 🔵 #32: Clean up unused frontend statsApi exports #frontend
@@ -391,14 +391,15 @@
     {
       "id": 158,
       "text": "🔵 #26: Standardize error response format across all routes",
-      "done": false,
+      "done": true,
       "priority": "low",
       "tags": [
         "backend"
       ],
       "createdAt": 1774632688851,
       "notes": "Some routes return { error }, others { success, message }. Standardize to { error: string } for errors.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774636334453
     },
     {
       "id": 159,
