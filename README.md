@@ -127,27 +127,88 @@ npm run docker:down
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/words` | List all words (with filters) |
+| **Auth** | | |
+| POST | `/api/auth/register` | Register new user (5/min) |
+| POST | `/api/auth/login` | Login (5/min) |
+| POST | `/api/auth/refresh` | Refresh tokens (10/min) |
+| POST | `/api/auth/logout` | Logout |
+| GET | `/api/auth/me` | Get current user |
+| **Words** | | |
+| GET | `/api/words` | List words (filter, paginate) |
 | GET | `/api/words/:id` | Get single word |
 | GET | `/api/words/due` | Get words due for review |
+| GET | `/api/words/search` | Search words |
+| **Themes** | | |
 | GET | `/api/themes` | List all themes |
 | GET | `/api/themes/:slug` | Get theme with words |
+| **Progress** | | |
+| GET | `/api/progress/dashboard` | Dashboard data |
 | POST | `/api/progress/:wordId` | Update word progress |
+| POST | `/api/progress/batch` | Batch update progress |
+| GET | `/api/progress/achievements` | List achievements |
+| GET | `/api/progress/calendar` | Activity calendar |
+| **Sessions** | | |
 | POST | `/api/sessions` | Start learning session |
-| POST | `/api/sessions/:id/respond` | Submit session response |
+| POST | `/api/sessions/:id/respond` | Submit response |
 | POST | `/api/sessions/:id/complete` | Complete session |
-| GET | `/api/stats` | Get overall statistics |
-| GET | `/api/stats/daily` | Get daily stats |
+| **Lists** | | |
+| GET | `/api/lists` | User's study lists |
+| POST | `/api/lists` | Create list |
+| PUT | `/api/lists/:id` | Update list |
+| DELETE | `/api/lists/:id` | Delete list |
+| POST | `/api/lists/:id/words` | Add words to list |
+| DELETE | `/api/lists/:id/words/:wordId` | Remove word from list |
+| **Admin** | | |
+| GET | `/api/admin/stats` | Platform statistics |
+| GET | `/api/admin/users` | List users (paginated) |
+| GET | `/api/admin/llm/providers` | List LLM providers |
+| POST | `/api/admin/llm/providers` | Create provider |
+| POST | `/api/admin/jobs/categorize` | Start categorize job |
+| GET | `/api/admin/jobs` | List background jobs |
 
 ## Features
 
 - 🎴 **Spaced Repetition** - SM-2 algorithm for optimal review scheduling
-- 🏷️ **Theme-based Learning** - Organize vocabulary by topic
-- 📊 **Progress Tracking** - Statistics and streak tracking
+- 🏷️ **Theme-based Learning** - Organize vocabulary by topic (9 categories via LLM)
+- 📊 **Progress Tracking** - Statistics, streaks, daily goals, achievements, calendar heatmap
 - 🔊 **Pronunciation** - Text-to-speech with Web Speech API
 - 📱 **PWA** - Installable, works offline
 - 🎯 **CEFR Levels** - A1-C2 difficulty levels
-- 📚 **Oxford 3000/5000** - Based on Oxford word lists
+- 📚 **Oxford 3000/5000** - Based on Oxford word lists (4,921 words)
+- 🔐 **Authentication** - JWT + refresh tokens, Google OAuth, role-based access
+- 👨‍💼 **Admin Panel** - User management, word import/export, LLM categorization
+- 🤖 **LLM Categorization** - Auto-categorize words using any OpenAI-compatible API
+- 📋 **Custom Word Lists** - Create and manage personal study lists
+- ⚡ **Rate Limiting** - Global + per-route rate limiting for security
+- 🔄 **Background Jobs** - Long-running LLM tasks with progress tracking
+
+## LLM Word Categorization
+
+Words can be automatically categorized into 9 themes using any OpenAI-compatible LLM:
+
+```bash
+# Categorize uncategorized words (CLI)
+npm run categorize -w apps/backend
+npm run categorize:100 -w apps/backend
+
+# Options: --limit=N, --all, --dry-run, --verbose/-v
+```
+
+Or use the **Admin Panel → Categorization** tab for background job processing.
+
+### Supported Providers
+- OpenAI (GPT-4o, GPT-4o-mini, etc.)
+- Anthropic (Claude) via OpenAI-compatible endpoint
+- DeepSeek
+- Groq
+- OpenRouter
+- Any OpenAI-compatible API
+
+### Setup
+1. Go to **Admin → Config** tab
+2. Add a new LLM provider (name, provider, model, base URL, API key)
+3. Set it as active
+4. Run categorization from CLI or admin panel
 
 ## Scripts
 
@@ -169,6 +230,8 @@ npm run docker:down
 | `npm run crawl` | Crawl word definitions from Oxford Dictionary |
 | `npm run crawl:batch -- --batch=100` | Crawl specific batch size |
 | `npm run crawl:dry` | Test crawler without saving |
+| `npm run categorize -w apps/backend` | Categorize uncategorized words via LLM |
+| `npm run categorize:100 -w apps/backend` | Categorize 100 words via LLM |
 
 ## Crawling Word Definitions
 
