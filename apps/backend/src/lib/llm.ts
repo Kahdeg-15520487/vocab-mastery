@@ -1,5 +1,4 @@
 import { getModel, completeSimple, type Context } from '@mariozechner/pi-ai';
-import OpenAI from 'openai';
 import prisma from './prisma.js';
 
 // Config cache
@@ -124,82 +123,79 @@ export function clearLLMConfigCache() {
 }
 
 /**
- * Call LLM API (either pi-ai or direct OpenAI SDK)
+ * Call LLM API - always use pi-ai for proper thinking/reasoning handling
  */
 async function callLLM(
   systemPrompt: string, 
   userPrompt: string, 
   config: Awaited<ReturnType<typeof getLLMConfig>>
 ): Promise<string> {
+  // Try pi-ai's predefined models first
   const piAiProviders = ['openai', 'anthropic', 'google', 'groq', 'openrouter', 'mistral', 'cerebras', 'xai'];
   
-  const useDirectSDK = !piAiProviders.includes(config.provider.toLowerCase()) || 
-    (config.baseUrl && !config.baseUrl.includes('openai.com') && !config.baseUrl.includes('anthropic.com'));
-  
-  if (useDirectSDK) {
-    const openai = new OpenAI({
-      apiKey: config.apiKey || process.env.OPENAI_API_KEY,
-      baseURL: config.baseUrl || undefined,
-    });
-    
-    const response = await openai.chat.completions.create({
-      model: config.model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-      max_tokens: 16384,
-      temperature: 0.3,
-    });
-    
-    return response.choices[0]?.message?.content?.trim() || '';
-  } else {
-    const effectiveProvider = config.provider.toLowerCase();
-    
+  if (piAiProviders.includes(config.provider.toLowerCase())) {
+    // Set API key for the provider
     if (config.apiKey) {
-      if (effectiveProvider === 'anthropic') {
-        process.env.ANTHROPIC_API_KEY = config.apiKey;
-      } else {
-        process.env.OPENAI_API_KEY = config.apiKey;
-      }
+      const envKey = config.provider.toLowerCase() === 'anthropic' ? 'ANTHROPIC_API_KEY' : 'OPENAI_API_KEY';
+      process.env[envKey] = config.apiKey;
     }
     
-    const model = getModel(effectiveProvider as any, config.model as any);
+    const model = getModel(config.provider.toLowerCase() as any, config.model as any);
     
-    if (!model) {
-      const openai = new OpenAI({
-        apiKey: config.apiKey || process.env.OPENAI_API_KEY,
-        baseURL: config.baseUrl || undefined,
-      });
-      
-      const response = await openai.chat.completions.create({
-        model: config.model,
+    if (model) {
+      const context: Context = {
+        systemPrompt,
         messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
-        ],
-        max_tokens: 16384,
-        temperature: 0.3,
-      });
+          { role: 'user', content: userPrompt, timestamp: Date.now() }
+        ]
+      };
       
-      return response.choices[0]?.message?.content?.trim() || '';
+      const response = await completeSimple(model, context);
+      
+      // completeSimple separates thinking blocks from text blocks
+      return response.content
+        .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
+        .map(c => c.text)
+        .join('')
+        .trim();
     }
-    
-    const context: Context = {
-      systemPrompt,
-      messages: [
-        { role: 'user', content: userPrompt, timestamp: Date.now() }
-      ]
-    };
-    
-    const response = await completeSimple(model, context);
-    
-    return response.content
-      .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
-      .map(c => c.text)
-      .join('')
-      .trim();
   }
+  
+  // For custom/unknown providers, create a pi-ai custom Model
+  // This gives us proper thinking/reasoning separation
+  const customModel = {
+    id: config.model,
+    name: `${config.provider}/${config.model}`,
+    api: 'openai-completions' as const,
+    provider: config.provider.toLowerCase(),
+    ...(config.baseUrl ? { baseUrl: config.baseUrl } : {}),
+    reasoning: true,
+    input: ['text'] as const,
+    cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+    contextWindow: 128000,
+    maxTokens: 16384,
+  };
+  
+  const context: Context = {
+    systemPrompt,
+    messages: [
+      { role: 'user', content: userPrompt, timestamp: Date.now() }
+    ]
+  };
+  
+  const apiKey = config.apiKey || process.env.OPENAI_API_KEY;
+  
+  const response = await completeSimple(customModel as any, context, {
+    apiKey,
+    reasoning: 'medium', // Let pi-ai handle thinking blocks
+  });
+  
+  // Only return text content - thinking blocks are filtered out by pi-ai
+  return response.content
+    .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
+    .map(c => c.text)
+    .join('')
+    .trim();
 }
 
 /**
@@ -460,56 +456,48 @@ export async function testProviderConfig(config: {
 }): Promise<{ success: boolean; error?: string }> {
   try {
     const piAiProviders = ['openai', 'anthropic', 'google', 'groq', 'openrouter', 'mistral', 'cerebras', 'xai'];
-    const useDirectSDK = !piAiProviders.includes(config.provider.toLowerCase()) || 
-      (config.baseUrl && !config.baseUrl.includes('openai.com') && !config.baseUrl.includes('anthropic.com'));
     
-    if (useDirectSDK) {
-      const openai = new OpenAI({
-        apiKey: config.apiKey || process.env.OPENAI_API_KEY,
-        baseURL: config.baseUrl || undefined,
-      });
-      
-      await openai.chat.completions.create({
-        model: config.model,
-        messages: [
-          { role: 'user', content: 'Say "ok"' },
-        ],
-        max_tokens: 10,
-      });
-    } else {
-      const effectiveProvider = config.provider.toLowerCase();
-      
+    if (piAiProviders.includes(config.provider.toLowerCase())) {
       if (config.apiKey) {
-        if (effectiveProvider === 'anthropic') {
-          process.env.ANTHROPIC_API_KEY = config.apiKey;
-        } else {
-          process.env.OPENAI_API_KEY = config.apiKey;
-        }
+        const envKey = config.provider.toLowerCase() === 'anthropic' ? 'ANTHROPIC_API_KEY' : 'OPENAI_API_KEY';
+        process.env[envKey] = config.apiKey;
       }
       
-      const model = getModel(effectiveProvider as any, config.model as any);
+      const model = getModel(config.provider.toLowerCase() as any, config.model as any);
       
-      if (!model) {
-        // Try direct SDK as fallback
-        const openai = new OpenAI({
-          apiKey: config.apiKey,
-          baseURL: config.baseUrl || undefined,
-        });
-        
-        await openai.chat.completions.create({
-          model: config.model,
-          messages: [{ role: 'user', content: 'Say "ok"' }],
-          max_tokens: 10,
-        });
-      } else {
+      if (model) {
         const context: Context = {
           systemPrompt: 'You are a helpful assistant.',
           messages: [{ role: 'user', content: 'Say "ok"', timestamp: Date.now() }]
         };
         
         await completeSimple(model, context);
+        return { success: true };
       }
     }
+    
+    // Custom provider - use pi-ai with custom model
+    const customModel = {
+      id: config.model,
+      name: `${config.provider}/${config.model}`,
+      api: 'openai-completions' as const,
+      provider: config.provider.toLowerCase(),
+      ...(config.baseUrl ? { baseUrl: config.baseUrl } : {}),
+      reasoning: false,
+      input: ['text'] as const,
+      cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+      contextWindow: 128000,
+      maxTokens: 100,
+    };
+    
+    const context: Context = {
+      systemPrompt: 'You are a helpful assistant.',
+      messages: [{ role: 'user', content: 'Say "ok"', timestamp: Date.now() }]
+    };
+    
+    await completeSimple(customModel as any, context, {
+      apiKey: config.apiKey,
+    });
     
     return { success: true };
   } catch (error: any) {
