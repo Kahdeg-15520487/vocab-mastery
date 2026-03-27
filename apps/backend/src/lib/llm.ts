@@ -9,6 +9,7 @@ let cachedConfig: {
   apiKey?: string;
   baseUrl?: string;
   context?: string;
+  maxTokens: number;
 } | null = null;
 
 // Available themes for categorization
@@ -49,6 +50,7 @@ export async function getLLMConfig(): Promise<{
   apiKey?: string;
   baseUrl?: string;
   context?: string;
+  maxTokens: number;
 }> {
   if (cachedConfig) return cachedConfig;
 
@@ -66,6 +68,7 @@ export async function getLLMConfig(): Promise<{
         apiKey: activeProvider.apiKey || undefined,
         baseUrl: activeProvider.baseUrl || undefined,
         context: activeProvider.context || undefined,
+        maxTokens: activeProvider.maxTokens,
       };
       return cachedConfig;
     }
@@ -87,6 +90,7 @@ export async function getLLMConfig(): Promise<{
         apiKey: configMap['llm.api_key'] || undefined,
         baseUrl: configMap['llm.base_url'] || undefined,
         context: configMap['llm.context'] || undefined,
+        maxTokens: 4096,
       };
       return cachedConfig;
     }
@@ -99,6 +103,7 @@ export async function getLLMConfig(): Promise<{
       apiKey: process.env.OPENAI_API_KEY,
       baseUrl: process.env.LLM_BASE_URL,
       context: process.env.LLM_CONTEXT,
+      maxTokens: 4096,
     };
     
     return cachedConfig;
@@ -111,6 +116,7 @@ export async function getLLMConfig(): Promise<{
       apiKey: process.env.OPENAI_API_KEY,
       baseUrl: process.env.LLM_BASE_URL,
       context: process.env.LLM_CONTEXT,
+      maxTokens: 4096,
     };
   }
 }
@@ -179,7 +185,7 @@ async function callLLM(
     input: ['text'] as const,
     cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
     contextWindow: 128000,
-    maxTokens: 16384,
+    maxTokens: config.maxTokens,
     compat: {
       supportsDeveloperRole: false,  // DeepSeek and others use 'system', not 'developer'
       supportsStore: false,

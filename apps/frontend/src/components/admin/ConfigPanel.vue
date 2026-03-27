@@ -9,6 +9,7 @@ interface LLMProvider {
   baseUrl: string | null
   apiKey: string | null
   context: string | null
+  maxTokens: number
   isActive: boolean
   hasApiKey: boolean
   createdAt: string
@@ -40,6 +41,7 @@ const formData = ref({
   apiKey: '',
   model: '',
   context: '',
+  maxTokens: 4096,
 })
 const showApiKey = ref(false)
 const customModel = ref('')
@@ -131,6 +133,7 @@ function openAddForm() {
     apiKey: '',
     model: 'gpt-4o-mini',
     context: '',
+    maxTokens: 4096,
   }
   customModel.value = ''
   showApiKey.value = false
@@ -146,6 +149,7 @@ function openEditForm(provider: LLMProvider) {
     apiKey: '', // Don't prefill masked key
     model: provider.model,
     context: provider.context || '',
+    maxTokens: provider.maxTokens || 4096,
   }
   
   // Check if model is in preset list
@@ -193,6 +197,7 @@ async function saveProvider() {
       baseUrl: formData.value.baseUrl || null,
       model: customModel.value || formData.value.model,
       context: formData.value.context || null,
+      maxTokens: formData.value.maxTokens || 4096,
     }
 
     // Only include API key if it's a new value
@@ -320,6 +325,7 @@ async function testNewProvider() {
         model: customModel.value || formData.value.model,
         apiKey: formData.value.apiKey || undefined,
         baseUrl: formData.value.baseUrl || undefined,
+        maxTokens: formData.value.maxTokens || undefined,
       }),
     })
 
@@ -569,6 +575,23 @@ async function testNewProvider() {
                 placeholder="You are a helpful assistant."
                 class="input resize-none"
               />
+            </div>
+
+            <!-- Max Tokens -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Max Tokens</label>
+              <input
+                v-model.number="formData.maxTokens"
+                type="number"
+                min="100"
+                max="128000"
+                step="256"
+                class="input"
+                placeholder="4096"
+              />
+              <p class="text-xs text-slate-500 mt-1">
+                Maximum response tokens. Check your provider's limits (e.g. DeepSeek: 8192, OpenAI: 16384)
+              </p>
             </div>
 
             <!-- Actions -->
