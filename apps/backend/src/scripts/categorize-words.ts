@@ -1,25 +1,54 @@
 import { PrismaClient } from '@prisma/client';
-import { categorizeWord, checkLLMAvailability, THEMES } from '../lib/llm.js';
+import { categorizeWordsBatch, checkLLMAvailability, clearLLMConfigCache, THEMES } from '../lib/llm.js';
 
 const prisma = new PrismaClient();
 
-// Get theme ID by slug
-const themeMap = new Map<string, string>();
+const CHUNK_SIZE = 100; // Words per LLM request
 
-async function loadThemes() {
-  const themes = await prisma.theme.findMany();
-  for (const theme of themes) {
-    themeMap.set(theme.slug, theme.id);
-  }
-  console.log(`Loaded ${themes.length} themes`);
-}
-
-async function getWordsToCategorize(options: { limit?: number; uncategorizedOnly?: boolean }) {
-  const where: any = {};
+async function categorizeWords(options: { 
+  limit?: number; 
+  uncategorizedOnly?: boolean; 
+  dryRun?: boolean;
+  verbose?: boolean;
+}) {
+  console.log('🏷️  Word Categorization with LLM');
+  console.log('================================\n');
   
+  // Clear config cache to get fresh LLM config
+  clearLLMConfigCache();
+  
+  // Check LLM availability
+  console.log('Checking LLM availability...');
+  const status = await checkLLMAvailability();
+  
+  if (!status.available) {
+    console.error(`❌ LLM not available: ${status.error}`);
+    console.log('\nTo configure LLM:');
+    console.log('  1. Go to Admin Panel > Config tab');
+    console.log('  2. Add an LLM provider (OpenAI, Anthropic, Groq, etc.)');
+    console.log('  3. Activate the provider');
+    console.log('\nOr set environment variables:');
+    console.log('  OPENAI_API_KEY=sk-...');
+    process.exit(1);
+  }
+  
+  console.log(`✅ Using ${status.provider} (${status.model})\n`);
+  
+  // Get themes
+  const themes = await prisma.theme.findMany();
+  const themeBySlug = Object.fromEntries(themes.map(t => [t.slug, t]));
+  console.log(`Loaded ${themes.length} themes`);
+  
+  // Get words to categorize
+  const where: any = {};
   if (options.uncategorizedOnly) {
     where.themes = { none: {} };
   }
+  
+  const totalUncategorized = await prisma.word.count({ where });
+  const limit = options.limit || totalUncategorized;
+  
+  console.log(`Fetching words (limit: ${limit})...`);
   
   const words = await prisma.word.findMany({
     where,
@@ -29,38 +58,10 @@ async function getWordsToCategorize(options: { limit?: number; uncategorizedOnly
       definition: true,
       partOfSpeech: true,
     },
-    take: options.limit,
+    take: limit,
     orderBy: { word: 'asc' },
   });
   
-  return words;
-}
-
-async function categorizeWords(options: { limit?: number; uncategorizedOnly?: boolean; dryRun?: boolean }) {
-  console.log('🏷️  Word Categorization with LLM');
-  console.log('================================\n');
-  
-  // Check LLM availability
-  console.log('Checking LLM availability...');
-  const status = await checkLLMAvailability();
-  
-  if (!status.available) {
-    console.error(`❌ LLM not available: ${status.error}`);
-    console.log('\nTo use OpenAI:');
-    console.log('  1. Get API key from https://platform.openai.com/api-keys');
-    console.log('  2. Set OPENAI_API_KEY in .env or configure in Admin Panel');
-    console.log('\nOr configure via Admin Panel > Config tab');
-    process.exit(1);
-  }
-  
-  console.log(`✅ Using ${status.provider} (${status.model})\n`);
-  
-  // Load themes
-  await loadThemes();
-  
-  // Get words
-  console.log('Fetching words...');
-  const words = await getWordsToCategorize(options);
   console.log(`Found ${words.length} words to categorize\n`);
   
   if (words.length === 0) {
@@ -75,57 +76,89 @@ async function categorizeWords(options: { limit?: number; uncategorizedOnly?: bo
   }
   
   let processed = 0;
-  let errors = 0;
+  let tagged = 0;
   const startTime = Date.now();
   
-  // Process words
-  for (const wordData of words) {
-    processed++;
-    console.log(`[${processed}/${words.length}] ${wordData.word}...`);
+  // Process in chunks
+  const chunks: typeof words[] = [];
+  for (let i = 0; i < words.length; i += CHUNK_SIZE) {
+    chunks.push(words.slice(i, i + CHUNK_SIZE));
+  }
+  
+  console.log(`Processing ${chunks.length} chunk(s) of ${CHUNK_SIZE} words each...\n`);
+  
+  for (let i = 0; i < chunks.length; i++) {
+    const chunk = chunks[i];
+    const chunkNum = i + 1;
     
-    try {
-      const category = await categorizeWord(
-        wordData.word,
-        wordData.definition || undefined,
-        wordData.partOfSpeech as string[] | undefined
-      );
-      
+    console.log(`\n📦 Chunk ${chunkNum}/${chunks.length} (${chunk.length} words)`);
+    console.log('─'.repeat(40));
+    
+    // Categorize batch
+    const results = await categorizeWordsBatch(
+      chunk.map(w => ({
+        word: w.word,
+        definition: w.definition || undefined,
+        partOfSpeech: w.partOfSpeech as string[] | undefined,
+      }))
+    );
+    
+    // Build wordId -> category map
+    const wordCategoryMap = new Map(
+      results.map((r, idx) => [chunk[idx].id, r.category])
+    );
+    
+    // Clear existing themes if not uncategorizedOnly
+    if (!options.uncategorizedOnly && !options.dryRun) {
+      await prisma.wordTheme.deleteMany({
+        where: { wordId: { in: chunk.map(w => w.id) } },
+      });
+    }
+    
+    // Prepare theme inserts
+    const themeInserts: Array<{ wordId: string; themeId: string }> = [];
+    
+    for (const [wordId, category] of wordCategoryMap) {
       stats[category] = (stats[category] || 0) + 1;
-      console.log(`   → ${category}`);
       
-      // Save to database (unless dry run)
-      if (!options.dryRun && category !== 'general') {
-        const themeId = themeMap.get(category);
-        if (themeId) {
-          await prisma.wordTheme.upsert({
-            where: {
-              wordId_themeId: {
-                wordId: wordData.id,
-                themeId,
-              },
-            },
-            update: {},
-            create: {
-              wordId: wordData.id,
-              themeId,
-            },
-          });
-        }
+      if (category !== 'general' && themeBySlug[category]) {
+        themeInserts.push({
+          wordId,
+          themeId: themeBySlug[category].id,
+        });
+        tagged++;
       }
       
-      // Small delay to avoid overwhelming the LLM
-      await new Promise(r => setTimeout(r, 100));
-      
-    } catch (error: any) {
-      errors++;
-      console.log(`   ❌ Error: ${error.message}`);
+      if (options.verbose) {
+        const word = chunk.find(w => w.id === wordId);
+        console.log(`  ${word?.word} → ${category}`);
+      }
     }
     
-    // Progress every 50 words
-    if (processed % 50 === 0) {
-      const elapsed = Math.round((Date.now() - startTime) / 1000);
-      console.log(`\n📊 Progress: ${processed}/${words.length} (${elapsed}s)\n`);
+    // Batch insert themes
+    if (!options.dryRun && themeInserts.length > 0) {
+      await prisma.wordTheme.createMany({
+        data: themeInserts,
+        skipDuplicates: true,
+      });
     }
+    
+    processed += chunk.length;
+    
+    // Progress
+    const elapsed = Math.round((Date.now() - startTime) / 1000);
+    const rate = processed / (elapsed || 1);
+    const remaining = Math.round((words.length - processed) / rate);
+    
+    console.log(`\n📊 Progress: ${processed}/${words.length} (${Math.round(processed/words.length*100)}%)`);
+    console.log(`   Time: ${elapsed}s | Est. remaining: ${remaining}s`);
+    
+    // Show chunk summary
+    const chunkStats: Record<string, number> = {};
+    for (const r of results) {
+      chunkStats[r.category] = (chunkStats[r.category] || 0) + 1;
+    }
+    console.log(`   This chunk: ${Object.entries(chunkStats).map(([c, n]) => `${c}:${n}`).join(', ')}`);
   }
   
   // Summary
@@ -135,18 +168,22 @@ async function categorizeWords(options: { limit?: number; uncategorizedOnly?: bo
   console.log('📊 Categorization Complete');
   console.log('================================');
   console.log(`Processed: ${processed}`);
-  console.log(`Errors: ${errors}`);
-  console.log(`Time: ${elapsed}s`);
-  console.log(`\nCategories:`);
+  console.log(`Tagged: ${tagged}`);
+  console.log(`Time: ${elapsed}s (${Math.round(processed / (elapsed || 1))} words/s)`);
   
-  for (const [cat, count] of Object.entries(stats).sort((a, b) => b[1] - a[1])) {
+  console.log(`\nCategories:`);
+  const sorted = Object.entries(stats).sort((a, b) => b[1] - a[1]);
+  for (const [cat, count] of sorted) {
     if (count > 0) {
-      console.log(`  ${cat}: ${count}`);
+      const pct = Math.round(count / processed * 100);
+      console.log(`  ${cat.padEnd(12)} ${count.toString().padStart(5)} (${pct}%)`);
     }
   }
   
   if (options.dryRun) {
     console.log('\n⚠️  DRY RUN - No changes saved to database');
+  } else {
+    console.log(`\n✅ Saved ${tagged} theme associations to database`);
   }
 }
 
@@ -157,6 +194,7 @@ function parseArgs() {
     limit: undefined as number | undefined,
     uncategorizedOnly: true,
     dryRun: false,
+    verbose: false,
   };
   
   for (const arg of args) {
@@ -166,20 +204,30 @@ function parseArgs() {
       options.uncategorizedOnly = false;
     } else if (arg === '--dry-run') {
       options.dryRun = true;
-    } else if (arg === '--help') {
+    } else if (arg === '--verbose' || arg === '-v') {
+      options.verbose = true;
+    } else if (arg === '--help' || arg === '-h') {
       console.log(`
-Usage: npm run categorize [options]
+Usage: npm run categorize -w apps/backend [options]
 
 Options:
-  --limit=N     Only process N words
-  --all         Process all words (default: only uncategorized)
-  --dry-run     Test without saving to database
-  --help        Show this help
+  --limit=N       Only process N words
+  --all           Process all words, including already categorized
+  --dry-run       Test without saving to database
+  --verbose, -v   Show each word categorization
+  --help, -h      Show this help
 
-Environment:
-  LLM_PROVIDER   "openai" (default) or "anthropic"
-  LLM_MODEL      Model to use (default: gpt-4o-mini)
-  OPENAI_API_KEY Required if LLM_PROVIDER=openai
+Examples:
+  npm run categorize -w apps/backend                    # Categorize all uncategorized
+  npm run categorize -w apps/backend --limit=100        # First 100 uncategorized
+  npm run categorize -w apps/backend --all --limit=500  # 500 words, re-categorize
+  npm run categorize -w apps/backend --dry-run -v       # Test with verbose output
+
+Configuration:
+  Set up LLM provider in Admin Panel > Config tab
+  Or use environment variables:
+    OPENAI_API_KEY=sk-...
+    LLM_MODEL=gpt-4o-mini
 `);
       process.exit(0);
     }
