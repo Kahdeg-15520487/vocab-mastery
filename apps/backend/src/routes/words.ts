@@ -4,7 +4,7 @@ import { optionalAuth, authenticate } from '../middleware/auth.js';
 
 export async function wordRoutes(app: FastifyInstance) {
   // Get all words with filters (requires auth)
-  app.get('/words', { preHandler: authenticate }, async (request, reply) => {
+  app.get('/words', { preHandler: authenticate }, async (request, _reply) => {
     const userId = request.user!.userId;
     const query = request.query as Record<string, string | undefined>;
     const theme = query.theme;
@@ -130,7 +130,7 @@ export async function wordRoutes(app: FastifyInstance) {
   });
 
   // Get words due for review (requires auth)
-  app.get('/words/due', { preHandler: authenticate }, async (request, reply) => {
+  app.get('/words/due', { preHandler: authenticate }, async (request, _reply) => {
     const userId = request.user!.userId;
     const { limit = 20 } = request.query as { limit?: number };
 

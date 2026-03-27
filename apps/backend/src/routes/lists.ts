@@ -10,7 +10,7 @@ export async function listsRoutes(app: FastifyInstance) {
   // ============================================
   // GET /api/lists - Get user's lists
   // ============================================
-  app.get('/lists', async (request, reply) => {
+  app.get('/lists', async (request, _reply) => {
     const userId = request.user!.userId;
 
     // Get user's own lists + lists shared with user

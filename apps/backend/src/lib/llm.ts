@@ -326,7 +326,7 @@ JSON:`;
 /**
  * Parse JSON response from LLM - handles various malformed formats
  */
-function parseCategoriesJson(text: string, expectedWords: string[]): Record<string, string> {
+function parseCategoriesJson(text: string, _expectedWords: string[]): Record<string, string> {
   const result: Record<string, string> = {};
   
   // Step 1: Strip <think/> tags (deepseek-reasoner adds these)

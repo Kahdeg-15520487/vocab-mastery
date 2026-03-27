@@ -7,7 +7,7 @@ export async function statsRoutes(app: FastifyInstance) {
   app.addHook('preHandler', authenticate);
 
   // Get overall statistics
-  app.get('/stats', async (request, reply) => {
+  app.get('/stats', async (_request, _reply) => {
     const [
       userStats,
       totalWords,
@@ -86,7 +86,7 @@ export async function statsRoutes(app: FastifyInstance) {
   });
 
   // Get daily stats
-  app.get('/stats/daily', async (request, reply) => {
+  app.get('/stats/daily', async (request, _reply) => {
     const { days = 7 } = request.query as { days?: number };
 
     const startDate = new Date();
@@ -134,7 +134,7 @@ export async function statsRoutes(app: FastifyInstance) {
   });
 
   // Get weekly stats
-  app.get('/stats/weekly', async (request, reply) => {
+  app.get('/stats/weekly', async (request, _reply) => {
     const { weeks = 4 } = request.query as { weeks?: number };
 
     const startDate = new Date();
@@ -178,7 +178,7 @@ export async function statsRoutes(app: FastifyInstance) {
   });
 
   // Get level distribution
-  app.get('/stats/level-distribution', async (request, reply) => {
+  app.get('/stats/level-distribution', async (_request, _reply) => {
     const distribution = await prisma.word.groupBy({
       by: ['cefrLevel'],
       _count: true,

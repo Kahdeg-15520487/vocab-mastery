@@ -1,4 +1,4 @@
-import { registerJobHandler, type JobPayload, type JobResult } from './jobs.js';
+import { registerJobHandler, type JobResult } from './jobs.js';
 import prisma from './prisma.js';
 import { categorizeWordsBatch, checkLLMAvailability, clearLLMConfigCache, THEMES } from './llm.js';
 

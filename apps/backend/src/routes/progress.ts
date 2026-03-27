@@ -12,7 +12,7 @@ export async function progressRoutes(app: FastifyInstance) {
   // ============================================
   // GET /api/progress/dashboard - Dashboard data
   // ============================================
-  app.get('/progress/dashboard', async (request, reply) => {
+  app.get('/progress/dashboard', async (request, _reply) => {
     const userId = request.user!.userId;
 
     // Get streak
@@ -123,7 +123,7 @@ export async function progressRoutes(app: FastifyInstance) {
   // ============================================
   // GET /api/progress/streak - Get streak info
   // ============================================
-  app.get('/progress/streak', async (request, reply) => {
+  app.get('/progress/streak', async (request, _reply) => {
     const userId = request.user!.userId;
     const streak = await getStreak(userId);
     return streak;
@@ -132,7 +132,7 @@ export async function progressRoutes(app: FastifyInstance) {
   // ============================================
   // GET /api/progress/calendar - Activity heatmap
   // ============================================
-  app.get('/progress/calendar', async (request, reply) => {
+  app.get('/progress/calendar', async (request, _reply) => {
     const userId = request.user!.userId;
     const query = request.query as { days?: string };
     const days = parseInt(query.days || '90', 10);
@@ -194,7 +194,7 @@ export async function progressRoutes(app: FastifyInstance) {
   // ============================================
   // POST /api/progress/update - Update goal progress
   // ============================================
-  app.post('/progress/update', async (request, reply) => {
+  app.post('/progress/update', async (request, _reply) => {
     const userId = request.user!.userId;
     const body = request.body as {
       wordsLearned?: number;
@@ -275,7 +275,7 @@ export async function progressRoutes(app: FastifyInstance) {
   // ============================================
   // GET /api/progress/achievements - All achievements
   // ============================================
-  app.get('/progress/achievements', async (request, reply) => {
+  app.get('/progress/achievements', async (request, _reply) => {
     const userId = request.user!.userId;
     const achievements = await getAllAchievementsWithStatus(userId);
     return achievements;
@@ -284,7 +284,7 @@ export async function progressRoutes(app: FastifyInstance) {
   // ============================================
   // GET /api/progress - Get all word progress (legacy)
   // ============================================
-  app.get('/progress', async (request, reply) => {
+  app.get('/progress', async (request, _reply) => {
     const userId = request.user!.userId;
     const progress = await prisma.wordProgress.findMany({
       where: { userId },
@@ -327,7 +327,7 @@ export async function progressRoutes(app: FastifyInstance) {
   app.post('/progress/:wordId', async (request, reply) => {
     const userId = request.user!.userId;
     const { wordId } = request.params as { wordId: string };
-    const { response, responseTime } = request.body as {
+    const { response } = request.body as {
       response: 'easy' | 'medium' | 'hard' | 'forgot';
       responseTime?: number;
     };
@@ -451,7 +451,7 @@ export async function progressRoutes(app: FastifyInstance) {
   // ============================================
   // POST /api/progress/batch - Batch update
   // ============================================
-  app.post('/progress/batch', async (request, reply) => {
+  app.post('/progress/batch', async (request, _reply) => {
     const userId = request.user!.userId;
     const { updates } = request.body as {
       updates: Array<{

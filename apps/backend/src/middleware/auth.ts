@@ -1,6 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { verifyAccessToken, JwtPayload } from '../lib/jwt.js';
-import prisma from '../lib/prisma.js';
 
 // Extend FastifyRequest to include user
 declare module 'fastify' {
@@ -70,7 +69,7 @@ export async function requireAdmin(
  */
 export async function optionalAuth(
   request: FastifyRequest,
-  reply: FastifyReply
+  _reply: FastifyReply
 ): Promise<void> {
   const authHeader = request.headers.authorization;
 

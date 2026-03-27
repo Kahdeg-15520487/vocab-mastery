@@ -22,7 +22,7 @@ export async function dataRoutes(app: FastifyInstance) {
   app.addHook('preHandler', requireAdmin);
 
   // Export words as JSON file
-  app.get('/data/export', async (request, reply) => {
+  app.get('/data/export', async (_request, reply) => {
     const words = await prisma.word.findMany({
       include: {
         themes: {
@@ -220,7 +220,7 @@ export async function dataRoutes(app: FastifyInstance) {
   });
 
   // Get export stats (preview before downloading)
-  app.get('/data/stats', async (request, reply) => {
+  app.get('/data/stats', async (_request, _reply) => {
     const total = await prisma.word.count();
     const withDefinition = await prisma.word.count({
       where: { definition: { not: '' } },

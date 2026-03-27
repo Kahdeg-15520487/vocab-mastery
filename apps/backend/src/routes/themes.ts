@@ -4,7 +4,7 @@ import { optionalAuth } from '../middleware/auth.js';
 
 export async function themeRoutes(app: FastifyInstance) {
   // Get all themes (public)
-  app.get('/themes', async (request, reply) => {
+  app.get('/themes', async (_request, _reply) => {
     const themes = await prisma.theme.findMany({
       include: {
         _count: {

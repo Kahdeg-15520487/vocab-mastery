@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import prisma from '../lib/prisma.js';
 import { requireAdmin } from '../middleware/auth.js';
-import { categorizeWord, categorizeWordsBatch, checkLLMAvailability, clearLLMConfigCache, getLLMConfig, testProviderConfig, THEMES } from '../lib/llm.js';
+import { categorizeWord, checkLLMAvailability, clearLLMConfigCache, getLLMConfig, testProviderConfig } from '../lib/llm.js';
 import {
   createJob,
   getJob,
@@ -22,7 +22,7 @@ export async function adminRoutes(app: FastifyInstance) {
   // ============================================
   // GET /api/admin/stats - Platform statistics
   // ============================================
-  app.get('/admin/stats', async (request, reply) => {
+  app.get('/admin/stats', async (_request, _reply) => {
     const [
       totalUsers,
       activeUsersToday,
@@ -88,7 +88,7 @@ export async function adminRoutes(app: FastifyInstance) {
   // ============================================
   // GET /api/admin/users - List users (paginated)
   // ============================================
-  app.get('/admin/users', async (request, reply) => {
+  app.get('/admin/users', async (request, _reply) => {
     const query = request.query as {
       page?: string;
       limit?: string;
@@ -195,12 +195,6 @@ export async function adminRoutes(app: FastifyInstance) {
     if (!user) {
       return reply.status(404).send({ error: 'User not found' });
     }
-
-    // Get user's learning stats
-    const progressStats = await prisma.wordProgress.aggregate({
-      where: { wordId: { not: '' } }, // Placeholder - would need userId relation
-      _count: true,
-    });
 
     return {
       ...user,
@@ -309,7 +303,7 @@ export async function adminRoutes(app: FastifyInstance) {
   // ============================================
   // GET /api/admin/config - Get system config
   // ============================================
-  app.get('/admin/config', async (request, reply) => {
+  app.get('/admin/config', async (_request, _reply) => {
     const configs = await prisma.systemConfig.findMany({
       orderBy: { key: 'asc' },
     });
@@ -353,7 +347,7 @@ export async function adminRoutes(app: FastifyInstance) {
   // ============================================
 
   // GET /api/admin/llm/providers - List all providers
-  app.get('/admin/llm/providers', async (request, reply) => {
+  app.get('/admin/llm/providers', async (_request, _reply) => {
     const providers = await prisma.llmProvider.findMany({
       orderBy: { createdAt: 'desc' },
     });
@@ -608,7 +602,7 @@ export async function adminRoutes(app: FastifyInstance) {
   });
 
   // GET /api/admin/llm/config - Get active LLM config (for backwards compatibility)
-  app.get('/admin/llm/config', async (request, reply) => {
+  app.get('/admin/llm/config', async (_request, _reply) => {
     const config = await getLLMConfig();
     
     return {
@@ -626,13 +620,13 @@ export async function adminRoutes(app: FastifyInstance) {
   // ============================================
 
   // GET /api/admin/llm/status - Check LLM availability
-  app.get('/admin/llm/status', async (request, reply) => {
+  app.get('/admin/llm/status', async (_request, _reply) => {
     const status = await checkLLMAvailability();
     return status;
   });
 
   // GET /api/admin/categorization/stats - Get categorization progress
-  app.get('/admin/categorization/stats', async (request, reply) => {
+  app.get('/admin/categorization/stats', async (_request, _reply) => {
     const [totalWords, categorizedWordsRaw, wordsByTheme] = await Promise.all([
       prisma.word.count(),
       prisma.wordTheme.groupBy({
@@ -749,7 +743,7 @@ export async function adminRoutes(app: FastifyInstance) {
   // ============================================
 
   // GET /api/admin/jobs - List all jobs
-  app.get('/admin/jobs', async (request, reply) => {
+  app.get('/admin/jobs', async (request, _reply) => {
   const query = request.query as {
     status?: string;
     type?: string;
@@ -801,7 +795,7 @@ app.post('/admin/jobs', async (request, reply) => {
 });
 
 // POST /api/admin/jobs/categorize - Create categorize job (convenience)
-app.post('/admin/jobs/categorize', async (request, reply) => {
+app.post('/admin/jobs/categorize', async (request, _reply) => {
   const body = request.body as {
     limit?: number;
     overwrite?: boolean;
@@ -844,13 +838,13 @@ app.delete('/admin/jobs/:id', async (request, reply) => {
 });
 
 // POST /api/admin/jobs/runner/start - Start job runner
-app.post('/admin/jobs/runner/start', async (request, reply) => {
+app.post('/admin/jobs/runner/start', async (_request, _reply) => {
   startJobRunner(5000);
   return { message: 'Job runner started' };
 });
 
 // POST /api/admin/jobs/runner/stop - Stop job runner
-app.post('/admin/jobs/runner/stop', async (request, reply) => {
+app.post('/admin/jobs/runner/stop', async (_request, _reply) => {
   stopJobRunner();
   return { message: 'Job runner stopped' };
 });
