@@ -1,7 +1,11 @@
 import { FastifyInstance } from 'fastify';
 import prisma from '../lib/prisma.js';
+import { authenticate } from '../middleware/auth.js';
 
 export async function statsRoutes(app: FastifyInstance) {
+  // All stats routes require authentication
+  app.addHook('preHandler', authenticate);
+
   // Get overall statistics
   app.get('/stats', async (request, reply) => {
     const [

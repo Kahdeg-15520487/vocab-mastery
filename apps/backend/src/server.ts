@@ -51,7 +51,7 @@ async function start() {
     // OAuth routes (public)
     instance.register(oauthRoutes);
     
-    // Data routes (public for export/import)
+    // Data routes (requires admin)
     instance.register(dataRoutes);
     
     // Admin routes (requires admin role)

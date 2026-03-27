@@ -38,16 +38,16 @@ export async function progressRoutes(app: FastifyInstance) {
       });
     }
 
-    // Get CEFR level progress
+    // Get CEFR level progress (scoped to current user)
     const cefrLevels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
     const levelProgress = await Promise.all(
       cefrLevels.map(async (level) => {
         const totalWords = await prisma.word.count({ where: { cefrLevel: level } });
         const learnedWords = await prisma.wordProgress.count({
-          where: { word: { cefrLevel: level }, status: { not: 'new' } },
+          where: { userId, word: { cefrLevel: level }, status: { not: 'new' } },
         });
         const masteredWords = await prisma.wordProgress.count({
-          where: { word: { cefrLevel: level }, status: 'mastered' },
+          where: { userId, word: { cefrLevel: level }, status: 'mastered' },
         });
 
         return {
@@ -75,12 +75,12 @@ export async function progressRoutes(app: FastifyInstance) {
       orderBy: { date: 'asc' },
     });
 
-    // Get total stats
+    // Get total stats (scoped to current user)
     const totalWordsLearned = await prisma.wordProgress.count({
-      where: { status: { not: 'new' } },
+      where: { userId, status: { not: 'new' } },
     });
     const totalWordsMastered = await prisma.wordProgress.count({
-      where: { status: 'mastered' },
+      where: { userId, status: 'mastered' },
     });
 
     return {
@@ -285,7 +285,9 @@ export async function progressRoutes(app: FastifyInstance) {
   // GET /api/progress - Get all word progress (legacy)
   // ============================================
   app.get('/progress', async (request, reply) => {
+    const userId = request.user!.userId;
     const progress = await prisma.wordProgress.findMany({
+      where: { userId },
       include: {
         word: {
           select: {
@@ -304,10 +306,11 @@ export async function progressRoutes(app: FastifyInstance) {
   // GET /api/progress/:wordId - Get word progress
   // ============================================
   app.get('/progress/:wordId', async (request, reply) => {
+    const userId = request.user!.userId;
     const { wordId } = request.params as { wordId: string };
 
-    const progress = await prisma.wordProgress.findFirst({
-      where: { wordId },
+    const progress = await prisma.wordProgress.findUnique({
+      where: { userId_wordId: { userId, wordId } },
       include: { word: true },
     });
 
@@ -336,14 +339,15 @@ export async function progressRoutes(app: FastifyInstance) {
     }
 
     // Get or create progress
-    let existingProgress = await prisma.wordProgress.findFirst({
-      where: { wordId },
+    let existingProgress = await prisma.wordProgress.findUnique({
+      where: { userId_wordId: { userId, wordId } },
     });
 
     if (!existingProgress) {
       const initial = createInitialProgress(wordId);
       existingProgress = await prisma.wordProgress.create({
         data: {
+          userId,
           wordId,
           status: initial.status,
           interval: initial.interval,
@@ -396,13 +400,13 @@ export async function progressRoutes(app: FastifyInstance) {
     const isCorrect = response !== 'forgot';
     await updateDailyProgress(userId, isCorrect ? 0 : 1, isCorrect ? 1 : 0);
 
-    // Check achievements
+    // Check achievements (scoped to user)
     const unlockedAchievements: string[] = [];
     
     if (wasNew && updated.status !== 'new') {
       // Word was learned
       const totalLearned = await prisma.wordProgress.count({
-        where: { status: { not: 'new' } },
+        where: { userId, status: { not: 'new' } },
       });
       const newUnlocked = await checkAchievements({
         userId,
@@ -415,7 +419,7 @@ export async function progressRoutes(app: FastifyInstance) {
     if (wasNotMastered && updated.status === 'mastered') {
       // Word was mastered
       const totalMastered = await prisma.wordProgress.count({
-        where: { status: 'mastered' },
+        where: { userId, status: 'mastered' },
       });
       const newUnlocked = await checkAchievements({
         userId,
@@ -466,14 +470,15 @@ export async function progressRoutes(app: FastifyInstance) {
       const word = await prisma.word.findUnique({ where: { id: wordId } });
       if (!word) continue;
 
-      let existingProgress = await prisma.wordProgress.findFirst({
-        where: { wordId },
+      let existingProgress = await prisma.wordProgress.findUnique({
+        where: { userId_wordId: { userId, wordId } },
       });
 
       if (!existingProgress) {
         const initial = createInitialProgress(wordId);
         existingProgress = await prisma.wordProgress.create({
           data: {
+            userId,
             wordId,
             status: initial.status,
             interval: initial.interval,

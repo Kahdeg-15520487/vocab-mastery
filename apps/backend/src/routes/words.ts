@@ -5,6 +5,7 @@ import { optionalAuth, authenticate } from '../middleware/auth.js';
 export async function wordRoutes(app: FastifyInstance) {
   // Get all words with filters (requires auth)
   app.get('/words', { preHandler: authenticate }, async (request, reply) => {
+    const userId = request.user!.userId;
     const query = request.query as Record<string, string | undefined>;
     const theme = query.theme;
     const level = query.level;
@@ -34,7 +35,9 @@ export async function wordRoutes(app: FastifyInstance) {
         where,
         include: {
           themes: { include: { theme: true } },
-          progress: true,
+          progress: {
+            where: { userId },
+          },
         },
         skip: (page - 1) * limit,
         take: limit,
@@ -83,7 +86,9 @@ export async function wordRoutes(app: FastifyInstance) {
       where: { id },
       include: {
         themes: { include: { theme: true } },
-        progress: true,
+        progress: request.user
+          ? { where: { userId: request.user.userId } }
+          : false,
       },
     });
 
@@ -126,19 +131,23 @@ export async function wordRoutes(app: FastifyInstance) {
 
   // Get words due for review (requires auth)
   app.get('/words/due', { preHandler: authenticate }, async (request, reply) => {
+    const userId = request.user!.userId;
     const { limit = 20 } = request.query as { limit?: number };
 
     const dueWords = await prisma.word.findMany({
       where: {
         progress: {
           some: {
+            userId,
             nextReview: { lte: new Date() },
           },
         },
       },
       include: {
         themes: { include: { theme: true } },
-        progress: true,
+        progress: {
+          where: { userId },
+        },
       },
       take: limit,
       orderBy: {

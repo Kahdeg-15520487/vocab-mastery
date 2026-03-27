@@ -1,7 +1,6 @@
 import { FastifyInstance } from 'fastify';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '../lib/prisma.js';
+import { requireAdmin } from '../middleware/auth.js';
 
 interface ExportedWord {
   word: string;
@@ -19,6 +18,9 @@ interface ExportedWord {
 }
 
 export async function dataRoutes(app: FastifyInstance) {
+  // All data routes require admin access
+  app.addHook('preHandler', requireAdmin);
+
   // Export words as JSON file
   app.get('/data/export', async (request, reply) => {
     const words = await prisma.word.findMany({

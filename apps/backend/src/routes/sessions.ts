@@ -1,9 +1,14 @@
 import { FastifyInstance } from 'fastify';
 import prisma from '../lib/prisma.js';
+import { authenticate } from '../middleware/auth.js';
 
 export async function sessionRoutes(app: FastifyInstance) {
+  // All session routes require authentication
+  app.addHook('preHandler', authenticate);
+
   // Start a new learning session
   app.post('/sessions', async (request, reply) => {
+    const userId = request.user!.userId;
     const body = request.body as {
       type: 'learn' | 'review' | 'quiz';
       themeId?: string;
@@ -26,10 +31,11 @@ export async function sessionRoutes(app: FastifyInstance) {
       where.cefrLevel = { in: levels.slice(startIdx, endIdx + 1) };
     }
 
-    // For review sessions, get due words
+    // For review sessions, get due words for THIS user
     if (type === 'review') {
       where.progress = {
         some: {
+          userId,
           nextReview: { lte: new Date() },
         },
       };
@@ -40,7 +46,9 @@ export async function sessionRoutes(app: FastifyInstance) {
       where,
       include: {
         themes: { include: { theme: true } },
-        progress: true,
+        progress: {
+          where: { userId },
+        },
       },
       take: wordCount,
       orderBy: type === 'review' ? { progress: { _count: 'asc' } } : { frequency: 'asc' },
@@ -50,9 +58,10 @@ export async function sessionRoutes(app: FastifyInstance) {
       return reply.status(400).send({ error: 'No words available for this session' });
     }
 
-    // Create session
+    // Create session with userId
     const session = await prisma.learningSession.create({
       data: {
+        userId,
         type,
         themeId,
         sessionWords: {
@@ -97,12 +106,13 @@ export async function sessionRoutes(app: FastifyInstance) {
     };
   });
 
-  // Get session by ID
+  // Get session by ID (only own sessions)
   app.get('/sessions/:id', async (request, reply) => {
+    const userId = request.user!.userId;
     const { id } = request.params as { id: string };
 
-    const session = await prisma.learningSession.findUnique({
-      where: { id },
+    const session = await prisma.learningSession.findFirst({
+      where: { id, userId },
       include: {
         sessionWords: {
           include: {
@@ -133,14 +143,22 @@ export async function sessionRoutes(app: FastifyInstance) {
 
   // Submit response for a word in session
   app.post('/sessions/:sessionId/respond', async (request, reply) => {
+    const userId = request.user!.userId;
     const { sessionId } = request.params as { sessionId: string };
     const body = request.body as {
-      sessionId: string;
       wordId: string;
       response: 'easy' | 'medium' | 'hard' | 'forgot';
       responseTime?: number;
     };
     const { wordId, response, responseTime } = body;
+
+    // Verify session belongs to user
+    const session = await prisma.learningSession.findFirst({
+      where: { id: sessionId, userId },
+    });
+    if (!session) {
+      return reply.status(404).send({ error: 'Session not found' });
+    }
 
     const sessionWord = await prisma.sessionWord.findFirst({
       where: { sessionId, wordId },
@@ -172,12 +190,13 @@ export async function sessionRoutes(app: FastifyInstance) {
     return { success: true };
   });
 
-  // Complete a session
+  // Complete a session (only own sessions)
   app.post('/sessions/:id/complete', async (request, reply) => {
+    const userId = request.user!.userId;
     const { id } = request.params as { id: string };
 
-    const session = await prisma.learningSession.findUnique({
-      where: { id },
+    const session = await prisma.learningSession.findFirst({
+      where: { id, userId },
       include: {
         sessionWords: true,
       },

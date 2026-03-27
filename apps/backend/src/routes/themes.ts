@@ -1,8 +1,9 @@
 import { FastifyInstance } from 'fastify';
 import prisma from '../lib/prisma.js';
+import { optionalAuth } from '../middleware/auth.js';
 
 export async function themeRoutes(app: FastifyInstance) {
-  // Get all themes
+  // Get all themes (public)
   app.get('/themes', async (request, reply) => {
     const themes = await prisma.theme.findMany({
       include: {
@@ -24,9 +25,10 @@ export async function themeRoutes(app: FastifyInstance) {
   });
 
   // Get theme by slug with words
-  app.get('/themes/:slug', async (request, reply) => {
+  app.get('/themes/:slug', { preHandler: optionalAuth }, async (request, reply) => {
     const { slug } = request.params as { slug: string };
     const { page = 1, limit = 20 } = request.query as { page?: number; limit?: number };
+    const userId = request.user?.userId;
 
     const theme = await prisma.theme.findUnique({
       where: { slug },
@@ -34,7 +36,11 @@ export async function themeRoutes(app: FastifyInstance) {
         words: {
           include: {
             word: {
-              include: { progress: true },
+              include: {
+                progress: userId
+                  ? { where: { userId } }
+                  : false,
+              },
             },
           },
           skip: (page - 1) * limit,
@@ -84,8 +90,9 @@ export async function themeRoutes(app: FastifyInstance) {
   });
 
   // Get theme statistics
-  app.get('/themes/:slug/stats', async (request, reply) => {
+  app.get('/themes/:slug/stats', { preHandler: optionalAuth }, async (request, reply) => {
     const { slug } = request.params as { slug: string };
+    const userId = request.user?.userId;
 
     const theme = await prisma.theme.findUnique({
       where: { slug },
@@ -93,7 +100,11 @@ export async function themeRoutes(app: FastifyInstance) {
         words: {
           include: {
             word: {
-              include: { progress: true },
+              include: {
+                progress: userId
+                  ? { where: { userId } }
+                  : false,
+              },
             },
           },
         },

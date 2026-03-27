@@ -55,10 +55,12 @@ model User {
   // Relations
   refreshTokens    RefreshToken[]
   userProgress     UserProgress[]
+  wordProgress     WordProgress[]
   dailyGoals       DailyGoal[]
   streak           UserStream?
   achievements     UserAchievement[]
   studyLists       StudyList[]
+  sessions         LearningSession[]
   jobs             Job[]
   
   @@index([email])
@@ -349,7 +351,9 @@ model WordTheme {
 
 model WordProgress {
   id              String    @id @default(uuid())
+  userId          String    @map("user_id")
   wordId          String    @map("word_id")
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   word            Word      @relation(fields: [wordId], references: [id], onDelete: Cascade)
   status          String    @default("new")
   interval        Int       @default(0)
@@ -362,6 +366,8 @@ model WordProgress {
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
 
+  @@unique([userId, wordId])
+  @@index([userId])
   @@index([wordId])
   @@index([nextReview])
   @@index([status])
@@ -370,6 +376,8 @@ model WordProgress {
 
 model LearningSession {
   id            String        @id @default(uuid())
+  userId        String        @map("user_id")
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   type          String
   themeId       String?       @map("theme_id")
   startedAt     DateTime      @default(now()) @map("started_at")
@@ -379,6 +387,7 @@ model LearningSession {
   sessionWords  SessionWord[]
   createdAt     DateTime      @default(now()) @map("created_at")
 
+  @@index([userId])
   @@index([startedAt])
   @@map("learning_sessions")
 }
