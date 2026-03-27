@@ -2,6 +2,7 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import cookie from '@fastify/cookie';
+import rateLimit from '@fastify/rate-limit';
 import { wordRoutes } from './routes/words.js';
 import { themeRoutes } from './routes/themes.js';
 import { progressRoutes } from './routes/progress.js';
@@ -17,6 +18,7 @@ import { startJobRunner, stopJobRunner } from './lib/jobs.js';
 
 const PORT = Number(process.env.PORT) || 7101;
 const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+const isProduction = process.env.NODE_ENV === 'production';
 
 async function start() {
   const app = Fastify({
@@ -28,16 +30,22 @@ async function start() {
 
   // Register plugins
   await app.register(cors, {
-    origin: true, // Allow all origins in development
-    credentials: true, // Allow cookies
+    origin: isProduction ? (process.env.CORS_ORIGIN?.split(',') || false) : true,
+    credentials: true,
   });
 
   await app.register(helmet, {
-    contentSecurityPolicy: false, // Disable for development
+    contentSecurityPolicy: false,
   });
 
   await app.register(cookie, {
-    parseOptions: {}, // Use default parse options
+    parseOptions: {},
+  });
+
+  // Rate limiting
+  await app.register(rateLimit, {
+    max: 100,
+    timeWindow: '1 minute',
   });
 
   // Health check (public)

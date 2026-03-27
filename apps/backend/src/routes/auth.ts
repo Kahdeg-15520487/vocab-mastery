@@ -14,7 +14,7 @@ export async function authRoutes(app: FastifyInstance) {
   // ============================================
   // POST /api/auth/register
   // ============================================
-  app.post('/auth/register', async (request, reply) => {
+  app.post('/auth/register', { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } }, async (request, reply) => {
     const body = request.body as {
       email: string;
       password: string;
@@ -122,7 +122,7 @@ export async function authRoutes(app: FastifyInstance) {
   // ============================================
   // POST /api/auth/login
   // ============================================
-  app.post('/auth/login', async (request, reply) => {
+  app.post('/auth/login', { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } }, async (request, reply) => {
     const body = request.body as {
       email: string;
       password: string;
@@ -197,7 +197,7 @@ export async function authRoutes(app: FastifyInstance) {
   // ============================================
   // POST /api/auth/refresh
   // ============================================
-  app.post('/auth/refresh', async (request, reply) => {
+  app.post('/auth/refresh', { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (request, reply) => {
     const refreshToken = request.cookies.refreshToken;
 
     if (!refreshToken) {

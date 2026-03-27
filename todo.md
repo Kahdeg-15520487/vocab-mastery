@@ -4,21 +4,16 @@
 
 ## Pending
 
-- [ ] **#148** 🟡 #16: Reset userFetched flag when auth state changes #frontend
-- [ ] **#149** 🟡 #17: Handle fetchUser failure in router guard — redirect to login #frontend
 - [ ] **#150** **[low]** 🟡 #18: Add refresh token reuse detection (compromise alert) #backend #security
 - [ ] **#151** 🟡 #19: Add rate limiting to auth endpoints #backend #security
 - [ ] **#152** **[low]** 🟡 #20: Restrict CORS in production #backend #security
 - [ ] **#153** **[low]** 🟡 #21: Simplify parseCategoriesJson — reduce regex complexity #backend #llm
 - [ ] **#154** **[low]** 🟡 #22: Optimize StudyList wordCount query — use _count instead of include #backend #perf
-- [ ] **#155** 🟡 #23: Stop polling in CategorizationPanel when no active job #frontend #perf
 - [ ] **#156** **[low]** 🟡 #24: Make daily goal defaults configurable per user #backend
 - [ ] **#158** **[low]** 🔵 #26: Standardize error response format across all routes #backend
 - [ ] **#160** **[low]** 🔵 #28: Add userId to UserStats or remove the model #backend #schema
 - [ ] **#161** **[low]** 🔵 #29: Rename UserProgress → UserLevelProgress for clarity #backend #schema
 - [ ] **#162** **[low]** 🔵 #30: Rename UserStream → UserStreak #backend #schema
-- [ ] **#164** **[low]** 🔵 #32: Clean up unused frontend statsApi exports #frontend
-- [ ] **#168** 📋 PHASE 4: Frontend Fixes (🟡 #16, #17, #23, #32) #PLAN
 - [ ] **#169** **[low]** 📋 PHASE 5: Hardening & Polish (🟡 #18-#22, #24, 🔵 #28-#30) #PLAN
 
 ## Completed
@@ -38,12 +33,17 @@
 - [x] **#145** 🟠 #13: Fix unreliable StudyList.wordCount denormalization #backend #schema
 - [x] **#146** **[high]** 🟠 #14: Refactor lists store to use api.ts instead of raw fetch() #frontend
 - [x] **#147** 🟠 #15: Add input validation/sanitization to word import #backend #security
+- [x] **#148** 🟡 #16: Reset userFetched flag when auth state changes #frontend
+- [x] **#149** 🟡 #17: Handle fetchUser failure in router guard — redirect to login #frontend
+- [x] **#155** 🟡 #23: Stop polling in CategorizationPanel when no active job #frontend #perf
 - [x] **#157** **[low]** 🔵 #25: Remove unused `openai` package from dependencies #backend
 - [x] **#159** **[low]** 🔵 #27: Replace magic string status values with constants/enum #backend
 - [x] **#163** **[low]** 🔵 #31: Wrap batch progress updates in a transaction #backend
+- [x] **#164** **[low]** 🔵 #32: Clean up unused frontend statsApi exports #frontend
 - [x] **#165** **[critical]** 📋 PHASE 1: Critical Security & Data Integrity (🔴 #1-#6) #PLAN
 - [x] **#166** **[high]** 📋 PHASE 2: Backend Reliability (🟠 #7, #8, #9, #10, #14) #PLAN
 - [x] **#167** **[high]** 📋 PHASE 3: Code Quality & Cleanup (🟠 #11-#15, 🔵 #25-#27, #31) #PLAN
+- [x] **#168** 📋 PHASE 4: Frontend Fixes (🟡 #16, #17, #23, #32) #PLAN
 
 <!-- Raw Data -->
 ```json
@@ -259,26 +259,28 @@
     {
       "id": 148,
       "text": "🟡 #16: Reset userFetched flag when auth state changes",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "frontend"
       ],
       "createdAt": 1774632616468,
       "notes": "router/index.ts has module-level `let userFetched = false` that never resets. If token expires mid-session, router skips fetchUser() forever.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774636058390
     },
     {
       "id": 149,
       "text": "🟡 #17: Handle fetchUser failure in router guard — redirect to login",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "frontend"
       ],
       "createdAt": 1774632626995,
       "notes": "If fetchUser() fails silently (null user), user passes auth via hasToken but isAdmin is false → gets generic redirect to / instead of login.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774636061861
     },
     {
       "id": 150,
@@ -348,7 +350,7 @@
     {
       "id": 155,
       "text": "🟡 #23: Stop polling in CategorizationPanel when no active job",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "frontend",
@@ -356,7 +358,8 @@
       ],
       "createdAt": 1774632670575,
       "notes": "CategorizationPanel polls every 2s even when no active job. Only poll when RUNNING/PENDING job exists.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774636064550
     },
     {
       "id": 156,
@@ -463,14 +466,15 @@
     {
       "id": 164,
       "text": "🔵 #32: Clean up unused frontend statsApi exports",
-      "done": false,
+      "done": true,
       "priority": "low",
       "tags": [
         "frontend"
       ],
       "createdAt": 1774632742492,
       "notes": "statsApi in api.ts references endpoints that may not match actual backend routes. Verify and clean up.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774636069349
     },
     {
       "id": 165,
@@ -514,14 +518,15 @@
     {
       "id": 168,
       "text": "📋 PHASE 4: Frontend Fixes (🟡 #16, #17, #23, #32)",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "PLAN"
       ],
       "createdAt": 1774632785757,
       "notes": "Fix #16 (userFetched reset), #17 (fetchUser failure), #23 (stop polling), #32 (unused exports).\n\nThese improve UX and prevent edge-case bugs.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774636075772
     },
     {
       "id": 169,
