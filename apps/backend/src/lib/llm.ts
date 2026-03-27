@@ -180,6 +180,12 @@ async function callLLM(
     cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
     contextWindow: 128000,
     maxTokens: 16384,
+    compat: {
+      supportsDeveloperRole: false,  // DeepSeek and others use 'system', not 'developer'
+      supportsStore: false,
+      supportsReasoningEffort: false,
+      maxTokensField: 'max_tokens' as const,
+    },
   };
   
   const context: Context = {
@@ -197,6 +203,11 @@ async function callLLM(
       reasoning: 'medium',
     });
     
+    if (response.stopReason === 'error') {
+      console.error('LLM error:', response.errorMessage);
+      console.error('Content:', JSON.stringify(response.content).slice(0, 500));
+    }
+    
     const textContent = response.content
       .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
       .map(c => c.text)
@@ -206,9 +217,7 @@ async function callLLM(
     if (!textContent) {
       const contentTypes = response.content.map(c => c.type).join(', ');
       console.error(`LLM returned empty text. Content types: [${contentTypes}]`);
-      if (response.stopReason) {
-        console.error(`Stop reason: ${response.stopReason}`);
-      }
+      console.error(`Stop reason: ${response.stopReason}`);
     }
     
     return textContent;
@@ -513,6 +522,12 @@ export async function testProviderConfig(config: {
       cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
       contextWindow: 128000,
       maxTokens: 100,
+      compat: {
+        supportsDeveloperRole: false,
+        supportsStore: false,
+        supportsReasoningEffort: false,
+        maxTokensField: 'max_tokens' as const,
+      },
     };
     
     const context: Context = {
