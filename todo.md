@@ -7,7 +7,6 @@
 - [ ] **#143** 🟠 #11: Remove dead /admin/categorize/batch endpoint #backend
 - [ ] **#144** 🟠 #12: Deduplicate TIER_LIMITS — import from lib/lists.ts #backend
 - [ ] **#145** 🟠 #13: Fix unreliable StudyList.wordCount denormalization #backend #schema
-- [ ] **#146** **[high]** 🟠 #14: Refactor lists store to use api.ts instead of raw fetch() #frontend
 - [ ] **#147** 🟠 #15: Add input validation/sanitization to word import #backend #security
 - [ ] **#148** 🟡 #16: Reset userFetched flag when auth state changes #frontend
 - [ ] **#149** 🟡 #17: Handle fetchUser failure in router guard — redirect to login #frontend
@@ -26,7 +25,6 @@
 - [ ] **#162** **[low]** 🔵 #30: Rename UserStream → UserStreak #backend #schema
 - [ ] **#163** **[low]** 🔵 #31: Wrap batch progress updates in a transaction #backend
 - [ ] **#164** **[low]** 🔵 #32: Clean up unused frontend statsApi exports #frontend
-- [ ] **#166** **[high]** 📋 PHASE 2: Backend Reliability (🟠 #7, #8, #9, #10, #14) #PLAN
 - [ ] **#167** **[high]** 📋 PHASE 3: Code Quality & Cleanup (🟠 #11-#15, 🔵 #25-#27, #31) #PLAN
 - [ ] **#168** 📋 PHASE 4: Frontend Fixes (🟡 #16, #17, #23, #32) #PLAN
 - [ ] **#169** **[low]** 📋 PHASE 5: Hardening & Polish (🟡 #18-#22, #24, 🔵 #28-#30) #PLAN
@@ -43,7 +41,9 @@
 - [x] **#140** **[high]** 🟠 #8: Add TTL to LLM config cache (5 min auto-expiry) #backend #llm
 - [x] **#141** **[high]** 🟠 #9: Make checkLLMAvailability lightweight — don't make real LLM call #backend #llm
 - [x] **#142** **[high]** 🟠 #10: Remove process.env mutation for API keys — pass directly to pi-ai #backend #llm
+- [x] **#146** **[high]** 🟠 #14: Refactor lists store to use api.ts instead of raw fetch() #frontend
 - [x] **#165** **[critical]** 📋 PHASE 1: Critical Security & Data Integrity (🔴 #1-#6) #PLAN
+- [x] **#166** **[high]** 📋 PHASE 2: Backend Reliability (🟠 #7, #8, #9, #10, #14) #PLAN
 
 <!-- Raw Data -->
 ```json
@@ -229,14 +229,15 @@
     {
       "id": 146,
       "text": "🟠 #14: Refactor lists store to use api.ts instead of raw fetch()",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "frontend"
       ],
       "createdAt": 1774632601063,
       "notes": "stores/lists.ts uses raw fetch() instead of the api.ts request() function. No token refresh, no 401 handling. Refactor to use centralized api client.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635618890
     },
     {
       "id": 147,
@@ -480,14 +481,15 @@
     {
       "id": 166,
       "text": "📋 PHASE 2: Backend Reliability (🟠 #7, #8, #9, #10, #14)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "PLAN"
       ],
       "createdAt": 1774632765299,
       "notes": "Fix #7 (duplicate PrismaClient), #8 (config cache TTL), #9 (lightweight LLM check), #10 (no env mutation), #14 (lists store use api.ts).\n\nThese are correctness/reliability issues.\n\nOrder:\n1. Fix data.ts PrismaClient import\n2. Add TTL to LLM config cache\n3. Make checkLLMAvailability config-only (no LLM call)\n4. Refactor apiKey passing to avoid process.env mutation\n5. Refactor lists store to use api.ts",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635623842
     },
     {
       "id": 167,

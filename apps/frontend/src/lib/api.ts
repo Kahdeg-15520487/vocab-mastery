@@ -314,12 +314,6 @@ export const adminApi = {
       body: JSON.stringify({ word }),
     }),
 
-  batchCategorize: (limit: number, overwrite?: boolean) =>
-    request<any>('/admin/categorize/batch', {
-      method: 'POST',
-      body: JSON.stringify({ limit, overwrite }),
-    }),
-
   categorizeSingle: (wordId: string) =>
     request<any>('/admin/categorize/single', {
       method: 'POST',

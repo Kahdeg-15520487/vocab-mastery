@@ -460,84 +460,88 @@ export async function progressRoutes(app: FastifyInstance) {
       }>;
     };
 
-    const results = [];
-    let wordsLearned = 0;
-    let wordsReviewed = 0;
+    const results = await prisma.$transaction(async (tx) => {
+      const batchResults = [];
+      let wordsLearned = 0;
+      let wordsReviewed = 0;
 
-    for (const update of updates) {
-      const { wordId, response } = update;
+      for (const update of updates) {
+        const { wordId, response } = update;
 
-      const word = await prisma.word.findUnique({ where: { id: wordId } });
-      if (!word) continue;
+        const word = await tx.word.findUnique({ where: { id: wordId } });
+        if (!word) continue;
 
-      let existingProgress = await prisma.wordProgress.findUnique({
-        where: { userId_wordId: { userId, wordId } },
-      });
+        let existingProgress = await tx.wordProgress.findUnique({
+          where: { userId_wordId: { userId, wordId } },
+        });
 
-      if (!existingProgress) {
-        const initial = createInitialProgress(wordId);
-        existingProgress = await prisma.wordProgress.create({
-          data: {
-            userId,
-            wordId,
-            status: initial.status,
-            interval: initial.interval,
-            easeFactor: initial.easeFactor,
-            repetitions: initial.repetitions,
-            nextReview: initial.nextReview,
-            totalReviews: initial.totalReviews,
-            correctReviews: initial.correctReviews,
+        if (!existingProgress) {
+          const initial = createInitialProgress(wordId);
+          existingProgress = await tx.wordProgress.create({
+            data: {
+              userId,
+              wordId,
+              status: initial.status,
+              interval: initial.interval,
+              easeFactor: initial.easeFactor,
+              repetitions: initial.repetitions,
+              nextReview: initial.nextReview,
+              totalReviews: initial.totalReviews,
+              correctReviews: initial.correctReviews,
+            },
+          });
+        }
+
+        const quality = responseToQuality(response);
+        const updated = calculateNextReview(
+          {
+            wordId: existingProgress.wordId,
+            status: existingProgress.status as any,
+            interval: existingProgress.interval,
+            easeFactor: existingProgress.easeFactor,
+            repetitions: existingProgress.repetitions,
+            nextReview: existingProgress.nextReview,
+            lastReview: existingProgress.lastReview,
+            totalReviews: existingProgress.totalReviews,
+            correctReviews: existingProgress.correctReviews,
           },
+          quality
+        );
+
+        const progress = await tx.wordProgress.update({
+          where: { id: existingProgress.id },
+          data: {
+            status: updated.status,
+            interval: updated.interval,
+            easeFactor: updated.easeFactor,
+            repetitions: updated.repetitions,
+            nextReview: updated.nextReview,
+            lastReview: updated.lastReview,
+            totalReviews: updated.totalReviews,
+            correctReviews: updated.correctReviews,
+          },
+        });
+
+        // Track for daily goal
+        if (response !== 'forgot') {
+          wordsReviewed++;
+        }
+
+        batchResults.push({
+          wordId,
+          status: progress.status,
+          interval: progress.interval,
+          nextReview: progress.nextReview,
         });
       }
 
-      const quality = responseToQuality(response);
-      const updated = calculateNextReview(
-        {
-          wordId: existingProgress.wordId,
-          status: existingProgress.status as any,
-          interval: existingProgress.interval,
-          easeFactor: existingProgress.easeFactor,
-          repetitions: existingProgress.repetitions,
-          nextReview: existingProgress.nextReview,
-          lastReview: existingProgress.lastReview,
-          totalReviews: existingProgress.totalReviews,
-          correctReviews: existingProgress.correctReviews,
-        },
-        quality
-      );
+      return { results: batchResults, wordsLearned, wordsReviewed };
+    });
 
-      const progress = await prisma.wordProgress.update({
-        where: { id: existingProgress.id },
-        data: {
-          status: updated.status,
-          interval: updated.interval,
-          easeFactor: updated.easeFactor,
-          repetitions: updated.repetitions,
-          nextReview: updated.nextReview,
-          lastReview: updated.lastReview,
-          totalReviews: updated.totalReviews,
-          correctReviews: updated.correctReviews,
-        },
-      });
+    // Update daily progress (outside transaction to avoid holding lock too long)
+    await updateDailyProgress(userId, results.wordsLearned, results.wordsReviewed);
 
-      // Track for daily goal
-      if (response !== 'forgot') {
-        wordsReviewed++;
-      }
-
-      results.push({
-        wordId,
-        status: progress.status,
-        interval: progress.interval,
-        nextReview: progress.nextReview,
-      });
-    }
-
-    // Update daily progress
-    await updateDailyProgress(userId, wordsLearned, wordsReviewed);
-
-    return { success: true, updated: results.length, results };
+    return { success: true, updated: results.results.length, results: results.results };
   });
 }
 

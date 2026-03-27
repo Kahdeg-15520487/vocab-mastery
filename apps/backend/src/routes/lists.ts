@@ -1,13 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import prisma from '../lib/prisma.js';
 import { authenticate } from '../middleware/auth.js';
-
-// Subscription tier limits
-const TIER_LIMITS = {
-  FREE: { maxLists: 3, maxWordsPerList: 50 },
-  EXPLORER: { maxLists: 10, maxWordsPerList: 200 },
-  WORDSMITH: { maxLists: 50, maxWordsPerList: 1000 },
-};
+import { TIER_LIMITS } from '../lib/lists.js';
 
 export async function listsRoutes(app: FastifyInstance) {
   // All list routes require authentication
@@ -24,7 +18,7 @@ export async function listsRoutes(app: FastifyInstance) {
       prisma.studyList.findMany({
         where: { userId },
         include: {
-          words: { select: { wordId: true } },
+          _count: { select: { words: true } },
         },
         orderBy: [{ isPinned: 'desc' }, { updatedAt: 'desc' }],
       }),
@@ -33,7 +27,7 @@ export async function listsRoutes(app: FastifyInstance) {
         include: {
           list: {
             include: {
-              words: { select: { wordId: true } },
+              _count: { select: { words: true } },
               user: { select: { id: true, username: true } },
             },
           },
@@ -50,7 +44,7 @@ export async function listsRoutes(app: FastifyInstance) {
         icon: list.icon,
         isSystem: list.isSystem,
         isPinned: list.isPinned,
-        wordCount: list.words.length,
+        wordCount: list._count.words,
         isOwner: true,
         owner: null,
       })),
@@ -62,7 +56,7 @@ export async function listsRoutes(app: FastifyInstance) {
         icon: shared.list.icon,
         isSystem: shared.list.isSystem,
         isPinned: false,
-        wordCount: shared.list.words.length,
+        wordCount: shared.list._count.words,
         isOwner: false,
         owner: {
           id: shared.list.user.id,
