@@ -4,2082 +4,514 @@
 
 ## Pending
 
-- [ ] **#3** **[high]** Curate initial 500-word dataset with themes #data #content
-- [ ] **#6** Build progress tracking system #frontend #data
-- [ ] **#7** Create theme-based word organization #data #organization
-- [ ] **#8** **[low]** Add Oxford 3000/5000 full integration #data #future
-- [ ] **#118** **[high]** Frontend: Add "Add to list" button on browse word cards #phase-4 #lists #frontend
-- [ ] **#119** **[high]** Frontend: Update learn/review to allow selecting list as source #phase-4 #lists #frontend
-- [ ] **#120** **[high]** Phase 5: LLM Integration #phase-5 #llm
-- [ ] **#121** **[high]** Create LLM service (apps/backend/src/lib/llm.ts) - OpenAI API compatible client #phase-5 #llm #backend
-- [ ] **#122** **[high]** Create LLM config loader (read from SystemConfig table) #phase-5 #llm #backend
-- [ ] **#123** **[high]** Implement POST /api/lists/generate endpoint (LLM word generation) #phase-5 #llm #api
-- [ ] **#124** **[high]** Create word matching service (match LLM output to database words) #phase-5 #llm #backend
-- [ ] **#125** **[high]** Add rate limiting for LLM generation (per tier: Explorer 10/month, Wordsmith unlimited) #phase-5 #llm #backend
-- [ ] **#126** **[high]** Add LlmUsage model to track usage per user (userId, count, month) #phase-5 #llm #database
-- [ ] **#127** **[high]** Add LLM usage tracking to user's monthly count #phase-5 #llm #backend
-- [ ] **#128** **[high]** Add error handling for LLM API failures #phase-5 #llm #backend
-- [ ] **#129** **[high]** Frontend: Create generate list modal (query input, preview, save) #phase-5 #llm #frontend
-- [ ] **#130** **[high]** Frontend: Add "Generate with AI" button on lists page #phase-5 #llm #frontend
-- [ ] **#131** **[high]** Frontend: Show LLM usage limit (X/10 remaining this month) #phase-5 #llm #frontend
-- [ ] **#132** **[high]** Frontend: Handle LLM errors gracefully (show message, suggest retry) #phase-5 #llm #frontend
-
-## Completed
-
-- [x] **#1** **[high]** Choose and finalize tech stack #planning #decision
-- [x] **#2** **[high]** Set up project structure and initialize app #setup
-- [x] **#4** Implement core flashcard component #frontend #component
-- [x] **#5** Add spaced repetition algorithm (SM-2) #logic #learning
-- [x] **#9** **[high]** Phase 1: Auth Foundation #phase-1 #auth
-- [x] **#10** **[high]** Update Prisma schema with User model (id, email, passwordHash, username, role, googleId, subscriptionTier, timestamps) #phase-1 #auth #database
-- [x] **#11** **[high]** Add RefreshToken model to Prisma schema (id, userId, token, expiresAt, revoked) #phase-1 #auth #database
-- [x] **#12** **[high]** Add SubscriptionTier enum (FREE, EXPLORER, WORDSMITH) to Prisma schema #phase-1 #auth #database
-- [x] **#13** **[high]** Add Role enum (LEARNER, ADMIN) to Prisma schema #phase-1 #auth #database
-- [x] **#14** **[high]** Run Prisma migration for new auth schema #phase-1 #auth #database
-- [x] **#15** **[high]** Install bcrypt and @types/bcrypt for password hashing #phase-1 #auth #backend
-- [x] **#16** **[high]** Install jsonwebtoken and @types/jsonwebtoken for JWT #phase-1 #auth #backend
-- [x] **#17** **[high]** Create JWT utilities (generateAccessToken, generateRefreshToken, verifyToken) #phase-1 #auth #backend
-- [x] **#18** **[high]** Create password utilities (hashPassword, comparePassword) #phase-1 #auth #backend
-- [x] **#19** **[high]** Create auth middleware (authenticate, requireAuth, requireAdmin) #phase-1 #auth #backend
-- [x] **#20** **[high]** Create auth routes file (apps/backend/src/routes/auth.ts) #phase-1 #auth #backend
-- [x] **#21** **[high]** Implement POST /api/auth/register endpoint #phase-1 #auth #api
-- [x] **#22** **[high]** Implement POST /api/auth/login endpoint #phase-1 #auth #api
-- [x] **#23** **[high]** Implement POST /api/auth/refresh endpoint (refresh token rotation) #phase-1 #auth #api
-- [x] **#24** **[high]** Implement POST /api/auth/logout endpoint #phase-1 #auth #api
-- [x] **#25** **[high]** Implement POST /api/auth/logout-all endpoint #phase-1 #auth #api
-- [x] **#26** **[high]** Implement GET /api/auth/me endpoint #phase-1 #auth #api
-- [x] **#27** **[high]** Implement PUT /api/auth/password endpoint #phase-1 #auth #api
-- [x] **#28** **[high]** Implement DELETE /api/auth/account endpoint #phase-1 #auth #api
-- [x] **#29** **[high]** Implement GET /api/auth/export endpoint (GDPR) #phase-1 #auth #api
-- [x] **#30** **[high]** Add auth environment variables (JWT_SECRET, JWT_EXPIRES_IN, REFRESH_TOKEN_EXPIRES_IN) #phase-1 #auth #config
-- [x] **#31** **[high]** Update existing routes to require authentication #phase-1 #auth #backend
-- [x] **#32** **[high]** Add guest access for GET /api/words/:word (limited fields) #phase-1 #auth #api
-- [x] **#33** **[high]** Frontend: Create auth store (Pinia) for user state management #phase-1 #auth #frontend
-- [x] **#34** **[high]** Frontend: Create LoginView.vue page #phase-1 #auth #frontend
-- [x] **#35** **[high]** Frontend: Create RegisterView.vue page #phase-1 #auth #frontend
-- [x] **#36** **[high]** Frontend: Create auth composable (useAuth) with login/register/logout methods #phase-1 #auth #frontend
-- [x] **#37** **[high]** Frontend: Add auth API service (apps/frontend/src/lib/auth.ts) #phase-1 #auth #frontend
-- [x] **#38** **[high]** Frontend: Add route guards (check auth on protected routes) #phase-1 #auth #frontend
-- [x] **#39** **[high]** Frontend: Add navigation updates (show username, logout button) #phase-1 #auth #frontend
-- [x] **#40** **[high]** Frontend: Handle token refresh on 401 responses #phase-1 #auth #frontend
-- [x] **#41** **[high]** Frontend: Store tokens (access in memory, refresh in httpOnly cookie handled by backend) #phase-1 #auth #frontend
-- [x] **#42** **[high]** Phase 2: OAuth & Admin #phase-2 #auth
-- [x] **#43** **[high]** Add Google OAuth environment variables (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK_URL) #phase-2 #oauth #config
-- [x] **#44** **[high]** Install @fastify/oauth2 for Google OAuth #phase-2 #oauth #backend
-- [x] **#45** **[high]** Implement GET /api/auth/google endpoint (OAuth redirect) #phase-2 #oauth #backend
-- [x] **#46** **[high]** Implement GET /api/auth/google/callback endpoint #phase-2 #oauth #backend
-- [x] **#47** **[high]** Handle OAuth user creation (link existing email or create new user) #phase-2 #oauth #backend
-- [x] **#48** **[high]** Create admin middleware (requireAdmin) #phase-2 #admin #backend
-- [x] **#49** **[high]** Create admin routes file (apps/backend/src/routes/admin.ts) #phase-2 #admin #backend
-- [x] **#50** **[high]** Implement GET /api/admin/users endpoint (paginated list) #phase-2 #admin #api
-- [x] **#51** **[high]** Implement GET /api/admin/users/:id endpoint #phase-2 #admin #api
-- [x] **#52** **[high]** Implement PUT /api/admin/users/:id endpoint (role, subscription) #phase-2 #admin #api
-- [x] **#53** **[high]** Implement DELETE /api/admin/users/:id endpoint #phase-2 #admin #api
-- [x] **#54** **[high]** Implement GET /api/admin/stats endpoint (platform statistics) #phase-2 #admin #api
-- [x] **#55** **[high]** Add SystemConfig model to Prisma schema (id, key, value) #phase-2 #admin #database
-- [x] **#56** **[high]** Implement GET /api/admin/config endpoint #phase-2 #admin #api
-- [x] **#57** **[high]** Implement PUT /api/admin/config/:key endpoint #phase-2 #admin #api
-- [x] **#58** **[high]** Frontend: Create AdminView.vue page #phase-2 #admin #frontend
-- [x] **#59** **[high]** Frontend: Create user management table component #phase-2 #admin #frontend
-- [x] **#60** **[high]** Frontend: Create user edit modal (role, subscription) #phase-2 #admin #frontend
-- [x] **#61** **[high]** Frontend: Create admin config page (LLM settings) #phase-2 #admin #frontend
-- [x] **#62** **[high]** Frontend: Add admin navigation link (only visible to admin role) #phase-2 #admin #frontend
-- [x] **#63** **[high]** Frontend: Add "Sign in with Google" button to login page #phase-2 #oauth #frontend
-- [x] **#64** **[high]** Frontend: Create OAuth callback handler page #phase-2 #oauth #frontend
-- [x] **#65** **[high]** Phase 3: Progress System #phase-3 #progress
-- [x] **#66** **[high]** Add UserProgress model to Prisma (userId, themeId, level, status, interval, easeFactor, nextReview, lastReview, stats) #phase-3 #progress #database
-- [x] **#67** **[high]** Add ProgressStatus enum (NEW, LEARNING, REVIEWING, MASTERED) #phase-3 #progress #database
-- [x] **#68** **[high]** Add DailyGoal model to Prisma (userId, date, targets, actuals, completed) #phase-3 #progress #database
-- [x] **#69** **[high]** Add UserStreak model to Prisma (userId, currentStreak, longestStreak, lastActivityDate, gracePeriodsUsed) #phase-3 #progress #database
-- [x] **#70** **[high]** Add Achievement model to Prisma (key, name, description, icon, category, conditionType, conditionValue) #phase-3 #progress #database
-- [x] **#71** **[high]** Add UserAchievement model to Prisma (userId, achievementId, unlockedAt) #phase-3 #progress #database
-- [x] **#72** **[high]** Run Prisma migration for progress schema #phase-3 #progress #database
-- [x] **#73** **[high]** Create seed file for default achievements #phase-3 #progress #backend
-- [x] **#74** **[high]** Create progress routes file (apps/backend/src/routes/progress.ts) - update existing #phase-3 #progress #backend
-- [x] **#75** **[high]** Update SM-2 algorithm to work per theme/level instead of per-word #phase-3 #progress #backend
-- [x] **#76** **[high]** Implement GET /api/progress/dashboard endpoint #phase-3 #progress #api
-- [x] **#77** **[high]** Implement GET /api/progress/streak endpoint #phase-3 #progress #api
-- [x] **#78** **[high]** Implement GET /api/progress/calendar endpoint (activity heatmap data) #phase-3 #progress #api
-- [x] **#79** **[high]** Implement POST /api/progress/update endpoint (update goal progress) #phase-3 #progress #api
-- [x] **#80** **[high]** Create streak calculation service (with grace period logic, Monday noon GMT+0 reset) #phase-3 #progress #backend
-- [x] **#81** **[high]** Create achievement checking service (check conditions after progress updates) #phase-3 #progress #backend
-- [x] **#82** **[high]** Implement daily goal tracking (check completion, update streak) #phase-3 #progress #backend
-- [x] **#83** **[high]** Frontend: Create progress store (Pinia) for dashboard data #phase-3 #progress #frontend
-- [x] **#84** **[high]** Frontend: Update HomeView.vue as dashboard (streak, goals, CEFR progress, achievements) #phase-3 #progress #frontend
-- [x] **#85** **[high]** Frontend: Create streak display component (current, longest, fire icon) #phase-3 #progress #frontend
-- [x] **#86** **[high]** Frontend: Create daily goals progress component (learned/reviewed, progress bar) #phase-3 #progress #frontend
-- [x] **#87** **[high]** Frontend: Create CEFR level progress component (progress bars per level) #phase-3 #progress #frontend
-- [x] **#88** **[high]** Frontend: Create calendar heatmap component (activity visualization) #phase-3 #progress #frontend
-- [x] **#89** **[high]** Frontend: Create achievements display component (unlocked badges grid) #phase-3 #progress #frontend
-- [x] **#90** **[high]** Frontend: Create achievement unlock notification/animation #phase-3 #progress #frontend
-- [x] **#91** **[high]** Phase 4: Word Lists #phase-4 #lists
-- [x] **#92** **[high]** Add StudyList model to Prisma (userId, name, description, color, icon, isSystem, isPinned, wordCount) #phase-4 #lists #database
-- [x] **#93** **[high]** Add StudyListWord model to Prisma (listId, wordId, addedAt, addedBy) #phase-4 #lists #database
-- [x] **#94** **[high]** Add SharedList model to Prisma (listId, sharedBy, sharedWith) #phase-4 #lists #database
-- [x] **#95** **[high]** Update Word model to add StudyListWord relation #phase-4 #lists #database
-- [x] **#96** **[high]** Run Prisma migration for lists schema #phase-4 #lists #database
-- [x] **#97** **[high]** Create lists routes file (apps/backend/src/routes/lists.ts) #phase-4 #lists #backend
-- [x] **#98** **[high]** Create system list generation service (create on user registration) #phase-4 #lists #backend
-- [x] **#99** **[high]** Create subscription tier limit service (check list count, word count per tier) #phase-4 #lists #backend
-- [x] **#100** **[high]** Implement GET /api/lists endpoint (user's lists + shared with user) #phase-4 #lists #api
-- [x] **#101** **[high]** Implement GET /api/lists/:id endpoint (list with words, paginated) #phase-4 #lists #api
-- [x] **#102** **[high]** Implement POST /api/lists endpoint (create list, enforce tier limits) #phase-4 #lists #api
-- [x] **#103** **[high]** Implement PUT /api/lists/:id endpoint (update name, description, color, icon) #phase-4 #lists #api
-- [x] **#104** **[high]** Implement DELETE /api/lists/:id endpoint (not allowed for system lists) #phase-4 #lists #api
-- [x] **#105** **[high]** Implement POST /api/lists/:id/words endpoint (add word, enforce tier limits) #phase-4 #lists #api
-- [x] **#106** **[high]** Implement DELETE /api/lists/:id/words/:wordId endpoint (remove word) #phase-4 #lists #api
-- [x] **#107** **[high]** Implement PUT /api/lists/:id/pin endpoint (pin/unpin, only 1 pinned allowed) #phase-4 #lists #api
-- [x] **#108** **[high]** Implement POST /api/lists/:id/share endpoint (share with user by email/username) #phase-4 #lists #api
-- [x] **#109** **[high]** Implement DELETE /api/lists/:id/share/:userId endpoint (remove access) #phase-4 #lists #api
-- [x] **#110** **[high]** Update user registration to create system lists for new user #phase-4 #lists #backend
-- [x] **#111** **[high]** Frontend: Create lists store (Pinia) for lists state #phase-4 #lists #frontend
-- [x] **#112** **[high]** Frontend: Create ListsView.vue page (grid of lists) #phase-4 #lists #frontend
-- [x] **#113** **[high]** Frontend: Create ListDetailView.vue (list words, search, add/remove) #phase-4 #lists #frontend
-- [x] **#114** **[high]** Frontend: Create list card component (name, icon, color, word count, progress) #phase-4 #lists #frontend
-- [x] **#115** **[high]** Frontend: Create create/edit list modal #phase-4 #lists #frontend
-- [x] **#116** **[high]** Frontend: Create share list modal (enter email/username) #phase-4 #lists #frontend
-- [x] **#117** **[high]** Frontend: Add list navigation link to main nav #phase-4 #lists #frontend
+- [ ] **#133** **[critical]** 🔴 #1: Add userId to WordProgress model + scope all queries by user #critical #backend #schema
+- [ ] **#134** **[critical]** 🔴 #2: Add userId to LearningSession model + scope session routes #backend #schema
+- [ ] **#135** **[critical]** 🔴 #3: Add authentication middleware to sessions routes #backend #security
+- [ ] **#136** **[critical]** 🔴 #4: Add authentication to data import/export routes #backend #security
+- [ ] **#137** **[critical]** 🔴 #5: Add authentication to stats routes #backend #security
+- [ ] **#138** **[low]** 🔴 #6: Review themes routes for auth (likely OK as public read) #backend #security
+- [ ] **#139** **[high]** 🟠 #7: Fix duplicate PrismaClient in data.ts — import from lib/prisma.js #backend
+- [ ] **#140** **[high]** 🟠 #8: Add TTL to LLM config cache (5 min auto-expiry) #backend #llm
+- [ ] **#141** **[high]** 🟠 #9: Make checkLLMAvailability lightweight — don't make real LLM call #backend #llm
+- [ ] **#142** **[high]** 🟠 #10: Remove process.env mutation for API keys — pass directly to pi-ai #backend #llm
+- [ ] **#143** 🟠 #11: Remove dead /admin/categorize/batch endpoint #backend
+- [ ] **#144** 🟠 #12: Deduplicate TIER_LIMITS — import from lib/lists.ts #backend
+- [ ] **#145** 🟠 #13: Fix unreliable StudyList.wordCount denormalization #backend #schema
+- [ ] **#146** **[high]** 🟠 #14: Refactor lists store to use api.ts instead of raw fetch() #frontend
+- [ ] **#147** 🟠 #15: Add input validation/sanitization to word import #backend #security
+- [ ] **#148** 🟡 #16: Reset userFetched flag when auth state changes #frontend
+- [ ] **#149** 🟡 #17: Handle fetchUser failure in router guard — redirect to login #frontend
+- [ ] **#150** **[low]** 🟡 #18: Add refresh token reuse detection (compromise alert) #backend #security
+- [ ] **#151** 🟡 #19: Add rate limiting to auth endpoints #backend #security
+- [ ] **#152** **[low]** 🟡 #20: Restrict CORS in production #backend #security
+- [ ] **#153** **[low]** 🟡 #21: Simplify parseCategoriesJson — reduce regex complexity #backend #llm
+- [ ] **#154** **[low]** 🟡 #22: Optimize StudyList wordCount query — use _count instead of include #backend #perf
+- [ ] **#155** 🟡 #23: Stop polling in CategorizationPanel when no active job #frontend #perf
+- [ ] **#156** **[low]** 🟡 #24: Make daily goal defaults configurable per user #backend
+- [ ] **#157** **[low]** 🔵 #25: Remove unused `openai` package from dependencies #backend
+- [ ] **#158** **[low]** 🔵 #26: Standardize error response format across all routes #backend
+- [ ] **#159** **[low]** 🔵 #27: Replace magic string status values with constants/enum #backend
+- [ ] **#160** **[low]** 🔵 #28: Add userId to UserStats or remove the model #backend #schema
+- [ ] **#161** **[low]** 🔵 #29: Rename UserProgress → UserLevelProgress for clarity #backend #schema
+- [ ] **#162** **[low]** 🔵 #30: Rename UserStream → UserStreak #backend #schema
+- [ ] **#163** **[low]** 🔵 #31: Wrap batch progress updates in a transaction #backend
+- [ ] **#164** **[low]** 🔵 #32: Clean up unused frontend statsApi exports #frontend
+- [ ] **#165** **[critical]** 📋 PHASE 1: Critical Security & Data Integrity (🔴 #1-#6) #PLAN
+- [ ] **#166** **[high]** 📋 PHASE 2: Backend Reliability (🟠 #7, #8, #9, #10, #14) #PLAN
+- [ ] **#167** **[high]** 📋 PHASE 3: Code Quality & Cleanup (🟠 #11-#15, 🔵 #25-#27, #31) #PLAN
+- [ ] **#168** 📋 PHASE 4: Frontend Fixes (🟡 #16, #17, #23, #32) #PLAN
+- [ ] **#169** **[low]** 📋 PHASE 5: Hardening & Polish (🟡 #18-#22, #24, 🔵 #28-#30) #PLAN
 
 <!-- Raw Data -->
 ```json
 {
   "todos": [
     {
-      "id": 1,
-      "text": "Choose and finalize tech stack",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "planning",
-        "decision"
-      ],
-      "createdAt": 1774319692715,
-      "archived": false,
-      "completedAt": 1774320606134
-    },
-    {
-      "id": 2,
-      "text": "Set up project structure and initialize app",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "setup"
-      ],
-      "createdAt": 1774319692716,
-      "notes": "Vue 3 + TypeScript + Vite + Tailwind (frontend), Node.js + TypeScript + Fastify + Prisma + PostgreSQL (backend), Docker + Docker Compose",
-      "archived": false,
-      "completedAt": 1774321878762
-    },
-    {
-      "id": 3,
-      "text": "Curate initial 500-word dataset with themes",
+      "id": 133,
+      "text": "🔴 #1: Add userId to WordProgress model + scope all queries by user",
       "done": false,
-      "priority": "high",
+      "priority": "critical",
       "tags": [
-        "data",
-        "content"
+        "critical",
+        "backend",
+        "schema"
       ],
-      "createdAt": 1774319692716,
+      "createdAt": 1774632489267,
+      "notes": "WordProgress has no userId — all users share the same word progress. Add userId field, @@unique([userId, wordId]), update ALL queries in progress.ts, words.ts to filter by request.user.userId. This is a breaking schema change.",
       "archived": false
     },
     {
-      "id": 4,
-      "text": "Implement core flashcard component",
-      "done": true,
-      "priority": "medium",
-      "tags": [
-        "frontend",
-        "component"
-      ],
-      "createdAt": 1774319692716,
-      "archived": false,
-      "completedAt": 1774322000552
-    },
-    {
-      "id": 5,
-      "text": "Add spaced repetition algorithm (SM-2)",
-      "done": true,
-      "priority": "medium",
-      "tags": [
-        "logic",
-        "learning"
-      ],
-      "createdAt": 1774319692716,
-      "archived": false,
-      "completedAt": 1774322000552
-    },
-    {
-      "id": 6,
-      "text": "Build progress tracking system",
+      "id": 134,
+      "text": "🔴 #2: Add userId to LearningSession model + scope session routes",
       "done": false,
-      "priority": "medium",
+      "priority": "critical",
       "tags": [
-        "frontend",
-        "data"
+        "backend",
+        "schema"
       ],
-      "createdAt": 1774319692716,
+      "createdAt": 1774632495757,
+      "notes": "LearningSession has no userId relation. Add userId field and scope all session CRUD to the authenticated user.",
       "archived": false
     },
     {
-      "id": 7,
-      "text": "Create theme-based word organization",
+      "id": 135,
+      "text": "🔴 #3: Add authentication middleware to sessions routes",
       "done": false,
-      "priority": "medium",
+      "priority": "critical",
       "tags": [
-        "data",
-        "organization"
+        "backend",
+        "security"
       ],
-      "createdAt": 1774319692716,
+      "createdAt": 1774632501823,
+      "notes": "POST/GET sessions, respond, complete — all unprotected. Add { preHandler: authenticate } to sessionRoutes.",
       "archived": false
     },
     {
-      "id": 8,
-      "text": "Add Oxford 3000/5000 full integration",
+      "id": 136,
+      "text": "🔴 #4: Add authentication to data import/export routes",
+      "done": false,
+      "priority": "critical",
+      "tags": [
+        "backend",
+        "security"
+      ],
+      "createdAt": 1774632507335,
+      "notes": "Import/delete endpoints allow anyone to modify the word database. Add { preHandler: requireAdmin } or at minimum authenticate.",
+      "archived": false
+    },
+    {
+      "id": 137,
+      "text": "🔴 #5: Add authentication to stats routes",
+      "done": false,
+      "priority": "critical",
+      "tags": [
+        "backend",
+        "security"
+      ],
+      "createdAt": 1774632514382,
+      "notes": "GET /stats, /stats/daily, /stats/weekly, /stats/level-distribution — no auth at all.",
+      "archived": false
+    },
+    {
+      "id": 138,
+      "text": "🔴 #6: Review themes routes for auth (likely OK as public read)",
       "done": false,
       "priority": "low",
       "tags": [
-        "data",
-        "future"
+        "backend",
+        "security"
       ],
-      "createdAt": 1774319692717,
+      "createdAt": 1774632522886,
+      "notes": "Themes read is fine public, but confirm no write endpoints exist without auth.",
       "archived": false
     },
     {
-      "id": 9,
-      "text": "Phase 1: Auth Foundation",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth"
-      ],
-      "createdAt": 1774343281733,
-      "archived": false,
-      "completedAt": 1774405664307
-    },
-    {
-      "id": 10,
-      "text": "Update Prisma schema with User model (id, email, passwordHash, username, role, googleId, subscriptionTier, timestamps)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "database"
-      ],
-      "createdAt": 1774343362033,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774344008934
-    },
-    {
-      "id": 11,
-      "text": "Add RefreshToken model to Prisma schema (id, userId, token, expiresAt, revoked)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "database"
-      ],
-      "createdAt": 1774343362033,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774344054793
-    },
-    {
-      "id": 12,
-      "text": "Add SubscriptionTier enum (FREE, EXPLORER, WORDSMITH) to Prisma schema",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "database"
-      ],
-      "createdAt": 1774343362034,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774344054793
-    },
-    {
-      "id": 13,
-      "text": "Add Role enum (LEARNER, ADMIN) to Prisma schema",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "database"
-      ],
-      "createdAt": 1774343362034,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774344054794
-    },
-    {
-      "id": 14,
-      "text": "Run Prisma migration for new auth schema",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "database"
-      ],
-      "createdAt": 1774343362035,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774344714724
-    },
-    {
-      "id": 15,
-      "text": "Install bcrypt and @types/bcrypt for password hashing",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "backend"
-      ],
-      "createdAt": 1774343362035,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774344721128
-    },
-    {
-      "id": 16,
-      "text": "Install jsonwebtoken and @types/jsonwebtoken for JWT",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "backend"
-      ],
-      "createdAt": 1774343362035,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774344721130
-    },
-    {
-      "id": 17,
-      "text": "Create JWT utilities (generateAccessToken, generateRefreshToken, verifyToken)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "backend"
-      ],
-      "createdAt": 1774343362035,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774344801397
-    },
-    {
-      "id": 18,
-      "text": "Create password utilities (hashPassword, comparePassword)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "backend"
-      ],
-      "createdAt": 1774343362035,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774344801398
-    },
-    {
-      "id": 19,
-      "text": "Create auth middleware (authenticate, requireAuth, requireAdmin)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "backend"
-      ],
-      "createdAt": 1774343362035,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774344850113
-    },
-    {
-      "id": 20,
-      "text": "Create auth routes file (apps/backend/src/routes/auth.ts)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "backend"
-      ],
-      "createdAt": 1774343362036,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774344961210
-    },
-    {
-      "id": 21,
-      "text": "Implement POST /api/auth/register endpoint",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "api"
-      ],
-      "createdAt": 1774343362036,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774344961210
-    },
-    {
-      "id": 22,
-      "text": "Implement POST /api/auth/login endpoint",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "api"
-      ],
-      "createdAt": 1774343362036,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774344961211
-    },
-    {
-      "id": 23,
-      "text": "Implement POST /api/auth/refresh endpoint (refresh token rotation)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "api"
-      ],
-      "createdAt": 1774343362036,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774344961211
-    },
-    {
-      "id": 24,
-      "text": "Implement POST /api/auth/logout endpoint",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "api"
-      ],
-      "createdAt": 1774343362036,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774344961212
-    },
-    {
-      "id": 25,
-      "text": "Implement POST /api/auth/logout-all endpoint",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "api"
-      ],
-      "createdAt": 1774343362036,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774344961212
-    },
-    {
-      "id": 26,
-      "text": "Implement GET /api/auth/me endpoint",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "api"
-      ],
-      "createdAt": 1774343362036,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774344961213
-    },
-    {
-      "id": 27,
-      "text": "Implement PUT /api/auth/password endpoint",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "api"
-      ],
-      "createdAt": 1774343362036,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774344961213
-    },
-    {
-      "id": 28,
-      "text": "Implement DELETE /api/auth/account endpoint",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "api"
-      ],
-      "createdAt": 1774343362037,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774344961214
-    },
-    {
-      "id": 29,
-      "text": "Implement GET /api/auth/export endpoint (GDPR)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "api"
-      ],
-      "createdAt": 1774343362037,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774344961214
-    },
-    {
-      "id": 30,
-      "text": "Add auth environment variables (JWT_SECRET, JWT_EXPIRES_IN, REFRESH_TOKEN_EXPIRES_IN)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "config"
-      ],
-      "createdAt": 1774343362038,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774345079419
-    },
-    {
-      "id": 31,
-      "text": "Update existing routes to require authentication",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "backend"
-      ],
-      "createdAt": 1774343362038,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774345766438
-    },
-    {
-      "id": 32,
-      "text": "Add guest access for GET /api/words/:word (limited fields)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "api"
-      ],
-      "createdAt": 1774343362038,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774345766439
-    },
-    {
-      "id": 33,
-      "text": "Frontend: Create auth store (Pinia) for user state management",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "frontend"
-      ],
-      "createdAt": 1774343362039,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774346397246
-    },
-    {
-      "id": 34,
-      "text": "Frontend: Create LoginView.vue page",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "frontend"
-      ],
-      "createdAt": 1774343362039,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774346397247
-    },
-    {
-      "id": 35,
-      "text": "Frontend: Create RegisterView.vue page",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "frontend"
-      ],
-      "createdAt": 1774343362040,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774346397248
-    },
-    {
-      "id": 36,
-      "text": "Frontend: Create auth composable (useAuth) with login/register/logout methods",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "frontend"
-      ],
-      "createdAt": 1774343362040,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774346397248
-    },
-    {
-      "id": 37,
-      "text": "Frontend: Add auth API service (apps/frontend/src/lib/auth.ts)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "frontend"
-      ],
-      "createdAt": 1774343362041,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774346397249
-    },
-    {
-      "id": 38,
-      "text": "Frontend: Add route guards (check auth on protected routes)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "frontend"
-      ],
-      "createdAt": 1774343362041,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774346397249
-    },
-    {
-      "id": 39,
-      "text": "Frontend: Add navigation updates (show username, logout button)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "frontend"
-      ],
-      "createdAt": 1774343362041,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774346397250
-    },
-    {
-      "id": 40,
-      "text": "Frontend: Handle token refresh on 401 responses",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "frontend"
-      ],
-      "createdAt": 1774343362042,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774405664306
-    },
-    {
-      "id": 41,
-      "text": "Frontend: Store tokens (access in memory, refresh in httpOnly cookie handled by backend)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-1",
-        "auth",
-        "frontend"
-      ],
-      "createdAt": 1774343362042,
-      "parentId": 9,
-      "archived": false,
-      "completedAt": 1774346460053
-    },
-    {
-      "id": 42,
-      "text": "Phase 2: OAuth & Admin",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "auth"
-      ],
-      "createdAt": 1774343374100,
-      "archived": false,
-      "completedAt": 1774408822315
-    },
-    {
-      "id": 43,
-      "text": "Add Google OAuth environment variables (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK_URL)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "oauth",
-        "config"
-      ],
-      "createdAt": 1774343421817,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774407739534
-    },
-    {
-      "id": 44,
-      "text": "Install @fastify/oauth2 for Google OAuth",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "oauth",
-        "backend"
-      ],
-      "createdAt": 1774343421817,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774407739534
-    },
-    {
-      "id": 45,
-      "text": "Implement GET /api/auth/google endpoint (OAuth redirect)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "oauth",
-        "backend"
-      ],
-      "createdAt": 1774343421817,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774408058876
-    },
-    {
-      "id": 46,
-      "text": "Implement GET /api/auth/google/callback endpoint",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "oauth",
-        "backend"
-      ],
-      "createdAt": 1774343421818,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774408058876
-    },
-    {
-      "id": 47,
-      "text": "Handle OAuth user creation (link existing email or create new user)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "oauth",
-        "backend"
-      ],
-      "createdAt": 1774343421818,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774408058876
-    },
-    {
-      "id": 48,
-      "text": "Create admin middleware (requireAdmin)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "admin",
-        "backend"
-      ],
-      "createdAt": 1774343421819,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774408058877
-    },
-    {
-      "id": 49,
-      "text": "Create admin routes file (apps/backend/src/routes/admin.ts)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "admin",
-        "backend"
-      ],
-      "createdAt": 1774343421819,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774408058877
-    },
-    {
-      "id": 50,
-      "text": "Implement GET /api/admin/users endpoint (paginated list)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "admin",
-        "api"
-      ],
-      "createdAt": 1774343421819,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774408058877
-    },
-    {
-      "id": 51,
-      "text": "Implement GET /api/admin/users/:id endpoint",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "admin",
-        "api"
-      ],
-      "createdAt": 1774343421820,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774408058878
-    },
-    {
-      "id": 52,
-      "text": "Implement PUT /api/admin/users/:id endpoint (role, subscription)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "admin",
-        "api"
-      ],
-      "createdAt": 1774343421820,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774408058878
-    },
-    {
-      "id": 53,
-      "text": "Implement DELETE /api/admin/users/:id endpoint",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "admin",
-        "api"
-      ],
-      "createdAt": 1774343421821,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774408058878
-    },
-    {
-      "id": 54,
-      "text": "Implement GET /api/admin/stats endpoint (platform statistics)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "admin",
-        "api"
-      ],
-      "createdAt": 1774343421821,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774408058878
-    },
-    {
-      "id": 55,
-      "text": "Add SystemConfig model to Prisma schema (id, key, value)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "admin",
-        "database"
-      ],
-      "createdAt": 1774343421821,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774407739534
-    },
-    {
-      "id": 56,
-      "text": "Implement GET /api/admin/config endpoint",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "admin",
-        "api"
-      ],
-      "createdAt": 1774343421821,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774408058879
-    },
-    {
-      "id": 57,
-      "text": "Implement PUT /api/admin/config/:key endpoint",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "admin",
-        "api"
-      ],
-      "createdAt": 1774343421821,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774408058879
-    },
-    {
-      "id": 58,
-      "text": "Frontend: Create AdminView.vue page",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "admin",
-        "frontend"
-      ],
-      "createdAt": 1774343421822,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774408791626
-    },
-    {
-      "id": 59,
-      "text": "Frontend: Create user management table component",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "admin",
-        "frontend"
-      ],
-      "createdAt": 1774343421822,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774408791626
-    },
-    {
-      "id": 60,
-      "text": "Frontend: Create user edit modal (role, subscription)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "admin",
-        "frontend"
-      ],
-      "createdAt": 1774343421822,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774408791627
-    },
-    {
-      "id": 61,
-      "text": "Frontend: Create admin config page (LLM settings)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "admin",
-        "frontend"
-      ],
-      "createdAt": 1774343421823,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774408791627
-    },
-    {
-      "id": 62,
-      "text": "Frontend: Add admin navigation link (only visible to admin role)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "admin",
-        "frontend"
-      ],
-      "createdAt": 1774343421823,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774408791627
-    },
-    {
-      "id": 63,
-      "text": "Frontend: Add \"Sign in with Google\" button to login page",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "oauth",
-        "frontend"
-      ],
-      "createdAt": 1774343421823,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774408791628
-    },
-    {
-      "id": 64,
-      "text": "Frontend: Create OAuth callback handler page",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-2",
-        "oauth",
-        "frontend"
-      ],
-      "createdAt": 1774343421824,
-      "parentId": 42,
-      "archived": false,
-      "completedAt": 1774408791628
-    },
-    {
-      "id": 65,
-      "text": "Phase 3: Progress System",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress"
-      ],
-      "createdAt": 1774343433283,
-      "archived": false,
-      "completedAt": 1774410846711
-    },
-    {
-      "id": 66,
-      "text": "Add UserProgress model to Prisma (userId, themeId, level, status, interval, easeFactor, nextReview, lastReview, stats)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "database"
-      ],
-      "createdAt": 1774343499042,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774409978435
-    },
-    {
-      "id": 67,
-      "text": "Add ProgressStatus enum (NEW, LEARNING, REVIEWING, MASTERED)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "database"
-      ],
-      "createdAt": 1774343499043,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774409978436
-    },
-    {
-      "id": 68,
-      "text": "Add DailyGoal model to Prisma (userId, date, targets, actuals, completed)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "database"
-      ],
-      "createdAt": 1774343499044,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774409978436
-    },
-    {
-      "id": 69,
-      "text": "Add UserStreak model to Prisma (userId, currentStreak, longestStreak, lastActivityDate, gracePeriodsUsed)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "database"
-      ],
-      "createdAt": 1774343499044,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774409978437
-    },
-    {
-      "id": 70,
-      "text": "Add Achievement model to Prisma (key, name, description, icon, category, conditionType, conditionValue)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "database"
-      ],
-      "createdAt": 1774343499045,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774409978437
-    },
-    {
-      "id": 71,
-      "text": "Add UserAchievement model to Prisma (userId, achievementId, unlockedAt)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "database"
-      ],
-      "createdAt": 1774343499045,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774409978438
-    },
-    {
-      "id": 72,
-      "text": "Run Prisma migration for progress schema",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "database"
-      ],
-      "createdAt": 1774343499046,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774409978438
-    },
-    {
-      "id": 73,
-      "text": "Create seed file for default achievements",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "backend"
-      ],
-      "createdAt": 1774343499046,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774410121757
-    },
-    {
-      "id": 74,
-      "text": "Create progress routes file (apps/backend/src/routes/progress.ts) - update existing",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "backend"
-      ],
-      "createdAt": 1774343499047,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774410393704
-    },
-    {
-      "id": 75,
-      "text": "Update SM-2 algorithm to work per theme/level instead of per-word",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "backend"
-      ],
-      "createdAt": 1774343499047,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774410393704
-    },
-    {
-      "id": 76,
-      "text": "Implement GET /api/progress/dashboard endpoint",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "api"
-      ],
-      "createdAt": 1774343499048,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774410393705
-    },
-    {
-      "id": 77,
-      "text": "Implement GET /api/progress/streak endpoint",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "api"
-      ],
-      "createdAt": 1774343499048,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774410393705
-    },
-    {
-      "id": 78,
-      "text": "Implement GET /api/progress/calendar endpoint (activity heatmap data)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "api"
-      ],
-      "createdAt": 1774343499049,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774410393706
-    },
-    {
-      "id": 79,
-      "text": "Implement POST /api/progress/update endpoint (update goal progress)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "api"
-      ],
-      "createdAt": 1774343499050,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774410393706
-    },
-    {
-      "id": 80,
-      "text": "Create streak calculation service (with grace period logic, Monday noon GMT+0 reset)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "backend"
-      ],
-      "createdAt": 1774343499050,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774410393707
-    },
-    {
-      "id": 81,
-      "text": "Create achievement checking service (check conditions after progress updates)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "backend"
-      ],
-      "createdAt": 1774343499050,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774410393707
-    },
-    {
-      "id": 82,
-      "text": "Implement daily goal tracking (check completion, update streak)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "backend"
-      ],
-      "createdAt": 1774343499050,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774410393708
-    },
-    {
-      "id": 83,
-      "text": "Frontend: Create progress store (Pinia) for dashboard data",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "frontend"
-      ],
-      "createdAt": 1774343499051,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774410829383
-    },
-    {
-      "id": 84,
-      "text": "Frontend: Update HomeView.vue as dashboard (streak, goals, CEFR progress, achievements)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "frontend"
-      ],
-      "createdAt": 1774343499051,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774410829384
-    },
-    {
-      "id": 85,
-      "text": "Frontend: Create streak display component (current, longest, fire icon)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "frontend"
-      ],
-      "createdAt": 1774343499051,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774410829384
-    },
-    {
-      "id": 86,
-      "text": "Frontend: Create daily goals progress component (learned/reviewed, progress bar)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "frontend"
-      ],
-      "createdAt": 1774343499051,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774410829384
-    },
-    {
-      "id": 87,
-      "text": "Frontend: Create CEFR level progress component (progress bars per level)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "frontend"
-      ],
-      "createdAt": 1774343499052,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774410829384
-    },
-    {
-      "id": 88,
-      "text": "Frontend: Create calendar heatmap component (activity visualization)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "frontend"
-      ],
-      "createdAt": 1774343499052,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774410829385
-    },
-    {
-      "id": 89,
-      "text": "Frontend: Create achievements display component (unlocked badges grid)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "frontend"
-      ],
-      "createdAt": 1774343499052,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774410829385
-    },
-    {
-      "id": 90,
-      "text": "Frontend: Create achievement unlock notification/animation",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-3",
-        "progress",
-        "frontend"
-      ],
-      "createdAt": 1774343499052,
-      "parentId": 65,
-      "archived": false,
-      "completedAt": 1774410829385
-    },
-    {
-      "id": 91,
-      "text": "Phase 4: Word Lists",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists"
-      ],
-      "createdAt": 1774343509703,
-      "archived": false,
-      "completedAt": 1774412172682
-    },
-    {
-      "id": 92,
-      "text": "Add StudyList model to Prisma (userId, name, description, color, icon, isSystem, isPinned, wordCount)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "database"
-      ],
-      "createdAt": 1774343563693,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774411093418
-    },
-    {
-      "id": 93,
-      "text": "Add StudyListWord model to Prisma (listId, wordId, addedAt, addedBy)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "database"
-      ],
-      "createdAt": 1774343563694,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774411093418
-    },
-    {
-      "id": 94,
-      "text": "Add SharedList model to Prisma (listId, sharedBy, sharedWith)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "database"
-      ],
-      "createdAt": 1774343563694,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774411093419
-    },
-    {
-      "id": 95,
-      "text": "Update Word model to add StudyListWord relation",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "database"
-      ],
-      "createdAt": 1774343563695,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774411093419
-    },
-    {
-      "id": 96,
-      "text": "Run Prisma migration for lists schema",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "database"
-      ],
-      "createdAt": 1774343563695,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774411093420
-    },
-    {
-      "id": 97,
-      "text": "Create lists routes file (apps/backend/src/routes/lists.ts)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "backend"
-      ],
-      "createdAt": 1774343563695,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774411358820
-    },
-    {
-      "id": 98,
-      "text": "Create system list generation service (create on user registration)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "backend"
-      ],
-      "createdAt": 1774343563696,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774411358821
-    },
-    {
-      "id": 99,
-      "text": "Create subscription tier limit service (check list count, word count per tier)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "backend"
-      ],
-      "createdAt": 1774343563696,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774411358821
-    },
-    {
-      "id": 100,
-      "text": "Implement GET /api/lists endpoint (user's lists + shared with user)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "api"
-      ],
-      "createdAt": 1774343563697,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774411358821
-    },
-    {
-      "id": 101,
-      "text": "Implement GET /api/lists/:id endpoint (list with words, paginated)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "api"
-      ],
-      "createdAt": 1774343563697,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774411358822
-    },
-    {
-      "id": 102,
-      "text": "Implement POST /api/lists endpoint (create list, enforce tier limits)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "api"
-      ],
-      "createdAt": 1774343563697,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774411358822
-    },
-    {
-      "id": 103,
-      "text": "Implement PUT /api/lists/:id endpoint (update name, description, color, icon)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "api"
-      ],
-      "createdAt": 1774343563697,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774411358822
-    },
-    {
-      "id": 104,
-      "text": "Implement DELETE /api/lists/:id endpoint (not allowed for system lists)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "api"
-      ],
-      "createdAt": 1774343563698,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774411358823
-    },
-    {
-      "id": 105,
-      "text": "Implement POST /api/lists/:id/words endpoint (add word, enforce tier limits)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "api"
-      ],
-      "createdAt": 1774343563698,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774411358823
-    },
-    {
-      "id": 106,
-      "text": "Implement DELETE /api/lists/:id/words/:wordId endpoint (remove word)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "api"
-      ],
-      "createdAt": 1774343563698,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774411358823
-    },
-    {
-      "id": 107,
-      "text": "Implement PUT /api/lists/:id/pin endpoint (pin/unpin, only 1 pinned allowed)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "api"
-      ],
-      "createdAt": 1774343563699,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774411358824
-    },
-    {
-      "id": 108,
-      "text": "Implement POST /api/lists/:id/share endpoint (share with user by email/username)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "api"
-      ],
-      "createdAt": 1774343563699,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774411358824
-    },
-    {
-      "id": 109,
-      "text": "Implement DELETE /api/lists/:id/share/:userId endpoint (remove access)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "api"
-      ],
-      "createdAt": 1774343563699,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774411358824
-    },
-    {
-      "id": 110,
-      "text": "Update user registration to create system lists for new user",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "backend"
-      ],
-      "createdAt": 1774343563700,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774411358824
-    },
-    {
-      "id": 111,
-      "text": "Frontend: Create lists store (Pinia) for lists state",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "frontend"
-      ],
-      "createdAt": 1774343563700,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774412157721
-    },
-    {
-      "id": 112,
-      "text": "Frontend: Create ListsView.vue page (grid of lists)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "frontend"
-      ],
-      "createdAt": 1774343563700,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774412157722
-    },
-    {
-      "id": 113,
-      "text": "Frontend: Create ListDetailView.vue (list words, search, add/remove)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "frontend"
-      ],
-      "createdAt": 1774343563700,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774412157723
-    },
-    {
-      "id": 114,
-      "text": "Frontend: Create list card component (name, icon, color, word count, progress)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "frontend"
-      ],
-      "createdAt": 1774343563701,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774412157723
-    },
-    {
-      "id": 115,
-      "text": "Frontend: Create create/edit list modal",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "frontend"
-      ],
-      "createdAt": 1774343563703,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774412157723
-    },
-    {
-      "id": 116,
-      "text": "Frontend: Create share list modal (enter email/username)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "frontend"
-      ],
-      "createdAt": 1774343563704,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774412157724
-    },
-    {
-      "id": 117,
-      "text": "Frontend: Add list navigation link to main nav",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "phase-4",
-        "lists",
-        "frontend"
-      ],
-      "createdAt": 1774343563704,
-      "parentId": 91,
-      "archived": false,
-      "completedAt": 1774412157724
-    },
-    {
-      "id": 118,
-      "text": "Frontend: Add \"Add to list\" button on browse word cards",
+      "id": 139,
+      "text": "🟠 #7: Fix duplicate PrismaClient in data.ts — import from lib/prisma.js",
       "done": false,
       "priority": "high",
       "tags": [
-        "phase-4",
-        "lists",
-        "frontend"
+        "backend"
       ],
-      "createdAt": 1774343563704,
-      "parentId": 91,
+      "createdAt": 1774632531768,
+      "notes": "data.ts creates `const prisma = new PrismaClient()` at top level instead of importing from lib/prisma.js. Causes connection pool issues.",
       "archived": false
     },
     {
-      "id": 119,
-      "text": "Frontend: Update learn/review to allow selecting list as source",
+      "id": 140,
+      "text": "🟠 #8: Add TTL to LLM config cache (5 min auto-expiry)",
       "done": false,
       "priority": "high",
       "tags": [
-        "phase-4",
-        "lists",
-        "frontend"
-      ],
-      "createdAt": 1774343563705,
-      "parentId": 91,
-      "archived": false
-    },
-    {
-      "id": 120,
-      "text": "Phase 5: LLM Integration",
-      "done": false,
-      "priority": "high",
-      "tags": [
-        "phase-5",
+        "backend",
         "llm"
       ],
-      "createdAt": 1774343573123,
+      "createdAt": 1774632540476,
+      "notes": "cachedConfig in llm.ts is set once and only cleared on explicit calls. Add a TTL (e.g., 5 minutes) so provider changes propagate automatically.",
       "archived": false
     },
     {
-      "id": 121,
-      "text": "Create LLM service (apps/backend/src/lib/llm.ts) - OpenAI API compatible client",
+      "id": 141,
+      "text": "🟠 #9: Make checkLLMAvailability lightweight — don't make real LLM call",
       "done": false,
       "priority": "high",
       "tags": [
-        "phase-5",
-        "llm",
+        "backend",
+        "llm"
+      ],
+      "createdAt": 1774632550742,
+      "notes": "checkLLMAvailability() calls categorizeWord('test', ...) which costs tokens. CategorizationPanel calls this on mount AND polls. Should just verify config exists + optional lightweight test (or cache the result).",
+      "archived": false
+    },
+    {
+      "id": 142,
+      "text": "🟠 #10: Remove process.env mutation for API keys — pass directly to pi-ai",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "backend",
+        "llm"
+      ],
+      "createdAt": 1774632558402,
+      "notes": "llm.ts line 137-139: `process.env[envKey] = config.apiKey` mutates global env. Race condition if multiple providers used concurrently. Pass apiKey directly to pi-ai options instead.",
+      "archived": false
+    },
+    {
+      "id": 143,
+      "text": "🟠 #11: Remove dead /admin/categorize/batch endpoint",
+      "done": false,
+      "priority": "medium",
+      "tags": [
         "backend"
       ],
-      "createdAt": 1774343608722,
-      "parentId": 120,
+      "createdAt": 1774632568093,
+      "notes": "POST /admin/categorize/batch (line 701 in admin.ts) is superseded by the job system. Remove the dead endpoint.",
       "archived": false
     },
     {
-      "id": 122,
-      "text": "Create LLM config loader (read from SystemConfig table)",
+      "id": 144,
+      "text": "🟠 #12: Deduplicate TIER_LIMITS — import from lib/lists.ts",
       "done": false,
-      "priority": "high",
+      "priority": "medium",
       "tags": [
-        "phase-5",
-        "llm",
         "backend"
       ],
-      "createdAt": 1774343608723,
-      "parentId": 120,
+      "createdAt": 1774632575260,
+      "notes": "TIER_LIMITS is defined in both routes/lists.ts and lib/lists.ts. Import from lib in the route.",
       "archived": false
     },
     {
-      "id": 123,
-      "text": "Implement POST /api/lists/generate endpoint (LLM word generation)",
+      "id": 145,
+      "text": "🟠 #13: Fix unreliable StudyList.wordCount denormalization",
       "done": false,
-      "priority": "high",
+      "priority": "medium",
       "tags": [
-        "phase-5",
-        "llm",
-        "api"
+        "backend",
+        "schema"
       ],
-      "createdAt": 1774343608723,
-      "parentId": 120,
+      "createdAt": 1774632588937,
+      "notes": "StudyList.wordCount is manually incremented/decremented. Drifts on cascade deletes or bulk operations. Use _count or compute from relation.",
       "archived": false
     },
     {
-      "id": 124,
-      "text": "Create word matching service (match LLM output to database words)",
+      "id": 146,
+      "text": "🟠 #14: Refactor lists store to use api.ts instead of raw fetch()",
       "done": false,
       "priority": "high",
       "tags": [
-        "phase-5",
-        "llm",
-        "backend"
-      ],
-      "createdAt": 1774343608724,
-      "parentId": 120,
-      "archived": false
-    },
-    {
-      "id": 125,
-      "text": "Add rate limiting for LLM generation (per tier: Explorer 10/month, Wordsmith unlimited)",
-      "done": false,
-      "priority": "high",
-      "tags": [
-        "phase-5",
-        "llm",
-        "backend"
-      ],
-      "createdAt": 1774343608726,
-      "parentId": 120,
-      "archived": false
-    },
-    {
-      "id": 126,
-      "text": "Add LlmUsage model to track usage per user (userId, count, month)",
-      "done": false,
-      "priority": "high",
-      "tags": [
-        "phase-5",
-        "llm",
-        "database"
-      ],
-      "createdAt": 1774343608727,
-      "parentId": 120,
-      "archived": false
-    },
-    {
-      "id": 127,
-      "text": "Add LLM usage tracking to user's monthly count",
-      "done": false,
-      "priority": "high",
-      "tags": [
-        "phase-5",
-        "llm",
-        "backend"
-      ],
-      "createdAt": 1774343608727,
-      "parentId": 120,
-      "archived": false
-    },
-    {
-      "id": 128,
-      "text": "Add error handling for LLM API failures",
-      "done": false,
-      "priority": "high",
-      "tags": [
-        "phase-5",
-        "llm",
-        "backend"
-      ],
-      "createdAt": 1774343608728,
-      "parentId": 120,
-      "archived": false
-    },
-    {
-      "id": 129,
-      "text": "Frontend: Create generate list modal (query input, preview, save)",
-      "done": false,
-      "priority": "high",
-      "tags": [
-        "phase-5",
-        "llm",
         "frontend"
       ],
-      "createdAt": 1774343608728,
-      "parentId": 120,
+      "createdAt": 1774632601063,
+      "notes": "stores/lists.ts uses raw fetch() instead of the api.ts request() function. No token refresh, no 401 handling. Refactor to use centralized api client.",
       "archived": false
     },
     {
-      "id": 130,
-      "text": "Frontend: Add \"Generate with AI\" button on lists page",
+      "id": 147,
+      "text": "🟠 #15: Add input validation/sanitization to word import",
       "done": false,
-      "priority": "high",
+      "priority": "medium",
       "tags": [
-        "phase-5",
-        "llm",
-        "frontend"
+        "backend",
+        "security"
       ],
-      "createdAt": 1774343608729,
-      "parentId": 120,
+      "createdAt": 1774632610374,
+      "notes": "data.ts import endpoints accept arbitrary JSON with no validation of word format, length limits, or content sanitization.",
       "archived": false
     },
     {
-      "id": 131,
-      "text": "Frontend: Show LLM usage limit (X/10 remaining this month)",
+      "id": 148,
+      "text": "🟡 #16: Reset userFetched flag when auth state changes",
       "done": false,
-      "priority": "high",
+      "priority": "medium",
       "tags": [
-        "phase-5",
-        "llm",
         "frontend"
       ],
-      "createdAt": 1774343608729,
-      "parentId": 120,
+      "createdAt": 1774632616468,
+      "notes": "router/index.ts has module-level `let userFetched = false` that never resets. If token expires mid-session, router skips fetchUser() forever.",
       "archived": false
     },
     {
-      "id": 132,
-      "text": "Frontend: Handle LLM errors gracefully (show message, suggest retry)",
+      "id": 149,
+      "text": "🟡 #17: Handle fetchUser failure in router guard — redirect to login",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "frontend"
+      ],
+      "createdAt": 1774632626995,
+      "notes": "If fetchUser() fails silently (null user), user passes auth via hasToken but isAdmin is false → gets generic redirect to / instead of login.",
+      "archived": false
+    },
+    {
+      "id": 150,
+      "text": "🟡 #18: Add refresh token reuse detection (compromise alert)",
+      "done": false,
+      "priority": "low",
+      "tags": [
+        "backend",
+        "security"
+      ],
+      "createdAt": 1774632634408,
+      "notes": "If attacker replays old refresh token before legitimate client, legitimate client gets locked out. Add reuse detection.",
+      "archived": false
+    },
+    {
+      "id": 151,
+      "text": "🟡 #19: Add rate limiting to auth endpoints",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "backend",
+        "security"
+      ],
+      "createdAt": 1774632641783,
+      "notes": "POST /auth/login, /auth/register, /auth/refresh have no rate limiting. Add @fastify/rate-limit.",
+      "archived": false
+    },
+    {
+      "id": 152,
+      "text": "🟡 #20: Restrict CORS in production",
+      "done": false,
+      "priority": "low",
+      "tags": [
+        "backend",
+        "security"
+      ],
+      "createdAt": 1774632648127,
+      "notes": "server.ts cors origin: true allows any origin. Add production config guard.",
+      "archived": false
+    },
+    {
+      "id": 153,
+      "text": "🟡 #21: Simplify parseCategoriesJson — reduce regex complexity",
+      "done": false,
+      "priority": "low",
+      "tags": [
+        "backend",
+        "llm"
+      ],
+      "createdAt": 1774632654604,
+      "notes": "llm.ts parseCategoriesJson has many regex fixups. Simplify: try JSON.parse, if fails return all general.",
+      "archived": false
+    },
+    {
+      "id": 154,
+      "text": "🟡 #22: Optimize StudyList wordCount query — use _count instead of include",
+      "done": false,
+      "priority": "low",
+      "tags": [
+        "backend",
+        "perf"
+      ],
+      "createdAt": 1774632663919,
+      "notes": "lists.ts GET /lists fetches all words per list just to count them. Use _count: { select: { words: true } } instead.",
+      "archived": false
+    },
+    {
+      "id": 155,
+      "text": "🟡 #23: Stop polling in CategorizationPanel when no active job",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "frontend",
+        "perf"
+      ],
+      "createdAt": 1774632670575,
+      "notes": "CategorizationPanel polls every 2s even when no active job. Only poll when RUNNING/PENDING job exists.",
+      "archived": false
+    },
+    {
+      "id": 156,
+      "text": "🟡 #24: Make daily goal defaults configurable per user",
+      "done": false,
+      "priority": "low",
+      "tags": [
+        "backend"
+      ],
+      "createdAt": 1774632677023,
+      "notes": "progress.ts hardcodes wordsToLearn: 10, wordsToReview: 20. Should be per-user configurable.",
+      "archived": false
+    },
+    {
+      "id": 157,
+      "text": "🔵 #25: Remove unused `openai` package from dependencies",
+      "done": false,
+      "priority": "low",
+      "tags": [
+        "backend"
+      ],
+      "createdAt": 1774632682573,
+      "notes": "openai package still in package.json but no longer imported anywhere.",
+      "archived": false
+    },
+    {
+      "id": 158,
+      "text": "🔵 #26: Standardize error response format across all routes",
+      "done": false,
+      "priority": "low",
+      "tags": [
+        "backend"
+      ],
+      "createdAt": 1774632688851,
+      "notes": "Some routes return { error }, others { success, message }. Standardize to { error: string } for errors.",
+      "archived": false
+    },
+    {
+      "id": 159,
+      "text": "🔵 #27: Replace magic string status values with constants/enum",
+      "done": false,
+      "priority": "low",
+      "tags": [
+        "backend"
+      ],
+      "createdAt": 1774632704456,
+      "notes": "Word status values 'new', 'learning', etc are magic strings. Use Prisma ProgressStatus enum or constants.",
+      "archived": false
+    },
+    {
+      "id": 160,
+      "text": "🔵 #28: Add userId to UserStats or remove the model",
+      "done": false,
+      "priority": "low",
+      "tags": [
+        "backend",
+        "schema"
+      ],
+      "createdAt": 1774632712188,
+      "notes": "UserStats model has no userId. It's a singleton. Should be per-user or removed.",
+      "archived": false
+    },
+    {
+      "id": 161,
+      "text": "🔵 #29: Rename UserProgress → UserLevelProgress for clarity",
+      "done": false,
+      "priority": "low",
+      "tags": [
+        "backend",
+        "schema"
+      ],
+      "createdAt": 1774632717940,
+      "notes": "UserProgress tracks per userId+cefrLevel+themeId, WordProgress tracks per wordId. Naming is confusing. Rename UserProgress → UserLevelProgress.",
+      "archived": false
+    },
+    {
+      "id": 162,
+      "text": "🔵 #30: Rename UserStream → UserStreak",
+      "done": false,
+      "priority": "low",
+      "tags": [
+        "backend",
+        "schema"
+      ],
+      "createdAt": 1774632725266,
+      "notes": "Model named UserStream but represents streak. Rename to UserStreak.",
+      "archived": false
+    },
+    {
+      "id": 163,
+      "text": "🔵 #31: Wrap batch progress updates in a transaction",
+      "done": false,
+      "priority": "low",
+      "tags": [
+        "backend"
+      ],
+      "createdAt": 1774632734757,
+      "notes": "POST /progress/batch processes words one by one. If fails mid-way, partial update. Wrap in $transaction.",
+      "archived": false
+    },
+    {
+      "id": 164,
+      "text": "🔵 #32: Clean up unused frontend statsApi exports",
+      "done": false,
+      "priority": "low",
+      "tags": [
+        "frontend"
+      ],
+      "createdAt": 1774632742492,
+      "notes": "statsApi in api.ts references endpoints that may not match actual backend routes. Verify and clean up.",
+      "archived": false
+    },
+    {
+      "id": 165,
+      "text": "📋 PHASE 1: Critical Security & Data Integrity (🔴 #1-#6)",
+      "done": false,
+      "priority": "critical",
+      "tags": [
+        "PLAN"
+      ],
+      "createdAt": 1774632754449,
+      "notes": "Fix #1 (userId on WordProgress), #2 (userId on LearningSession), #3 (auth on sessions), #4 (auth on data), #5 (auth on stats), #6 (review themes).\n\nThese are security/data integrity issues. Multi-user is fundamentally broken without them.\n\nOrder:\n1. Schema changes (new migration) — add userId to WordProgress & LearningSession\n2. Add auth middleware to sessions, data, stats routes\n3. Update all queries in words.ts, progress.ts, sessions.ts to scope by userId\n4. Test: register two users, verify progress is isolated",
+      "archived": false
+    },
+    {
+      "id": 166,
+      "text": "📋 PHASE 2: Backend Reliability (🟠 #7, #8, #9, #10, #14)",
       "done": false,
       "priority": "high",
       "tags": [
-        "phase-5",
-        "llm",
-        "frontend"
+        "PLAN"
       ],
-      "createdAt": 1774343608729,
-      "parentId": 120,
+      "createdAt": 1774632765299,
+      "notes": "Fix #7 (duplicate PrismaClient), #8 (config cache TTL), #9 (lightweight LLM check), #10 (no env mutation), #14 (lists store use api.ts).\n\nThese are correctness/reliability issues.\n\nOrder:\n1. Fix data.ts PrismaClient import\n2. Add TTL to LLM config cache\n3. Make checkLLMAvailability config-only (no LLM call)\n4. Refactor apiKey passing to avoid process.env mutation\n5. Refactor lists store to use api.ts",
+      "archived": false
+    },
+    {
+      "id": 167,
+      "text": "📋 PHASE 3: Code Quality & Cleanup (🟠 #11-#15, 🔵 #25-#27, #31)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "PLAN"
+      ],
+      "createdAt": 1774632778089,
+      "notes": "Fix #11 (dead endpoint), #12 (deduplicate TIER_LIMITS), #13 (wordCount drift), #15 (input validation), #25 (remove openai), #26 (error format), #27 (magic strings), #31 (transactions).\n\nOrder:\n1. Remove /admin/categorize/batch dead endpoint\n2. Import TIER_LIMITS from lib in route\n3. Fix StudyList.wordCount or remove denormalized field\n4. Add validation to import endpoints\n5. Remove openai package\n6. Standardize error responses\n7. Add transaction to batch progress",
+      "archived": false
+    },
+    {
+      "id": 168,
+      "text": "📋 PHASE 4: Frontend Fixes (🟡 #16, #17, #23, #32)",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "PLAN"
+      ],
+      "createdAt": 1774632785757,
+      "notes": "Fix #16 (userFetched reset), #17 (fetchUser failure), #23 (stop polling), #32 (unused exports).\n\nThese improve UX and prevent edge-case bugs.",
+      "archived": false
+    },
+    {
+      "id": 169,
+      "text": "📋 PHASE 5: Hardening & Polish (🟡 #18-#22, #24, 🔵 #28-#30)",
+      "done": false,
+      "priority": "low",
+      "tags": [
+        "PLAN"
+      ],
+      "createdAt": 1774632793267,
+      "notes": "Fix #18 (token reuse detection), #19 (rate limiting), #20 (CORS production), #21 (simplify parser), #22 (query optimization), #24 (configurable goals), #28 (UserStats userId), #29 (rename UserProgress), #30 (rename UserStream).",
       "archived": false
     }
   ],
-  "nextId": 133
+  "nextId": 170
 }
 ```
