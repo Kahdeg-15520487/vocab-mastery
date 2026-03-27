@@ -104,19 +104,21 @@ registerJobHandler('CATEGORIZE_WORDS', async ({ payload, updateProgress, checkCa
       });
     }
 
-    // Insert new theme associations
+    // Insert new theme associations (include 'general' to mark as categorized)
     const themeInserts: Array<{ wordId: string; themeId: string }> = [];
     
     for (const [wordId, category] of wordCategoryMap) {
-      if (category !== 'general' && themeBySlug[category]) {
+      categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+      
+      // Save all categories including 'general' to mark as categorized
+      if (themeBySlug[category]) {
         themeInserts.push({
           wordId,
           themeId: themeBySlug[category].id,
         });
-        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
-        tagged++;
-      } else {
-        categoryCounts['general'] = (categoryCounts['general'] || 0) + 1;
+        if (category !== 'general') {
+          tagged++;
+        }
       }
     }
 

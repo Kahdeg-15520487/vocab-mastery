@@ -22,9 +22,10 @@ const THEMES = [
   { slug: 'education', name: 'Education', description: 'academic, learning, school, teaching' },
   { slug: 'food', name: 'Food & Cooking', description: 'culinary, cooking, nutrition, dining' },
   { slug: 'society', name: 'Society & Culture', description: 'social, cultural, politics, community' },
+  { slug: 'general', name: 'General', description: 'general vocabulary not specific to any topic' },
 ];
 
-const themeSlugs = [...THEMES.map(t => t.slug), 'general'];
+const themeSlugs = THEMES.map(t => t.slug);
 
 const BATCH_SYSTEM_PROMPT = `You are a word categorization assistant. Your task is to categorize English vocabulary words into categories.
 

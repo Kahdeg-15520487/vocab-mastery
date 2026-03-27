@@ -115,18 +115,21 @@ async function categorizeWords(options: {
       });
     }
     
-    // Prepare theme inserts
+    // Prepare theme inserts (include 'general' to mark as categorized)
     const themeInserts: Array<{ wordId: string; themeId: string }> = [];
     
     for (const [wordId, category] of wordCategoryMap) {
       stats[category] = (stats[category] || 0) + 1;
       
-      if (category !== 'general' && themeBySlug[category]) {
+      // Save all categories including 'general' to mark as categorized
+      if (themeBySlug[category]) {
         themeInserts.push({
           wordId,
           themeId: themeBySlug[category].id,
         });
-        tagged++;
+        if (category !== 'general') {
+          tagged++;
+        }
       }
       
       if (options.verbose) {

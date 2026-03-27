@@ -767,11 +767,12 @@ export async function adminRoutes(app: FastifyInstance) {
       });
     }
 
-    // Insert new theme associations
+    // Insert new theme associations (include 'general' to mark as categorized)
     const themeInserts: Array<{ wordId: string; themeId: string }> = [];
     
     for (const [wordId, category] of wordCategoryMap) {
-      if (category !== 'general' && themeBySlug[category]) {
+      // Save all categories including 'general'
+      if (themeBySlug[category]) {
         themeInserts.push({
           wordId,
           themeId: themeBySlug[category].id,
@@ -833,8 +834,8 @@ export async function adminRoutes(app: FastifyInstance) {
       where: { wordId: word.id },
     });
 
-    // Add new theme if not 'general'
-    if (theme && category !== 'general') {
+    // Add theme (including 'general' to mark as categorized)
+    if (theme) {
       await prisma.wordTheme.create({
         data: {
           wordId: word.id,
@@ -843,7 +844,7 @@ export async function adminRoutes(app: FastifyInstance) {
       });
     }
 
-    return { word: word.word, category, tagged: !!theme };
+    return { word: word.word, category, tagged: !!theme && category !== 'general' };
   });
 
   // ============================================
