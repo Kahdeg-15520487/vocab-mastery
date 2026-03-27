@@ -4,9 +4,6 @@
 
 ## Pending
 
-- [ ] **#140** **[high]** 🟠 #8: Add TTL to LLM config cache (5 min auto-expiry) #backend #llm
-- [ ] **#141** **[high]** 🟠 #9: Make checkLLMAvailability lightweight — don't make real LLM call #backend #llm
-- [ ] **#142** **[high]** 🟠 #10: Remove process.env mutation for API keys — pass directly to pi-ai #backend #llm
 - [ ] **#143** 🟠 #11: Remove dead /admin/categorize/batch endpoint #backend
 - [ ] **#144** 🟠 #12: Deduplicate TIER_LIMITS — import from lib/lists.ts #backend
 - [ ] **#145** 🟠 #13: Fix unreliable StudyList.wordCount denormalization #backend #schema
@@ -43,6 +40,9 @@
 - [x] **#137** **[critical]** 🔴 #5: Add authentication to stats routes #backend #security
 - [x] **#138** **[low]** 🔴 #6: Review themes routes for auth (likely OK as public read) #backend #security
 - [x] **#139** **[high]** 🟠 #7: Fix duplicate PrismaClient in data.ts — import from lib/prisma.js #backend
+- [x] **#140** **[high]** 🟠 #8: Add TTL to LLM config cache (5 min auto-expiry) #backend #llm
+- [x] **#141** **[high]** 🟠 #9: Make checkLLMAvailability lightweight — don't make real LLM call #backend #llm
+- [x] **#142** **[high]** 🟠 #10: Remove process.env mutation for API keys — pass directly to pi-ai #backend #llm
 - [x] **#165** **[critical]** 📋 PHASE 1: Critical Security & Data Integrity (🔴 #1-#6) #PLAN
 
 <!-- Raw Data -->
@@ -150,7 +150,7 @@
     {
       "id": 140,
       "text": "🟠 #8: Add TTL to LLM config cache (5 min auto-expiry)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "backend",
@@ -158,12 +158,13 @@
       ],
       "createdAt": 1774632540476,
       "notes": "cachedConfig in llm.ts is set once and only cleared on explicit calls. Add a TTL (e.g., 5 minutes) so provider changes propagate automatically.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635536324
     },
     {
       "id": 141,
       "text": "🟠 #9: Make checkLLMAvailability lightweight — don't make real LLM call",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "backend",
@@ -171,12 +172,13 @@
       ],
       "createdAt": 1774632550742,
       "notes": "checkLLMAvailability() calls categorizeWord('test', ...) which costs tokens. CategorizationPanel calls this on mount AND polls. Should just verify config exists + optional lightweight test (or cache the result).",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635541058
     },
     {
       "id": 142,
       "text": "🟠 #10: Remove process.env mutation for API keys — pass directly to pi-ai",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "backend",
@@ -184,7 +186,8 @@
       ],
       "createdAt": 1774632558402,
       "notes": "llm.ts line 137-139: `process.env[envKey] = config.apiKey` mutates global env. Race condition if multiple providers used concurrently. Pass apiKey directly to pi-ai options instead.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635544932
     },
     {
       "id": 143,

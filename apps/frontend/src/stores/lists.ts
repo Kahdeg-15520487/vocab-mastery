@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+import { request } from '@/lib/api';
 
 export interface StudyList {
   id: string;
@@ -55,16 +54,7 @@ export const useListsStore = defineStore('lists', () => {
     error.value = null;
 
     try {
-      const token = sessionStorage.getItem('accessToken');
-      const response = await fetch(`${API_BASE}/lists`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: 'include',
-      });
-
-      if (!response.ok) throw new Error('Failed to fetch lists');
-      const data = await response.json();
+      const data = await request<StudyList[]>('/lists');
       lists.value = data;
       return data;
     } catch (e: unknown) {
@@ -80,16 +70,7 @@ export const useListsStore = defineStore('lists', () => {
     error.value = null;
 
     try {
-      const token = sessionStorage.getItem('accessToken');
-      const response = await fetch(`${API_BASE}/lists/${id}?page=${page}&limit=${limit}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: 'include',
-      });
-
-      if (!response.ok) throw new Error('Failed to fetch list');
-      const data = await response.json();
+      const data = await request<ListDetail>(`/lists/${id}?page=${page}&limit=${limit}`);
       currentList.value = data;
       return data;
     } catch (e: unknown) {
@@ -102,23 +83,10 @@ export const useListsStore = defineStore('lists', () => {
 
   async function createList(data: { name: string; description?: string; color?: string; icon?: string }) {
     try {
-      const token = sessionStorage.getItem('accessToken');
-      const response = await fetch(`${API_BASE}/lists`, {
+      const newList = await request<StudyList>('/lists', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify(data),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create list');
-      }
-
-      const newList = await response.json();
       lists.value.push(newList);
       return newList;
     } catch (e: unknown) {
@@ -129,23 +97,10 @@ export const useListsStore = defineStore('lists', () => {
 
   async function updateList(id: string, data: Partial<{ name?: string; description?: string; color?: string; icon?: string }>) {
     try {
-      const token = sessionStorage.getItem('accessToken');
-      const response = await fetch(`${API_BASE}/lists/${id}`, {
+      const updatedList = await request<StudyList>(`/lists/${id}`, {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify(data),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update list');
-      }
-
-      const updatedList = await response.json();
       const index = lists.value.findIndex((l) => l.id === id);
       if (index !== -1) {
         lists.value[index] = { ...lists.value[index], ...updatedList };
@@ -159,19 +114,7 @@ export const useListsStore = defineStore('lists', () => {
 
   async function deleteList(id: string) {
     try {
-      const token = sessionStorage.getItem('accessToken');
-      const response = await fetch(`${API_BASE}/lists/${id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete list');
-      }
+      await request(`/lists/${id}`, { method: 'DELETE' });
       lists.value = lists.value.filter((l) => l.id !== id);
     } catch (e: unknown) {
       error.value = (e as Error).message;
@@ -181,21 +124,10 @@ export const useListsStore = defineStore('lists', () => {
 
   async function addWordToList(listId: string, wordId: string) {
     try {
-      const token = sessionStorage.getItem('accessToken');
-      const response = await fetch(`${API_BASE}/lists/${listId}/words`, {
+      await request(`/lists/${listId}/words`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify({ wordId }),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to add word');
-      }
     } catch (e: unknown) {
       error.value = (e as Error).message;
       throw e;
@@ -204,19 +136,7 @@ export const useListsStore = defineStore('lists', () => {
 
   async function removeWordFromList(listId: string, wordId: string) {
     try {
-      const token = sessionStorage.getItem('accessToken');
-      const response = await fetch(`${API_BASE}/lists/${listId}/words/${wordId}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to remove word');
-      }
+      await request(`/lists/${listId}/words/${wordId}`, { method: 'DELETE' });
     } catch (e: unknown) {
       error.value = (e as Error).message;
       throw e;
@@ -225,21 +145,10 @@ export const useListsStore = defineStore('lists', () => {
 
   async function togglePin(listId: string, pinned: boolean) {
     try {
-      const token = sessionStorage.getItem('accessToken');
-      const response = await fetch(`${API_BASE}/lists/${listId}/pin`, {
+      await request(`/lists/${listId}/pin`, {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify({ pinned }),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update pin status');
-      }
     } catch (e: unknown) {
       error.value = (e as Error).message;
       throw e;
@@ -248,21 +157,10 @@ export const useListsStore = defineStore('lists', () => {
 
   async function shareList(listId: string, email: string) {
     try {
-      const token = sessionStorage.getItem('accessToken');
-      const response = await fetch(`${API_BASE}/lists/${listId}/share`, {
+      await request(`/lists/${listId}/share`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify({ email }),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to share list');
-      }
     } catch (e: unknown) {
       error.value = (e as Error).message;
       throw e;
@@ -271,19 +169,7 @@ export const useListsStore = defineStore('lists', () => {
 
   async function removeShare(listId: string, userId: string) {
     try {
-      const token = sessionStorage.getItem('accessToken');
-      const response = await fetch(`${API_BASE}/lists/${listId}/share/${userId}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to remove share');
-      }
+      await request(`/lists/${listId}/share/${userId}`, { method: 'DELETE' });
     } catch (e: unknown) {
       error.value = (e as Error).message;
       throw e;

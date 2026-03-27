@@ -71,7 +71,7 @@ async function refreshToken(): Promise<string> {
   return refreshPromise
 }
 
-async function request<T>(
+export async function request<T>(
   endpoint: string,
   options?: RequestInit,
   isRetry = false
