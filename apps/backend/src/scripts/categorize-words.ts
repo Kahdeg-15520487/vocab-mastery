@@ -4,6 +4,7 @@ import { categorizeWordsBatch, checkLLMAvailability, clearLLMConfigCache, THEMES
 const prisma = new PrismaClient();
 
 const CHUNK_SIZE = 100; // Words per LLM request
+const MAX_RETRIES = 2;  // Retries per chunk on failure
 
 async function categorizeWords(options: { 
   limit?: number; 
@@ -39,69 +40,89 @@ async function categorizeWords(options: {
   const themeBySlug = Object.fromEntries(themes.map(t => [t.slug, t]));
   console.log(`Loaded ${themes.length} themes`);
   
-  // Get words to categorize
+  // Count words to categorize
   const where: any = {};
   if (options.uncategorizedOnly) {
     where.themes = { none: {} };
   }
   
-  const totalUncategorized = await prisma.word.count({ where });
-  const limit = options.limit || totalUncategorized;
+  const totalCount = await prisma.word.count({ where });
+  const effectiveLimit = options.limit ? Math.min(options.limit, totalCount) : totalCount;
   
-  console.log(`Fetching words (limit: ${limit})...`);
+  console.log(`Found ${totalCount} words (processing ${effectiveLimit})\n`);
   
-  const words = await prisma.word.findMany({
-    where,
-    select: {
-      id: true,
-      word: true,
-      definition: true,
-      partOfSpeech: true,
-    },
-    take: limit,
-    orderBy: { word: 'asc' },
-  });
-  
-  console.log(`Found ${words.length} words to categorize\n`);
-  
-  if (words.length === 0) {
+  if (effectiveLimit === 0) {
     console.log('✅ No words to categorize!');
     return;
   }
   
   // Stats
-  const stats: Record<string, number> = { general: 0 };
+  const stats: Record<string, number> = {};
   for (const theme of THEMES) {
     stats[theme.slug] = 0;
   }
   
   let processed = 0;
   let tagged = 0;
+  let errorCount = 0;
   const startTime = Date.now();
+  const totalChunks = Math.ceil(effectiveLimit / CHUNK_SIZE);
   
-  // Process in chunks
-  const chunks: typeof words[] = [];
-  for (let i = 0; i < words.length; i += CHUNK_SIZE) {
-    chunks.push(words.slice(i, i + CHUNK_SIZE));
-  }
-  
-  console.log(`Processing ${chunks.length} chunk(s) of ${CHUNK_SIZE} words each...\n`);
-  
-  for (let i = 0; i < chunks.length; i++) {
-    const chunk = chunks[i];
-    const chunkNum = i + 1;
+  // Process in chunks — fetch from DB chunk by chunk
+  for (let offset = 0; offset < effectiveLimit; offset += CHUNK_SIZE) {
+    const chunkNum = Math.floor(offset / CHUNK_SIZE) + 1;
+    const chunkSize = Math.min(CHUNK_SIZE, effectiveLimit - offset);
     
-    console.log(`\n📦 Chunk ${chunkNum}/${chunks.length} (${chunk.length} words)`);
+    console.log(`\n📦 Chunk ${chunkNum}/${totalChunks} (${chunkSize} words)`);
     console.log('─'.repeat(40));
     
-    // Categorize batch
-    const results = await categorizeWordsBatch(
-      chunk.map(w => ({
-        word: w.word,
-        definition: w.definition || undefined,
-        partOfSpeech: w.partOfSpeech as string[] | undefined,
-      }))
-    );
+    // Fetch chunk from DB
+    const chunk = await prisma.word.findMany({
+      where,
+      select: {
+        id: true,
+        word: true,
+        definition: true,
+        partOfSpeech: true,
+      },
+      orderBy: { word: 'asc' },
+      skip: offset,
+      take: chunkSize,
+    });
+    
+    if (chunk.length === 0) break;
+    
+    // Categorize with retries
+    let results: Array<{ word: string; category: string }> | null = null;
+    
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        results = await categorizeWordsBatch(
+          chunk.map(w => ({
+            word: w.word,
+            definition: w.definition || undefined,
+            partOfSpeech: w.partOfSpeech as string[] | undefined,
+          }))
+        );
+        break;
+      } catch (err: any) {
+        console.error(`   ❌ Attempt ${attempt + 1} failed: ${err.message}`);
+        
+        if (attempt < MAX_RETRIES) {
+          const waitMs = 2000 * Math.pow(2, attempt);
+          console.log(`   Retrying in ${waitMs}ms...`);
+          await new Promise(r => setTimeout(r, waitMs));
+        } else {
+          console.error(`   ❌ All retries exhausted for this chunk`);
+          errorCount += chunk.length;
+        }
+      }
+    }
+    
+    if (!results) {
+      processed += chunk.length;
+      continue;
+    }
     
     // Build wordId -> category map
     const wordCategoryMap = new Map(
@@ -121,7 +142,6 @@ async function categorizeWords(options: {
     for (const [wordId, category] of wordCategoryMap) {
       stats[category] = (stats[category] || 0) + 1;
       
-      // Save all categories including 'general' to mark as categorized
       if (themeBySlug[category]) {
         themeInserts.push({
           wordId,
@@ -151,10 +171,14 @@ async function categorizeWords(options: {
     // Progress
     const elapsed = Math.round((Date.now() - startTime) / 1000);
     const rate = processed / (elapsed || 1);
-    const remaining = Math.round((words.length - processed) / rate);
+    const remaining = Math.round((effectiveLimit - processed) / rate);
     
-    console.log(`\n📊 Progress: ${processed}/${words.length} (${Math.round(processed/words.length*100)}%)`);
+    console.log(`\n📊 Progress: ${processed}/${effectiveLimit} (${Math.round(processed/effectiveLimit*100)}%)`);
     console.log(`   Time: ${elapsed}s | Est. remaining: ${remaining}s`);
+    
+    if (errorCount > 0) {
+      console.log(`   ⚠️  Errors: ${errorCount}`);
+    }
     
     // Show chunk summary
     const chunkStats: Record<string, number> = {};
@@ -172,6 +196,9 @@ async function categorizeWords(options: {
   console.log('================================');
   console.log(`Processed: ${processed}`);
   console.log(`Tagged: ${tagged}`);
+  if (errorCount > 0) {
+    console.log(`Errors: ${errorCount}`);
+  }
   console.log(`Time: ${elapsed}s (${Math.round(processed / (elapsed || 1))} words/s)`);
   
   console.log(`\nCategories:`);
