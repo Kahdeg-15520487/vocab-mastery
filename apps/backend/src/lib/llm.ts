@@ -148,7 +148,7 @@ async function callLLM(
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
-      max_tokens: 4096,
+      max_tokens: 16384,
       temperature: 0.3,
     });
     
@@ -178,7 +178,7 @@ async function callLLM(
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
         ],
-        max_tokens: 4096,
+        max_tokens: 16384,
         temperature: 0.3,
       });
       
@@ -257,12 +257,17 @@ export async function categorizeWordsBatch(
       return entry;
     }).join('\n');
     
-    const prompt = `Categorize the following ${words.length} English words. Return a JSON object where each key is the word and value is the category slug.
+    const prompt = `Categorize the following ${words.length} English words into categories.
 
 Words:
 ${wordsList}
 
-Return ONLY a valid JSON object like: {"word1": "category", "word2": "category", ...}`;
+IMPORTANT: Return ONLY a valid JSON object. No explanation, no markdown, no code blocks.
+Format: {"word": "category", ...}
+
+Example: {"abandon": "general", "algorithm": "technology", "bake": "food"}
+
+JSON:`;
 
     const responseText = await callLLM(BATCH_SYSTEM_PROMPT, prompt, config);
     
@@ -284,23 +289,48 @@ Return ONLY a valid JSON object like: {"word1": "category", "word2": "category",
 }
 
 /**
- * Parse JSON response from LLM
+ * Parse JSON response from LLM - handles various malformed formats
  */
 function parseCategoriesJson(text: string, expectedWords: string[]): Record<string, string> {
   const result: Record<string, string> = {};
   
-  let jsonStr = text;
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (jsonMatch) {
-    jsonStr = jsonMatch[0];
+  // Step 1: Strip <think/> tags (deepseek-reasoner adds these)
+  let cleaned = text.replace(/<think[\s\S]*?<\/think>/gi, '');
+  
+  // Step 2: Extract JSON from markdown code blocks
+  const codeBlockMatch = cleaned.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (codeBlockMatch) {
+    cleaned = codeBlockMatch[1];
   }
+  
+  // Step 3: Find JSON object in the text
+  const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    console.warn('No JSON object found in response, trying line-by-line parsing');
+    return parseLineByLine(text);
+  }
+  
+  let jsonStr = jsonMatch[0];
+  
+  // Step 4: Fix common JSON issues
+  // Remove trailing commas before } or ]
+  jsonStr = jsonStr.replace(/,\s*([}\]])/g, '$1');
+  // Replace single quotes with double quotes
+  jsonStr = jsonStr.replace(/'/g, '"');
+  // Add quotes around unquoted keys (word before colon)
+  jsonStr = jsonStr.replace(/([{,]\s*)([a-zA-Z_]\w*)(\s*:)/g, '$1"$2"$3');
+  // Add quotes around unquoted string values (after colon, before comma or })
+  jsonStr = jsonStr.replace(/:\s*([a-zA-Z_]\w*)(\s*[,}])/g, ':"$1"$2');
+  // Remove JS-style comments
+  jsonStr = jsonStr.replace(/\/\/.*$/gm, '');
+  jsonStr = jsonStr.replace(/\/\*[\s\S]*?\*\//g, '');
   
   try {
     const parsed = JSON.parse(jsonStr);
     
     for (const [word, category] of Object.entries(parsed)) {
-      const normalizedWord = word.toLowerCase().trim();
-      const normalizedCategory = String(category).toLowerCase().trim();
+      const normalizedWord = word.toLowerCase().trim().replace(/^["']|["']$/g, '');
+      const normalizedCategory = String(category).toLowerCase().trim().replace(/^["']|["']$/g, '');
       
       if (themeSlugs.includes(normalizedCategory)) {
         result[normalizedWord] = normalizedCategory;
@@ -309,15 +339,37 @@ function parseCategoriesJson(text: string, expectedWords: string[]): Record<stri
       }
     }
   } catch (e) {
-    console.error('Failed to parse JSON:', e);
-    const lines = text.split('\n');
-    for (const line of lines) {
-      const match = line.match(/["']?(\w+)["']?\s*[:=]\s*["']?(\w+)["']?/);
+    console.error('Failed to parse JSON after cleanup:', e);
+    console.error('Attempted to parse:', jsonStr.slice(0, 500));
+    return parseLineByLine(text);
+  }
+  
+  return result;
+}
+
+/**
+ * Fallback: parse word-category pairs line by line
+ */
+function parseLineByLine(text: string): Record<string, string> {
+  const result: Record<string, string> = {};
+  const lines = text.split('\n');
+  
+  for (const line of lines) {
+    // Try patterns like: "word": "category" or word: category or word -> category
+    const patterns = [
+      /["']?(\w+)["']?\s*[:=]\s*["']?(\w+)["']?/,           // "word": "category"
+      /(\w+)\s*[-→>]+\s*(\w+)/,                                // word -> category
+      /^\s*(\d+)\.\s*["']?(\w+)["']?\s*[-:]\s*["']?(\w+)["']?/, // 1. word: category
+    ];
+    
+    for (const pattern of patterns) {
+      const match = line.match(pattern);
       if (match) {
-        const word = match[1].toLowerCase();
-        const category = match[2].toLowerCase();
+        const word = (match[1] || match[2]).toLowerCase();
+        const category = (match[2] || match[3]).toLowerCase();
         if (themeSlugs.includes(category)) {
           result[word] = category;
+          break;
         }
       }
     }
