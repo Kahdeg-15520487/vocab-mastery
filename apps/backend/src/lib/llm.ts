@@ -130,11 +130,10 @@ async function callLLM(
   userPrompt: string, 
   config: Awaited<ReturnType<typeof getLLMConfig>>
 ): Promise<string> {
-  // Try pi-ai's predefined models first
   const piAiProviders = ['openai', 'anthropic', 'google', 'groq', 'openrouter', 'mistral', 'cerebras', 'xai'];
   
+  // Try pi-ai's predefined models first
   if (piAiProviders.includes(config.provider.toLowerCase())) {
-    // Set API key for the provider
     if (config.apiKey) {
       const envKey = config.provider.toLowerCase() === 'anthropic' ? 'ANTHROPIC_API_KEY' : 'OPENAI_API_KEY';
       process.env[envKey] = config.apiKey;
@@ -152,23 +151,30 @@ async function callLLM(
       
       const response = await completeSimple(model, context);
       
-      // completeSimple separates thinking blocks from text blocks
       return response.content
         .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
         .map(c => c.text)
         .join('')
         .trim();
     }
+    
+    // Model not in pi-ai registry, fall through to custom model below
   }
   
-  // For custom/unknown providers, create a pi-ai custom Model
-  // This gives us proper thinking/reasoning separation
+  // For custom/unknown providers OR known provider with unknown model (e.g. deepseek-reasoner)
+  // Create a pi-ai custom Model for proper thinking/reasoning separation
+  let baseUrl = config.baseUrl;
+  // Ensure baseUrl ends with /v1 for OpenAI-compatible APIs
+  if (baseUrl && !baseUrl.endsWith('/v1') && !baseUrl.endsWith('/v1/')) {
+    baseUrl = baseUrl.replace(/\/$/, '') + '/v1';
+  }
+  
   const customModel = {
     id: config.model,
     name: `${config.provider}/${config.model}`,
     api: 'openai-completions' as const,
     provider: config.provider.toLowerCase(),
-    ...(config.baseUrl ? { baseUrl: config.baseUrl } : {}),
+    ...(baseUrl ? { baseUrl } : {}),
     reasoning: true,
     input: ['text'] as const,
     cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
@@ -185,17 +191,31 @@ async function callLLM(
   
   const apiKey = config.apiKey || process.env.OPENAI_API_KEY;
   
-  const response = await completeSimple(customModel as any, context, {
-    apiKey,
-    reasoning: 'medium', // Let pi-ai handle thinking blocks
-  });
-  
-  // Only return text content - thinking blocks are filtered out by pi-ai
-  return response.content
-    .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
-    .map(c => c.text)
-    .join('')
-    .trim();
+  try {
+    const response = await completeSimple(customModel as any, context, {
+      apiKey,
+      reasoning: 'medium',
+    });
+    
+    const textContent = response.content
+      .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
+      .map(c => c.text)
+      .join('')
+      .trim();
+    
+    if (!textContent) {
+      const contentTypes = response.content.map(c => c.type).join(', ');
+      console.error(`LLM returned empty text. Content types: [${contentTypes}]`);
+      if (response.stopReason) {
+        console.error(`Stop reason: ${response.stopReason}`);
+      }
+    }
+    
+    return textContent;
+  } catch (error: any) {
+    console.error('LLM call failed:', error.message);
+    throw error;
+  }
 }
 
 /**
@@ -477,12 +497,17 @@ export async function testProviderConfig(config: {
     }
     
     // Custom provider - use pi-ai with custom model
+    let baseUrl = config.baseUrl;
+    if (baseUrl && !baseUrl.endsWith('/v1') && !baseUrl.endsWith('/v1/')) {
+      baseUrl = baseUrl.replace(/\/$/, '') + '/v1';
+    }
+    
     const customModel = {
       id: config.model,
       name: `${config.provider}/${config.model}`,
       api: 'openai-completions' as const,
       provider: config.provider.toLowerCase(),
-      ...(config.baseUrl ? { baseUrl: config.baseUrl } : {}),
+      ...(baseUrl ? { baseUrl } : {}),
       reasoning: false,
       input: ['text'] as const,
       cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },

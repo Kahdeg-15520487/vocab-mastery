@@ -20,6 +20,7 @@
     "categorize:dry": "tsx src/scripts/categorize-words.ts --dry-run --limit=20 -v",
     "categorize:all": "tsx src/scripts/categorize-words.ts",
     "categorize:100": "tsx src/scripts/categorize-words.ts --limit=100",
+    "categorize:20":  "tsx src/scripts/categorize-words.ts --limit=20",
     "export": "tsx src/scripts/export.ts",
     "import": "tsx src/scripts/import.ts",
     "studio": "prisma studio"
