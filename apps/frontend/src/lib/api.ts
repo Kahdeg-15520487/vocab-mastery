@@ -214,6 +214,8 @@ export const progressApi = {
       method: 'POST',
       body: JSON.stringify({ updates }),
     }),
+
+  getAchievements: () => request<any>('/progress/achievements'),
 }
 
 // Sessions API

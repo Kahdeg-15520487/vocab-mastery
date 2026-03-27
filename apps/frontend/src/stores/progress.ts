@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+import { request } from '@/lib/api';
 
 export interface StreakInfo {
   current: number;
@@ -81,16 +80,7 @@ export const useProgressStore = defineStore('progress', () => {
     error.value = null;
 
     try {
-      const token = sessionStorage.getItem('accessToken');
-      const response = await fetch(`${API_BASE}/progress/dashboard`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        credentials: 'include',
-      });
-
-      if (!response.ok) throw new Error('Failed to fetch dashboard');
-      dashboard.value = await response.json();
+      dashboard.value = await request<DashboardData>('/progress/dashboard');
     } catch (e: any) {
       error.value = e.message;
     } finally {
@@ -103,16 +93,7 @@ export const useProgressStore = defineStore('progress', () => {
     error.value = null;
 
     try {
-      const token = sessionStorage.getItem('accessToken');
-      const response = await fetch(`${API_BASE}/progress/achievements`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        credentials: 'include',
-      });
-
-      if (!response.ok) throw new Error('Failed to fetch achievements');
-      achievements.value = await response.json();
+      achievements.value = await request<Achievement[]>('/progress/achievements');
     } catch (e: any) {
       error.value = e.message;
     } finally {
@@ -125,16 +106,7 @@ export const useProgressStore = defineStore('progress', () => {
     error.value = null;
 
     try {
-      const token = sessionStorage.getItem('accessToken');
-      const response = await fetch(`${API_BASE}/progress/calendar?days=${days}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        credentials: 'include',
-      });
-
-      if (!response.ok) throw new Error('Failed to fetch calendar');
-      calendar.value = await response.json();
+      calendar.value = await request<any>(`/progress/calendar?days=${days}`);
     } catch (e: any) {
       error.value = e.message;
     } finally {
@@ -144,23 +116,15 @@ export const useProgressStore = defineStore('progress', () => {
 
   async function updateProgress(data: { wordsLearned?: number; wordsReviewed?: number }) {
     try {
-      const token = sessionStorage.getItem('accessToken');
-      const response = await fetch(`${API_BASE}/progress/update`, {
+      const result = await request<any>('/progress/update', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify(data),
       });
-
-      if (!response.ok) throw new Error('Failed to update progress');
       
       // Refresh dashboard after update
       await fetchDashboard();
       
-      return await response.json();
+      return result;
     } catch (e: any) {
       error.value = e.message;
       throw e;
