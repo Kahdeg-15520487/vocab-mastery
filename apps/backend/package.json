@@ -30,7 +30,7 @@
     "@fastify/cors": "^8.5.0",
     "@fastify/helmet": "^10.1.1",
     "@fastify/oauth2": "^7.9.0",
-    "@fastify/rate-limit": "^10.3.0",
+    "@fastify/rate-limit": "^9.1.0",
     "@mariozechner/pi-ai": "^0.22.5",
     "@prisma/client": "^5.22.0",
     "axios": "^1.13.6",
