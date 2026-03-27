@@ -5,8 +5,6 @@
 ## Pending
 
 - [ ] **#150** **[low]** 🟡 #18: Add refresh token reuse detection (compromise alert) #backend #security
-- [ ] **#151** 🟡 #19: Add rate limiting to auth endpoints #backend #security
-- [ ] **#152** **[low]** 🟡 #20: Restrict CORS in production #backend #security
 - [ ] **#153** **[low]** 🟡 #21: Simplify parseCategoriesJson — reduce regex complexity #backend #llm
 - [ ] **#154** **[low]** 🟡 #22: Optimize StudyList wordCount query — use _count instead of include #backend #perf
 - [ ] **#156** **[low]** 🟡 #24: Make daily goal defaults configurable per user #backend
@@ -35,6 +33,8 @@
 - [x] **#147** 🟠 #15: Add input validation/sanitization to word import #backend #security
 - [x] **#148** 🟡 #16: Reset userFetched flag when auth state changes #frontend
 - [x] **#149** 🟡 #17: Handle fetchUser failure in router guard — redirect to login #frontend
+- [x] **#151** 🟡 #19: Add rate limiting to auth endpoints #backend #security
+- [x] **#152** **[low]** 🟡 #20: Restrict CORS in production #backend #security
 - [x] **#155** 🟡 #23: Stop polling in CategorizationPanel when no active job #frontend #perf
 - [x] **#157** **[low]** 🔵 #25: Remove unused `openai` package from dependencies #backend
 - [x] **#159** **[low]** 🔵 #27: Replace magic string status values with constants/enum #backend
@@ -298,7 +298,7 @@
     {
       "id": 151,
       "text": "🟡 #19: Add rate limiting to auth endpoints",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "backend",
@@ -306,12 +306,13 @@
       ],
       "createdAt": 1774632641783,
       "notes": "POST /auth/login, /auth/register, /auth/refresh have no rate limiting. Add @fastify/rate-limit.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774636213245
     },
     {
       "id": 152,
       "text": "🟡 #20: Restrict CORS in production",
-      "done": false,
+      "done": true,
       "priority": "low",
       "tags": [
         "backend",
@@ -319,7 +320,8 @@
       ],
       "createdAt": 1774632648127,
       "notes": "server.ts cors origin: true allows any origin. Add production config guard.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774636217528
     },
     {
       "id": 153,

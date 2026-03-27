@@ -86,7 +86,38 @@ export async function dataRoutes(app: FastifyInstance) {
       });
     }
 
+    // Validate word data
     const words: ImportedWord[] = body.words;
+    if (words.length > 50000) {
+      return reply.status(400).send({
+        error: `Too many words. Maximum 50,000 per import. Got ${words.length}`,
+      });
+    }
+
+    // Validate each word entry
+    const validWords: ImportedWord[] = [];
+    const validationErrors: string[] = [];
+    for (let i = 0; i < words.length; i++) {
+      const w = words[i];
+      if (!w.word || typeof w.word !== 'string') {
+        validationErrors.push(`Row ${i}: missing or invalid 'word' field`);
+        continue;
+      }
+      const trimmed = w.word.trim().toLowerCase();
+      if (trimmed.length === 0 || trimmed.length > 100) {
+        validationErrors.push(`Row ${i}: word must be 1-100 characters`);
+        continue;
+      }
+      validWords.push({ ...w, word: trimmed });
+    }
+
+    if (validWords.length === 0) {
+      return reply.status(400).send({
+        error: 'No valid words found in import data',
+        validationErrors: validationErrors.slice(0, 10),
+      });
+    }
+
     const options = {
       merge: body.merge !== false, // Default to merge mode
     };
@@ -105,15 +136,14 @@ export async function dataRoutes(app: FastifyInstance) {
     // If not merge mode, clear existing data
     if (!options.merge) {
       await prisma.wordTheme.deleteMany();
-      await prisma.wordProgress.deleteMany();
       await prisma.sessionWord.deleteMany();
       await prisma.word.deleteMany();
     }
 
     // Process in batches
     const batchSize = 100;
-    for (let i = 0; i < words.length; i += batchSize) {
-      const batch = words.slice(i, batchSize);
+    for (let i = 0; i < validWords.length; i += batchSize) {
+      const batch = validWords.slice(i, batchSize);
 
       for (const wordData of batch) {
         try {
@@ -180,10 +210,11 @@ export async function dataRoutes(app: FastifyInstance) {
 
     return {
       success: true,
-      totalProcessed: words.length,
+      totalProcessed: validWords.length,
       created,
       updated,
       failed,
+      validationErrors: validationErrors.slice(0, 10),
       errors: errors.slice(0, 10), // Return first 10 errors
     };
   });
