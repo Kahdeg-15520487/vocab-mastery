@@ -1,7 +1,7 @@
 import { getModel, completeSimple, type Context } from '@mariozechner/pi-ai';
 import prisma from './prisma.js';
 
-// Config cache
+// Config cache with TTL
 let cachedConfig: {
   id: string;
   provider: string;
@@ -11,6 +11,8 @@ let cachedConfig: {
   context?: string;
   maxTokens: number;
 } | null = null;
+let configCacheTime = 0;
+const CONFIG_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 // Available themes for categorization
 const THEMES = [
@@ -41,7 +43,7 @@ Rules:
 5. Return ONLY the JSON object, no explanation`;
 
 /**
- * Get active LLM config from database
+ * Get active LLM config from database (with 5-min TTL cache)
  */
 export async function getLLMConfig(): Promise<{
   id: string;
@@ -52,7 +54,10 @@ export async function getLLMConfig(): Promise<{
   context?: string;
   maxTokens: number;
 }> {
-  if (cachedConfig) return cachedConfig;
+  // Return cached config if still fresh
+  if (cachedConfig && Date.now() - configCacheTime < CONFIG_CACHE_TTL) {
+    return cachedConfig;
+  }
 
   try {
     // Get active provider from new LlmProvider table
@@ -70,6 +75,7 @@ export async function getLLMConfig(): Promise<{
         context: activeProvider.context || undefined,
         maxTokens: activeProvider.maxTokens,
       };
+      configCacheTime = Date.now();
       return cachedConfig;
     }
 
@@ -92,6 +98,7 @@ export async function getLLMConfig(): Promise<{
         context: configMap['llm.context'] || undefined,
         maxTokens: 4096,
       };
+      configCacheTime = Date.now();
       return cachedConfig;
     }
 
@@ -105,7 +112,7 @@ export async function getLLMConfig(): Promise<{
       context: process.env.LLM_CONTEXT,
       maxTokens: 4096,
     };
-    
+    configCacheTime = Date.now();
     return cachedConfig;
   } catch (error) {
     // Fallback to env vars if database fails
@@ -126,6 +133,7 @@ export async function getLLMConfig(): Promise<{
  */
 export function clearLLMConfigCache() {
   cachedConfig = null;
+  configCacheTime = 0;
 }
 
 /**
@@ -140,11 +148,6 @@ async function callLLM(
   
   // Try pi-ai's predefined models first
   if (piAiProviders.includes(config.provider.toLowerCase())) {
-    if (config.apiKey) {
-      const envKey = config.provider.toLowerCase() === 'anthropic' ? 'ANTHROPIC_API_KEY' : 'OPENAI_API_KEY';
-      process.env[envKey] = config.apiKey;
-    }
-    
     const model = getModel(config.provider.toLowerCase() as any, config.model as any);
     
     if (model) {
@@ -155,7 +158,8 @@ async function callLLM(
         ]
       };
       
-      const response = await completeSimple(model, context);
+      const apiKey = config.apiKey || process.env.OPENAI_API_KEY;
+      const response = await completeSimple(model, context, { apiKey });
       
       return response.content
         .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
@@ -453,7 +457,7 @@ export async function categorizeWords(
 }
 
 /**
- * Check if LLM service is available
+ * Check if LLM service is available (config check only, no API call)
  */
 export async function checkLLMAvailability(): Promise<{ 
   available: boolean; 
@@ -464,18 +468,20 @@ export async function checkLLMAvailability(): Promise<{
   try {
     const config = await getLLMConfig();
     
-    const result = await categorizeWord('test', 'a procedure intended to establish quality', ['noun']);
-    
-    if (result) {
-      return { available: true, provider: config.provider, model: config.model };
+    if (!config.apiKey && !process.env.OPENAI_API_KEY) {
+      return { 
+        available: false, 
+        provider: config.provider, 
+        model: config.model,
+        error: 'No API key configured' 
+      };
     }
     
-    return { available: false, provider: config.provider, error: 'No response from model' };
-    
+    return { available: true, provider: config.provider, model: config.model };
   } catch (error: any) {
     return { 
       available: false, 
-      error: error.message || 'Connection failed' 
+      error: error.message || 'Failed to load configuration' 
     };
   }
 }
@@ -493,11 +499,6 @@ export async function testProviderConfig(config: {
     const piAiProviders = ['openai', 'anthropic', 'google', 'groq', 'openrouter', 'mistral', 'cerebras', 'xai'];
     
     if (piAiProviders.includes(config.provider.toLowerCase())) {
-      if (config.apiKey) {
-        const envKey = config.provider.toLowerCase() === 'anthropic' ? 'ANTHROPIC_API_KEY' : 'OPENAI_API_KEY';
-        process.env[envKey] = config.apiKey;
-      }
-      
       const model = getModel(config.provider.toLowerCase() as any, config.model as any);
       
       if (model) {
@@ -506,7 +507,8 @@ export async function testProviderConfig(config: {
           messages: [{ role: 'user', content: 'Say "ok"', timestamp: Date.now() }]
         };
         
-        await completeSimple(model, context);
+        const apiKey = config.apiKey || process.env.OPENAI_API_KEY;
+        await completeSimple(model, context, { apiKey });
         return { success: true };
       }
     }

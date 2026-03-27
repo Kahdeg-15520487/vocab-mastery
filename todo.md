@@ -4,13 +4,6 @@
 
 ## Pending
 
-- [ ] **#133** **[critical]** 🔴 #1: Add userId to WordProgress model + scope all queries by user #critical #backend #schema
-- [ ] **#134** **[critical]** 🔴 #2: Add userId to LearningSession model + scope session routes #backend #schema
-- [ ] **#135** **[critical]** 🔴 #3: Add authentication middleware to sessions routes #backend #security
-- [ ] **#136** **[critical]** 🔴 #4: Add authentication to data import/export routes #backend #security
-- [ ] **#137** **[critical]** 🔴 #5: Add authentication to stats routes #backend #security
-- [ ] **#138** **[low]** 🔴 #6: Review themes routes for auth (likely OK as public read) #backend #security
-- [ ] **#139** **[high]** 🟠 #7: Fix duplicate PrismaClient in data.ts — import from lib/prisma.js #backend
 - [ ] **#140** **[high]** 🟠 #8: Add TTL to LLM config cache (5 min auto-expiry) #backend #llm
 - [ ] **#141** **[high]** 🟠 #9: Make checkLLMAvailability lightweight — don't make real LLM call #backend #llm
 - [ ] **#142** **[high]** 🟠 #10: Remove process.env mutation for API keys — pass directly to pi-ai #backend #llm
@@ -36,11 +29,21 @@
 - [ ] **#162** **[low]** 🔵 #30: Rename UserStream → UserStreak #backend #schema
 - [ ] **#163** **[low]** 🔵 #31: Wrap batch progress updates in a transaction #backend
 - [ ] **#164** **[low]** 🔵 #32: Clean up unused frontend statsApi exports #frontend
-- [ ] **#165** **[critical]** 📋 PHASE 1: Critical Security & Data Integrity (🔴 #1-#6) #PLAN
 - [ ] **#166** **[high]** 📋 PHASE 2: Backend Reliability (🟠 #7, #8, #9, #10, #14) #PLAN
 - [ ] **#167** **[high]** 📋 PHASE 3: Code Quality & Cleanup (🟠 #11-#15, 🔵 #25-#27, #31) #PLAN
 - [ ] **#168** 📋 PHASE 4: Frontend Fixes (🟡 #16, #17, #23, #32) #PLAN
 - [ ] **#169** **[low]** 📋 PHASE 5: Hardening & Polish (🟡 #18-#22, #24, 🔵 #28-#30) #PLAN
+
+## Completed
+
+- [x] **#133** **[critical]** 🔴 #1: Add userId to WordProgress model + scope all queries by user #critical #backend #schema
+- [x] **#134** **[critical]** 🔴 #2: Add userId to LearningSession model + scope session routes #backend #schema
+- [x] **#135** **[critical]** 🔴 #3: Add authentication middleware to sessions routes #backend #security
+- [x] **#136** **[critical]** 🔴 #4: Add authentication to data import/export routes #backend #security
+- [x] **#137** **[critical]** 🔴 #5: Add authentication to stats routes #backend #security
+- [x] **#138** **[low]** 🔴 #6: Review themes routes for auth (likely OK as public read) #backend #security
+- [x] **#139** **[high]** 🟠 #7: Fix duplicate PrismaClient in data.ts — import from lib/prisma.js #backend
+- [x] **#165** **[critical]** 📋 PHASE 1: Critical Security & Data Integrity (🔴 #1-#6) #PLAN
 
 <!-- Raw Data -->
 ```json
@@ -49,7 +52,7 @@
     {
       "id": 133,
       "text": "🔴 #1: Add userId to WordProgress model + scope all queries by user",
-      "done": false,
+      "done": true,
       "priority": "critical",
       "tags": [
         "critical",
@@ -58,12 +61,13 @@
       ],
       "createdAt": 1774632489267,
       "notes": "WordProgress has no userId — all users share the same word progress. Add userId field, @@unique([userId, wordId]), update ALL queries in progress.ts, words.ts to filter by request.user.userId. This is a breaking schema change.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635389403
     },
     {
       "id": 134,
       "text": "🔴 #2: Add userId to LearningSession model + scope session routes",
-      "done": false,
+      "done": true,
       "priority": "critical",
       "tags": [
         "backend",
@@ -71,12 +75,13 @@
       ],
       "createdAt": 1774632495757,
       "notes": "LearningSession has no userId relation. Add userId field and scope all session CRUD to the authenticated user.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635392616
     },
     {
       "id": 135,
       "text": "🔴 #3: Add authentication middleware to sessions routes",
-      "done": false,
+      "done": true,
       "priority": "critical",
       "tags": [
         "backend",
@@ -84,12 +89,13 @@
       ],
       "createdAt": 1774632501823,
       "notes": "POST/GET sessions, respond, complete — all unprotected. Add { preHandler: authenticate } to sessionRoutes.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635395163
     },
     {
       "id": 136,
       "text": "🔴 #4: Add authentication to data import/export routes",
-      "done": false,
+      "done": true,
       "priority": "critical",
       "tags": [
         "backend",
@@ -97,12 +103,13 @@
       ],
       "createdAt": 1774632507335,
       "notes": "Import/delete endpoints allow anyone to modify the word database. Add { preHandler: requireAdmin } or at minimum authenticate.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635401486
     },
     {
       "id": 137,
       "text": "🔴 #5: Add authentication to stats routes",
-      "done": false,
+      "done": true,
       "priority": "critical",
       "tags": [
         "backend",
@@ -110,12 +117,13 @@
       ],
       "createdAt": 1774632514382,
       "notes": "GET /stats, /stats/daily, /stats/weekly, /stats/level-distribution — no auth at all.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635410194
     },
     {
       "id": 138,
       "text": "🔴 #6: Review themes routes for auth (likely OK as public read)",
-      "done": false,
+      "done": true,
       "priority": "low",
       "tags": [
         "backend",
@@ -123,19 +131,21 @@
       ],
       "createdAt": 1774632522886,
       "notes": "Themes read is fine public, but confirm no write endpoints exist without auth.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635419574
     },
     {
       "id": 139,
       "text": "🟠 #7: Fix duplicate PrismaClient in data.ts — import from lib/prisma.js",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "backend"
       ],
       "createdAt": 1774632531768,
       "notes": "data.ts creates `const prisma = new PrismaClient()` at top level instead of importing from lib/prisma.js. Causes connection pool issues.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635423793
     },
     {
       "id": 140,
@@ -454,14 +464,15 @@
     {
       "id": 165,
       "text": "📋 PHASE 1: Critical Security & Data Integrity (🔴 #1-#6)",
-      "done": false,
+      "done": true,
       "priority": "critical",
       "tags": [
         "PLAN"
       ],
       "createdAt": 1774632754449,
       "notes": "Fix #1 (userId on WordProgress), #2 (userId on LearningSession), #3 (auth on sessions), #4 (auth on data), #5 (auth on stats), #6 (review themes).\n\nThese are security/data integrity issues. Multi-user is fundamentally broken without them.\n\nOrder:\n1. Schema changes (new migration) — add userId to WordProgress & LearningSession\n2. Add auth middleware to sessions, data, stats routes\n3. Update all queries in words.ts, progress.ts, sessions.ts to scope by userId\n4. Test: register two users, verify progress is isolated",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635426306
     },
     {
       "id": 166,
