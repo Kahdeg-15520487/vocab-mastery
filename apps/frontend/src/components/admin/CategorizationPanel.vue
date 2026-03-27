@@ -55,11 +55,6 @@ const progress = computed(() => {
 
 onMounted(async () => {
   await Promise.all([checkLLM(), loadStats(), loadJobs()])
-  
-  // Poll for job updates
-  pollInterval = setInterval(() => {
-    loadJobs()
-  }, 2000)
 })
 
 onUnmounted(() => {
@@ -102,10 +97,25 @@ async function loadJobs() {
     jobs.value = await response.json()
     
     // Find running/pending job
+    const prev = activeJob.value
     activeJob.value = jobs.value.find(j => j.status === 'RUNNING' || j.status === 'PENDING') || null
     
-    // Refresh stats if a job just completed
-    if (activeJob.value === null && jobs.value.some(j => j.status === 'COMPLETED')) {
+    // Start polling when job becomes active, stop when it completes
+    if (activeJob.value && !prev) {
+      if (!pollInterval) {
+        pollInterval = setInterval(() => {
+          loadJobs()
+        }, 2000)
+      }
+    } else if (!activeJob.value && prev) {
+      // Job just completed — refresh stats, then stop polling
+      await loadStats()
+      if (pollInterval) {
+        clearInterval(pollInterval)
+        pollInterval = null
+      }
+    } else if (activeJob.value) {
+      // Still running — refresh stats periodically
       await loadStats()
     }
   } catch (e: any) {

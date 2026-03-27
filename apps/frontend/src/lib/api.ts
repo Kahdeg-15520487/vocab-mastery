@@ -248,10 +248,6 @@ export const statsApi = {
   get: () => request<any>('/stats'),
 
   getDaily: (days?: number) => request<any>(`/stats/daily?days=${days || 7}`),
-
-  getWeekly: (weeks?: number) => request<any>(`/stats/weekly?weeks=${weeks || 4}`),
-
-  getLevelDistribution: () => request<any>('/stats/level-distribution'),
 }
 
 // Admin API

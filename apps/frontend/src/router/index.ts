@@ -90,6 +90,11 @@ const router = createRouter({
 // Track if user has been fetched
 let userFetched = false
 
+// Reset fetch state when auth changes (called from auth store)
+export function resetUserFetched() {
+  userFetched = false
+}
+
 // Navigation guard for protected routes
 router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore()
@@ -101,8 +106,17 @@ router.beforeEach(async (to, _from, next) => {
 
   // Fetch user data if not already fetched and token exists
   if (!userFetched && authStore.isAuthenticated) {
-    await authStore.fetchUser()
+    const success = await authStore.fetchUser()
     userFetched = true
+    
+    // If fetchUser failed, clear token state and redirect to login
+    if (!success || !authStore.user) {
+      authStore.syncTokenState()
+      if (requiresAuth) {
+        next('/login')
+        return
+      }
+    }
   }
 
   if (requiresAuth && !authStore.isAuthenticated) {

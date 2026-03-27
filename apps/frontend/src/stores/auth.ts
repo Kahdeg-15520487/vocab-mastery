@@ -72,14 +72,16 @@ export const useAuthStore = defineStore('auth', () => {
       console.error('Logout error:', e);
     } finally {
       loading.value = false;
+      // Reset router's userFetched flag so next navigation re-fetches
+      import('@/router').then(({ resetUserFetched }) => resetUserFetched());
     }
   }
 
-  async function fetchUser(): Promise<void> {
+  async function fetchUser(): Promise<boolean> {
     syncTokenState();
     if (!hasToken.value) {
       user.value = null;
-      return;
+      return false;
     }
 
     loading.value = true;
@@ -87,9 +89,11 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await authService.getMe();
       user.value = response.user;
+      return true;
     } catch (e) {
       // Token might be expired or invalid
       user.value = null;
+      return false;
     } finally {
       loading.value = false;
     }

@@ -4,10 +4,6 @@
 
 ## Pending
 
-- [ ] **#143** 🟠 #11: Remove dead /admin/categorize/batch endpoint #backend
-- [ ] **#144** 🟠 #12: Deduplicate TIER_LIMITS — import from lib/lists.ts #backend
-- [ ] **#145** 🟠 #13: Fix unreliable StudyList.wordCount denormalization #backend #schema
-- [ ] **#147** 🟠 #15: Add input validation/sanitization to word import #backend #security
 - [ ] **#148** 🟡 #16: Reset userFetched flag when auth state changes #frontend
 - [ ] **#149** 🟡 #17: Handle fetchUser failure in router guard — redirect to login #frontend
 - [ ] **#150** **[low]** 🟡 #18: Add refresh token reuse detection (compromise alert) #backend #security
@@ -17,15 +13,11 @@
 - [ ] **#154** **[low]** 🟡 #22: Optimize StudyList wordCount query — use _count instead of include #backend #perf
 - [ ] **#155** 🟡 #23: Stop polling in CategorizationPanel when no active job #frontend #perf
 - [ ] **#156** **[low]** 🟡 #24: Make daily goal defaults configurable per user #backend
-- [ ] **#157** **[low]** 🔵 #25: Remove unused `openai` package from dependencies #backend
 - [ ] **#158** **[low]** 🔵 #26: Standardize error response format across all routes #backend
-- [ ] **#159** **[low]** 🔵 #27: Replace magic string status values with constants/enum #backend
 - [ ] **#160** **[low]** 🔵 #28: Add userId to UserStats or remove the model #backend #schema
 - [ ] **#161** **[low]** 🔵 #29: Rename UserProgress → UserLevelProgress for clarity #backend #schema
 - [ ] **#162** **[low]** 🔵 #30: Rename UserStream → UserStreak #backend #schema
-- [ ] **#163** **[low]** 🔵 #31: Wrap batch progress updates in a transaction #backend
 - [ ] **#164** **[low]** 🔵 #32: Clean up unused frontend statsApi exports #frontend
-- [ ] **#167** **[high]** 📋 PHASE 3: Code Quality & Cleanup (🟠 #11-#15, 🔵 #25-#27, #31) #PLAN
 - [ ] **#168** 📋 PHASE 4: Frontend Fixes (🟡 #16, #17, #23, #32) #PLAN
 - [ ] **#169** **[low]** 📋 PHASE 5: Hardening & Polish (🟡 #18-#22, #24, 🔵 #28-#30) #PLAN
 
@@ -41,9 +33,17 @@
 - [x] **#140** **[high]** 🟠 #8: Add TTL to LLM config cache (5 min auto-expiry) #backend #llm
 - [x] **#141** **[high]** 🟠 #9: Make checkLLMAvailability lightweight — don't make real LLM call #backend #llm
 - [x] **#142** **[high]** 🟠 #10: Remove process.env mutation for API keys — pass directly to pi-ai #backend #llm
+- [x] **#143** 🟠 #11: Remove dead /admin/categorize/batch endpoint #backend
+- [x] **#144** 🟠 #12: Deduplicate TIER_LIMITS — import from lib/lists.ts #backend
+- [x] **#145** 🟠 #13: Fix unreliable StudyList.wordCount denormalization #backend #schema
 - [x] **#146** **[high]** 🟠 #14: Refactor lists store to use api.ts instead of raw fetch() #frontend
+- [x] **#147** 🟠 #15: Add input validation/sanitization to word import #backend #security
+- [x] **#157** **[low]** 🔵 #25: Remove unused `openai` package from dependencies #backend
+- [x] **#159** **[low]** 🔵 #27: Replace magic string status values with constants/enum #backend
+- [x] **#163** **[low]** 🔵 #31: Wrap batch progress updates in a transaction #backend
 - [x] **#165** **[critical]** 📋 PHASE 1: Critical Security & Data Integrity (🔴 #1-#6) #PLAN
 - [x] **#166** **[high]** 📋 PHASE 2: Backend Reliability (🟠 #7, #8, #9, #10, #14) #PLAN
+- [x] **#167** **[high]** 📋 PHASE 3: Code Quality & Cleanup (🟠 #11-#15, 🔵 #25-#27, #31) #PLAN
 
 <!-- Raw Data -->
 ```json
@@ -192,31 +192,33 @@
     {
       "id": 143,
       "text": "🟠 #11: Remove dead /admin/categorize/batch endpoint",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "backend"
       ],
       "createdAt": 1774632568093,
       "notes": "POST /admin/categorize/batch (line 701 in admin.ts) is superseded by the job system. Remove the dead endpoint.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635845187
     },
     {
       "id": 144,
       "text": "🟠 #12: Deduplicate TIER_LIMITS — import from lib/lists.ts",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "backend"
       ],
       "createdAt": 1774632575260,
       "notes": "TIER_LIMITS is defined in both routes/lists.ts and lib/lists.ts. Import from lib in the route.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635848281
     },
     {
       "id": 145,
       "text": "🟠 #13: Fix unreliable StudyList.wordCount denormalization",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "backend",
@@ -224,7 +226,8 @@
       ],
       "createdAt": 1774632588937,
       "notes": "StudyList.wordCount is manually incremented/decremented. Drifts on cascade deletes or bulk operations. Use _count or compute from relation.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635851982
     },
     {
       "id": 146,
@@ -242,7 +245,7 @@
     {
       "id": 147,
       "text": "🟠 #15: Add input validation/sanitization to word import",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "backend",
@@ -250,7 +253,8 @@
       ],
       "createdAt": 1774632610374,
       "notes": "data.ts import endpoints accept arbitrary JSON with no validation of word format, length limits, or content sanitization.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635861222
     },
     {
       "id": 148,
@@ -369,14 +373,15 @@
     {
       "id": 157,
       "text": "🔵 #25: Remove unused `openai` package from dependencies",
-      "done": false,
+      "done": true,
       "priority": "low",
       "tags": [
         "backend"
       ],
       "createdAt": 1774632682573,
       "notes": "openai package still in package.json but no longer imported anywhere.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635865310
     },
     {
       "id": 158,
@@ -393,14 +398,15 @@
     {
       "id": 159,
       "text": "🔵 #27: Replace magic string status values with constants/enum",
-      "done": false,
+      "done": true,
       "priority": "low",
       "tags": [
         "backend"
       ],
       "createdAt": 1774632704456,
       "notes": "Word status values 'new', 'learning', etc are magic strings. Use Prisma ProgressStatus enum or constants.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635871349
     },
     {
       "id": 160,
@@ -444,14 +450,15 @@
     {
       "id": 163,
       "text": "🔵 #31: Wrap batch progress updates in a transaction",
-      "done": false,
+      "done": true,
       "priority": "low",
       "tags": [
         "backend"
       ],
       "createdAt": 1774632734757,
       "notes": "POST /progress/batch processes words one by one. If fails mid-way, partial update. Wrap in $transaction.",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635879544
     },
     {
       "id": 164,
@@ -494,14 +501,15 @@
     {
       "id": 167,
       "text": "📋 PHASE 3: Code Quality & Cleanup (🟠 #11-#15, 🔵 #25-#27, #31)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "PLAN"
       ],
       "createdAt": 1774632778089,
       "notes": "Fix #11 (dead endpoint), #12 (deduplicate TIER_LIMITS), #13 (wordCount drift), #15 (input validation), #25 (remove openai), #26 (error format), #27 (magic strings), #31 (transactions).\n\nOrder:\n1. Remove /admin/categorize/batch dead endpoint\n2. Import TIER_LIMITS from lib in route\n3. Fix StudyList.wordCount or remove denormalized field\n4. Add validation to import endpoints\n5. Remove openai package\n6. Standardize error responses\n7. Add transaction to batch progress",
-      "archived": false
+      "archived": false,
+      "completedAt": 1774635883408
     },
     {
       "id": 168,
