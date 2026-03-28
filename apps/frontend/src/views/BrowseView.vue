@@ -121,24 +121,24 @@ function handleModalKeydown(e: KeyboardEvent) {
     closeWordDetail()
     return
   }
-  // Arrow keys navigate between words
   if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
     e.preventDefault()
-    const idx = wordsStore.words.findIndex(w => w.id === selectedWord.value!.id)
-    if (idx >= 0 && idx < wordsStore.words.length - 1) {
-      selectedWord.value = wordsStore.words[idx + 1]
-      showListPicker.value = false
-      addedToList.value = null
-    }
+    navigateWord(1)
   }
   if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
     e.preventDefault()
-    const idx = wordsStore.words.findIndex(w => w.id === selectedWord.value!.id)
-    if (idx > 0) {
-      selectedWord.value = wordsStore.words[idx - 1]
-      showListPicker.value = false
-      addedToList.value = null
-    }
+    navigateWord(-1)
+  }
+}
+
+function navigateWord(direction: 1 | -1) {
+  if (!selectedWord.value) return
+  const idx = wordsStore.words.findIndex(w => w.id === selectedWord.value!.id)
+  const newIdx = idx + direction
+  if (newIdx >= 0 && newIdx < wordsStore.words.length) {
+    selectedWord.value = wordsStore.words[newIdx]
+    showListPicker.value = false
+    addedToList.value = null
   }
 }
 
@@ -554,6 +554,27 @@ const visiblePages = computed(() => {
                 <span v-if="addedToList === list.id" class="ml-2">✓</span>
               </button>
             </div>
+          </div>
+
+          <!-- Word Navigation -->
+          <div class="border-t border-slate-200 dark:border-slate-700 pt-4 flex items-center justify-between">
+            <button
+              @click="navigateWord(-1)"
+              :disabled="wordsStore.words.findIndex(w => w.id === selectedWord!.id) <= 0"
+              class="btn btn-secondary text-sm flex items-center gap-1"
+            >
+              ← Previous
+            </button>
+            <span class="text-xs text-slate-400">
+              {{ wordsStore.words.findIndex(w => w.id === selectedWord!.id) + 1 }} / {{ wordsStore.words.length }}
+            </span>
+            <button
+              @click="navigateWord(1)"
+              :disabled="wordsStore.words.findIndex(w => w.id === selectedWord!.id) >= wordsStore.words.length - 1"
+              class="btn btn-secondary text-sm flex items-center gap-1"
+            >
+              Next →
+            </button>
           </div>
         </div>
       </div>

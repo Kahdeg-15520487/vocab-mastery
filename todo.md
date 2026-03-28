@@ -4,11 +4,6 @@
 
 ## Pending
 
-- [ ] **#185** **[low]** Add skeleton loading states for dashboard and browse pages ##polish ##frontend
-- [ ] **#186** Add skeleton loading states for dashboard and browse pages #polish #frontend
-- [ ] **#187** Fix BrowseView word detail modal — header layout broken (Full Details link overlaps close button) #bug #frontend
-- [ ] **#188** Add part-of-speech tags to BrowseView word cards for better context #feature #frontend
-- [ ] **#189** **[low]** Add keyboard navigation to browse word detail modal (Esc to close, arrow keys to navigate between words) #polish #frontend
 - [ ] **#190** Add responsive design improvements — improve mobile layout for browse cards and dashboard #polish #frontend
 
 ## Completed
@@ -64,6 +59,11 @@
 - [x] **#182** Search bar in browse page with instant filtering ##feature ##frontend
 - [x] **#183** Word detail page at /words/:id with full info, examples, progress ##feature ##frontend ##backend
 - [x] **#184** Improve flashcard design with phonetic, examples, and richer content ##polish ##frontend
+- [x] **#185** **[low]** Add skeleton loading states for dashboard and browse pages ##polish ##frontend
+- [x] **#186** Add skeleton loading states for dashboard and browse pages #polish #frontend
+- [x] **#187** Fix BrowseView word detail modal — header layout broken (Full Details link overlaps close button) #bug #frontend
+- [x] **#188** Add part-of-speech tags to BrowseView word cards for better context #feature #frontend
+- [x] **#189** **[low]** Add keyboard navigation to browse word detail modal (Esc to close, arrow keys to navigate between words) #polish #frontend
 
 <!-- Raw Data -->
 ```json
@@ -762,62 +762,67 @@
     {
       "id": 185,
       "text": "Add skeleton loading states for dashboard and browse pages",
-      "done": false,
+      "done": true,
       "priority": "low",
       "tags": [
         "#polish",
         "#frontend"
       ],
       "createdAt": 1774693455504,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774720466886
     },
     {
       "id": 186,
       "text": "Add skeleton loading states for dashboard and browse pages",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "polish",
         "frontend"
       ],
       "createdAt": 1774719904022,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774720452543
     },
     {
       "id": 187,
       "text": "Fix BrowseView word detail modal — header layout broken (Full Details link overlaps close button)",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "bug",
         "frontend"
       ],
       "createdAt": 1774719908799,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774720455334
     },
     {
       "id": 188,
       "text": "Add part-of-speech tags to BrowseView word cards for better context",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
         "frontend"
       ],
       "createdAt": 1774719915714,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774720459513
     },
     {
       "id": 189,
       "text": "Add keyboard navigation to browse word detail modal (Esc to close, arrow keys to navigate between words)",
-      "done": false,
+      "done": true,
       "priority": "low",
       "tags": [
         "polish",
         "frontend"
       ],
       "createdAt": 1774719921871,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774720463089
     },
     {
       "id": 190,
