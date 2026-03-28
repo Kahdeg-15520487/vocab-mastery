@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, computed, ref } from 'vue'
+import { onMounted, onUnmounted, computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useSessionStore } from '@/stores/session'
 import { useWordsStore } from '@/stores/words'
@@ -14,6 +14,13 @@ const wordsStore = useWordsStore()
 const theme = computed(() => route.params.theme as string | undefined)
 const sessionComplete = ref(false)
 const sessionResult = ref<any>(null)
+
+// Track if card is flipped (for keyboard shortcuts)
+const cardFlipped = ref(false)
+
+function handleCardFlip(flipped: boolean) {
+  cardFlipped.value = flipped
+}
 
 onMounted(async () => {
   // Load themes first
@@ -32,7 +39,47 @@ onMounted(async () => {
     themeId,
     wordCount: 10,
   })
+
+  // Add keyboard shortcuts
+  window.addEventListener('keydown', handleKeydown)
 })
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown)
+})
+
+function handleKeydown(e: KeyboardEvent) {
+  // Don't handle if session is complete or no current word
+  if (sessionComplete.value || !sessionStore.currentWord) return
+  
+  // Ignore if user is typing in an input/textarea
+  const target = e.target as HTMLElement
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') return
+
+  if (e.key === ' ' || e.key === 'Enter') {
+    e.preventDefault()
+    // Flip card by dispatching click on flashcard container
+    const container = document.querySelector('.flashcard-container')
+    if (container) (container as HTMLElement).click()
+  } else if (cardFlipped.value) {
+    // Only respond when card is flipped
+    switch (e.key) {
+      case '1':
+        handleResponse('forgot')
+        break
+      case '2':
+        handleResponse('hard')
+        break
+      case '3':
+        handleResponse('medium')
+        break
+      case '4':
+      case '0':
+        handleResponse('easy')
+        break
+    }
+  }
+}
 
 async function handleResponse(response: 'easy' | 'medium' | 'hard' | 'forgot') {
   await sessionStore.submitResponse(response)
@@ -120,6 +167,7 @@ function startNewSession() {
       <Flashcard
         :word="sessionStore.currentWord"
         @response="handleResponse"
+        @flip="handleCardFlip"
       />
     </div>
 

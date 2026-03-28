@@ -10,6 +10,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'response', response: 'easy' | 'medium' | 'hard' | 'forgot'): void
+  (e: 'flip', flipped: boolean): void
 }>()
 
 const { speak, isSpeaking } = useSpeech()
@@ -19,6 +20,7 @@ const level = computed(() => props.word.cefrLevel)
 
 function flipCard() {
   isFlipped.value = !isFlipped.value
+  emit('flip', isFlipped.value)
 }
 
 function pronounce() {
@@ -66,7 +68,7 @@ function respond(response: 'easy' | 'medium' | 'hard' | 'forgot') {
           </button>
           
           <p class="text-sm text-slate-400 mt-6">
-            Tap to reveal definition
+            Tap or press Space to reveal definition
           </p>
         </div>
 
@@ -110,6 +112,7 @@ function respond(response: 'easy' | 'medium' | 'hard' | 'forgot') {
       >
         <span class="text-lg">😵</span>
         <span class="text-xs mt-1">Forgot</span>
+        <span class="text-[10px] text-slate-400 mt-0.5">[1]</span>
       </button>
       <button
         @click="respond('hard')"
@@ -117,6 +120,7 @@ function respond(response: 'easy' | 'medium' | 'hard' | 'forgot') {
       >
         <span class="text-lg">😬</span>
         <span class="text-xs mt-1">Hard</span>
+        <span class="text-[10px] text-slate-400 mt-0.5">[2]</span>
       </button>
       <button
         @click="respond('medium')"
@@ -124,6 +128,7 @@ function respond(response: 'easy' | 'medium' | 'hard' | 'forgot') {
       >
         <span class="text-lg">😊</span>
         <span class="text-xs mt-1">Good</span>
+        <span class="text-[10px] text-slate-400 mt-0.5">[3]</span>
       </button>
       <button
         @click="respond('easy')"
@@ -131,6 +136,7 @@ function respond(response: 'easy' | 'medium' | 'hard' | 'forgot') {
       >
         <span class="text-lg">🚀</span>
         <span class="text-xs mt-1">Easy</span>
+        <span class="text-[10px] text-slate-400 mt-0.5">[4]</span>
       </button>
     </div>
   </div>
