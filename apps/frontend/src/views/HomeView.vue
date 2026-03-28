@@ -234,7 +234,7 @@ function selectTheme(theme: any) {
       <WordOfDay />
 
       <!-- Quick Actions -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
         <router-link to="/learn" class="card hover:shadow-md transition-shadow text-center group">
           <div class="text-4xl mb-2">📚</div>
           <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Learn</div>
@@ -257,6 +257,16 @@ function selectTheme(theme: any) {
           <div class="text-4xl mb-2">🧠</div>
           <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Quiz</div>
           <div class="text-sm text-slate-500 dark:text-slate-400">Test your knowledge</div>
+        </router-link>
+        <router-link to="/spelling" class="card hover:shadow-md transition-shadow text-center group">
+          <div class="text-4xl mb-2">✍️</div>
+          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Spelling</div>
+          <div class="text-sm text-slate-500 dark:text-slate-400">Type the word</div>
+        </router-link>
+        <router-link to="/fill-blank" class="card hover:shadow-md transition-shadow text-center group">
+          <div class="text-4xl mb-2">📝</div>
+          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Fill Blanks</div>
+          <div class="text-sm text-slate-500 dark:text-slate-400">Context practice</div>
         </router-link>
         <router-link to="/browse" class="card hover:shadow-md transition-shadow text-center group">
           <div class="text-4xl mb-2">📖</div>
