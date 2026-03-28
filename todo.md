@@ -4,7 +4,6 @@
 
 ## Pending
 
-- [ ] **#183** Word detail page at /words/:id with full info, examples, progress ##feature ##frontend ##backend
 - [ ] **#184** Improve flashcard design with phonetic, examples, and richer content ##polish ##frontend
 
 ## Completed
@@ -58,6 +57,7 @@
 - [x] **#180** Add Vue page transition animations ##polish ##frontend
 - [x] **#181** **[high]** Toast notification system for user feedback ##feature ##frontend ##backend
 - [x] **#182** Search bar in browse page with instant filtering ##feature ##frontend
+- [x] **#183** Word detail page at /words/:id with full info, examples, progress ##feature ##frontend ##backend
 
 <!-- Raw Data -->
 ```json
@@ -729,7 +729,7 @@
     {
       "id": 183,
       "text": "Word detail page at /words/:id with full info, examples, progress",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "#feature",
@@ -737,7 +737,8 @@
         "#backend"
       ],
       "createdAt": 1774692587413,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774693259570
     },
     {
       "id": 184,
