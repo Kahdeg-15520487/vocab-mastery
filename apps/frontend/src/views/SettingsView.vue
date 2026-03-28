@@ -221,7 +221,7 @@ async function handleImport(event: Event) {
       </p>
       
       <form @submit.prevent="handleSaveGoals" class="space-y-4">
-        <div v-if="goalsError" class="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+        <div v-if="goalsError" class="p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg text-sm">
           {{ goalsError }}
         </div>
         <div class="grid grid-cols-2 gap-4">
@@ -271,7 +271,7 @@ async function handleImport(event: Event) {
       <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Change Password</h2>
       
       <form @submit.prevent="handleChangePassword" class="space-y-4">
-        <div v-if="passwordError" class="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+        <div v-if="passwordError" class="p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg text-sm">
           {{ passwordError }}
         </div>
         
@@ -332,7 +332,7 @@ async function handleImport(event: Event) {
         Export your progress, favorites, and settings as a JSON file. You can import this later to restore your data.
       </p>
       
-      <div v-if="backupError" class="p-3 bg-red-50 text-red-700 rounded-lg text-sm mb-4">
+      <div v-if="backupError" class="p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg text-sm mb-4">
         {{ backupError }}
       </div>
       <div class="flex gap-3 flex-wrap">
@@ -356,32 +356,32 @@ async function handleImport(event: Event) {
     </div>
 
     <!-- Danger Zone -->
-    <div class="card border-red-200 bg-red-50">
-      <h2 class="text-lg font-semibold text-red-900 mb-4">Danger Zone</h2>
+    <div class="card border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-900/20">
+      <h2 class="text-lg font-semibold text-red-900 dark:text-red-400 mb-4">Danger Zone</h2>
       
       <div v-if="!showDeleteConfirm">
-        <p class="text-red-700 text-sm mb-4">
+        <p class="text-red-700 dark:text-red-400 text-sm mb-4">
           Once you delete your account, there is no going back. Please be certain.
         </p>
         <button
           @click="showDeleteConfirm = true"
-          class="btn bg-red-600 hover:bg-red-700 text-white"
+          class="btn bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white"
         >
           Delete Account
         </button>
       </div>
 
       <div v-else class="space-y-4">
-        <p class="text-red-700 text-sm font-medium">
+        <p class="text-red-700 dark:text-red-400 text-sm font-medium">
           Are you absolutely sure? Enter your password to confirm.
         </p>
 
-        <div v-if="deleteError" class="p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+        <div v-if="deleteError" class="p-3 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg text-sm">
           {{ deleteError }}
         </div>
 
         <div>
-          <label for="deletePassword" class="block text-sm font-medium text-red-700 mb-1">
+          <label for="deletePassword" class="block text-sm font-medium text-red-700 dark:text-red-400 mb-1">
             Password
           </label>
           <input
@@ -397,7 +397,7 @@ async function handleImport(event: Event) {
           <button
             @click="handleDeleteAccount"
             :disabled="deleteLoading"
-            class="btn bg-red-600 hover:bg-red-700 text-white"
+            class="btn bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white"
           >
             <span v-if="deleteLoading">Deleting...</span>
             <span v-else>Yes, Delete My Account</span>

@@ -206,7 +206,7 @@ onMounted(fetchUsers)
               </th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-slate-200">
+          <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
             <tr v-for="user in users" :key="user.id" class="hover:bg-slate-50 dark:hover:bg-slate-700 dark:bg-slate-900">
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
@@ -255,7 +255,7 @@ onMounted(fetchUsers)
       </div>
 
       <!-- Pagination -->
-      <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-slate-200 dark:border-slate-700 sm:px-6">
+      <div class="bg-white dark:bg-slate-800 px-4 py-3 flex items-center justify-between border-t border-slate-200 dark:border-slate-700 sm:px-6">
         <div class="text-sm text-slate-700 dark:text-slate-300">
           Showing {{ users.length }} of {{ total }} users
         </div>

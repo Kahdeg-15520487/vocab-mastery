@@ -202,8 +202,8 @@ const visiblePages = computed(() => {
     </div>
 
     <!-- Error State -->
-    <div v-if="wordsStore.error" class="card bg-red-50 border border-red-200 mb-6">
-      <p class="text-red-700">Error loading words: {{ wordsStore.error }}</p>
+    <div v-if="wordsStore.error" class="card bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 mb-6">
+      <p class="text-red-700 dark:text-red-400">Error loading words: {{ wordsStore.error }}</p>
     </div>
 
     <!-- Word List -->
