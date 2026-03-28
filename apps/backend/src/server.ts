@@ -51,6 +51,43 @@ async function start() {
   // Health check (public)
   app.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }));
 
+  // Global error handler
+  app.setErrorHandler((error, _request, reply) => {
+    // Log the error for debugging
+    app.log.error(error);
+
+    // Prisma known errors
+    if (error.constructor.name === 'PrismaClientKnownRequestError') {
+      const prismaError = error as any;
+      switch (prismaError.code) {
+        case 'P2002': // Unique constraint violation
+          return reply.status(409).send({ error: 'A record with this data already exists' });
+        case 'P2025': // Record not found
+          return reply.status(404).send({ error: 'Record not found' });
+        case 'P2003': // Foreign key constraint
+          return reply.status(400).send({ error: 'Related record not found' });
+      }
+    }
+
+    // Validation errors from Fastify
+    if (error.validation) {
+      return reply.status(400).send({ error: 'Validation error', details: error.validation });
+    }
+
+    // Rate limit errors
+    if (error.statusCode === 429) {
+      return reply.status(429).send({ error: 'Too many requests. Please try again later.' });
+    }
+
+    // Default error response
+    const statusCode = error.statusCode || 500;
+    const message = statusCode === 500 && isProduction
+      ? 'Internal server error'
+      : error.message || 'Internal server error';
+
+    reply.status(statusCode).send({ error: message });
+  });
+
   // API routes
   app.register(async (instance) => {
     // Auth routes (public)
