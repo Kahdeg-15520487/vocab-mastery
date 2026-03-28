@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useListsStore, type ListDetail } from '@/stores/lists'
 import { wordsApi } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
-import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -103,7 +103,10 @@ function studyList() {
     </div>
 
     <!-- Loading -->
-    <LoadingSpinner v-if="listsStore.loading && !list" />
+    <div v-if="listsStore.loading && !list" class="space-y-6">
+      <SkeletonLoader variant="card" height="140px" />
+      <SkeletonLoader variant="card" height="200px" />
+    </div>
 
     <!-- List Content -->
     <div v-else-if="list">
