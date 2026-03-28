@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useProgressStore } from '@/stores/progress'
 import { useWordsStore } from '@/stores/words'
+import { request } from '@/lib/api'
 import StreakDisplay from '@/components/progress/StreakDisplay.vue'
 import DailyGoals from '@/components/progress/DailyGoals.vue'
 import LevelProgress from '@/components/progress/LevelProgress.vue'
@@ -12,8 +13,6 @@ import ThemeCard from '@/components/learning/ThemeCard.vue'
 import WordOfDay from '@/components/learning/WordOfDay.vue'
 
 const router = useRouter()
-import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
-import { request } from '@/lib/api'
 
 const authStore = useAuthStore()
 const progressStore = useProgressStore()
@@ -56,7 +55,61 @@ function selectTheme(theme: any) {
 <template>
   <div class="space-y-6">
     <!-- Loading State -->
-    <LoadingSpinner v-if="loading && !dashboard" text="Loading dashboard..." />
+    <div v-if="loading && !dashboard" class="space-y-6">
+      <!-- Skeleton Welcome -->
+      <div class="text-center animate-pulse">
+        <div class="h-8 bg-slate-200 dark:bg-slate-700 rounded w-64 mx-auto mb-2"></div>
+        <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-48 mx-auto"></div>
+      </div>
+
+      <!-- Skeleton Dashboard Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="space-y-6">
+          <!-- Skeleton Streak -->
+          <div class="card animate-pulse">
+            <div class="h-5 bg-slate-200 dark:bg-slate-700 rounded w-24 mb-4"></div>
+            <div class="flex items-center justify-around">
+              <div class="text-center">
+                <div class="h-10 bg-slate-200 dark:bg-slate-700 rounded w-16 mb-1"></div>
+                <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-20"></div>
+              </div>
+              <div class="text-center">
+                <div class="h-10 bg-slate-200 dark:bg-slate-700 rounded w-16 mb-1"></div>
+                <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-20"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Skeleton Goals -->
+          <div class="card animate-pulse">
+            <div class="h-5 bg-slate-200 dark:bg-slate-700 rounded w-28 mb-4"></div>
+            <div class="space-y-3">
+              <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full"></div>
+              <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Skeleton Level Progress -->
+        <div class="lg:col-span-2 card animate-pulse">
+          <div class="h-5 bg-slate-200 dark:bg-slate-700 rounded w-32 mb-4"></div>
+          <div class="space-y-3">
+            <div v-for="i in 4" :key="i" class="flex items-center gap-3">
+              <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded-full w-8"></div>
+              <div class="flex-1 h-4 bg-slate-200 dark:bg-slate-700 rounded"></div>
+              <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-12"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skeleton Quick Actions -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div v-for="i in 4" :key="i" class="card animate-pulse text-center py-6">
+          <div class="h-10 bg-slate-200 dark:bg-slate-700 rounded w-10 mx-auto mb-3"></div>
+          <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-16 mx-auto mb-1"></div>
+          <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-24 mx-auto"></div>
+        </div>
+      </div>
+    </div>
 
     <template v-else>
       <!-- Welcome & Quick Stats -->

@@ -60,9 +60,9 @@ function formatDate(dateStr: string) {
               <span class="text-slate-600 dark:text-slate-400">Mastered</span>
               <span class="font-medium text-slate-900 dark:text-white">{{ stats.words.status.mastered }}</span>
             </div>
-            <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+            <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
               <div 
-                class="h-full bg-secondary-500"
+                class="h-full bg-green-500"
                 :style="{ width: `${stats.words.total > 0 ? (stats.words.status.mastered / stats.words.total) * 100 : 0}%` }"
               />
             </div>
@@ -72,7 +72,7 @@ function formatDate(dateStr: string) {
               <span class="text-slate-600 dark:text-slate-400">Reviewing</span>
               <span class="font-medium text-slate-900 dark:text-white">{{ stats.words.status.reviewing }}</span>
             </div>
-            <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+            <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
               <div 
                 class="h-full bg-primary-500"
                 :style="{ width: `${stats.words.total > 0 ? (stats.words.status.reviewing / stats.words.total) * 100 : 0}%` }"
@@ -84,9 +84,9 @@ function formatDate(dateStr: string) {
               <span class="text-slate-600 dark:text-slate-400">Learning</span>
               <span class="font-medium text-slate-900 dark:text-white">{{ stats.words.status.learning }}</span>
             </div>
-            <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+            <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
               <div 
-                class="h-full bg-warning-500"
+                class="h-full bg-yellow-500"
                 :style="{ width: `${stats.words.total > 0 ? (stats.words.status.learning / stats.words.total) * 100 : 0}%` }"
               />
             </div>
@@ -96,9 +96,9 @@ function formatDate(dateStr: string) {
               <span class="text-slate-600 dark:text-slate-400">New</span>
               <span class="font-medium text-slate-900 dark:text-white">{{ stats.words.status.new }}</span>
             </div>
-            <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+            <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
               <div 
-                class="h-full bg-slate-400"
+                class="h-full bg-slate-400 dark:bg-slate-500"
                 :style="{ width: `${stats.words.total > 0 ? (stats.words.status.new / stats.words.total) * 100 : 0}%` }"
               />
             </div>
@@ -136,7 +136,7 @@ function formatDate(dateStr: string) {
             class="flex items-center gap-3"
           >
             <span class="w-8 text-sm font-medium text-slate-600 dark:text-slate-400">{{ level }}</span>
-            <div class="flex-1 h-4 bg-slate-200 rounded-full overflow-hidden">
+            <div class="flex-1 h-4 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
               <div 
                 class="h-full bg-primary-500"
                 :style="{ width: `${stats.words.total > 0 ? (count / stats.words.total) * 100 : 0}%` }"
@@ -157,9 +157,9 @@ function formatDate(dateStr: string) {
               <span class="text-slate-600 dark:text-slate-400">Level {{ stats.user.level }}</span>
               <span class="text-slate-600 dark:text-slate-400">{{ stats.user.totalXP }} XP</span>
             </div>
-            <div class="h-3 bg-slate-200 rounded-full overflow-hidden">
+            <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
               <div 
-                class="h-full bg-warning-500"
+                class="h-full bg-yellow-500"
                 :style="{ width: `${(stats.user.totalXP % 100)}%` }"
               />
             </div>
@@ -172,6 +172,6 @@ function formatDate(dateStr: string) {
     </div>
 
     <!-- Loading -->
-    <LoadingSpinner emoji="📊" text="Loading statistics..." />
+    <LoadingSpinner v-if="!stats" emoji="📊" text="Loading statistics..." />
   </div>
 </template>

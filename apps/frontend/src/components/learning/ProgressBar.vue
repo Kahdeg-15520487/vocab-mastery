@@ -19,7 +19,7 @@ const percent = computed(() => {
       <span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ label }}</span>
       <span class="text-sm text-slate-500 dark:text-slate-400">{{ current }}/{{ total }}</span>
     </div>
-    <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+    <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
       <div 
         class="h-full bg-primary-500 transition-all duration-300 ease-out"
         :style="{ width: `${percent}%` }"

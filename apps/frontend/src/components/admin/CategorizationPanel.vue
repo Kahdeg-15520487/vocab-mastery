@@ -241,7 +241,7 @@ function getThemeIcon(slug: string): string {
           <span>{{ stats.categorizedWords.toLocaleString() }} / {{ stats.totalWords.toLocaleString() }} words</span>
           <span>{{ progress }}%</span>
         </div>
-        <div class="h-3 bg-slate-200 rounded-full overflow-hidden">
+        <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
           <div 
             class="h-full bg-primary-500 transition-all duration-300"
             :style="{ width: `${progress}%` }"

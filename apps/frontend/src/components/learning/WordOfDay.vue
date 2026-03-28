@@ -25,9 +25,9 @@ function revealDefinition() {
 
 <template>
   <div v-if="loading" class="card animate-pulse">
-    <div class="h-6 bg-slate-200 rounded w-1/3 mb-4"></div>
-    <div class="h-4 bg-slate-200 rounded w-2/3 mb-2"></div>
-    <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+    <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded w-1/3 mb-4"></div>
+    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-2/3 mb-2"></div>
+    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2"></div>
   </div>
 
   <div v-else-if="wordOfDay" class="card bg-gradient-to-br from-primary-50 to-secondary-50 border-primary-200">

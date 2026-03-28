@@ -563,23 +563,23 @@ async function testNewProvider() {
       <div class="text-sm text-slate-600 dark:text-slate-400 space-y-2">
         <div class="flex justify-between items-center py-1 border-b border-slate-200 dark:border-slate-700">
           <span class="font-medium">OpenAI</span>
-          <code class="text-xs bg-slate-200 px-2 py-0.5 rounded">https://api.openai.com/v1</code>
+          <code class="text-xs bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded">https://api.openai.com/v1</code>
         </div>
         <div class="flex justify-between items-center py-1 border-b border-slate-200 dark:border-slate-700">
           <span class="font-medium">Anthropic</span>
-          <code class="text-xs bg-slate-200 px-2 py-0.5 rounded">https://api.anthropic.com/v1</code>
+          <code class="text-xs bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded">https://api.anthropic.com/v1</code>
         </div>
         <div class="flex justify-between items-center py-1 border-b border-slate-200 dark:border-slate-700">
           <span class="font-medium">Groq</span>
-          <code class="text-xs bg-slate-200 px-2 py-0.5 rounded">https://api.groq.com/openai/v1</code>
+          <code class="text-xs bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded">https://api.groq.com/openai/v1</code>
         </div>
         <div class="flex justify-between items-center py-1 border-b border-slate-200 dark:border-slate-700">
           <span class="font-medium">OpenRouter</span>
-          <code class="text-xs bg-slate-200 px-2 py-0.5 rounded">https://openrouter.ai/api/v1</code>
+          <code class="text-xs bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded">https://openrouter.ai/api/v1</code>
         </div>
         <div class="flex justify-between items-center py-1">
           <span class="font-medium">Local (LM Studio)</span>
-          <code class="text-xs bg-slate-200 px-2 py-0.5 rounded">http://localhost:1234/v1</code>
+          <code class="text-xs bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded">http://localhost:1234/v1</code>
         </div>
       </div>
     </div>

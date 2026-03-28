@@ -2,7 +2,6 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import { useWordsStore } from '@/stores/words'
 import { useListsStore } from '@/stores/lists'
-import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import { useSpeech } from '@/composables/useSpeech'
 import LevelBadge from '@/components/learning/LevelBadge.vue'
 import type { Word } from '@/types'
@@ -106,6 +105,34 @@ function closeWordDetail() {
   addedToList.value = null
 }
 
+// Keyboard navigation in modal
+function handleModalKeydown(e: KeyboardEvent) {
+  if (!selectedWord.value) return
+  if (e.key === 'Escape') {
+    closeWordDetail()
+    return
+  }
+  // Arrow keys navigate between words
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    e.preventDefault()
+    const idx = wordsStore.words.findIndex(w => w.id === selectedWord.value!.id)
+    if (idx >= 0 && idx < wordsStore.words.length - 1) {
+      selectedWord.value = wordsStore.words[idx + 1]
+      showListPicker.value = false
+      addedToList.value = null
+    }
+  }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    e.preventDefault()
+    const idx = wordsStore.words.findIndex(w => w.id === selectedWord.value!.id)
+    if (idx > 0) {
+      selectedWord.value = wordsStore.words[idx - 1]
+      showListPicker.value = false
+      addedToList.value = null
+    }
+  }
+}
+
 async function addWordToList(listId: string) {
   if (!selectedWord.value) return
   addingToList.value = true
@@ -195,6 +222,11 @@ const visiblePages = computed(() => {
               <span v-if="word.oxfordList === '3000'" class="badge badge-secondary">Oxford 3000</span>
               <span v-else class="badge badge-primary">Oxford 5000</span>
             </div>
+            <div class="flex items-center gap-2 mb-1">
+              <span v-if="word.partOfSpeech?.length" class="text-xs text-slate-400 dark:text-slate-500">
+                {{ word.partOfSpeech.join(', ') }}
+              </span>
+            </div>
             <p class="text-slate-500 dark:text-slate-400 text-sm mb-2 flex items-center gap-2">
               {{ word.phoneticUs }}
               <button
@@ -241,7 +273,27 @@ const visiblePages = computed(() => {
     </div>
 
     <!-- Loading -->
-    <LoadingSpinner v-else emoji="📚" text="Loading words..." />
+    <div v-else class="space-y-3">
+      <div
+        v-for="i in 6"
+        :key="i"
+        class="card animate-pulse"
+      >
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <div class="flex items-center gap-3 mb-2">
+              <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded w-24"></div>
+              <div class="h-5 bg-slate-200 dark:bg-slate-700 rounded-full w-10"></div>
+              <div class="h-5 bg-slate-200 dark:bg-slate-700 rounded-full w-20"></div>
+            </div>
+            <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-2/3 mb-2"></div>
+            <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-full mb-1"></div>
+            <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-4/5"></div>
+          </div>
+          <div class="ml-4 w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+        </div>
+      </div>
+    </div>
 
     <!-- Pagination -->
     <div v-if="totalPages > 1" class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -320,47 +372,54 @@ const visiblePages = computed(() => {
       v-if="selectedWord" 
       class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
       @click.self="closeWordDetail"
+      tabindex="0"
+      @keydown="handleModalKeydown"
     >
       <div class="bg-white dark:bg-slate-800 rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl">
         <!-- Header -->
-        <div class="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 flex items-start justify-between">
-          <div>
-            <div class="flex items-center gap-3 mb-1">
-              <h2 class="text-2xl font-bold text-slate-900 dark:text-white">{{ selectedWord.word }}</h2>
-              <LevelBadge :level="selectedWord.cefrLevel" />
+        <div class="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4">
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="flex items-center gap-3 mb-1">
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white">{{ selectedWord.word }}</h2>
+                <LevelBadge :level="selectedWord.cefrLevel" />
+              </div>
+              <p class="text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                {{ selectedWord.phoneticUs }}
+                <button
+                  @click="speak(selectedWord.word)"
+                  class="text-primary-500 hover:text-primary-700 transition-colors"
+                  title="Pronounce"
+                >
+                  🔊
+                </button>
+              </p>
+              <p v-if="selectedWord.phoneticUk && selectedWord.phoneticUk !== selectedWord.phoneticUs" class="text-slate-400 text-sm">
+                UK: {{ selectedWord.phoneticUk }}
+              </p>
             </div>
-            <p class="text-slate-500 dark:text-slate-400 flex items-center gap-2">
-              {{ selectedWord.phoneticUs }}
+            <div class="flex items-center gap-3">
               <button
-                @click="speak(selectedWord.word)"
-                class="text-primary-500 hover:text-primary-700 transition-colors"
-                title="Pronounce"
+                @click="toggleFavorite(selectedWord)"
+                class="text-2xl transition-transform hover:scale-125"
+                :title="selectedWord.favorited ? 'Remove from favorites' : 'Add to favorites'"
               >
-                🔊
+                {{ selectedWord.favorited ? '❤️' : '🤍' }}
               </button>
-            </p>
-            <p v-if="selectedWord.phoneticUk && selectedWord.phoneticUk !== selectedWord.phoneticUs" class="text-slate-400 text-sm">
-              UK: {{ selectedWord.phoneticUk }}
-            </p>
+              <button @click="closeWordDetail" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-2xl leading-none">
+                ×
+              </button>
+            </div>
           </div>
-          <div class="flex items-center gap-2">
-            <button
-              @click="toggleFavorite(selectedWord)"
-              class="text-2xl transition-transform hover:scale-125"
-              :title="selectedWord.favorited ? 'Remove from favorites' : 'Add to favorites'"
+          <div class="mt-2">
+            <RouterLink
+              :to="`/words/${selectedWord.id}`"
+              class="text-sm text-primary-600 dark:text-primary-400 hover:underline inline-flex items-center gap-1"
             >
-              {{ selectedWord.favorited ? '❤️' : '🤍' }}
-            </button>
-            <button @click="closeWordDetail" class="text-slate-400 hover:text-slate-600 dark:text-slate-400 text-2xl">
-              ×
-            </button>
+              Full Details
+              <span class="text-xs">→</span>
+            </RouterLink>
           </div>
-          <RouterLink
-            :to="`/words/${selectedWord.id}`"
-            class="text-sm text-primary-600 dark:text-primary-400 hover:underline mt-1 inline-block"
-          >
-            Full Details →
-          </RouterLink>
         </div>
 
         <!-- Content -->

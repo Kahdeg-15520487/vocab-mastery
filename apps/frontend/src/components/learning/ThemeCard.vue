@@ -36,7 +36,7 @@ const emit = defineEmits<{
         <span>Progress</span>
         <span>{{ progress }}%</span>
       </div>
-      <div class="h-1.5 bg-slate-200 rounded-full overflow-hidden">
+      <div class="h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
         <div 
           class="h-full bg-secondary-500 transition-all"
           :style="{ width: `${progress}%` }"

@@ -5,6 +5,11 @@
 ## Pending
 
 - [ ] **#185** **[low]** Add skeleton loading states for dashboard and browse pages ##polish ##frontend
+- [ ] **#186** Add skeleton loading states for dashboard and browse pages #polish #frontend
+- [ ] **#187** Fix BrowseView word detail modal — header layout broken (Full Details link overlaps close button) #bug #frontend
+- [ ] **#188** Add part-of-speech tags to BrowseView word cards for better context #feature #frontend
+- [ ] **#189** **[low]** Add keyboard navigation to browse word detail modal (Esc to close, arrow keys to navigate between words) #polish #frontend
+- [ ] **#190** Add responsive design improvements — improve mobile layout for browse cards and dashboard #polish #frontend
 
 ## Completed
 
@@ -765,8 +770,68 @@
       ],
       "createdAt": 1774693455504,
       "archived": false
+    },
+    {
+      "id": 186,
+      "text": "Add skeleton loading states for dashboard and browse pages",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "polish",
+        "frontend"
+      ],
+      "createdAt": 1774719904022,
+      "archived": false
+    },
+    {
+      "id": 187,
+      "text": "Fix BrowseView word detail modal — header layout broken (Full Details link overlaps close button)",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "bug",
+        "frontend"
+      ],
+      "createdAt": 1774719908799,
+      "archived": false
+    },
+    {
+      "id": 188,
+      "text": "Add part-of-speech tags to BrowseView word cards for better context",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "frontend"
+      ],
+      "createdAt": 1774719915714,
+      "archived": false
+    },
+    {
+      "id": 189,
+      "text": "Add keyboard navigation to browse word detail modal (Esc to close, arrow keys to navigate between words)",
+      "done": false,
+      "priority": "low",
+      "tags": [
+        "polish",
+        "frontend"
+      ],
+      "createdAt": 1774719921871,
+      "archived": false
+    },
+    {
+      "id": 190,
+      "text": "Add responsive design improvements — improve mobile layout for browse cards and dashboard",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "polish",
+        "frontend"
+      ],
+      "createdAt": 1774719925561,
+      "archived": false
     }
   ],
-  "nextId": 186
+  "nextId": 191
 }
 ```

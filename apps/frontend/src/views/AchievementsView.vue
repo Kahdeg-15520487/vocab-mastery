@@ -43,7 +43,7 @@ const totalXP = computed(() =>
 
     <!-- Progress bar -->
     <div class="mb-6">
-      <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+      <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
         <div
           class="h-full bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full transition-all duration-500"
           :style="{ width: `${achievements.length ? (unlockedCount / achievements.length * 100) : 0}%` }"
