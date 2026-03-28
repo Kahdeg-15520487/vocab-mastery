@@ -27,6 +27,12 @@ const goalsSaving = ref(false)
 const goalsSuccess = ref('')
 const goalsError = ref('')
 
+// Data backup
+const exporting = ref(false)
+const importing = ref(false)
+const backupError = ref('')
+const backupSuccess = ref('')
+
 onMounted(async () => {
   await loadGoals()
 })
@@ -134,6 +140,61 @@ async function handleDeleteAccount() {
     deleteError.value = e.message || 'Failed to delete account'
   } finally {
     deleteLoading.value = false
+  }
+}
+
+async function handleExport() {
+  exporting.value = true
+  backupError.value = ''
+  backupSuccess.value = ''
+
+  try {
+    const data = await request<any>('/progress/export')
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `vocab-mastery-backup-${new Date().toISOString().slice(0, 10)}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+    backupSuccess.value = 'Data exported successfully!'
+    setTimeout(() => { backupSuccess.value = '' }, 3000)
+  } catch (e: any) {
+    backupError.value = e.message || 'Failed to export data'
+  } finally {
+    exporting.value = false
+  }
+}
+
+async function handleImport(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  importing.value = true
+  backupError.value = ''
+  backupSuccess.value = ''
+
+  try {
+    const text = await file.text()
+    const data = JSON.parse(text)
+
+    if (!data.version && !data.progress && !data.favorites) {
+      throw new Error('Invalid backup file format')
+    }
+
+    const result = await request<{ success: boolean; imported: number }>('/progress/import', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+
+    backupSuccess.value = `Imported ${result.imported} items successfully!`
+    setTimeout(() => { backupSuccess.value = '' }, 5000)
+  } catch (e: any) {
+    backupError.value = e.message || 'Failed to import data'
+  } finally {
+    importing.value = false
+    input.value = '' // Reset file input
   }
 }
 </script>
@@ -279,6 +340,40 @@ async function handleDeleteAccount() {
           <span v-else>Change Password</span>
         </button>
       </form>
+    </div>
+
+    <!-- Data Backup -->
+    <div class="card mb-6">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">💾 Data Backup</h2>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+        Export your progress, favorites, and settings as a JSON file. You can import this later to restore your data.
+      </p>
+      
+      <div v-if="backupError" class="p-3 bg-red-50 text-red-700 rounded-lg text-sm mb-4">
+        {{ backupError }}
+      </div>
+      <div v-if="backupSuccess" class="p-3 bg-green-50 text-green-700 rounded-lg text-sm mb-4">
+        {{ backupSuccess }}
+      </div>
+
+      <div class="flex gap-3 flex-wrap">
+        <button @click="handleExport" :disabled="exporting" class="btn btn-primary">
+          <span v-if="exporting">Exporting...</span>
+          <span v-else>📥 Export Data</span>
+        </button>
+
+        <label class="btn btn-secondary cursor-pointer" :class="{ 'opacity-50': importing }">
+          <span v-if="importing">Importing...</span>
+          <span v-else>📤 Import Data</span>
+          <input
+            type="file"
+            accept=".json"
+            class="hidden"
+            @change="handleImport"
+            :disabled="importing"
+          />
+        </label>
+      </div>
     </div>
 
     <!-- Danger Zone -->

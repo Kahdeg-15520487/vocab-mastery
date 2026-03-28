@@ -629,6 +629,176 @@ export async function progressRoutes(app: FastifyInstance) {
 
     return { success: true, settings: user };
   });
+
+  // ============================================
+  // EXPORT USER DATA
+  // ============================================
+  app.get('/progress/export', { preHandler: authenticate }, async (request, reply) => {
+    const userId = request.user!.userId;
+
+    const [progress, favorites, streak, goals, sessions] = await Promise.all([
+      prisma.wordProgress.findMany({
+        where: { userId },
+        select: {
+          wordId: true,
+          status: true,
+          interval: true,
+          easeFactor: true,
+          repetitions: true,
+          nextReview: true,
+          lastReview: true,
+          totalReviews: true,
+          correctReviews: true,
+        },
+      }),
+      prisma.wordFavorite.findMany({
+        where: { userId },
+        select: { wordId: true, createdAt: true },
+      }),
+      prisma.userStreak.findUnique({
+        where: { userId },
+        select: {
+          currentStreak: true,
+          longestStreak: true,
+          lastActivityDate: true,
+        },
+      }),
+      prisma.dailyGoal.findMany({
+        where: { userId },
+        select: {
+          date: true,
+          wordsLearned: true,
+          wordsReviewed: true,
+          completed: true,
+        },
+        orderBy: { date: 'desc' },
+        take: 90,
+      }),
+      prisma.learningSession.findMany({
+        where: { userId },
+        select: {
+          type: true,
+          startedAt: true,
+          completedAt: true,
+          totalCorrect: true,
+          totalIncorrect: true,
+        },
+        orderBy: { startedAt: 'desc' },
+        take: 100,
+      }),
+    ]);
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { dailyLearnGoal: true, dailyReviewGoal: true },
+    });
+
+    reply.header('Content-Disposition', 'attachment; filename=vocab-mastery-backup.json');
+    return {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      settings: {
+        dailyLearnGoal: user?.dailyLearnGoal || 10,
+        dailyReviewGoal: user?.dailyReviewGoal || 20,
+      },
+      progress,
+      favorites: favorites.map(f => f.wordId),
+      streak,
+      goals,
+      sessions,
+    };
+  });
+
+  // ============================================
+  // IMPORT USER DATA
+  // ============================================
+  app.post('/progress/import', { preHandler: authenticate }, async (request, reply) => {
+    const userId = request.user!.userId;
+    const body = request.body as {
+      version?: number;
+      settings?: { dailyLearnGoal?: number; dailyReviewGoal?: number };
+      progress?: Array<{
+        wordId: string;
+        status: string;
+        interval: number;
+        easeFactor: number;
+        repetitions: number;
+        nextReview: string;
+        totalReviews: number;
+        correctReviews: number;
+      }>;
+      favorites?: string[];
+    };
+
+    if (!body || (!body.progress && !body.favorites && !body.settings)) {
+      return reply.status(400).send({ error: 'No data to import' });
+    }
+
+    let imported = 0;
+
+    // Import settings
+    if (body.settings) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          ...(body.settings.dailyLearnGoal && { dailyLearnGoal: body.settings.dailyLearnGoal }),
+          ...(body.settings.dailyReviewGoal && { dailyReviewGoal: body.settings.dailyReviewGoal }),
+        },
+      });
+    }
+
+    // Import progress (upsert)
+    if (body.progress?.length) {
+      for (const p of body.progress) {
+        try {
+          await prisma.wordProgress.upsert({
+            where: { userId_wordId: { userId, wordId: p.wordId } },
+            update: {
+              status: p.status,
+              interval: p.interval,
+              easeFactor: p.easeFactor,
+              repetitions: p.repetitions,
+              nextReview: new Date(p.nextReview),
+              totalReviews: p.totalReviews,
+              correctReviews: p.correctReviews,
+            },
+            create: {
+              userId,
+              wordId: p.wordId,
+              status: p.status,
+              interval: p.interval,
+              easeFactor: p.easeFactor,
+              repetitions: p.repetitions,
+              nextReview: new Date(p.nextReview),
+              totalReviews: p.totalReviews,
+              correctReviews: p.correctReviews,
+            },
+          });
+          imported++;
+        } catch {
+          // Skip invalid word IDs
+        }
+      }
+    }
+
+    // Import favorites
+    if (body.favorites?.length) {
+      for (const wordId of body.favorites) {
+        try {
+          await prisma.wordFavorite.upsert({
+            where: { userId_wordId: { userId, wordId } },
+            update: {},
+            create: { userId, wordId },
+          });
+          imported++;
+        } catch {
+          // Skip invalid word IDs
+        }
+      }
+    }
+
+    return { success: true, imported };
+  });
 }
 
 // Helper to update daily progress
