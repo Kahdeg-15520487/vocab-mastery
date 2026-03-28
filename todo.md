@@ -4,7 +4,6 @@
 
 ## Pending
 
-- [ ] **#170** Add Quiz mode — multiple choice vocabulary test #feature #frontend #backend
 - [ ] **#171** Add forgot password flow (requires email service) #feature #frontend
 
 ## Completed
@@ -46,6 +45,7 @@
 - [x] **#167** **[high]** 📋 PHASE 3: Code Quality & Cleanup (🟠 #11-#15, 🔵 #25-#27, #31) #PLAN
 - [x] **#168** 📋 PHASE 4: Frontend Fixes (🟡 #16, #17, #23, #32) #PLAN
 - [x] **#169** **[low]** 📋 PHASE 5: Hardening & Polish (🟡 #18-#22, #24, 🔵 #28-#30) #PLAN
+- [x] **#170** Add Quiz mode — multiple choice vocabulary test #feature #frontend #backend
 
 <!-- Raw Data -->
 ```json
@@ -556,7 +556,7 @@
     {
       "id": 170,
       "text": "Add Quiz mode — multiple choice vocabulary test",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
@@ -564,7 +564,8 @@
         "backend"
       ],
       "createdAt": 1774687868790,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774688750893
     },
     {
       "id": 171,
