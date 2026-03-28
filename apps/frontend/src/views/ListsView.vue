@@ -75,9 +75,13 @@ onMounted(() => {
 
       <!-- Empty State -->
       <div v-if="!listsStore.loading && listsStore.lists.length === 0" class="text-center py-12">
-        <p class="text-slate-500 dark:text-slate-400">No lists yet. Create your first list to get started!</p>
+        <div class="text-6xl mb-4">📋</div>
+        <h2 class="text-xl font-semibold text-slate-900 dark:text-white mb-2">No lists yet</h2>
+        <p class="text-slate-500 dark:text-slate-400 mb-6">
+          Create custom word lists to organize and study specific vocabulary groups.
+        </p>
         <button @click="showCreateModal = true" class="btn btn-primary">
-          Create List
+          + Create Your First List
         </button>
       </div>
     </div>

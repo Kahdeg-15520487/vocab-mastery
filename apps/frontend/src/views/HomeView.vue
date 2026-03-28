@@ -219,6 +219,47 @@ function selectTheme(theme: any) {
               </div>
             </div>
           </div>
+
+          <!-- Overall Progress -->
+          <div v-if="dashboard" class="card">
+            <h3 class="font-semibold text-slate-900 dark:text-white mb-3">Overall Progress</h3>
+            <div class="space-y-3">
+              <div>
+                <div class="flex justify-between text-sm mb-1">
+                  <span class="text-slate-600 dark:text-slate-400">Words Learned</span>
+                  <span class="font-medium text-slate-900 dark:text-white">
+                    {{ dashboard.stats.totalWordsLearned }} / {{ dashboard.stats.totalWordsInDb || '?' }}
+                  </span>
+                </div>
+                <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5">
+                  <div
+                    class="bg-green-500 h-2.5 rounded-full transition-all duration-500"
+                    :style="{ width: (dashboard.stats.totalWordsInDb ? Math.round((dashboard.stats.totalWordsLearned / dashboard.stats.totalWordsInDb) * 100) : 0) + '%' }"
+                  ></div>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">
+                  {{ dashboard.stats.totalWordsInDb ? Math.round((dashboard.stats.totalWordsLearned / dashboard.stats.totalWordsInDb) * 100) : 0 }}% of all words
+                </p>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm mb-1">
+                  <span class="text-slate-600 dark:text-slate-400">Mastered</span>
+                  <span class="font-medium text-slate-900 dark:text-white">
+                    {{ dashboard.stats.totalWordsMastered }} / {{ dashboard.stats.totalWordsInDb || '?' }}
+                  </span>
+                </div>
+                <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5">
+                  <div
+                    class="bg-primary-500 h-2.5 rounded-full transition-all duration-500"
+                    :style="{ width: (dashboard.stats.totalWordsInDb ? Math.round((dashboard.stats.totalWordsMastered / dashboard.stats.totalWordsInDb) * 100) : 0) + '%' }"
+                  ></div>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">
+                  {{ dashboard.stats.totalWordsInDb ? Math.round((dashboard.stats.totalWordsMastered / dashboard.stats.totalWordsInDb) * 100) : 0 }}% mastered
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Middle Column: CEFR Progress -->

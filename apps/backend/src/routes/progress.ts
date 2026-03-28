@@ -123,6 +123,9 @@ export async function progressRoutes(app: FastifyInstance) {
       include: { word: { select: { word: true, cefrLevel: true } } },
     });
 
+    // Total words in database for overall progress
+    const totalWordsInDb = await prisma.word.count();
+
     return {
       streak: {
         current: streak.currentStreak,
@@ -152,6 +155,7 @@ export async function progressRoutes(app: FastifyInstance) {
         wordsDueForReview,
         totalXp: userXp?.totalXp ?? 0,
         level: userXp?.level ?? 1,
+        totalWordsInDb,
       },
       recentAchievements: recentAchievements.slice(0, 5),
       recentProgress: recentProgress.map(wp => ({

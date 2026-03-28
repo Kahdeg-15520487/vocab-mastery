@@ -79,6 +79,11 @@
 - [x] **#203** Add submit button to Spelling view for same reason
 - [x] **#204** Review dashboard for stale data - does it refresh when navigating back?
 - [x] **#205** **[low]** Check quiz completion flow for unnecessary API blocking
+- [x] **#206** Review StatsView for missing data / improvement opportunities
+- [x] **#207** Review all admin panel components for issues
+- [x] **#208** Add empty state illustrations / helpful messages when lists/favorites/history are empty
+- [x] **#209** Add progress percentage to LearnView showing overall learning completion
+- [x] **#210** **[low]** Add breadcrumb navigation for nested pages (word detail, list view, etc.)
 
 <!-- Raw Data -->
 ```json
@@ -1028,8 +1033,58 @@
       "createdAt": 1774728011557,
       "archived": false,
       "completedAt": 1774728351947
+    },
+    {
+      "id": 206,
+      "text": "Review StatsView for missing data / improvement opportunities",
+      "done": true,
+      "priority": "medium",
+      "tags": [],
+      "createdAt": 1774728404903,
+      "archived": false,
+      "completedAt": 1774728415150
+    },
+    {
+      "id": 207,
+      "text": "Review all admin panel components for issues",
+      "done": true,
+      "priority": "medium",
+      "tags": [],
+      "createdAt": 1774728430415,
+      "archived": false,
+      "completedAt": 1774728698537
+    },
+    {
+      "id": 208,
+      "text": "Add empty state illustrations / helpful messages when lists/favorites/history are empty",
+      "done": true,
+      "priority": "medium",
+      "tags": [],
+      "createdAt": 1774728469621,
+      "archived": false,
+      "completedAt": 1774728504792
+    },
+    {
+      "id": 209,
+      "text": "Add progress percentage to LearnView showing overall learning completion",
+      "done": true,
+      "priority": "medium",
+      "tags": [],
+      "createdAt": 1774728472847,
+      "archived": false,
+      "completedAt": 1774728648519
+    },
+    {
+      "id": 210,
+      "text": "Add breadcrumb navigation for nested pages (word detail, list view, etc.)",
+      "done": true,
+      "priority": "low",
+      "tags": [],
+      "createdAt": 1774728477185,
+      "archived": false,
+      "completedAt": 1774728695181
     }
   ],
-  "nextId": 206
+  "nextId": 211
 }
 ```
