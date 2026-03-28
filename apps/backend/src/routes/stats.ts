@@ -7,28 +7,36 @@ export async function statsRoutes(app: FastifyInstance) {
   app.addHook('preHandler', authenticate);
 
   // Get overall statistics
-  app.get('/stats', async (_request, _reply) => {
+  app.get('/stats', async (request, _reply) => {
+    const userId = request.user!.userId;
+
     const [
-      userStats,
+      streak,
+      totalWordsLearned,
+      totalWordsMastered,
       totalWords,
-      totalProgress,
       statusCounts,
       levelDistribution,
+      totalXP,
       recentSessions,
     ] = await Promise.all([
-      prisma.userStats.findFirst(),
+      prisma.userStreak.findUnique({ where: { userId } }),
+      prisma.wordProgress.count({ where: { userId, status: { not: 'new' } } }),
+      prisma.wordProgress.count({ where: { userId, status: 'mastered' } }),
       prisma.word.count(),
-      prisma.wordProgress.count(),
       prisma.wordProgress.groupBy({
         by: ['status'],
+        where: { userId },
         _count: true,
       }),
       prisma.word.groupBy({
         by: ['cefrLevel'],
         _count: true,
       }),
+      prisma.userAchievement.count({ where: { userId } }),
       prisma.learningSession.findMany({
         where: {
+          userId,
           completedAt: { not: null },
         },
         orderBy: { completedAt: 'desc' },
@@ -60,17 +68,18 @@ export async function statsRoutes(app: FastifyInstance) {
     });
 
     return {
-      user: userStats || {
-        totalWords: 0,
-        masteredWords: 0,
-        currentStreak: 0,
-        longestStreak: 0,
-        totalXP: 0,
-        level: 1,
+      user: {
+        totalWords: totalWordsLearned,
+        masteredWords: totalWordsMastered,
+        currentStreak: streak?.currentStreak ?? 0,
+        longestStreak: streak?.longestStreak ?? 0,
+        lastActiveDate: streak?.lastActivityDate?.toISOString() ?? null,
+        totalXP: 0, // XP not tracked separately yet
+        level: 1, // Level not tracked separately yet
       },
       words: {
         total: totalWords,
-        learned: totalProgress,
+        learned: totalWordsLearned,
         status: statusMap,
         byLevel: levelMap,
       },
@@ -87,6 +96,7 @@ export async function statsRoutes(app: FastifyInstance) {
 
   // Get daily stats
   app.get('/stats/daily', async (request, _reply) => {
+    const userId = request.user!.userId;
     const { days = 7 } = request.query as { days?: number };
 
     const startDate = new Date();
@@ -95,6 +105,7 @@ export async function statsRoutes(app: FastifyInstance) {
 
     const sessions = await prisma.learningSession.findMany({
       where: {
+        userId,
         completedAt: {
           gte: startDate,
         },
@@ -135,6 +146,7 @@ export async function statsRoutes(app: FastifyInstance) {
 
   // Get weekly stats
   app.get('/stats/weekly', async (request, _reply) => {
+    const userId = request.user!.userId;
     const { weeks = 4 } = request.query as { weeks?: number };
 
     const startDate = new Date();
@@ -143,6 +155,7 @@ export async function statsRoutes(app: FastifyInstance) {
 
     const sessions = await prisma.learningSession.findMany({
       where: {
+        userId,
         completedAt: {
           gte: startDate,
         },
@@ -178,18 +191,19 @@ export async function statsRoutes(app: FastifyInstance) {
   });
 
   // Get level distribution
-  app.get('/stats/level-distribution', async (_request, _reply) => {
+  app.get('/stats/level-distribution', async (request, _reply) => {
+    const userId = request.user!.userId;
     const distribution = await prisma.word.groupBy({
       by: ['cefrLevel'],
       _count: true,
       orderBy: { cefrLevel: 'asc' },
     });
 
-    // Get progress by level using raw query
+    // Get progress by level scoped to user
     const levelProgress = await prisma.$queryRaw<Array<{ cefr_level: string; count: bigint }>>`
       SELECT w.cefr_level, COUNT(wp.id) as count
       FROM words w
-      LEFT JOIN word_progress wp ON w.id = wp.word_id
+      LEFT JOIN word_progress wp ON w.id = wp.word_id AND wp.user_id = ${userId}
       GROUP BY w.cefr_level
       ORDER BY w.cefr_level
     `;

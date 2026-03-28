@@ -65,12 +65,12 @@ export async function updateStreak(userId: string): Promise<StreakResult> {
   const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 
   // Get or create streak record
-  let streak = await prisma.userStream.findUnique({
+  let streak = await prisma.userStreak.findUnique({
     where: { userId },
   });
 
   if (!streak) {
-    streak = await prisma.userStream.create({
+    streak = await prisma.userStreak.create({
       data: {
         userId,
         currentStreak: 1,
@@ -131,7 +131,7 @@ export async function updateStreak(userId: string): Promise<StreakResult> {
         gracePeriodsUsed++;
 
         // Update with new grace period count
-        streak = await prisma.userStream.update({
+        streak = await prisma.userStreak.update({
           where: { userId },
           data: {
             currentStreak: newCurrentStreak,
@@ -161,7 +161,7 @@ export async function updateStreak(userId: string): Promise<StreakResult> {
   }
 
   // Update streak
-  streak = await prisma.userStream.update({
+  streak = await prisma.userStreak.update({
     where: { userId },
     data: {
       currentStreak: newCurrentStreak,
@@ -182,7 +182,7 @@ export async function updateStreak(userId: string): Promise<StreakResult> {
  * Get streak info for a user
  */
 export async function getStreak(userId: string) {
-  const streak = await prisma.userStream.findUnique({
+  const streak = await prisma.userStreak.findUnique({
     where: { userId },
   });
 

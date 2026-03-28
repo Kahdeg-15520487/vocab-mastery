@@ -47,6 +47,10 @@ model User {
   subscriptionTier      SubscriptionTier @default(FREE) @map("subscription_tier")
   subscriptionExpiresAt DateTime?        @map("subscription_expires_at")
   
+  // Daily goals (configurable per user)
+  dailyLearnGoal  Int @default(10) @map("daily_learn_goal")
+  dailyReviewGoal Int @default(20) @map("daily_review_goal")
+  
   // Timestamps
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
@@ -54,10 +58,10 @@ model User {
   
   // Relations
   refreshTokens    RefreshToken[]
-  userProgress     UserProgress[]
+  userProgress     UserLevelProgress[]
   wordProgress     WordProgress[]
   dailyGoals       DailyGoal[]
-  streak           UserStream?
+  streak           UserStreak?
   achievements     UserAchievement[]
   studyLists       StudyList[]
   sessions         LearningSession[]
@@ -175,7 +179,7 @@ model Job {
 // USER PROGRESS & ACHIEVEMENTS
 // ============================================
 
-model UserProgress {
+model UserLevelProgress {
   id           String         @id @default(cuid())
   userId       String         @map("user_id")
   themeId      String?        @map("theme_id")
@@ -235,7 +239,7 @@ model DailyGoal {
   @@map("daily_goals")
 }
 
-model UserStream {
+model UserStreak {
   id                 String   @id @default(cuid())
   userId             String   @unique @map("user_id")
   
@@ -406,21 +410,6 @@ model SessionWord {
   @@index([sessionId])
   @@index([wordId])
   @@map("session_words")
-}
-
-model UserStats {
-  id              String   @id @default(uuid())
-  totalWords      Int      @default(0) @map("total_words")
-  masteredWords   Int      @default(0) @map("mastered_words")
-  currentStreak   Int      @default(0) @map("current_streak")
-  longestStreak   Int      @default(0) @map("longest_streak")
-  lastActiveDate  DateTime @default(now()) @map("last_active_date")
-  totalXP         Int      @default(0) @map("total_xp")
-  level           Int      @default(1)
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
-
-  @@map("user_stats")
 }
 
 // ============================================

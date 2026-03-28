@@ -324,90 +324,44 @@ JSON:`;
 }
 
 /**
- * Parse JSON response from LLM - handles various malformed formats
+ * Parse JSON response from LLM - handles common LLM output quirks
  */
 function parseCategoriesJson(text: string, _expectedWords: string[]): Record<string, string> {
   const result: Record<string, string> = {};
   
-  // Step 1: Strip <think/> tags (deepseek-reasoner adds these)
-  let cleaned = text.replace(/<think[\s\S]*?<\/think>/gi, '');
+  // Extract JSON from markdown code blocks if present
+  const codeBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  const cleaned = codeBlockMatch ? codeBlockMatch[1] : text;
   
-  // Step 2: Extract JSON from markdown code blocks
-  const codeBlockMatch = cleaned.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (codeBlockMatch) {
-    cleaned = codeBlockMatch[1];
-  }
-  
-  // Step 3: Find JSON object in the text
+  // Find JSON object in the text
   const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
-    console.warn('No JSON object found in response, trying line-by-line parsing');
-    return parseLineByLine(text);
+    console.warn('No JSON object found in LLM response');
+    return result;
   }
   
   let jsonStr = jsonMatch[0];
   
-  // Step 4: Fix common JSON issues
-  // Remove trailing commas before } or ]
-  jsonStr = jsonStr.replace(/,\s*([}\]])/g, '$1');
-  // Replace single quotes with double quotes
-  jsonStr = jsonStr.replace(/'/g, '"');
-  // Add quotes around unquoted keys (word before colon)
-  jsonStr = jsonStr.replace(/([{,]\s*)([a-zA-Z_]\w*)(\s*:)/g, '$1"$2"$3');
-  // Add quotes around unquoted string values (after colon, before comma or })
-  jsonStr = jsonStr.replace(/:\s*([a-zA-Z_]\w*)(\s*[,}])/g, ':"$1"$2');
-  // Remove JS-style comments
-  jsonStr = jsonStr.replace(/\/\/.*$/gm, '');
-  jsonStr = jsonStr.replace(/\/\*[\s\S]*?\*\//g, '');
+  // Fix common LLM JSON issues: trailing commas, single quotes, unquoted keys/values, JS comments
+  jsonStr = jsonStr
+    .replace(/,\s*([}\]])/g, '$1')                          // trailing commas
+    .replace(/'/g, '"')                                      // single → double quotes
+    .replace(/([{,]\s*)([a-zA-Z_]\w*)(\s*:)/g, '$1"$2"$3')  // unquoted keys
+    .replace(/:\s*([a-zA-Z_]\w*)(\s*[,}])/g, ':"$1"$2')     // unquoted values
+    .replace(/\/\/.*$/gm, '')                                // single-line comments
+    .replace(/\/\*[\s\S]*?\*\//g, '');                       // multi-line comments
   
   try {
     const parsed = JSON.parse(jsonStr);
     
     for (const [word, category] of Object.entries(parsed)) {
-      const normalizedWord = word.toLowerCase().trim().replace(/^["']|["']$/g, '');
-      const normalizedCategory = String(category).toLowerCase().trim().replace(/^["']|["']$/g, '');
-      
-      if (themeSlugs.includes(normalizedCategory)) {
-        result[normalizedWord] = normalizedCategory;
-      } else {
-        result[normalizedWord] = extractCategory(normalizedCategory);
-      }
+      const w = word.toLowerCase().trim().replace(/^["']|["']$/g, '');
+      const c = String(category).toLowerCase().trim().replace(/^["']|["']$/g, '');
+      result[w] = themeSlugs.includes(c) ? c : extractCategory(c);
     }
   } catch (e) {
-    console.error('Failed to parse JSON after cleanup:', e);
-    console.error('Attempted to parse:', jsonStr.slice(0, 500));
-    return parseLineByLine(text);
-  }
-  
-  return result;
-}
-
-/**
- * Fallback: parse word-category pairs line by line
- */
-function parseLineByLine(text: string): Record<string, string> {
-  const result: Record<string, string> = {};
-  const lines = text.split('\n');
-  
-  for (const line of lines) {
-    // Try patterns like: "word": "category" or word: category or word -> category
-    const patterns = [
-      /["']?(\w+)["']?\s*[:=]\s*["']?(\w+)["']?/,           // "word": "category"
-      /(\w+)\s*[-→>]+\s*(\w+)/,                                // word -> category
-      /^\s*(\d+)\.\s*["']?(\w+)["']?\s*[-:]\s*["']?(\w+)["']?/, // 1. word: category
-    ];
-    
-    for (const pattern of patterns) {
-      const match = line.match(pattern);
-      if (match) {
-        const word = (match[1] || match[2]).toLowerCase();
-        const category = (match[2] || match[3]).toLowerCase();
-        if (themeSlugs.includes(category)) {
-          result[word] = category;
-          break;
-        }
-      }
-    }
+    console.error('Failed to parse JSON:', e);
+    console.error('Attempted:', jsonStr.slice(0, 300));
   }
   
   return result;

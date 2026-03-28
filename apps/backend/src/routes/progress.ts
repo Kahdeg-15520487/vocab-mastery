@@ -5,6 +5,22 @@ import { updateStreak, getStreak } from '../lib/streak.js';
 import { checkAchievements, getUserAchievements, getAllAchievementsWithStatus } from '../lib/achievements.js';
 import { calculateNextReview, responseToQuality, createInitialProgress } from '../lib/spaced-repetition.js';
 
+// Default daily goals
+const DEFAULT_LEARN_GOAL = 10;
+const DEFAULT_REVIEW_GOAL = 20;
+
+/** Get user's daily goal targets, falling back to defaults */
+async function getUserDailyGoals(userId: string): Promise<{ learnGoal: number; reviewGoal: number }> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { dailyLearnGoal: true, dailyReviewGoal: true },
+  });
+  return {
+    learnGoal: user?.dailyLearnGoal ?? DEFAULT_LEARN_GOAL,
+    reviewGoal: user?.dailyReviewGoal ?? DEFAULT_REVIEW_GOAL,
+  };
+}
+
 export async function progressRoutes(app: FastifyInstance) {
   // All progress routes require authentication
   app.addHook('preHandler', authenticate);
@@ -27,13 +43,14 @@ export async function progressRoutes(app: FastifyInstance) {
     });
 
     if (!dailyGoal) {
-      // Create default goal for today
+      // Create goal for today using user's configured targets
+      const userGoals = await getUserDailyGoals(userId);
       dailyGoal = await prisma.dailyGoal.create({
         data: {
           userId,
           date: todayStart,
-          wordsToLearn: 10,
-          wordsToReview: 20,
+          wordsToLearn: userGoals.learnGoal,
+          wordsToReview: userGoals.reviewGoal,
         },
       });
     }
@@ -210,12 +227,13 @@ export async function progressRoutes(app: FastifyInstance) {
     });
 
     if (!dailyGoal) {
+      const userGoals = await getUserDailyGoals(userId);
       dailyGoal = await prisma.dailyGoal.create({
         data: {
           userId,
           date: todayStart,
-          wordsToLearn: 10,
-          wordsToReview: 20,
+          wordsToLearn: userGoals.learnGoal,
+          wordsToReview: userGoals.reviewGoal,
         },
       });
     }
@@ -543,6 +561,44 @@ export async function progressRoutes(app: FastifyInstance) {
 
     return { success: true, updated: results.results.length, results: results.results };
   });
+
+  // ============================================
+  // PUT /api/progress/settings - Update daily goals
+  // ============================================
+  app.put('/progress/settings', async (request, _reply) => {
+    const userId = request.user!.userId;
+    const body = request.body as {
+      dailyLearnGoal?: number;
+      dailyReviewGoal?: number;
+    };
+
+    const updateData: { dailyLearnGoal?: number; dailyReviewGoal?: number } = {};
+
+    if (body.dailyLearnGoal !== undefined) {
+      if (body.dailyLearnGoal < 1 || body.dailyLearnGoal > 200) {
+        return { success: false, error: 'Daily learn goal must be between 1 and 200' };
+      }
+      updateData.dailyLearnGoal = body.dailyLearnGoal;
+    }
+    if (body.dailyReviewGoal !== undefined) {
+      if (body.dailyReviewGoal < 1 || body.dailyReviewGoal > 500) {
+        return { success: false, error: 'Daily review goal must be between 1 and 500' };
+      }
+      updateData.dailyReviewGoal = body.dailyReviewGoal;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return { success: false, error: 'No valid fields to update' };
+    }
+
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+      select: { dailyLearnGoal: true, dailyReviewGoal: true },
+    });
+
+    return { success: true, settings: user };
+  });
 }
 
 // Helper to update daily progress
@@ -555,12 +611,13 @@ async function updateDailyProgress(userId: string, wordsLearned: number, wordsRe
   });
 
   if (!dailyGoal) {
+    const userGoals = await getUserDailyGoals(userId);
     dailyGoal = await prisma.dailyGoal.create({
       data: {
         userId,
         date: todayStart,
-        wordsToLearn: 10,
-        wordsToReview: 20,
+        wordsToLearn: userGoals.learnGoal,
+        wordsToReview: userGoals.reviewGoal,
         wordsLearned,
         wordsReviewed,
       },

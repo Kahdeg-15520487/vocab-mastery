@@ -57,17 +57,6 @@ export const SessionResponseSchema = z.object({
   responseTime: z.number().optional(), // milliseconds
 });
 
-// Stats schemas
-export const UserStatsSchema = z.object({
-  totalWords: z.number(),
-  masteredWords: z.number(),
-  currentStreak: z.number(),
-  longestStreak: z.number(),
-  lastActiveDate: z.coerce.date(),
-  totalXP: z.number(),
-  level: z.number(),
-});
-
 // Query schemas
 export const WordQuerySchema = z.object({
   theme: z.string().optional(),
@@ -85,5 +74,4 @@ export type Theme = z.infer<typeof ThemeSchema>;
 export type WordProgress = z.infer<typeof WordProgressSchema>;
 export type CreateSession = z.infer<typeof CreateSessionSchema>;
 export type SessionResponse = z.infer<typeof SessionResponseSchema>;
-export type UserStats = z.infer<typeof UserStatsSchema>;
 export type WordQuery = z.infer<typeof WordQuerySchema>;
