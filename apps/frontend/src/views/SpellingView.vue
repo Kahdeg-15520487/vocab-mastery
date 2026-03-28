@@ -2,12 +2,14 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { request } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
+import { useSpeech } from '@/composables/useSpeech'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
 import LevelBadge from '@/components/learning/LevelBadge.vue'
 // SkeletonLoader not used in this view
 import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
 
 const toast = useToast()
+const { speak } = useSpeech()
 
 interface SpellingQuestion {
   index: number
@@ -369,6 +371,11 @@ const missedWords = computed(() =>
             <p class="text-slate-600 dark:text-slate-400 mt-1">
               The correct spelling is:
               <span class="font-bold text-slate-900 dark:text-white">{{ currentResult.correctAnswer }}</span>
+              <button
+                @click="speak(currentResult.correctAnswer)"
+                class="ml-2 text-lg hover:scale-110 transition-transform"
+                title="Listen"
+              >🔊</button>
             </p>
           </div>
 
