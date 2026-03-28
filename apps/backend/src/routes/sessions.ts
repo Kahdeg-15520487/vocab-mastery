@@ -651,12 +651,8 @@ export async function sessionRoutes(app: FastifyInstance) {
       const examples = (word.examples as string[] || []);
       // Pick a random example
       const sentence = examples[Math.floor(Math.random() * examples.length)] || '';
-      // Mask the word in the sentence
-      const escapedWord = word.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const maskedSentence = sentence.replace(
-        new RegExp(`\\b${escapedWord}\\b`, 'gi'),
-        '________'
-      );
+      // Mask the word and common inflections in the sentence
+      const maskedSentence = maskWordInText(word.word, sentence);
 
       return {
         index,
@@ -951,6 +947,28 @@ function levenshtein(a: string, b: string): number {
     }
   }
   return dp[m][n];
+}
+
+/**
+ * Mask a word (and its common inflections) in a text string
+ */
+function maskWordInText(word: string, text: string): string {
+  const w = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const patterns = [w, w + 's', w + 'es', w + 'ed', w + 'ing', w + 'er', w + 'ly', w + 'ers', w + 'est'];
+  // -y → -ies/-ied
+  if (w.endsWith('y')) {
+    const base = w.slice(0, -1);
+    patterns.push(base + 'ies', base + 'ied', base + 'ier', base + 'iest');
+  }
+  // -e → -ing/-ed/-er
+  if (w.endsWith('e')) {
+    const base = w.slice(0, -1);
+    patterns.push(base + 'ing', base + 'ed', base + 'er', base + 'est');
+  }
+  // Deduplicate and sort by length desc (longest match first)
+  const unique = [...new Set(patterns)].sort((a, b) => b.length - a.length);
+  const re = new RegExp(`\\b(${unique.join('|')})\\b`, 'gi');
+  return text.replace(re, '________');
 }
 
 /**
