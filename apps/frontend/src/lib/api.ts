@@ -191,6 +191,7 @@ export const wordsApi = {
 
   toggleFavorite: (wordId: string) => request<{ favorited: boolean }>(`/words/${wordId}/favorite`, {
     method: 'POST',
+    body: '{}',
   }),
 
   getFavorites: (params?: { page?: number; limit?: number }) => {
