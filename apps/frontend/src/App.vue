@@ -3,8 +3,10 @@ import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 import AppNavigation from '@/components/layout/AppNavigation.vue'
 import { useAuthStore } from '@/stores/auth'
+import { usePageTitle } from '@/composables/usePageTitle'
 
 const authStore = useAuthStore()
+usePageTitle()
 
 // Fetch user on app mount
 onMounted(async () => {
