@@ -16,6 +16,8 @@ const titles: Record<string, string> = {
   '/admin': 'Admin Panel',
   '/login': 'Sign In',
   '/register': 'Create Account',
+  '/forgot-password': 'Forgot Password',
+  '/reset-password': 'Reset Password',
 }
 
 export function usePageTitle() {

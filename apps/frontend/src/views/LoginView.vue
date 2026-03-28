@@ -69,9 +69,14 @@ function handleGoogleLogin() {
         </div>
 
         <div>
-          <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-            Password
-          </label>
+          <div class="flex items-center justify-between mb-1">
+            <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
+              Password
+            </label>
+            <RouterLink to="/forgot-password" class="text-sm text-primary-600 dark:text-primary-400 hover:underline">
+              Forgot password?
+            </RouterLink>
+          </div>
           <input
             id="password"
             v-model="password"

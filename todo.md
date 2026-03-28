@@ -5,8 +5,6 @@
 ## Pending
 
 - [ ] **#171** Add forgot password flow (requires email service) #feature #frontend
-- [ ] **#177** Add transition animations between views (page transitions) ##polish ##frontend
-- [ ] **#180** Add Vue page transition animations ##polish ##frontend
 
 ## Completed
 
@@ -52,8 +50,10 @@
 - [x] **#173** Add export/import user progress data (backup & restore) ##feature ##frontend
 - [x] **#175** Add study session history page with past sessions list ##feature ##frontend ##backend
 - [x] **#176** Add spaced repetition schedule preview (upcoming reviews calendar) ##feature ##frontend
+- [x] **#177** Add transition animations between views (page transitions) ##polish ##frontend
 - [x] **#178** **[high]** Add word favorites/bookmarks - backend + frontend ##feature ##frontend ##backend
 - [x] **#179** Add upcoming review schedule on dashboard/stats page ##feature ##frontend ##backend
+- [x] **#180** Add Vue page transition animations ##polish ##frontend
 
 <!-- Raw Data -->
 ```json
@@ -643,14 +643,15 @@
     {
       "id": 177,
       "text": "Add transition animations between views (page transitions)",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "#polish",
         "#frontend"
       ],
       "createdAt": 1774689427801,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774692264674
     },
     {
       "id": 178,
@@ -683,14 +684,15 @@
     {
       "id": 180,
       "text": "Add Vue page transition animations",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "#polish",
         "#frontend"
       ],
       "createdAt": 1774692230477,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774692268878
     }
   ],
   "nextId": 181

@@ -460,4 +460,98 @@ export async function authRoutes(app: FastifyInstance) {
 
     return exportData;
   });
+
+  // ============================================
+  // POST /api/auth/forgot-password
+  // ============================================
+  app.post('/auth/forgot-password', { config: { rateLimit: { max: 3, timeWindow: '1 minute' } } }, async (request, reply) => {
+    const body = request.body as { email: string };
+
+    if (!body.email) {
+      return reply.status(400).send({ error: 'Email is required' });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: body.email.toLowerCase().trim() },
+    });
+
+    // Always return success to prevent email enumeration
+    if (!user) {
+      return { success: true, message: 'If that email exists, a reset link has been sent.' };
+    }
+
+    // Invalidate any existing reset tokens for this user
+    await prisma.passwordReset.updateMany({
+      where: { userId: user.id, usedAt: null },
+      data: { usedAt: new Date() },
+    });
+
+    // Generate a secure token
+    const crypto = await import('crypto');
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    await prisma.passwordReset.create({
+      data: {
+        userId: user.id,
+        token,
+        expiresAt,
+      },
+    });
+
+    // In production, send email with reset link
+    // For now, return the token in dev mode
+    const isDev = process.env.NODE_ENV !== 'production';
+
+    return {
+      success: true,
+      message: 'If that email exists, a reset link has been sent.',
+      ...(isDev && { resetToken: token, resetUrl: `/reset-password?token=${token}` }),
+    };
+  });
+
+  // ============================================
+  // POST /api/auth/reset-password
+  // ============================================
+  app.post('/auth/reset-password', { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } }, async (request, reply) => {
+    const body = request.body as { token: string; password: string };
+
+    if (!body.token || !body.password) {
+      return reply.status(400).send({ error: 'Token and new password are required' });
+    }
+
+    const passwordValidation = validatePassword(body.password);
+    if (!passwordValidation.valid) {
+      return reply.status(400).send({ error: passwordValidation.error });
+    }
+
+    // Find valid reset token
+    const reset = await prisma.passwordReset.findUnique({
+      where: { token: body.token },
+    });
+
+    if (!reset || reset.usedAt || reset.expiresAt < new Date()) {
+      return reply.status(400).send({ error: 'Invalid or expired reset token' });
+    }
+
+    // Update password
+    const hashedPassword = await hashPassword(body.password);
+
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: reset.userId },
+        data: { passwordHash: hashedPassword },
+      }),
+      prisma.passwordReset.update({
+        where: { id: reset.id },
+        data: { usedAt: new Date() },
+      }),
+      // Revoke all refresh tokens (force re-login)
+      prisma.refreshToken.deleteMany({
+        where: { userId: reset.userId },
+      }),
+    ]);
+
+    return { success: true, message: 'Password has been reset. Please log in with your new password.' };
+  });
 }

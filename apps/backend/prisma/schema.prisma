@@ -67,6 +67,7 @@ model User {
   sessions         LearningSession[]
   jobs             Job[]
   favorites        WordFavorite[]
+  passwordResets   PasswordReset[]
   
   @@index([email])
   @@index([googleId])
@@ -488,4 +489,19 @@ model WordFavorite {
   @@index([userId])
   @@index([wordId])
   @@map("word_favorites")
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@map("password_resets")
 }
