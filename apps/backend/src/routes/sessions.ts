@@ -456,6 +456,175 @@ export async function sessionRoutes(app: FastifyInstance) {
     return { correct: isCorrect, correctId: body.wordId };
   });
 
+  // ============================================
+  // Spelling Practice Mode
+  // ============================================
+
+  // Start spelling practice session
+  app.post('/sessions/spelling', async (request, reply) => {
+    const userId = request.user!.userId;
+    const body = request.body as {
+      themeId?: string;
+      listId?: string;
+      levelRange?: [string, string];
+      wordCount?: number;
+    };
+    const { themeId, listId, levelRange, wordCount = 15 } = body;
+
+    const where: any = {};
+
+    if (themeId) {
+      where.themes = { some: { themeId } };
+    }
+
+    if (listId) {
+      const list = await prisma.studyList.findUnique({ where: { id: listId } });
+      if (!list) return reply.status(404).send({ error: 'List not found' });
+      if (list.userId !== userId) {
+        const shared = await prisma.sharedList.findUnique({
+          where: { listId_sharedWith: { listId, sharedWith: userId } },
+        });
+        if (!shared) return reply.status(403).send({ error: 'Access denied' });
+      }
+      where.studyListWords = { some: { listId } };
+    }
+
+    if (levelRange) {
+      const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+      const startIdx = levels.indexOf(levelRange[0]);
+      const endIdx = levels.indexOf(levelRange[1]);
+      where.cefrLevel = { in: levels.slice(startIdx, endIdx + 1) };
+    }
+
+    // Prefer words the user has started learning (not new)
+    let spellWords = await prisma.word.findMany({
+      where: {
+        ...where,
+        progress: { some: { userId, status: { in: ['learning', 'reviewing'] } } },
+      },
+      take: wordCount,
+      orderBy: { frequency: 'asc' },
+    });
+
+    // Fill with new words if not enough
+    if (spellWords.length < wordCount) {
+      const existingIds = spellWords.map(w => w.id);
+      const moreWords = await prisma.word.findMany({
+        where: { ...where, id: { notIn: existingIds } },
+        take: wordCount - spellWords.length,
+        orderBy: { frequency: 'asc' },
+      });
+      spellWords = [...spellWords, ...moreWords];
+    }
+
+    if (spellWords.length === 0) {
+      return reply.status(400).send({ error: 'No words available for spelling practice' });
+    }
+
+    // Shuffle
+    spellWords = spellWords.sort(() => Math.random() - 0.5);
+
+    // Create session
+    const session = await prisma.learningSession.create({
+      data: {
+        userId,
+        type: 'learn', // reuse learn type for simplicity
+        themeId,
+        sessionWords: {
+          create: spellWords.map(word => ({ wordId: word.id })),
+        },
+      },
+    });
+
+    // Return words with definition visible but word HIDDEN
+    const questions = spellWords.map((word, index) => ({
+      index,
+      id: word.id,
+      // DO NOT send word text — that's what the user needs to type
+      definition: word.definition,
+      phoneticUs: word.phoneticUs,
+      partOfSpeech: word.partOfSpeech as string[],
+      examples: (word.examples as string[] || []).map(ex => {
+        // Mask the word in examples
+        const re = new RegExp(word.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+        return ex.replace(re, '____');
+      }),
+      synonyms: word.synonyms as string[] || [],
+      cefrLevel: word.cefrLevel,
+      letterCount: word.word.length,
+      firstLetter: word.word[0],
+    }));
+
+    return {
+      sessionId: session.id,
+      questionCount: questions.length,
+      questions,
+    };
+  });
+
+  // Check spelling answer
+  app.post('/sessions/spelling/:sessionId/check', async (request, reply) => {
+    const userId = request.user!.userId;
+    const { sessionId } = request.params as { sessionId: string };
+    const body = request.body as {
+      wordId: string;
+      answer: string;
+      responseTime?: number;
+    };
+
+    const session = await prisma.learningSession.findFirst({
+      where: { id: sessionId, userId },
+    });
+    if (!session) return reply.status(404).send({ error: 'Session not found' });
+
+    const word = await prisma.word.findUnique({ where: { id: body.wordId } });
+    if (!word) return reply.status(404).send({ error: 'Word not found' });
+
+    // Check answer — case-insensitive, trimmed
+    const userAnswer = body.answer.trim().toLowerCase();
+    const correctAnswer = word.word.trim().toLowerCase();
+    const isCorrect = userAnswer === correctAnswer;
+
+    // Also accept common alternate spellings (e.g., "organise" ↔ "organize")
+    let isClose = false;
+    if (!isCorrect) {
+      // Levenshtein distance check for "close" answers (1-2 chars off)
+      const dist = levenshtein(userAnswer, correctAnswer);
+      isClose = dist > 0 && dist <= 2 && dist < correctAnswer.length / 3;
+    }
+
+    // Update session word
+    const sessionWord = await prisma.sessionWord.findFirst({
+      where: { sessionId, wordId: body.wordId },
+    });
+    if (sessionWord) {
+      await prisma.sessionWord.update({
+        where: { id: sessionWord.id },
+        data: {
+          shown: true,
+          response: isCorrect ? 'easy' : 'forgot',
+          responseTime: body.responseTime,
+        },
+      });
+    }
+
+    // Update session counts
+    await prisma.learningSession.update({
+      where: { id: sessionId },
+      data: {
+        totalCorrect: { increment: isCorrect ? 1 : 0 },
+        totalIncorrect: { increment: isCorrect ? 0 : 1 },
+      },
+    });
+
+    return {
+      correct: isCorrect,
+      close: isClose,
+      correctAnswer: word.word,
+      word: word.word, // reveal the word
+    };
+  });
+
   // Get session history (paginated list)
   app.get('/sessions', async (request, _reply) => {
     const userId = request.user!.userId;
@@ -651,6 +820,26 @@ export async function sessionRoutes(app: FastifyInstance) {
       newAchievements: newAchievementKeys,
     };
   });
+}
+
+/**
+ * Levenshtein distance between two strings
+ */
+function levenshtein(a: string, b: string): number {
+  const m = a.length, n = b.length;
+  const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1),
+      );
+    }
+  }
+  return dp[m][n];
 }
 
 /**
