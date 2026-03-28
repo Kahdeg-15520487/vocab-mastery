@@ -4,8 +4,6 @@
 
 ## Pending
 
-- [ ] **#181** **[high]** Toast notification system for user feedback ##feature ##frontend ##backend
-- [ ] **#182** Search bar in browse page with instant filtering ##feature ##frontend
 - [ ] **#183** Word detail page at /words/:id with full info, examples, progress ##feature ##frontend ##backend
 - [ ] **#184** Improve flashcard design with phonetic, examples, and richer content ##polish ##frontend
 
@@ -58,6 +56,8 @@
 - [x] **#178** **[high]** Add word favorites/bookmarks - backend + frontend ##feature ##frontend ##backend
 - [x] **#179** Add upcoming review schedule on dashboard/stats page ##feature ##frontend ##backend
 - [x] **#180** Add Vue page transition animations ##polish ##frontend
+- [x] **#181** **[high]** Toast notification system for user feedback ##feature ##frontend ##backend
+- [x] **#182** Search bar in browse page with instant filtering ##feature ##frontend
 
 <!-- Raw Data -->
 ```json
@@ -702,7 +702,7 @@
     {
       "id": 181,
       "text": "Toast notification system for user feedback",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "#feature",
@@ -710,19 +710,21 @@
         "#backend"
       ],
       "createdAt": 1774692575153,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774692947325
     },
     {
       "id": 182,
       "text": "Search bar in browse page with instant filtering",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "#feature",
         "#frontend"
       ],
       "createdAt": 1774692581310,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774692961376
     },
     {
       "id": 183,

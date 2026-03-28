@@ -355,6 +355,12 @@ const visiblePages = computed(() => {
               ×
             </button>
           </div>
+          <RouterLink
+            :to="`/words/${selectedWord.id}`"
+            class="text-sm text-primary-600 dark:text-primary-400 hover:underline mt-1 inline-block"
+          >
+            Full Details →
+          </RouterLink>
         </div>
 
         <!-- Content -->
