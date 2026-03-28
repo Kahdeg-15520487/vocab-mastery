@@ -89,11 +89,16 @@ export async function request<T>(
     headers['Authorization'] = `Bearer ${token}`
   }
 
-  const response = await fetch(url, {
-    ...options,
-    headers,
-    credentials: 'include', // Include cookies for refresh token
-  })
+  let response: Response
+  try {
+    response = await fetch(url, {
+      ...options,
+      headers,
+      credentials: 'include', // Include cookies for refresh token
+    })
+  } catch (err) {
+    throw new Error('Unable to connect to server. Please check your connection.')
+  }
 
   // Handle 401 - try to refresh token and retry
   if (response.status === 401 && !isRetry) {
