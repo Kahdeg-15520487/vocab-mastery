@@ -171,6 +171,175 @@ export async function sessionRoutes(app: FastifyInstance) {
     };
   });
 
+  // Generate quiz questions
+  app.post('/sessions/quiz', async (request, reply) => {
+    const userId = request.user!.userId;
+    const body = request.body as {
+      themeId?: string;
+      listId?: string;
+      levelRange?: [string, string];
+      questionCount?: number;
+    };
+    const { themeId, listId, levelRange, questionCount = 10 } = body;
+
+    // Build query to get words
+    const where: any = {};
+
+    if (themeId) {
+      where.themes = { some: { themeId } };
+    }
+
+    if (listId) {
+      const list = await prisma.studyList.findUnique({ where: { id: listId } });
+      if (!list) {
+        return reply.status(404).send({ error: 'List not found' });
+      }
+      if (list.userId !== userId) {
+        const shared = await prisma.studyList.findUnique({
+          where: { id: listId },
+        });
+        if (!shared) {
+          return reply.status(403).send({ error: 'Access denied' });
+        }
+      }
+      where.studyListWords = { some: { listId } };
+    }
+
+    if (levelRange) {
+      const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+      const startIdx = levels.indexOf(levelRange[0]);
+      const endIdx = levels.indexOf(levelRange[1]);
+      where.cefrLevel = { in: levels.slice(startIdx, endIdx + 1) };
+    }
+
+    // Get quiz words (prefer words user has some progress with)
+    let quizWords = await prisma.word.findMany({
+      where: {
+        ...where,
+        progress: { some: { userId, status: { not: 'new' } } },
+      },
+      take: questionCount,
+      orderBy: { frequency: 'asc' },
+    });
+
+    // If not enough, fill with any words
+    if (quizWords.length < questionCount) {
+      const existingIds = quizWords.map(w => w.id);
+      const moreWords = await prisma.word.findMany({
+        where: { ...where, id: { notIn: existingIds } },
+        take: questionCount - quizWords.length,
+        orderBy: { frequency: 'asc' },
+      });
+      quizWords = [...quizWords, ...moreWords];
+    }
+
+    if (quizWords.length < 4) {
+      return reply.status(400).send({ error: 'Not enough words for a quiz (need at least 4)' });
+    }
+
+    // Get random wrong answer options from other words
+    const allWordIds = new Set(quizWords.map(w => w.id));
+    
+    const wrongPool = await prisma.word.findMany({
+      where: { id: { notIn: [...allWordIds] } },
+      select: { id: true, word: true, definition: true },
+      take: 100,
+    });
+
+    // Build questions
+    const questions = quizWords.map((word, index) => {
+      // Pick 3 random wrong answers
+      const shuffled = [...wrongPool].sort(() => Math.random() - 0.5);
+      const wrongAnswers = shuffled.slice(0, 3).map(w => ({
+        id: w.id,
+        word: w.word,
+        definition: w.definition,
+      }));
+
+      // Randomize option order
+      const options = [
+        { id: word.id, word: word.word, definition: word.definition, correct: true },
+        ...wrongAnswers.map(w => ({ ...w, correct: false })),
+      ].sort(() => Math.random() - 0.5);
+
+      return {
+        index,
+        id: word.id,
+        word: word.word,
+        phoneticUs: word.phoneticUs,
+        partOfSpeech: word.partOfSpeech as string[],
+        definition: word.definition,
+        examples: word.examples as string[],
+        cefrLevel: word.cefrLevel,
+        options,
+      };
+    });
+
+    // Create a quiz session
+    const session = await prisma.learningSession.create({
+      data: {
+        userId,
+        type: 'quiz',
+        themeId,
+        sessionWords: {
+          create: quizWords.map(word => ({ wordId: word.id })),
+        },
+      },
+    });
+
+    return {
+      sessionId: session.id,
+      questionCount: questions.length,
+      questions,
+    };
+  });
+
+  // Submit quiz answer
+  app.post('/sessions/quiz/:sessionId/answer', async (request, reply) => {
+    const userId = request.user!.userId;
+    const { sessionId } = request.params as { sessionId: string };
+    const body = request.body as {
+      wordId: string;
+      selectedId: string;
+      responseTime?: number;
+    };
+
+    const session = await prisma.learningSession.findFirst({
+      where: { id: sessionId, userId, type: 'quiz' },
+    });
+    if (!session) {
+      return reply.status(404).send({ error: 'Quiz session not found' });
+    }
+
+    const isCorrect = body.wordId === body.selectedId;
+
+    // Update session word
+    const sessionWord = await prisma.sessionWord.findFirst({
+      where: { sessionId, wordId: body.wordId },
+    });
+    if (sessionWord) {
+      await prisma.sessionWord.update({
+        where: { id: sessionWord.id },
+        data: {
+          shown: true,
+          response: isCorrect ? 'easy' : 'forgot',
+          responseTime: body.responseTime,
+        },
+      });
+    }
+
+    // Update session counts
+    await prisma.learningSession.update({
+      where: { id: sessionId },
+      data: {
+        totalCorrect: { increment: isCorrect ? 1 : 0 },
+        totalIncorrect: { increment: isCorrect ? 0 : 1 },
+      },
+    });
+
+    return { correct: isCorrect, correctId: body.wordId };
+  });
+
   // Get session by ID (only own sessions)
   app.get('/sessions/:id', async (request, reply) => {
     const userId = request.user!.userId;

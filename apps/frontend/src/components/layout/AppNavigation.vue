@@ -12,6 +12,7 @@ const navItems = [
   { path: '/', label: 'Home', icon: '🏠' },
   { path: '/learn', label: 'Learn', icon: '📚' },
   { path: '/review', label: 'Review', icon: '🔄' },
+  { path: '/quiz', label: 'Quiz', icon: '🧠' },
   { path: '/lists', label: 'Lists', icon: '📋' },
   { path: '/browse', label: 'Browse', icon: '📖' },
   { path: '/stats', label: 'Stats', icon: '📊' },
