@@ -98,10 +98,10 @@ class AuthService {
     return response;
   }
 
-  async login(email: string, password: string): Promise<LoginResponse> {
+  async login(login: string, password: string): Promise<LoginResponse> {
     const response = await this.request<LoginResponse>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ login, password }),
     });
 
     this.accessToken = response.accessToken;

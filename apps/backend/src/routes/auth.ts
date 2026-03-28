@@ -124,28 +124,34 @@ export async function authRoutes(app: FastifyInstance) {
   // ============================================
   app.post('/auth/login', { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } }, async (request, reply) => {
     const body = request.body as {
-      email: string;
+      login: string;
       password: string;
     };
 
     // Validate input
-    if (!body.email || !body.password) {
-      return reply.status(400).send({ error: 'Email and password are required' });
+    if (!body.login || !body.password) {
+      return reply.status(400).send({ error: 'Username/email and password are required' });
     }
 
-    // Find user
-    const user = await prisma.user.findUnique({
-      where: { email: body.email.toLowerCase() },
+    // Find user by email or username
+    const loginLower = body.login.toLowerCase();
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: loginLower },
+          { username: body.login }, // Username is case-sensitive
+        ],
+      },
     });
 
     if (!user || !user.passwordHash) {
-      return reply.status(401).send({ error: 'Invalid email or password' });
+      return reply.status(401).send({ error: 'Invalid username/email or password' });
     }
 
     // Compare password
     const isValid = await comparePassword(body.password, user.passwordHash);
     if (!isValid) {
-      return reply.status(401).send({ error: 'Invalid email or password' });
+      return reply.status(401).send({ error: 'Invalid username/email or password' });
     }
 
     // Update last login

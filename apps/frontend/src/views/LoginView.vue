@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 
-const email = ref('')
+const login = ref('')
 const password = ref('')
 const error = ref('')
 const loading = ref(false)
@@ -10,8 +10,8 @@ const loading = ref(false)
 const authStore = useAuthStore()
 
 async function handleLogin() {
-  if (!email.value || !password.value) {
-    error.value = 'Please enter email and password'
+  if (!login.value || !password.value) {
+    error.value = 'Please enter username/email and password'
     return
   }
 
@@ -19,13 +19,13 @@ async function handleLogin() {
   error.value = ''
 
   try {
-    const success = await authStore.login(email.value, password.value)
+    const success = await authStore.login(login.value, password.value)
     
     if (success) {
       // Use full page navigation to ensure all state is refreshed
       window.location.href = '/'
     } else {
-      error.value = authStore.error || 'Invalid email or password'
+      error.value = authStore.error || 'Invalid username/email or password'
     }
   } catch (e: any) {
     error.value = e.message || 'Login failed'
@@ -55,16 +55,16 @@ function handleGoogleLogin() {
         </div>
 
         <div>
-          <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-            Email
+          <label for="login" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+            Username or Email
           </label>
           <input
-            id="email"
-            v-model="email"
-            type="email"
+            id="login"
+            v-model="login"
+            type="text"
             required
             class="input"
-            placeholder="you@example.com"
+            placeholder="username or you@example.com"
           />
         </div>
 

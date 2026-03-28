@@ -25,12 +25,12 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function login(email: string, password: string): Promise<boolean> {
+  async function login(login: string, password: string): Promise<boolean> {
     loading.value = true;
     error.value = null;
     
     try {
-      const response = await authService.login(email, password);
+      const response = await authService.login(login, password);
       user.value = response.user;
       hasToken.value = true;
       resetAuthExpired();
