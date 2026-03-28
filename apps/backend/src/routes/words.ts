@@ -78,54 +78,57 @@ export async function wordRoutes(app: FastifyInstance) {
     };
   });
 
-  // Get single word - guests get limited fields, authenticated users get full data
-  app.get('/words/:id', { preHandler: optionalAuth }, async (request, reply) => {
-    const { id } = request.params as { id: string };
+  // Word of the Day - deterministic based on date (MUST be before /:id)
+  app.get('/words/daily', { preHandler: optionalAuth }, async (request, _reply) => {
+    const today = new Date();
+    const dayOfYear = Math.floor(
+      (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000
+    );
 
-    const word = await prisma.word.findUnique({
-      where: { id },
+    // Get total word count for modulo
+    const totalWords = await prisma.word.count();
+
+    if (totalWords === 0) {
+      return { word: null };
+    }
+
+    // Deterministic offset based on day of year
+    const offset = dayOfYear % totalWords;
+
+    const word = await prisma.word.findMany({
+      take: 1,
+      skip: offset,
       include: {
         themes: { include: { theme: true } },
         progress: request.user
           ? { where: { userId: request.user.userId } }
           : false,
       },
+      orderBy: { frequency: 'asc' },
     });
 
-    if (!word) {
-      return reply.status(404).send({ error: 'Word not found' });
+    if (word.length === 0) {
+      return { word: null };
     }
 
-    // If user is not authenticated (guest), return limited fields only
-    if (!request.user) {
-      return {
-        id: word.id,
-        word: word.word,
-        phoneticUs: word.phoneticUs,
-        phoneticUk: word.phoneticUk,
-        cefrLevel: word.cefrLevel,
-        oxfordList: word.oxfordList,
-        definition: word.definition,
-        // NO examples, synonyms, antonyms, themes for guests
-      };
-    }
-
-    // Authenticated user gets full data
+    const w = word[0];
     return {
-      id: word.id,
-      word: word.word,
-      phoneticUs: word.phoneticUs,
-      phoneticUk: word.phoneticUk,
-      partOfSpeech: word.partOfSpeech as string[],
-      definition: word.definition,
-      examples: word.examples as string[],
-      synonyms: word.synonyms as string[],
-      antonyms: word.antonyms as string[],
-      oxfordList: word.oxfordList,
-      cefrLevel: word.cefrLevel,
-      frequency: word.frequency,
-      themes: word.themes.map(t => ({ id: t.theme.id, name: t.theme.name, slug: t.theme.slug })),
-      progress: word.progress?.[0] || null,
+      id: w.id,
+      word: w.word,
+      phoneticUs: w.phoneticUs,
+      phoneticUk: w.phoneticUk,
+      partOfSpeech: w.partOfSpeech as string[],
+      definition: w.definition,
+      examples: (w.examples as string[])?.slice(0, 2) || [],
+      synonyms: (w.synonyms as string[])?.slice(0, 5) || [],
+      cefrLevel: w.cefrLevel,
+      oxfordList: w.oxfordList,
+      themes: w.themes.map(t => ({ id: t.theme.id, name: t.theme.name, slug: t.theme.slug })),
+      progress: request.user && w.progress?.[0] ? {
+        status: w.progress[0].status,
+        interval: w.progress[0].interval,
+        nextReview: w.progress[0].nextReview,
+      } : null,
     };
   });
 
@@ -199,5 +202,56 @@ export async function wordRoutes(app: FastifyInstance) {
     });
 
     return words;
+  });
+
+  // Get single word - guests get limited fields, authenticated users get full data
+  app.get('/words/:id', { preHandler: optionalAuth }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+
+    const word = await prisma.word.findUnique({
+      where: { id },
+      include: {
+        themes: { include: { theme: true } },
+        progress: request.user
+          ? { where: { userId: request.user.userId } }
+          : false,
+      },
+    });
+
+    if (!word) {
+      return reply.status(404).send({ error: 'Word not found' });
+    }
+
+    // If user is not authenticated (guest), return limited fields only
+    if (!request.user) {
+      return {
+        id: word.id,
+        word: word.word,
+        phoneticUs: word.phoneticUs,
+        phoneticUk: word.phoneticUk,
+        cefrLevel: word.cefrLevel,
+        oxfordList: word.oxfordList,
+        definition: word.definition,
+        // NO examples, synonyms, antonyms, themes for guests
+      };
+    }
+
+    // Authenticated user gets full data
+    return {
+      id: word.id,
+      word: word.word,
+      phoneticUs: word.phoneticUs,
+      phoneticUk: word.phoneticUk,
+      partOfSpeech: word.partOfSpeech as string[],
+      definition: word.definition,
+      examples: word.examples as string[],
+      synonyms: word.synonyms as string[],
+      antonyms: word.antonyms as string[],
+      oxfordList: word.oxfordList,
+      cefrLevel: word.cefrLevel,
+      frequency: word.frequency,
+      themes: word.themes.map(t => ({ id: t.theme.id, name: t.theme.name, slug: t.theme.slug })),
+      progress: word.progress?.[0] || null,
+    };
   });
 }

@@ -186,6 +186,8 @@ export const wordsApi = {
   getDue: (limit?: number) => request<any>(`/words/due?limit=${limit || 20}`),
 
   search: (query: string, limit?: number) => request<any>(`/words/search?q=${encodeURIComponent(query)}${limit ? '&limit=' + limit : ''}`),
+
+  getDaily: () => request<any>('/words/daily'),
 }
 
 // Themes API

@@ -8,6 +8,7 @@ import DailyGoals from '@/components/progress/DailyGoals.vue'
 import LevelProgress from '@/components/progress/LevelProgress.vue'
 import CalendarHeatmap from '@/components/progress/CalendarHeatmap.vue'
 import ThemeCard from '@/components/learning/ThemeCard.vue'
+import WordOfDay from '@/components/learning/WordOfDay.vue'
 
 const router = useRouter()
 const progressStore = useProgressStore()
@@ -78,6 +79,9 @@ function selectTheme(theme: any) {
           />
         </div>
       </div>
+
+      <!-- Word of the Day -->
+      <WordOfDay />
 
       <!-- Quick Actions -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
