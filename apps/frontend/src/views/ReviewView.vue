@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useSessionStore } from '@/stores/session'
 import Flashcard from '@/components/learning/Flashcard.vue'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
@@ -8,13 +8,43 @@ const sessionStore = useSessionStore()
 
 const sessionComplete = ref(false)
 const sessionResult = ref<any>(null)
+const cardFlipped = ref(false)
+
+function handleCardFlip(flipped: boolean) {
+  cardFlipped.value = flipped
+}
 
 onMounted(async () => {
   await sessionStore.startSession({
     type: 'review',
     wordCount: 20,
   })
+  window.addEventListener('keydown', handleKeydown)
 })
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown)
+})
+
+function handleKeydown(e: KeyboardEvent) {
+  if (sessionComplete.value || !sessionStore.currentWord) return
+  
+  const target = e.target as HTMLElement
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') return
+
+  if (e.key === ' ' || e.key === 'Enter') {
+    e.preventDefault()
+    const container = document.querySelector('.flashcard-container')
+    if (container) (container as HTMLElement).click()
+  } else if (cardFlipped.value) {
+    switch (e.key) {
+      case '1': handleResponse('forgot'); break
+      case '2': handleResponse('hard'); break
+      case '3': handleResponse('medium'); break
+      case '4': case '0': handleResponse('easy'); break
+    }
+  }
+}
 
 async function handleResponse(response: 'easy' | 'medium' | 'hard' | 'forgot') {
   await sessionStore.submitResponse(response)
@@ -92,6 +122,7 @@ function startNewSession() {
       <Flashcard
         :word="sessionStore.currentWord"
         @response="handleResponse"
+        @flip="handleCardFlip"
       />
     </div>
 
