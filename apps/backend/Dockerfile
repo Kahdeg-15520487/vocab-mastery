@@ -3,45 +3,56 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Copy root package files (workspace config)
 COPY package*.json ./
-COPY prisma ./prisma/
+COPY apps/backend/package*.json ./apps/backend/
 
-# Install dependencies
-RUN npm ci
+# Install ALL dependencies (workspace-aware)
+RUN npm ci --workspaces --include-workspace-root
 
-# Copy source files
-COPY . .
+# Copy backend source
+COPY apps/backend ./apps/backend
 
 # Generate Prisma client
-RUN npx prisma generate
+RUN cd apps/backend && npx prisma generate
 
 # Build TypeScript
-RUN npm run build
+RUN cd apps/backend && npm run build
 
 # Production stage
 FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Install PostgreSQL client for health checks
+# Install PostgreSQL client for entrypoint health check
 RUN apk add --no-cache postgresql-client
 
-# Copy built files
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/package.json ./
+# Copy package files for production install
+COPY package*.json ./
+COPY apps/backend/package*.json ./apps/backend/
+
+# Install production dependencies only (include tsx for seed scripts)
+RUN npm ci --omit=dev --workspaces --include-workspace-root && \
+    cd apps/backend && npm install tsx
+
+# Copy built files from builder
+COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
+COPY --from=builder /app/apps/backend/prisma ./apps/backend/prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 # Copy entrypoint script
-COPY docker-entrypoint.sh ./
-RUN chmod +x ./docker-entrypoint.sh
+COPY apps/backend/docker-entrypoint.sh ./apps/backend/
+RUN chmod +x ./apps/backend/docker-entrypoint.sh
 
 # Expose port
 EXPOSE 7101
 
-# Set environment
+# Set environment defaults
 ENV NODE_ENV=production
+ENV PORT=7101
+
+# Working directory for entrypoint
+WORKDIR /app/apps/backend
 
 # Entrypoint
 ENTRYPOINT ["./docker-entrypoint.sh"]
