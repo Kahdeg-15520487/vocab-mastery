@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { request } from '@/lib/api'
 
 const authStore = useAuthStore()
 
@@ -17,6 +18,56 @@ const deletePassword = ref('')
 const deleteLoading = ref(false)
 const deleteError = ref('')
 const showDeleteConfirm = ref(false)
+
+// Daily goals
+const dailyLearnGoal = ref(10)
+const dailyReviewGoal = ref(20)
+const goalsLoading = ref(false)
+const goalsSaving = ref(false)
+const goalsSuccess = ref('')
+const goalsError = ref('')
+
+onMounted(async () => {
+  await loadGoals()
+})
+
+async function loadGoals() {
+  goalsLoading.value = true
+  try {
+    const data = await request<any>('/progress/dashboard')
+    // Extract goals from dashboard response
+    if (data.dailyGoal) {
+      dailyLearnGoal.value = data.dailyGoal.wordsToLearn
+      dailyReviewGoal.value = data.dailyGoal.wordsToReview
+    }
+  } catch (_e) {
+    // Use defaults if fetch fails
+  } finally {
+    goalsLoading.value = false
+  }
+}
+
+async function handleSaveGoals() {
+  goalsSaving.value = true
+  goalsError.value = ''
+  goalsSuccess.value = ''
+
+  try {
+    await request<any>('/progress/settings', {
+      method: 'PUT',
+      body: JSON.stringify({
+        dailyLearnGoal: dailyLearnGoal.value,
+        dailyReviewGoal: dailyReviewGoal.value,
+      }),
+    })
+    goalsSuccess.value = 'Daily goals updated!'
+    setTimeout(() => { goalsSuccess.value = '' }, 3000)
+  } catch (e: any) {
+    goalsError.value = e.message || 'Failed to update goals'
+  } finally {
+    goalsSaving.value = false
+  }
+}
 
 async function handleChangePassword() {
   passwordError.value = ''
@@ -108,6 +159,63 @@ async function handleDeleteAccount() {
           <span class="badge badge-primary">{{ authStore.user?.subscriptionTier }}</span>
         </div>
       </div>
+    </div>
+
+    <!-- Daily Goals -->
+    <div class="card mb-6">
+      <h2 class="text-lg font-semibold text-slate-900 mb-4">Daily Goals</h2>
+      <p class="text-sm text-slate-600 mb-4">
+        Set your daily learning targets. These appear on your dashboard.
+      </p>
+      
+      <form @submit.prevent="handleSaveGoals" class="space-y-4">
+        <div v-if="goalsError" class="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+          {{ goalsError }}
+        </div>
+        <div v-if="goalsSuccess" class="p-3 bg-green-50 text-green-700 rounded-lg text-sm">
+          {{ goalsSuccess }}
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="dailyLearnGoal" class="block text-sm font-medium text-slate-700 mb-1">
+              Words to Learn / Day
+            </label>
+            <input
+              id="dailyLearnGoal"
+              v-model.number="dailyLearnGoal"
+              type="number"
+              min="1"
+              max="200"
+              class="input"
+              :disabled="goalsLoading"
+            />
+          </div>
+          <div>
+            <label for="dailyReviewGoal" class="block text-sm font-medium text-slate-700 mb-1">
+              Words to Review / Day
+            </label>
+            <input
+              id="dailyReviewGoal"
+              v-model.number="dailyReviewGoal"
+              type="number"
+              min="1"
+              max="500"
+              class="input"
+              :disabled="goalsLoading"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          :disabled="goalsSaving || goalsLoading"
+          class="btn btn-primary"
+        >
+          <span v-if="goalsSaving">Saving...</span>
+          <span v-else>Save Goals</span>
+        </button>
+      </form>
     </div>
 
     <!-- Change Password -->
