@@ -193,8 +193,12 @@ npm run docker:down
 - 🎴 **Spaced Repetition** - SM-2 algorithm for optimal review scheduling
 - 🏷️ **Theme-based Learning** - Organize vocabulary by topic (9 categories via LLM)
 - 📊 **Progress Tracking** - Statistics, streaks, daily goals, achievements, calendar heatmap
+- ⚡ **XP & Levels** - Earn XP from activities, level up with increasing thresholds
+- 🏆 **Leaderboard** - XP-based ranking with medals for top 3
 - 🌙 **Dark Mode** - System/light/dark toggle with full component support
 - 🧠 **Quiz Mode** - Multiple-choice quizzes with difficulty levels and scoring
+- ✍️ **Spelling Practice** - Type words from definitions with letter hints
+- 📝 **Fill in the Blank** - Context-based practice using example sentences
 - ❤️ **Favorites** - Bookmark words for quick access
 - 📝 **Session History** - Track all learning, review, and quiz sessions
 - 🔊 **Pronunciation** - Text-to-speech with US/UK accents
@@ -210,9 +214,13 @@ npm run docker:down
 - ⚡ **Rate Limiting** - Global + per-route rate limiting for security
 - 🔄 **Background Jobs** - Long-running LLM tasks with progress tracking
 - 🔔 **Toast Notifications** - Real-time feedback for user actions
+- 🎊 **Confetti Animations** - Celebrate level-ups with particle effects
 - 📖 **Word Detail Page** - Full word info, examples, synonyms, progress stats
 - ⌨️ **Keyboard Shortcuts** - Space to flip, 1-4 for responses in flashcards
 - ✨ **Page Transitions** - Smooth animations between views
+- 📡 **Offline Detection** - Banner when network connection is lost
+- 👤 **User Avatars** - Deterministic color-based initials for each user
+- 🔍 **Global Search** - Ctrl+K/Cmd+K to jump to browse with search focus
 
 ## LLM Word Categorization
 
