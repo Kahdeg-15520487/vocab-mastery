@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useSessionStore } from '@/stores/session'
+import { useToast } from '@/composables/useToast'
 import Flashcard from '@/components/learning/Flashcard.vue'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
 
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
 const sessionStore = useSessionStore()
+const toast = useToast()
 
 const sessionComplete = ref(false)
 const sessionResult = ref<any>(null)
@@ -55,6 +57,14 @@ async function handleResponse(response: 'easy' | 'medium' | 'hard' | 'forgot') {
     const result = await sessionStore.completeSession()
     sessionResult.value = result
     sessionComplete.value = true
+
+    // Show achievement toast notifications
+    if (result?.newAchievements?.length > 0) {
+      for (const key of result.newAchievements) {
+        const name = key.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
+        toast.success(`🏆 ${name}`, 'Achievement Unlocked!')
+      }
+    }
   }
 }
 

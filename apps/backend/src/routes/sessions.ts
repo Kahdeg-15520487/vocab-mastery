@@ -4,6 +4,7 @@ import prisma from '../lib/prisma.js';
 import { authenticate } from '../middleware/auth.js';
 import { calculateNextReview, responseToQuality } from '../lib/spaced-repetition.js';
 import type { WordStatus } from '../lib/spaced-repetition.js';
+import { checkAchievements } from '../lib/achievements.js';
 
 export async function sessionRoutes(app: FastifyInstance) {
   // All session routes require authentication
@@ -618,6 +619,14 @@ export async function sessionRoutes(app: FastifyInstance) {
       ? Math.round((session.totalCorrect / session.sessionWords.length) * 100)
       : 0;
 
+    // Check achievements after session completion
+    const newAchievementKeys = await checkSessionAchievements(
+      userId, session.totalCorrect, accuracy, completedSession.type
+    ).catch((err: Error) => {
+      console.error('Achievement check failed:', err);
+      return [];
+    });
+
     return {
       success: true,
       session: {
@@ -631,6 +640,50 @@ export async function sessionRoutes(app: FastifyInstance) {
         accuracy,
       },
       xpEarned: session.totalCorrect * 5 + Math.round(accuracy / 10),
+      newAchievements: newAchievementKeys,
     };
   });
+}
+
+/**
+ * Check and unlock achievements after session completion
+ */
+async function checkSessionAchievements(
+  userId: string,
+  totalCorrect: number,
+  accuracy: number,
+  sessionType: string
+): Promise<string[]> {
+  const [wordsLearned, reviewAggregate, sessionsCompleted] = await Promise.all([
+    prisma.wordProgress.count({ where: { userId, status: { not: 'new' } } }),
+    prisma.wordProgress.aggregate({ where: { userId }, _sum: { totalReviews: true } }),
+    prisma.learningSession.count({ where: { userId, completedAt: { not: null } } }),
+  ]);
+
+  const reviewCount = reviewAggregate._sum.totalReviews || 0;
+  const allUnlocked: string[] = [];
+
+  // Words learned
+  if (wordsLearned > 0) {
+    const unlocked = await checkAchievements({ userId, type: 'words_learned', value: wordsLearned });
+    allUnlocked.push(...unlocked);
+  }
+
+  // Total reviews
+  if (reviewCount > 0) {
+    const unlocked = await checkAchievements({ userId, type: 'total_reviews', value: reviewCount });
+    allUnlocked.push(...unlocked);
+  }
+
+  // Sessions completed
+  const unlocked = await checkAchievements({ userId, type: 'sessions_completed', value: sessionsCompleted });
+  allUnlocked.push(...unlocked);
+
+  // Perfect session (100% accuracy, at least 5 words)
+  if (accuracy === 100 && totalCorrect >= 5 && sessionType !== 'quiz') {
+    const perfect = await checkAchievements({ userId, type: 'perfect_session', value: totalCorrect });
+    allUnlocked.push(...perfect);
+  }
+
+  return allUnlocked;
 }

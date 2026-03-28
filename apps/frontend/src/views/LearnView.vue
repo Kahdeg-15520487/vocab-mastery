@@ -3,6 +3,7 @@ import { onMounted, onUnmounted, computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useSessionStore } from '@/stores/session'
 import { useWordsStore } from '@/stores/words'
+import { useToast } from '@/composables/useToast'
 import Flashcard from '@/components/learning/Flashcard.vue'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
@@ -11,6 +12,7 @@ const route = useRoute()
 const router = useRouter()
 const sessionStore = useSessionStore()
 const wordsStore = useWordsStore()
+const toast = useToast()
 
 const theme = computed(() => route.params.theme as string | undefined)
 const listId = computed(() => (route.query.list as string) || undefined)
@@ -91,6 +93,14 @@ async function handleResponse(response: 'easy' | 'medium' | 'hard' | 'forgot') {
     const result = await sessionStore.completeSession()
     sessionResult.value = result
     sessionComplete.value = true
+
+    // Show achievement toast notifications
+    if (result?.newAchievements?.length > 0) {
+      for (const key of result.newAchievements) {
+        const name = key.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
+        toast.success(`🏆 ${name}`, 'Achievement Unlocked!')
+      }
+    }
   }
 }
 
