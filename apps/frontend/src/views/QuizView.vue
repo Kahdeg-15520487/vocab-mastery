@@ -120,11 +120,17 @@ async function startQuiz() {
 
 async function selectOption(option: QuizOption) {
   if (answered.value) return
+
+  // Immediately set from client-side data (no flash of wrong state)
   answered.value = true
   selectedId.value = option.id
+  isCorrect.value = option.correct
+  correctId.value = question.value!.id
+  if (option.correct) score.value++
 
+  // Fire-and-forget: record answer on server for session tracking
   try {
-    const result = await request<{ correct: boolean; correctId: string }>(
+    await request<{ correct: boolean; correctId: string }>(
       `/sessions/quiz/${quizData.value!.sessionId}/answer`,
       {
         method: 'POST',
@@ -135,13 +141,8 @@ async function selectOption(option: QuizOption) {
         }),
       }
     )
-    isCorrect.value = result.correct
-    correctId.value = result.correctId
-    if (result.correct) score.value++
   } catch {
-    isCorrect.value = option.correct
-    correctId.value = question.value!.id
-    if (option.correct) score.value++
+    // Already handled client-side
   }
 }
 
@@ -342,13 +343,13 @@ onMounted(() => {
               <span v-else>{{ question.options.indexOf(option) + 1 }}</span>
             </span>
             <div class="min-w-0 flex-1">
+              <!-- Word-to-Def: show ONLY definition (not the word!) -->
               <template v-if="questionMode === 'word-to-def'">
-                <div class="font-medium text-slate-900 dark:text-white">{{ option.word }}</div>
-                <div class="text-sm text-slate-500 dark:text-slate-400 truncate">{{ option.definition }}</div>
+                <div class="text-slate-700 dark:text-slate-300">{{ option.definition }}</div>
               </template>
+              <!-- Def-to-Word: show ONLY word (not the definition!) -->
               <template v-else>
                 <div class="font-medium text-slate-900 dark:text-white">{{ option.word }}</div>
-                <div class="text-sm text-slate-500 dark:text-slate-400 truncate">{{ option.definition }}</div>
               </template>
             </div>
           </div>
@@ -364,9 +365,13 @@ onMounted(() => {
           ❌ Incorrect — the answer was <strong>{{ question.options.find(o => o.id === correctId)?.word }}</strong>
         </div>
 
-        <!-- Show examples -->
-        <div v-if="question.examples?.length" class="text-sm text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
-          <div v-for="ex in question.examples.slice(0, 2)" :key="ex" class="italic">"{{ ex }}"</div>
+        <!-- Show full info after answering -->
+        <div class="text-sm bg-slate-50 dark:bg-slate-800 rounded-lg p-3 space-y-1">
+          <div class="font-semibold text-slate-900 dark:text-white">{{ question.word }}</div>
+          <div class="text-slate-600 dark:text-slate-400">{{ question.definition }}</div>
+          <div v-if="question.examples?.length" class="pt-1">
+            <div v-for="ex in question.examples.slice(0, 2)" :key="ex" class="text-slate-500 dark:text-slate-400 italic">"{{ ex }}"</div>
+          </div>
         </div>
 
         <button @click="nextQuestion" class="btn btn-primary">

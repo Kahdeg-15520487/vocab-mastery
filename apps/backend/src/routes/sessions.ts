@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify';
+import { Prisma } from '@prisma/client';
 import prisma from '../lib/prisma.js';
 import { authenticate } from '../middleware/auth.js';
 
@@ -222,7 +223,7 @@ export async function sessionRoutes(app: FastifyInstance) {
       orderBy: { frequency: 'asc' },
     });
 
-    // If not enough, fill with any words
+    // If not enough, fill with any words (randomized)
     if (quizWords.length < questionCount) {
       const existingIds = quizWords.map(w => w.id);
       const moreWords = await prisma.word.findMany({
@@ -237,14 +238,19 @@ export async function sessionRoutes(app: FastifyInstance) {
       return reply.status(400).send({ error: 'Not enough words for a quiz (need at least 4)' });
     }
 
+    // Shuffle quiz words so they're not always in frequency order
+    quizWords = quizWords.sort(() => Math.random() - 0.5);
+
     // Get random wrong answer options from other words
     const allWordIds = new Set(quizWords.map(w => w.id));
     
-    const wrongPool = await prisma.word.findMany({
-      where: { id: { notIn: [...allWordIds] } },
-      select: { id: true, word: true, definition: true },
-      take: 100,
-    });
+    // Use raw query for true randomness (Prisma doesn't support ORDER BY RANDOM())
+    const wrongPool = await prisma.$queryRaw<Array<{ id: string; word: string; definition: string }>>`
+      SELECT id, word, definition FROM words
+      WHERE id NOT IN (${Prisma.join([...allWordIds])})
+      ORDER BY RANDOM()
+      LIMIT 100
+    `;
 
     // Build questions
     const questions = quizWords.map((word, index) => {
