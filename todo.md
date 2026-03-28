@@ -6,7 +6,7 @@
 
 - [ ] **#171** Add forgot password flow (requires email service) #feature #frontend
 - [ ] **#177** Add transition animations between views (page transitions) ##polish ##frontend
-- [ ] **#179** Add upcoming review schedule on dashboard/stats page ##feature ##frontend ##backend
+- [ ] **#180** Add Vue page transition animations ##polish ##frontend
 
 ## Completed
 
@@ -53,6 +53,7 @@
 - [x] **#175** Add study session history page with past sessions list ##feature ##frontend ##backend
 - [x] **#176** Add spaced repetition schedule preview (upcoming reviews calendar) ##feature ##frontend
 - [x] **#178** **[high]** Add word favorites/bookmarks - backend + frontend ##feature ##frontend ##backend
+- [x] **#179** Add upcoming review schedule on dashboard/stats page ##feature ##frontend ##backend
 
 <!-- Raw Data -->
 ```json
@@ -668,7 +669,7 @@
     {
       "id": 179,
       "text": "Add upcoming review schedule on dashboard/stats page",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "#feature",
@@ -676,9 +677,22 @@
         "#backend"
       ],
       "createdAt": 1774691432351,
+      "archived": false,
+      "completedAt": 1774692221357
+    },
+    {
+      "id": 180,
+      "text": "Add Vue page transition animations",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "#polish",
+        "#frontend"
+      ],
+      "createdAt": 1774692230477,
       "archived": false
     }
   ],
-  "nextId": 180
+  "nextId": 181
 }
 ```
