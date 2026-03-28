@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import { useProgressStore } from '@/stores/progress'
 import { useWordsStore } from '@/stores/words'
 import StreakDisplay from '@/components/progress/StreakDisplay.vue'
@@ -13,6 +14,7 @@ import WordOfDay from '@/components/learning/WordOfDay.vue'
 const router = useRouter()
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
+const authStore = useAuthStore()
 const progressStore = useProgressStore()
 const wordsStore = useWordsStore()
 
@@ -43,7 +45,7 @@ function selectTheme(theme: any) {
       <!-- Welcome & Quick Stats -->
       <div class="text-center">
         <h1 class="text-2xl font-bold text-slate-900 mb-2">
-          Welcome back! 👋
+          Welcome back, {{ authStore.user?.username || 'there' }}! 👋
         </h1>
         <p class="text-slate-600">
           Keep up the great work on your vocabulary journey!

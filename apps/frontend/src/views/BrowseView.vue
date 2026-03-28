@@ -3,11 +3,13 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { useWordsStore } from '@/stores/words'
 import { useListsStore } from '@/stores/lists'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import { useSpeech } from '@/composables/useSpeech'
 import LevelBadge from '@/components/learning/LevelBadge.vue'
 import type { Word } from '@/types'
 
 const wordsStore = useWordsStore()
 const listsStore = useListsStore()
+const { speak } = useSpeech()
 
 const search = ref('')
 const searchDebounced = ref('')
@@ -179,7 +181,16 @@ const visiblePages = computed(() => {
               <span v-if="word.oxfordList === '3000'" class="badge badge-secondary">Oxford 3000</span>
               <span v-else class="badge badge-primary">Oxford 5000</span>
             </div>
-            <p class="text-slate-500 text-sm mb-2">{{ word.phoneticUs }}</p>
+            <p class="text-slate-500 text-sm mb-2 flex items-center gap-2">
+              {{ word.phoneticUs }}
+              <button
+                @click.stop="speak(word.word)"
+                class="text-primary-500 hover:text-primary-700 transition-colors"
+                title="Pronounce"
+              >
+                🔊
+              </button>
+            </p>
             <p class="text-slate-700 line-clamp-2">{{ word.definition }}</p>
             <p v-if="word.synonyms?.length" class="text-sm text-slate-500 mt-2">
               {{ formatSynonyms(word.synonyms) }}
@@ -297,7 +308,16 @@ const visiblePages = computed(() => {
               <h2 class="text-2xl font-bold text-slate-900">{{ selectedWord.word }}</h2>
               <LevelBadge :level="selectedWord.cefrLevel" />
             </div>
-            <p class="text-slate-500">{{ selectedWord.phoneticUs }}</p>
+            <p class="text-slate-500 flex items-center gap-2">
+              {{ selectedWord.phoneticUs }}
+              <button
+                @click="speak(selectedWord.word)"
+                class="text-primary-500 hover:text-primary-700 transition-colors"
+                title="Pronounce"
+              >
+                🔊
+              </button>
+            </p>
             <p v-if="selectedWord.phoneticUk && selectedWord.phoneticUk !== selectedWord.phoneticUs" class="text-slate-400 text-sm">
               UK: {{ selectedWord.phoneticUk }}
             </p>
