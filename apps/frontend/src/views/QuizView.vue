@@ -154,7 +154,20 @@ function nextQuestion() {
     correctId.value = null
     startTime.value = Date.now()
   } else {
+    // Complete the session
+    completeSession()
     phase.value = 'results'
+  }
+}
+
+async function completeSession() {
+  try {
+    await request(`/sessions/${quizData.value!.sessionId}/complete`, {
+      method: 'POST',
+      body: '{}',
+    })
+  } catch {
+    // Non-critical — session still completed locally
   }
 }
 
