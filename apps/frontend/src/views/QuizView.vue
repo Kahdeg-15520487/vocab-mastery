@@ -37,6 +37,7 @@ const toast = useToast()
 const phase = ref<'setup' | 'playing' | 'results'>('setup')
 const loading = ref(false)
 const quizData = ref<QuizData | null>(null)
+const quizResult = ref<{ xpEarned?: number; leveledUp?: boolean; newAchievements?: string[] } | null>(null)
 const currentIndex = ref(0)
 const selectedId = ref<string | null>(null)
 const answered = ref(false)
@@ -112,6 +113,7 @@ async function startQuiz() {
     quizData.value = data
     score.value = 0
     currentIndex.value = 0
+    quizResult.value = null
     missedQuestions.value = []
     startTime.value = Date.now()
     phase.value = 'playing'
@@ -168,10 +170,11 @@ function nextQuestion() {
 
 async function completeSession() {
   try {
-    await request(`/sessions/${quizData.value!.sessionId}/complete`, {
+    const result = await request<{ xpEarned?: number; leveledUp?: boolean; newAchievements?: string[] }>(`/sessions/${quizData.value!.sessionId}/complete`, {
       method: 'POST',
       body: '{}',
     })
+    quizResult.value = result
   } catch {
     // Non-critical — session still completed locally
   }
@@ -414,6 +417,12 @@ onMounted(() => {
         {{ difficultyOptions.find(d => d.value === difficulty)?.icon }}
         {{ difficultyOptions.find(d => d.value === difficulty)?.label }} ·
         {{ quizData.questionCount }} questions
+      </div>
+
+      <!-- XP Earned -->
+      <div v-if="quizResult?.xpEarned" class="flex items-center justify-center gap-2">
+        <span class="text-2xl">⚡</span>
+        <span class="text-lg font-bold text-primary-600 dark:text-primary-400">+{{ quizResult.xpEarned }} XP</span>
       </div>
 
       <div class="flex gap-4 justify-center">
