@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-
-const API_BASE = import.meta.env.VITE_API_URL || '/api'
+import { adminApi } from '@/lib/api'
 
 interface Stats {
   users: {
@@ -25,16 +24,7 @@ const error = ref<string | null>(null)
 
 onMounted(async () => {
   try {
-    const token = sessionStorage.getItem('accessToken')
-    const response = await fetch(`${API_BASE}/admin/stats`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      credentials: 'include',
-    })
-
-    if (!response.ok) throw new Error('Failed to fetch stats')
-    stats.value = await response.json()
+    stats.value = await adminApi.getStats()
   } catch (e: any) {
     error.value = e.message
   } finally {

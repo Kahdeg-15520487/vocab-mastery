@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useListsStore, type ListDetail } from '@/stores/lists'
+import { wordsApi } from '@/lib/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -28,16 +29,11 @@ async function searchWords() {
 
   searching.value = true
   try {
-    const token = sessionStorage.getItem('accessToken')
-    const response = await fetch(`/api/words/search?q=${encodeURIComponent(searchQuery.value)}&limit=20`, {
-      headers: { Authorization: `Bearer ${token}` },
-      credentials: 'include',
-    })
-    const data = await response.json()
+    const data = await wordsApi.search(searchQuery.value, 20)
     // API returns array directly, not { words: [...] }
     searchResults.value = Array.isArray(data) ? data : (data.words || [])
-  } catch (e) {
-    console.error('Search failed:', e)
+  } catch (_e) {
+    // Search failed silently
   } finally {
     searching.value = false
   }

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import UserEditModal from './UserEditModal.vue'
-
-const API_BASE = import.meta.env.VITE_API_URL || '/api'
+import { adminApi } from '@/lib/api'
 
 interface User {
   id: string
@@ -44,23 +43,13 @@ async function fetchUsers() {
   error.value = null
 
   try {
-    const token = sessionStorage.getItem('accessToken')
-    const params = new URLSearchParams()
-    params.append('page', String(page.value))
-    params.append('limit', String(limit.value))
-    if (search.value) params.append('search', search.value)
-    if (roleFilter.value) params.append('role', roleFilter.value)
-    if (tierFilter.value) params.append('tier', tierFilter.value)
-
-    const response = await fetch(`${API_BASE}/admin/users?${params}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      credentials: 'include',
+    const data = await adminApi.getUsers({
+      page: page.value,
+      limit: limit.value,
+      search: search.value || undefined,
+      role: roleFilter.value || undefined,
+      tier: tierFilter.value || undefined,
     })
-
-    if (!response.ok) throw new Error('Failed to fetch users')
-    const data = await response.json()
     users.value = data.users
     total.value = data.pagination.total
   } catch (e: any) {
@@ -99,20 +88,7 @@ async function deleteUser(user: User) {
   if (!confirm(`Delete user "${user.username}"? This cannot be undone.`)) return
 
   try {
-    const token = sessionStorage.getItem('accessToken')
-    const response = await fetch(`${API_BASE}/admin/users/${user.id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      credentials: 'include',
-    })
-
-    if (!response.ok) {
-      const data = await response.json()
-      throw new Error(data.error || 'Failed to delete user')
-    }
-
+    await adminApi.deleteUser(user.id)
     // Remove from list
     users.value = users.value.filter(u => u.id !== user.id)
     total.value--

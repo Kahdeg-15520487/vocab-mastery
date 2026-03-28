@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-
-// Use relative path to leverage Vite proxy in development
-const API_BASE = import.meta.env.VITE_API_URL || '/api'
+import { dataApi } from '@/lib/api'
 
 interface DataStats {
   total: number
@@ -52,16 +50,7 @@ async function fetchStats() {
   error.value = null
 
   try {
-    const token = sessionStorage.getItem('accessToken')
-    const response = await fetch(`${API_BASE}/data/stats`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      credentials: 'include',
-    })
-
-    if (!response.ok) throw new Error('Failed to fetch stats')
-    stats.value = await response.json()
+    stats.value = await dataApi.getStats()
   } catch (e: unknown) {
     error.value = (e as Error).message
   } finally {
@@ -74,17 +63,7 @@ async function handleExport() {
   error.value = null
 
   try {
-    const token = sessionStorage.getItem('accessToken')
-    const response = await fetch(`${API_BASE}/data/export`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      credentials: 'include',
-    })
-
-    if (!response.ok) throw new Error('Failed to export data')
-
-    const data = await response.json()
+    const data = await dataApi.exportWords()
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     
@@ -127,24 +106,7 @@ async function handleImport() {
       merge: mergeMode.value,
     }
 
-    const token = sessionStorage.getItem('accessToken')
-    const response = await fetch(`${API_BASE}/data/import`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify(payload),
-    })
-
-    const result = await response.json()
-
-    if (!response.ok) {
-      throw new Error(result.error || 'Failed to import data')
-    }
-
-    importResult.value = result
+    importResult.value = await dataApi.importWords(payload)
 
     // Refresh stats
     await fetchStats()
@@ -188,28 +150,11 @@ async function handleOxfordImport(list: '3000' | '5000') {
   try {
     const content = await file.text()
     
-    const token = sessionStorage.getItem('accessToken')
-    const response = await fetch(`${API_BASE}/data/import-oxford`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        content,
-        list,
-        merge: oxfordMergeMode.value,
-      }),
+    oxfordResult.value = await dataApi.importOxford({
+      content,
+      list,
+      merge: oxfordMergeMode.value,
     })
-
-    const result = await response.json()
-
-    if (!response.ok) {
-      throw new Error(result.error || 'Failed to import Oxford list')
-    }
-
-    oxfordResult.value = result
 
     // Refresh stats
     await fetchStats()

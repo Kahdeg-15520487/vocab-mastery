@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { adminApi } from '@/lib/api'
 
 interface LLMProvider {
   id: string
@@ -92,14 +93,7 @@ async function loadProviders() {
   error.value = null
 
   try {
-    const token = sessionStorage.getItem('accessToken')
-    const response = await fetch('/api/admin/llm/providers', {
-      headers: { 'Authorization': `Bearer ${token}` },
-      credentials: 'include',
-    })
-
-    if (!response.ok) throw new Error('Failed to fetch providers')
-    providers.value = await response.json()
+    providers.value = await adminApi.getProviders()
   } catch (e: any) {
     error.value = e.message
   } finally {
@@ -111,12 +105,7 @@ async function checkLLMStatus() {
   testing.value = true
   
   try {
-    const token = sessionStorage.getItem('accessToken')
-    const response = await fetch('/api/admin/llm/status', {
-      headers: { 'Authorization': `Bearer ${token}` },
-      credentials: 'include',
-    })
-    llmStatus.value = await response.json()
+    llmStatus.value = await adminApi.checkLLMStatus()
   } catch (e: any) {
     llmStatus.value = { available: false, error: e.message }
   } finally {
@@ -185,12 +174,6 @@ async function saveProvider() {
   success.value = null
 
   try {
-    const token = sessionStorage.getItem('accessToken')
-    const url = editingProvider.value 
-      ? `/api/admin/llm/providers/${editingProvider.value.id}`
-      : '/api/admin/llm/providers'
-    const method = editingProvider.value ? 'PUT' : 'POST'
-
     const body: any = {
       name: formData.value.name,
       provider: formData.value.provider,
@@ -205,24 +188,13 @@ async function saveProvider() {
       body.apiKey = formData.value.apiKey
     }
 
-    const response = await fetch(url, {
-      method,
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify(body),
-    })
-
-    if (!response.ok) {
-      const data = await response.json()
-      throw new Error(data.error || 'Failed to save provider')
+    if (editingProvider.value) {
+      await adminApi.updateProvider(editingProvider.value.id, body)
+      success.value = 'Provider updated successfully!'
+    } else {
+      await adminApi.createProvider(body)
+      success.value = 'Provider created successfully!'
     }
-
-    success.value = editingProvider.value 
-      ? 'Provider updated successfully!' 
-      : 'Provider created successfully!'
     
     closeForm()
     await loadProviders()
@@ -237,18 +209,7 @@ async function deleteProvider(provider: LLMProvider) {
   if (!confirm(`Delete provider "${provider.name}"?`)) return
 
   try {
-    const token = sessionStorage.getItem('accessToken')
-    const response = await fetch(`/api/admin/llm/providers/${provider.id}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` },
-      credentials: 'include',
-    })
-
-    if (!response.ok) {
-      const data = await response.json()
-      throw new Error(data.error || 'Failed to delete provider')
-    }
-
+    await adminApi.deleteProvider(provider.id)
     success.value = 'Provider deleted!'
     await loadProviders()
   } catch (e: any) {
@@ -258,15 +219,7 @@ async function deleteProvider(provider: LLMProvider) {
 
 async function activateProvider(provider: LLMProvider) {
   try {
-    const token = sessionStorage.getItem('accessToken')
-    const response = await fetch(`/api/admin/llm/providers/${provider.id}/activate`, {
-      method: 'PUT',
-      headers: { 'Authorization': `Bearer ${token}` },
-      credentials: 'include',
-    })
-
-    if (!response.ok) throw new Error('Failed to activate provider')
-
+    await adminApi.activateProvider(provider.id)
     success.value = `${provider.name} is now active!`
     await Promise.all([loadProviders(), checkLLMStatus()])
   } catch (e: any) {
@@ -280,15 +233,7 @@ async function testProvider(provider: LLMProvider) {
   success.value = null
 
   try {
-    const token = sessionStorage.getItem('accessToken')
-    const response = await fetch(`/api/admin/llm/providers/${provider.id}/test`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` },
-      credentials: 'include',
-    })
-
-    const result = await response.json()
-    
+    const result = await adminApi.testProvider(provider.id)
     if (result.success) {
       success.value = `Connection to ${provider.name} successful!`
     } else {
@@ -312,24 +257,13 @@ async function testNewProvider() {
   success.value = null
 
   try {
-    const token = sessionStorage.getItem('accessToken')
-    const response = await fetch('/api/admin/llm/test', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        provider: formData.value.provider,
-        model: customModel.value || formData.value.model,
-        apiKey: formData.value.apiKey || undefined,
-        baseUrl: formData.value.baseUrl || undefined,
-        maxTokens: formData.value.maxTokens || undefined,
-      }),
+    const result = await adminApi.testLLMConfig({
+      provider: formData.value.provider,
+      model: customModel.value || formData.value.model,
+      apiKey: formData.value.apiKey || undefined,
+      baseUrl: formData.value.baseUrl || undefined,
+      maxTokens: formData.value.maxTokens || undefined,
     })
-
-    const result = await response.json()
     
     if (result.success) {
       success.value = 'Connection successful!'

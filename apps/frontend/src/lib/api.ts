@@ -180,7 +180,7 @@ export const wordsApi = {
 
   getDue: (limit?: number) => request<any>(`/words/due?limit=${limit || 20}`),
 
-  search: (query: string) => request<any>(`/words/search?q=${encodeURIComponent(query)}`),
+  search: (query: string, limit?: number) => request<any>(`/words/search?q=${encodeURIComponent(query)}${limit ? '&limit=' + limit : ''}`),
 }
 
 // Themes API
@@ -256,7 +256,7 @@ export const statsApi = {
 export const adminApi = {
   getStats: () => request<any>('/admin/stats'),
   
-  getUsers: (params?: { page?: number; limit?: number; search?: string; tier?: string }) => {
+  getUsers: (params?: { page?: number; limit?: number; search?: string; role?: string; tier?: string }) => {
     const searchParams = new URLSearchParams()
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -316,5 +316,121 @@ export const adminApi = {
     request<any>('/admin/categorize/single', {
       method: 'POST',
       body: JSON.stringify({ wordId }),
+    }),
+
+  // LLM Providers
+  getProviders: () => request<any>('/admin/llm/providers'),
+
+  getProvider: (id: string) => request<any>(`/admin/llm/providers/${id}`),
+
+  createProvider: (data: {
+    name: string;
+    provider: string;
+    model: string;
+    baseUrl?: string | null;
+    apiKey?: string;
+    context?: string | null;
+    maxTokens?: number;
+  }) =>
+    request<any>('/admin/llm/providers', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updateProvider: (id: string, data: {
+    name?: string;
+    provider?: string;
+    model?: string;
+    baseUrl?: string | null;
+    apiKey?: string;
+    context?: string | null;
+    maxTokens?: number;
+  }) =>
+    request<any>(`/admin/llm/providers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  deleteProvider: (id: string) =>
+    request<any>(`/admin/llm/providers/${id}`, {
+      method: 'DELETE',
+    }),
+
+  activateProvider: (id: string) =>
+    request<any>(`/admin/llm/providers/${id}/activate`, {
+      method: 'PUT',
+    }),
+
+  testProvider: (id: string) =>
+    request<any>(`/admin/llm/providers/${id}/test`, {
+      method: 'POST',
+    }),
+
+  testLLMConfig: (config: {
+    provider: string;
+    model: string;
+    apiKey?: string;
+    baseUrl?: string;
+    maxTokens?: number;
+  }) =>
+    request<any>('/admin/llm/test', {
+      method: 'POST',
+      body: JSON.stringify(config),
+    }),
+
+  // Jobs
+  getJobs: (params?: { type?: string; limit?: number }) => {
+    const searchParams = new URLSearchParams()
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          searchParams.append(key, String(value))
+        }
+      })
+    }
+    return request<any>(`/admin/jobs?${searchParams}`)
+  },
+
+  getJob: (id: string) => request<any>(`/admin/jobs/${id}`),
+
+  createJob: (type: string, payload: any, priority?: number) =>
+    request<any>('/admin/jobs', {
+      method: 'POST',
+      body: JSON.stringify({ type, payload, priority }),
+    }),
+
+  createCategorizeJob: (options?: { limit?: number; overwrite?: boolean; themeSlugs?: string[] }) =>
+    request<any>('/admin/jobs/categorize', {
+      method: 'POST',
+      body: JSON.stringify(options || {}),
+    }),
+
+  cancelJob: (id: string) =>
+    request<any>(`/admin/jobs/${id}/cancel`, {
+      method: 'PUT',
+    }),
+
+  deleteJob: (id: string) =>
+    request<any>(`/admin/jobs/${id}`, {
+      method: 'DELETE',
+    }),
+}
+
+// Data API (admin)
+export const dataApi = {
+  getStats: () => request<any>('/data/stats'),
+
+  exportWords: () => request<any>('/data/export'),
+
+  importWords: (data: any) =>
+    request<any>('/data/import', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  importOxford: (data: { content: string; list: string; merge: boolean }) =>
+    request<any>('/data/import-oxford', {
+      method: 'POST',
+      body: JSON.stringify(data),
     }),
 }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, onUnmounted } from 'vue'
+import { adminApi } from '@/lib/api'
 
 interface CategoryStats {
   themeId: string
@@ -63,12 +64,7 @@ onUnmounted(() => {
 
 async function checkLLM() {
   try {
-    const token = sessionStorage.getItem('accessToken')
-    const response = await fetch('/api/admin/llm/status', {
-      headers: { 'Authorization': `Bearer ${token}` },
-      credentials: 'include',
-    })
-    llmStatus.value = await response.json()
+    llmStatus.value = await adminApi.checkLLMStatus()
   } catch (e: any) {
     llmStatus.value = { available: false, error: e.message }
   }
@@ -76,29 +72,19 @@ async function checkLLM() {
 
 async function loadStats() {
   try {
-    const token = sessionStorage.getItem('accessToken')
-    const response = await fetch('/api/admin/categorization/stats', {
-      headers: { 'Authorization': `Bearer ${token}` },
-      credentials: 'include',
-    })
-    stats.value = await response.json()
-  } catch (e: any) {
-    console.error('Failed to load stats:', e)
+    stats.value = await adminApi.getCategorizationStats()
+  } catch (_e: any) {
+    // Stats loading failure is non-critical
   }
 }
 
 async function loadJobs() {
   try {
-    const token = sessionStorage.getItem('accessToken')
-    const response = await fetch('/api/admin/jobs?limit=10', {
-      headers: { 'Authorization': `Bearer ${token}` },
-      credentials: 'include',
-    })
-    jobs.value = await response.json()
+    jobs.value = await adminApi.getJobs({ limit: 10 })
     
     // Find running/pending job
     const prev = activeJob.value
-    activeJob.value = jobs.value.find(j => j.status === 'RUNNING' || j.status === 'PENDING') || null
+    activeJob.value = jobs.value.find((j: Job) => j.status === 'RUNNING' || j.status === 'PENDING') || null
     
     // Start polling when job becomes active, stop when it completes
     if (activeJob.value && !prev) {
@@ -118,8 +104,8 @@ async function loadJobs() {
       // Still running — refresh stats periodically
       await loadStats()
     }
-  } catch (e: any) {
-    console.error('Failed to load jobs:', e)
+  } catch (_e: any) {
+    // Jobs loading failure is non-critical
   }
 }
 
@@ -131,17 +117,7 @@ async function previewCategorization() {
   error.value = null
   
   try {
-    const token = sessionStorage.getItem('accessToken')
-    const response = await fetch('/api/admin/categorize/preview', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({ word: previewWord.value.trim() }),
-    })
-    previewResult.value = await response.json()
+    previewResult.value = await adminApi.previewCategorization(previewWord.value.trim())
   } catch (e: any) {
     error.value = e.message
   } finally {
@@ -160,20 +136,9 @@ async function startCategorizeJob(limit: number) {
   if (!confirm(confirmMsg)) return
   
   try {
-    const token = sessionStorage.getItem('accessToken')
-    const response = await fetch('/api/admin/jobs/categorize', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({ 
-        limit: limit || undefined,
-      }),
+    const job = await adminApi.createCategorizeJob({ 
+      limit: limit || undefined,
     })
-    
-    const job = await response.json()
     success.value = `Job created! ID: ${job.id}`
     await loadJobs()
   } catch (e: any) {
@@ -185,12 +150,7 @@ async function cancelJob(jobId: string) {
   if (!confirm('Cancel this job?')) return
   
   try {
-    const token = sessionStorage.getItem('accessToken')
-    await fetch(`/api/admin/jobs/${jobId}/cancel`, {
-      method: 'PUT',
-      headers: { 'Authorization': `Bearer ${token}` },
-      credentials: 'include',
-    })
+    await adminApi.cancelJob(jobId)
     await loadJobs()
   } catch (e: any) {
     error.value = e.message
@@ -199,12 +159,7 @@ async function cancelJob(jobId: string) {
 
 async function deleteJob(jobId: string) {
   try {
-    const token = sessionStorage.getItem('accessToken')
-    await fetch(`/api/admin/jobs/${jobId}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` },
-      credentials: 'include',
-    })
+    await adminApi.deleteJob(jobId)
     await loadJobs()
   } catch (e: any) {
     error.value = e.message

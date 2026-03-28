@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-
-const API_BASE = import.meta.env.VITE_API_URL || '/api'
+import { request } from '@/lib/api'
 
 interface User {
   id: string
@@ -48,27 +47,14 @@ async function handleSubmit() {
   error.value = null
 
   try {
-    const token = sessionStorage.getItem('accessToken')
-    const response = await fetch(`${API_BASE}/admin/users/${props.user.id}`, {
+    const updatedUser = await request<any>(`/admin/users/${props.user.id}`, {
       method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
       body: JSON.stringify({
         role: form.value.role,
         subscriptionTier: form.value.subscriptionTier,
         subscriptionExpiresAt: form.value.subscriptionExpiresAt || null,
       }),
     })
-
-    if (!response.ok) {
-      const data = await response.json()
-      throw new Error(data.error || 'Failed to update user')
-    }
-
-    const updatedUser = await response.json()
     emit('update', updatedUser)
   } catch (e: any) {
     error.value = e.message
