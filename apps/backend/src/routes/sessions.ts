@@ -340,6 +340,53 @@ export async function sessionRoutes(app: FastifyInstance) {
     return { correct: isCorrect, correctId: body.wordId };
   });
 
+  // Get session history (paginated list)
+  app.get('/sessions', async (request, _reply) => {
+    const userId = request.user!.userId;
+    const query = request.query as Record<string, string | undefined>;
+    const page = parseInt(query.page || '1', 10);
+    const limit = parseInt(query.limit || '20', 10);
+    const type = query.type;
+
+    const where: any = { userId, completedAt: { not: null } };
+    if (type) where.type = type;
+
+    const [sessions, total] = await Promise.all([
+      prisma.learningSession.findMany({
+        where,
+        orderBy: { completedAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+        include: {
+          _count: { select: { sessionWords: true } },
+        },
+      }),
+      prisma.learningSession.count({ where }),
+    ]);
+
+    return {
+      sessions: sessions.map(s => ({
+        id: s.id,
+        type: s.type,
+        themeId: s.themeId,
+        startedAt: s.startedAt,
+        completedAt: s.completedAt,
+        totalCorrect: s.totalCorrect,
+        totalIncorrect: s.totalIncorrect,
+        wordCount: s._count.sessionWords,
+        accuracy: s.totalCorrect + s.totalIncorrect > 0
+          ? Math.round((s.totalCorrect / (s.totalCorrect + s.totalIncorrect)) * 100)
+          : 0,
+        duration: s.completedAt
+          ? Math.round((new Date(s.completedAt).getTime() - new Date(s.startedAt).getTime()) / 1000)
+          : 0,
+      })),
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
+  });
+
   // Get session by ID (only own sessions)
   app.get('/sessions/:id', async (request, reply) => {
     const userId = request.user!.userId;

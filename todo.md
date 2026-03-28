@@ -11,7 +11,6 @@
 - [ ] **#175** Add study session history page with past sessions list ##feature ##frontend ##backend
 - [ ] **#176** Add spaced repetition schedule preview (upcoming reviews calendar) ##feature ##frontend
 - [ ] **#177** Add transition animations between views (page transitions) ##polish ##frontend
-- [ ] **#178** **[high]** Add word favorites/bookmarks - backend + frontend ##feature ##frontend ##backend
 
 ## Completed
 
@@ -53,6 +52,7 @@
 - [x] **#168** 📋 PHASE 4: Frontend Fixes (🟡 #16, #17, #23, #32) #PLAN
 - [x] **#169** **[low]** 📋 PHASE 5: Hardening & Polish (🟡 #18-#22, #24, 🔵 #28-#30) #PLAN
 - [x] **#170** Add Quiz mode — multiple choice vocabulary test #feature #frontend #backend
+- [x] **#178** **[high]** Add word favorites/bookmarks - backend + frontend ##feature ##frontend ##backend
 
 <!-- Raw Data -->
 ```json
@@ -662,7 +662,7 @@
     {
       "id": 178,
       "text": "Add word favorites/bookmarks - backend + frontend",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "#feature",
@@ -670,7 +670,8 @@
         "#backend"
       ],
       "createdAt": 1774689434817,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774689866304
     }
   ],
   "nextId": 179

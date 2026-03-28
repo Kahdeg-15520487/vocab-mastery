@@ -22,7 +22,12 @@ function formatDate(dateStr: string) {
 
 <template>
   <div>
-    <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-6">Statistics</h1>
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold text-slate-900 dark:text-white">📊 Statistics</h1>
+      <router-link to="/history" class="text-primary-600 dark:text-primary-400 hover:underline text-sm">
+        View session history →
+      </router-link>
+    </div>
 
     <!-- User Stats -->
     <div v-if="stats" class="space-y-6">
