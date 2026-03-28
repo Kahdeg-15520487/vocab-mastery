@@ -160,7 +160,7 @@ function studyList() {
               📚 Study
             </button>
             <button
-              @click="router.push({ path: '/quiz', query: { list: listId } })"
+              @click="router.push({ path: '/quiz', query: { list: listId, auto: 'true' } })"
               class="btn btn-secondary text-sm"
               :disabled="list.pagination.total === 0"
             >
