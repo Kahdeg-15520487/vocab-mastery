@@ -127,8 +127,8 @@ function selectTheme(theme: any) {
       </div>
 
       <!-- Skeleton Quick Actions -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div v-for="i in 4" :key="i" class="card animate-pulse text-center py-6">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div v-for="i in 6" :key="i" class="card animate-pulse text-center py-6">
           <div class="h-10 bg-slate-200 dark:bg-slate-700 rounded w-10 mx-auto mb-3"></div>
           <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-16 mx-auto mb-1"></div>
           <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-24 mx-auto"></div>
