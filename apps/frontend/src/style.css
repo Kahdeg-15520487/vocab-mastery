@@ -9,6 +9,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Mobile bottom nav padding */
+@media (max-width: 767px) {
+  #app {
+    padding-bottom: 72px;
+  }
+}
+
 /* Custom components */
 @layer components {
   .btn {

@@ -182,7 +182,7 @@ function openSearch() {
   </nav>
 
   <!-- Mobile Bottom Navigation -->
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 z-50">
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 z-50" style="padding-bottom: env(safe-area-inset-bottom)">
     <div class="flex items-center justify-around py-2">
       <RouterLink
         v-for="item in navItems"
