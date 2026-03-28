@@ -276,13 +276,12 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
           { path: '/', label: 'Home', icon: '🏠' },
           { path: '/learn', label: 'Learn', icon: '📚' },
           { path: '/review', label: 'Review', icon: '🔄' },
-          { path: '/quiz', label: 'Quiz', icon: '🧠' },
           { path: '/browse', label: 'Browse', icon: '📖' },
         ]"
         :key="item.path"
         :to="item.path"
         :class="[
-          'flex flex-col items-center py-2 px-4 rounded-lg transition-colors',
+          'flex flex-col items-center py-2 px-3 rounded-lg transition-colors',
           isActive(item.path)
             ? 'text-primary-600 dark:text-primary-400'
             : 'text-slate-500 dark:text-slate-400'
@@ -291,7 +290,58 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
         <span class="text-xl">{{ item.icon }}</span>
         <span class="text-xs mt-1">{{ item.label }}</span>
       </RouterLink>
+      <!-- More button -->
+      <button
+        @click="toggleDropdown('mobile-more')"
+        :class="[
+          'flex flex-col items-center py-2 px-3 rounded-lg transition-colors',
+          openDropdown === 'mobile-more' ? 'text-primary-600 dark:text-primary-400' : 'text-slate-500 dark:text-slate-400'
+        ]"
+      >
+        <span class="text-xl">•••</span>
+        <span class="text-xs mt-1">More</span>
+      </button>
     </div>
+
+    <!-- Mobile More Sheet -->
+    <Transition name="sheet">
+      <div
+        v-if="openDropdown === 'mobile-more'"
+        class="absolute bottom-full left-0 right-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 shadow-lg rounded-t-2xl p-4 z-50"
+      >
+        <div class="w-10 h-1 bg-slate-300 dark:bg-slate-600 rounded-full mx-auto mb-4"></div>
+        <div class="grid grid-cols-4 gap-3">
+          <RouterLink
+            v-for="item in [
+              { path: '/quiz', icon: '🧠', label: 'Quiz' },
+              { path: '/spelling', icon: '✍️', label: 'Spelling' },
+              { path: '/fill-blank', icon: '📝', label: 'Fill Blanks' },
+              { path: '/favorites', icon: '❤️', label: 'Favorites' },
+              { path: '/lists', icon: '📋', label: 'My Lists' },
+              { path: '/stats', icon: '📊', label: 'Stats' },
+              { path: '/leaderboard', icon: '🏆', label: 'Leaders' },
+              { path: '/history', icon: '📜', label: 'History' },
+            ]"
+            :key="item.path"
+            :to="item.path"
+            @click="closeDropdown"
+            class="flex flex-col items-center py-3 px-2 rounded-lg transition-colors"
+            :class="isActive(item.path)
+              ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400'
+              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700'"
+          >
+            <span class="text-2xl mb-1">{{ item.icon }}</span>
+            <span class="text-xs">{{ item.label }}</span>
+          </RouterLink>
+        </div>
+      </div>
+    </Transition>
+    <!-- Backdrop -->
+    <div
+      v-if="openDropdown === 'mobile-more'"
+      class="fixed inset-0 z-40 bg-black/20"
+      @click="closeDropdown"
+    ></div>
   </nav>
 </template>
 
@@ -304,5 +354,14 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
 .dropdown-leave-to {
   opacity: 0;
   transform: translateY(-4px);
+}
+.sheet-enter-active,
+.sheet-leave-active {
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+.sheet-enter-from,
+.sheet-leave-to {
+  transform: translateY(100%);
+  opacity: 0;
 }
 </style>

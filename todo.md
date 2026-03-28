@@ -84,6 +84,7 @@
 - [x] **#208** Add empty state illustrations / helpful messages when lists/favorites/history are empty
 - [x] **#209** Add progress percentage to LearnView showing overall learning completion
 - [x] **#210** **[low]** Add breadcrumb navigation for nested pages (word detail, list view, etc.)
+- [x] **#211** **[high]** Add mobile access to all learning modes — Spelling and Fill Blanks unreachable on mobile
 
 <!-- Raw Data -->
 ```json
@@ -1083,8 +1084,18 @@
       "createdAt": 1774728477185,
       "archived": false,
       "completedAt": 1774728695181
+    },
+    {
+      "id": 211,
+      "text": "Add mobile access to all learning modes — Spelling and Fill Blanks unreachable on mobile",
+      "done": true,
+      "priority": "high",
+      "tags": [],
+      "createdAt": 1774728723653,
+      "archived": false,
+      "completedAt": 1774728788916
     }
   ],
-  "nextId": 211
+  "nextId": 212
 }
 ```
