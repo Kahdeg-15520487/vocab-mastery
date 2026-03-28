@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { request, wordsApi } from '@/lib/api'
 import { useSpeech } from '@/composables/useSpeech'
 import { useToast } from '@/composables/useToast'
-import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -88,8 +88,20 @@ function getDefinitions(def: string): string[] {
 <template>
   <div class="container mx-auto px-4 py-8 max-w-3xl">
     <!-- Loading -->
-    <div v-if="loading" class="flex justify-center py-20">
-      <LoadingSpinner />
+    <div v-if="loading" class="space-y-6">
+      <div class="flex items-start gap-4">
+        <div class="flex-1">
+          <SkeletonLoader variant="text" width="192px" height="36px" />
+          <div class="mt-3"><SkeletonLoader variant="text" width="128px" height="20px" /></div>
+          <div class="mt-2"><SkeletonLoader variant="text" width="96px" height="16px" /></div>
+        </div>
+      </div>
+      <SkeletonLoader variant="card" />
+      <SkeletonLoader variant="card" />
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <SkeletonLoader variant="card" />
+        <SkeletonLoader variant="card" />
+      </div>
     </div>
 
     <!-- Error -->

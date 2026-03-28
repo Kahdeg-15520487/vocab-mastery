@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { request } from '@/lib/api'
-import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
 
 interface SessionSummary {
   id: string
@@ -125,7 +125,9 @@ onMounted(() => {
     </div>
 
     <!-- Loading -->
-    <LoadingSpinner v-if="loading" emoji="📝" text="Loading sessions..." />
+    <div v-if="loading" class="space-y-3">
+      <SkeletonLoader v-for="i in 5" :key="i" type="card" />
+    </div>
 
     <!-- Empty State -->
     <div v-else-if="sessions.length === 0" class="text-center py-12">

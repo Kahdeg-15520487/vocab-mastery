@@ -36,9 +36,9 @@ function formatDate(dateStr: string) {
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <SkeletonLoader v-for="i in 4" :key="i" type="card" />
       </div>
-      <SkeletonLoader type="card" />
-      <SkeletonLoader type="card" />
-      <SkeletonLoader type="card" />
+      <SkeletonLoader variant="card" />
+      <SkeletonLoader variant="card" />
+      <SkeletonLoader variant="card" />
     </div>
 
     <!-- User Stats -->

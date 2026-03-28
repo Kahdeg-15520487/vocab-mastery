@@ -2,8 +2,7 @@
 import { onMounted, computed } from 'vue'
 import { useProgressStore } from '@/stores/progress'
 import AchievementsGrid from '@/components/progress/AchievementsGrid.vue'
-
-import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
 
 const progressStore = useProgressStore()
 
@@ -55,7 +54,9 @@ const totalXP = computed(() =>
     </div>
 
     <!-- Loading -->
-    <LoadingSpinner v-if="loading && achievements.length === 0" text="Loading achievements..." />
+    <div v-if="loading && achievements.length === 0" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <SkeletonLoader v-for="i in 10" :key="i" type="card" />
+    </div>
 
     <!-- Achievements Grid -->
     <AchievementsGrid v-else :achievements="achievements" />

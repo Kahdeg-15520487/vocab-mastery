@@ -4,9 +4,7 @@
 
 ## Pending
 
-- [ ] **#191** **[high]** Replace remaining alert() calls with toast notifications #bug #frontend
 - [ ] **#192** Replace LoadingSpinner with skeleton loading in StatsView, FavoritesView, HistoryView, WordDetailView #polish #frontend
-- [ ] **#193** **[high]** Fix StatsView loading state — spinner shows after content instead of before #bug #frontend
 - [ ] **#194** Add "Learn words from this list" button on ListView page #feature #frontend
 - [ ] **#195** **[low]** Add word count badges to theme cards on dashboard #polish #frontend
 
@@ -69,6 +67,8 @@
 - [x] **#188** Add part-of-speech tags to BrowseView word cards for better context #feature #frontend
 - [x] **#189** **[low]** Add keyboard navigation to browse word detail modal (Esc to close, arrow keys to navigate between words) #polish #frontend
 - [x] **#190** Add responsive design improvements — improve mobile layout for browse cards and dashboard #polish #frontend
+- [x] **#191** **[high]** Replace remaining alert() calls with toast notifications #bug #frontend
+- [x] **#193** **[high]** Fix StatsView loading state — spinner shows after content instead of before #bug #frontend
 
 <!-- Raw Data -->
 ```json
@@ -845,14 +845,15 @@
     {
       "id": 191,
       "text": "Replace remaining alert() calls with toast notifications",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "bug",
         "frontend"
       ],
       "createdAt": 1774720931290,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774721071275
     },
     {
       "id": 192,
@@ -869,14 +870,15 @@
     {
       "id": 193,
       "text": "Fix StatsView loading state — spinner shows after content instead of before",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "bug",
         "frontend"
       ],
       "createdAt": 1774720940621,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774721077818
     },
     {
       "id": 194,
