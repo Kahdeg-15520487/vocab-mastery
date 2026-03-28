@@ -5,7 +5,6 @@
 ## Pending
 
 - [ ] **#171** Add forgot password flow (requires email service) #feature #frontend
-- [ ] **#176** Add spaced repetition schedule preview (upcoming reviews calendar) ##feature ##frontend
 - [ ] **#177** Add transition animations between views (page transitions) ##polish ##frontend
 - [ ] **#179** Add upcoming review schedule on dashboard/stats page ##feature ##frontend ##backend
 
@@ -52,6 +51,7 @@
 - [x] **#172** Add quiz difficulty options (easy/medium/hard) and configurable question count ##feature ##frontend
 - [x] **#173** Add export/import user progress data (backup & restore) ##feature ##frontend
 - [x] **#175** Add study session history page with past sessions list ##feature ##frontend ##backend
+- [x] **#176** Add spaced repetition schedule preview (upcoming reviews calendar) ##feature ##frontend
 - [x] **#178** **[high]** Add word favorites/bookmarks - backend + frontend ##feature ##frontend ##backend
 
 <!-- Raw Data -->
@@ -629,14 +629,15 @@
     {
       "id": 176,
       "text": "Add spaced repetition schedule preview (upcoming reviews calendar)",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "#feature",
         "#frontend"
       ],
       "createdAt": 1774689424401,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774691615939
     },
     {
       "id": 177,
