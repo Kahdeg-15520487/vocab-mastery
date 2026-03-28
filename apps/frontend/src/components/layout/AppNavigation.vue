@@ -2,6 +2,7 @@
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useTheme } from '@/composables/useTheme'
+import UserAvatar from '@/components/ui/UserAvatar.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -164,9 +165,12 @@ function openSearch() {
           {{ isDark ? '☀️' : '🌙' }}
         </button>
         <template v-if="authStore.isAuthenticated">
-          <RouterLink to="/settings" class="text-sm text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400">
-            {{ authStore.user?.username }}
-            <span v-if="authStore.user?.level" class="text-xs text-primary-500 ml-1">Lv.{{ authStore.user.level }}</span>
+          <RouterLink to="/settings" class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400">
+            <UserAvatar v-if="authStore.user?.username" :username="authStore.user.username" size="sm" />
+            <div>
+              <div class="font-medium">{{ authStore.user?.username }}</div>
+              <div v-if="authStore.user?.level" class="text-xs text-primary-500">Lv.{{ authStore.user.level }}</div>
+            </div>
           </RouterLink>
           <button
             @click="handleLogout"

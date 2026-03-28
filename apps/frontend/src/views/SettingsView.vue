@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { request } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
+import UserAvatar from '@/components/ui/UserAvatar.vue'
 
 const authStore = useAuthStore()
 const toast = useToast()
@@ -196,16 +197,15 @@ async function handleImport(event: Event) {
 
     <!-- User Info -->
     <div class="card mb-6">
-      <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Account Information</h2>
-      <div class="space-y-2">
-        <div class="flex justify-between">
-          <span class="text-slate-600 dark:text-slate-400">Email:</span>
-          <span class="font-medium">{{ authStore.user?.email }}</span>
+      <div class="flex items-center gap-4 mb-4">
+        <UserAvatar v-if="authStore.user?.username" :username="authStore.user.username" size="lg" />
+        <div>
+          <h2 class="text-lg font-semibold text-slate-900 dark:text-white">{{ authStore.user?.username }}</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400">{{ authStore.user?.email }}</p>
+          <p v-if="authStore.user?.level" class="text-sm text-primary-500">Level {{ authStore.user.level }}</p>
         </div>
-        <div class="flex justify-between">
-          <span class="text-slate-600 dark:text-slate-400">Username:</span>
-          <span class="font-medium">{{ authStore.user?.username }}</span>
-        </div>
+      </div>
+      <div class="space-y-2 border-t border-slate-200 dark:border-slate-700 pt-4">
         <div class="flex justify-between">
           <span class="text-slate-600 dark:text-slate-400">Subscription:</span>
           <span class="badge badge-primary">{{ authStore.user?.subscriptionTier }}</span>
