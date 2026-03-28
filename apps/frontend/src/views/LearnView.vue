@@ -115,12 +115,18 @@ function startNewSession() {
   <div class="max-w-2xl mx-auto">
     <!-- Session Complete -->
     <div v-if="sessionComplete" class="text-center py-8">
-      <div class="text-6xl mb-4">🎉</div>
-      <h2 class="text-2xl font-bold text-slate-900 mb-2">Session Complete!</h2>
-      <p class="text-slate-600 mb-6">Great job! You've completed this learning session.</p>
+      <div class="text-6xl mb-4">
+        {{ sessionStore.stats.accuracy >= 90 ? '🏆' : sessionStore.stats.accuracy >= 70 ? '🎉' : sessionStore.stats.accuracy >= 50 ? '💪' : '📚' }}
+      </div>
+      <h2 class="text-2xl font-bold text-slate-900 mb-2">
+        {{ sessionStore.stats.accuracy >= 90 ? 'Outstanding!' : sessionStore.stats.accuracy >= 70 ? 'Session Complete!' : sessionStore.stats.accuracy >= 50 ? 'Keep Practicing!' : 'Don\'t Give Up!' }}
+      </h2>
+      <p class="text-slate-600 mb-6">
+        {{ sessionStore.stats.accuracy >= 90 ? 'Amazing accuracy! You\'re mastering these words.' : sessionStore.stats.accuracy >= 70 ? 'Great job! You\'re making solid progress.' : sessionStore.stats.accuracy >= 50 ? 'Every session counts. Try reviewing these words again.' : 'Repetition is key. Review these words to strengthen your memory.' }}
+      </p>
       
       <div class="card mb-6">
-        <div class="grid grid-cols-3 gap-4 text-center">
+        <div class="grid grid-cols-3 gap-4 text-center mb-4">
           <div>
             <div class="text-2xl font-bold text-primary-600">{{ sessionStore.stats.total }}</div>
             <div class="text-sm text-slate-500">Words</div>
@@ -134,6 +140,30 @@ function startNewSession() {
               {{ sessionStore.stats.accuracy }}%
             </div>
             <div class="text-sm text-slate-500">Accuracy</div>
+          </div>
+        </div>
+
+        <!-- Response Breakdown -->
+        <div class="grid grid-cols-4 gap-2 pt-4 border-t border-slate-200">
+          <div class="text-center">
+            <div class="text-lg">😵</div>
+            <div class="text-sm font-bold text-danger-600">{{ sessionStore.responseBreakdown.forgot }}</div>
+            <div class="text-xs text-slate-400">Forgot</div>
+          </div>
+          <div class="text-center">
+            <div class="text-lg">😬</div>
+            <div class="text-sm font-bold text-warning-600">{{ sessionStore.responseBreakdown.hard }}</div>
+            <div class="text-xs text-slate-400">Hard</div>
+          </div>
+          <div class="text-center">
+            <div class="text-lg">😊</div>
+            <div class="text-sm font-bold text-primary-600">{{ sessionStore.responseBreakdown.medium }}</div>
+            <div class="text-xs text-slate-400">Good</div>
+          </div>
+          <div class="text-center">
+            <div class="text-lg">🚀</div>
+            <div class="text-sm font-bold text-secondary-600">{{ sessionStore.responseBreakdown.easy }}</div>
+            <div class="text-xs text-slate-400">Easy</div>
           </div>
         </div>
         

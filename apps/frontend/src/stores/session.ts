@@ -122,6 +122,20 @@ export const useSessionStore = defineStore('session', () => {
     }
   })
 
+  // Response breakdown by type
+  const responseBreakdown = computed(() => {
+    let forgot = 0, hard = 0, medium = 0, easy = 0
+    responses.value.forEach((r) => {
+      switch (r.response) {
+        case 'forgot': forgot++; break
+        case 'hard': hard++; break
+        case 'medium': medium++; break
+        case 'easy': easy++; break
+      }
+    })
+    return { forgot, hard, medium, easy }
+  })
+
   return {
     session,
     currentIndex,
@@ -129,6 +143,7 @@ export const useSessionStore = defineStore('session', () => {
     progress,
     isComplete,
     stats,
+    responseBreakdown,
     loading,
     error,
     startSession,
