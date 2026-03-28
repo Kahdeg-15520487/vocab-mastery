@@ -11,7 +11,7 @@ const toast = useToast()
 interface FillBlankQuestion {
   index: number
   id: string
-  word: string // revealed after answering
+  word: string // used for client-side validation
   sentence: string // the example with ____ blank
   definition: string
   partOfSpeech: string[]
@@ -53,6 +53,23 @@ function onKeyDown(e: KeyboardEvent) {
   }
 }
 
+function levenshtein(a: string, b: string): number {
+  const m = a.length, n = b.length
+  const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0))
+  for (let i = 0; i <= m; i++) dp[i][0] = i
+  for (let j = 0; j <= n; j++) dp[0][j] = j
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1),
+      )
+    }
+  }
+  return dp[m][n]
+}
+
 onMounted(() => window.addEventListener('keydown', onKeyDown))
 onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
 
@@ -91,31 +108,32 @@ async function startPractice() {
 
 async function checkAnswer() {
   if (!currentQuestion.value || !answer.value.trim() || currentResult.value) return
-  loading.value = true
 
-  try {
-    const result = await request<{ correct: boolean; close: boolean; correctAnswer: string }>(
-      `/sessions/fill-blank/${sessionId.value}/check`,
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          wordId: currentQuestion.value.id,
-          answer: answer.value.trim(),
-        }),
-      }
-    )
-    currentResult.value = result
-    results.value.set(currentQuestion.value.id, {
-      correct: result.correct,
-      close: result.close,
-      answer: answer.value.trim(),
-      correctAnswer: result.correctAnswer,
-    })
-  } catch (e: any) {
-    toast.error(e.message)
-  } finally {
-    loading.value = false
+  const userAnswer = answer.value.trim().toLowerCase()
+  const correctAnswer = currentQuestion.value.word.trim().toLowerCase()
+  const isCorrect = userAnswer === correctAnswer
+
+  // Levenshtein "close" check
+  let isClose = false
+  if (!isCorrect) {
+    const dist = levenshtein(userAnswer, correctAnswer)
+    isClose = dist > 0 && dist <= 2 && dist < correctAnswer.length / 3
   }
+
+  // Show result instantly
+  currentResult.value = { correct: isCorrect, close: isClose, correctAnswer: currentQuestion.value.word }
+  results.value.set(currentQuestion.value.id, {
+    correct: isCorrect,
+    close: isClose,
+    answer: answer.value.trim(),
+    correctAnswer: currentQuestion.value.word,
+  })
+
+  // Fire-and-forget API call
+  request(`/sessions/fill-blank/${sessionId.value}/check`, {
+    method: 'POST',
+    body: JSON.stringify({ wordId: currentQuestion.value.id, answer: answer.value.trim() }),
+  }).catch(() => {})
 }
 
 async function nextWord() {
