@@ -42,17 +42,61 @@ export async function sessionRoutes(app: FastifyInstance) {
     }
 
     // Get words
-    const words = await prisma.word.findMany({
-      where,
-      include: {
-        themes: { include: { theme: true } },
-        progress: {
-          where: { userId },
+    let words;
+    if (type === 'learn') {
+      // For learn sessions, prefer unseen words, then fallback to learning words
+      const unseenWhere = { ...where };
+      delete (unseenWhere as any).progress;
+      
+      const unseenWords = await prisma.word.findMany({
+        where: { ...unseenWhere, progress: { none: { userId } } },
+        include: {
+          themes: { include: { theme: true } },
+          progress: { where: { userId } },
         },
-      },
-      take: wordCount,
-      orderBy: type === 'review' ? { progress: { _count: 'asc' } } : { frequency: 'asc' },
-    });
+        take: wordCount,
+        orderBy: { frequency: 'asc' },
+      });
+
+      if (unseenWords.length >= wordCount) {
+        words = unseenWords;
+      } else {
+        // Fill remaining with learning-status words
+        const remaining = wordCount - unseenWords.length;
+        const seenIds = unseenWords.map(w => w.id);
+        const learningWords = await prisma.word.findMany({
+          where: {
+            ...unseenWhere,
+            id: { notIn: seenIds },
+            progress: {
+              some: {
+                userId,
+                status: { in: ['learning'] },
+              },
+            },
+          },
+          include: {
+            themes: { include: { theme: true } },
+            progress: { where: { userId } },
+          },
+          take: remaining,
+          orderBy: { frequency: 'asc' },
+        });
+        words = [...unseenWords, ...learningWords];
+      }
+    } else {
+      words = await prisma.word.findMany({
+        where,
+        include: {
+          themes: { include: { theme: true } },
+          progress: {
+            where: { userId },
+          },
+        },
+        take: wordCount,
+        orderBy: type === 'review' ? { progress: { _count: 'asc' } } : { frequency: 'asc' },
+      });
+    }
 
     if (words.length === 0) {
       return reply.status(400).send({ error: 'No words available for this session' });

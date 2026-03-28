@@ -415,8 +415,10 @@ export async function progressRoutes(app: FastifyInstance) {
     });
 
     // Update daily goal and streak
-    const isCorrect = response !== 'forgot';
-    await updateDailyProgress(userId, isCorrect ? 0 : 1, isCorrect ? 1 : 0);
+    // Count as "learned" when word was new, "reviewed" when it was already known
+    const dailyLearned = wasNew && updated.status !== 'new' ? 1 : 0;
+    const dailyReviewed = !wasNew ? 1 : 0;
+    await updateDailyProgress(userId, dailyLearned, dailyReviewed);
 
     // Check achievements (scoped to user)
     const unlockedAchievements: string[] = [];
@@ -526,6 +528,7 @@ export async function progressRoutes(app: FastifyInstance) {
           quality
         );
 
+        const wasNew = existingProgress.status === 'new';
         const progress = await tx.wordProgress.update({
           where: { id: existingProgress.id },
           data: {
@@ -540,8 +543,10 @@ export async function progressRoutes(app: FastifyInstance) {
           },
         });
 
-        // Track for daily goal
-        if (response !== 'forgot') {
+        // Track for daily goal: learned if was new and now learning+, reviewed if was already known
+        if (wasNew && updated.status !== 'new') {
+          wordsLearned++;
+        } else if (!wasNew) {
           wordsReviewed++;
         }
 
