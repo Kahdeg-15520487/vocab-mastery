@@ -6,6 +6,7 @@ import { useWordsStore } from '@/stores/words'
 import { useToast } from '@/composables/useToast'
 import Flashcard from '@/components/learning/Flashcard.vue'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
+import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
 const route = useRoute()
@@ -21,6 +22,7 @@ const sessionResult = ref<any>(null)
 
 // Track if card is flipped (for keyboard shortcuts)
 const cardFlipped = ref(false)
+const confettiActive = ref(false)
 
 function handleCardFlip(flipped: boolean) {
   cardFlipped.value = flipped
@@ -105,6 +107,8 @@ async function handleResponse(response: 'easy' | 'medium' | 'hard' | 'forgot') {
     // Show level-up notification
     if (result?.leveledUp) {
       toast.success('🎉 You reached a new level!', 'Level Up!')
+      confettiActive.value = true
+      setTimeout(() => { confettiActive.value = false }, 4000)
     }
   }
 }
@@ -254,6 +258,8 @@ function startNewSession() {
         Start Learning
       </button>
     </div>
+
+    <ConfettiEffect :active="confettiActive" :duration="4000" />
   </div>
 </template>
 

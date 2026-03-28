@@ -4,9 +4,7 @@
 
 ## Pending
 
-- [ ] **#196** Add leaderboard feature (XP-based ranking) #feature #frontend #backend
 - [ ] **#197** Add spelling/typing practice mode #feature #frontend #backend
-- [ ] **#198** **[low]** Add confetti animation on level-up / achievement unlock #polish #frontend
 - [ ] **#199** Add word context sentences from examples (fill-in-the-blank mode) #feature #frontend
 
 ## Completed
@@ -73,6 +71,8 @@
 - [x] **#193** **[high]** Fix StatsView loading state — spinner shows after content instead of before #bug #frontend
 - [x] **#194** Add "Learn words from this list" button on ListView page #feature #frontend
 - [x] **#195** **[low]** Add word count badges to theme cards on dashboard #polish #frontend
+- [x] **#196** Add leaderboard feature (XP-based ranking) #feature #frontend #backend
+- [x] **#198** **[low]** Add confetti animation on level-up / achievement unlock #polish #frontend
 
 <!-- Raw Data -->
 ```json
@@ -914,7 +914,7 @@
     {
       "id": 196,
       "text": "Add leaderboard feature (XP-based ranking)",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
@@ -922,7 +922,8 @@
         "backend"
       ],
       "createdAt": 1774724262220,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774724577926
     },
     {
       "id": 197,
@@ -940,14 +941,15 @@
     {
       "id": 198,
       "text": "Add confetti animation on level-up / achievement unlock",
-      "done": false,
+      "done": true,
       "priority": "low",
       "tags": [
         "polish",
         "frontend"
       ],
       "createdAt": 1774724272998,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774724584471
     },
     {
       "id": 199,
