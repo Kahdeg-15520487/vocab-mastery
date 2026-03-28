@@ -3,6 +3,8 @@ import { onMounted, computed } from 'vue'
 import { useProgressStore } from '@/stores/progress'
 import AchievementsGrid from '@/components/progress/AchievementsGrid.vue'
 
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+
 const progressStore = useProgressStore()
 
 onMounted(async () => {
@@ -53,10 +55,7 @@ const totalXP = computed(() =>
     </div>
 
     <!-- Loading -->
-    <div v-if="loading && achievements.length === 0" class="text-center py-12">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-      <p class="mt-2 text-slate-600">Loading achievements...</p>
-    </div>
+    <LoadingSpinner v-if="loading && achievements.length === 0" text="Loading achievements..." />
 
     <!-- Achievements Grid -->
     <AchievementsGrid v-else :achievements="achievements" />

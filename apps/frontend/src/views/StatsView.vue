@@ -167,9 +167,6 @@ function formatDate(dateStr: string) {
     </div>
 
     <!-- Loading -->
-    <div v-else class="text-center py-12">
-      <div class="animate-spin text-4xl mb-4">📊</div>
-      <p class="text-slate-600">Loading statistics...</p>
-    </div>
+    <LoadingSpinner emoji="📊" text="Loading statistics..." />
   </div>
 </template>

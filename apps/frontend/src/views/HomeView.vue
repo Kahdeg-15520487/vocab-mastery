@@ -11,6 +11,8 @@ import ThemeCard from '@/components/learning/ThemeCard.vue'
 import WordOfDay from '@/components/learning/WordOfDay.vue'
 
 const router = useRouter()
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+
 const progressStore = useProgressStore()
 const wordsStore = useWordsStore()
 
@@ -35,10 +37,7 @@ function selectTheme(theme: any) {
 <template>
   <div class="space-y-6">
     <!-- Loading State -->
-    <div v-if="loading && !dashboard" class="text-center py-12">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-      <p class="mt-2 text-slate-600">Loading dashboard...</p>
-    </div>
+    <LoadingSpinner v-if="loading && !dashboard" text="Loading dashboard..." />
 
     <template v-else>
       <!-- Welcome & Quick Stats -->

@@ -4,6 +4,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useListsStore, type ListDetail } from '@/stores/lists'
 import { wordsApi } from '@/lib/api'
 
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+
 const route = useRoute()
 const router = useRouter()
 const listsStore = useListsStore()
@@ -100,9 +102,7 @@ function studyList() {
     </div>
 
     <!-- Loading -->
-    <div v-if="listsStore.loading && !list" class="text-center py-12">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-    </div>
+    <LoadingSpinner v-if="listsStore.loading && !list" />
 
     <!-- List Content -->
     <div v-else-if="list">

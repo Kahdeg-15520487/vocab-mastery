@@ -2,6 +2,7 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import { useWordsStore } from '@/stores/words'
 import { useListsStore } from '@/stores/lists'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import LevelBadge from '@/components/learning/LevelBadge.vue'
 import type { Word } from '@/types'
 
@@ -208,10 +209,7 @@ const visiblePages = computed(() => {
     </div>
 
     <!-- Loading -->
-    <div v-else class="text-center py-12">
-      <div class="animate-spin text-4xl mb-4">📚</div>
-      <p class="text-slate-600">Loading words...</p>
-    </div>
+    <LoadingSpinner v-else emoji="📚" text="Loading words..." />
 
     <!-- Pagination -->
     <div v-if="totalPages > 1" class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">

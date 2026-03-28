@@ -4,6 +4,8 @@ import { useSessionStore } from '@/stores/session'
 import Flashcard from '@/components/learning/Flashcard.vue'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
 
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+
 const sessionStore = useSessionStore()
 
 const sessionComplete = ref(false)
@@ -161,10 +163,7 @@ function startNewSession() {
     </div>
 
     <!-- Loading -->
-    <div v-else-if="sessionStore.loading" class="text-center py-12">
-      <div class="animate-spin text-4xl mb-4">📚</div>
-      <p class="text-slate-600">Loading review words...</p>
-    </div>
+    <LoadingSpinner v-else-if="sessionStore.loading" emoji="📚" text="Loading review words..." />
 
     <!-- No words due -->
     <div v-else class="text-center py-12">

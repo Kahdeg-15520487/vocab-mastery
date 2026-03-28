@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useListsStore } from '@/stores/lists'
 import ListCard from '@/components/lists/ListCard.vue'
 import CreateListModal from '@/components/lists/CreateListModal.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
 const listsStore = useListsStore()
 const showCreateModal = ref(false)
@@ -30,10 +31,7 @@ onMounted(() => {
     </div>
 
     <!-- Loading -->
-    <div v-if="listsStore.loading" class="text-center py-12">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-      <p class="mt-2 text-slate-600">Loading lists...</p>
-    </div>
+    <LoadingSpinner v-if="listsStore.loading" text="Loading lists..." />
 
     <!-- Lists Grid -->
     <div v-else class="space-y-6">

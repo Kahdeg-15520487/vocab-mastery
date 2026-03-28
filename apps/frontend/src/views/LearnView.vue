@@ -5,6 +5,7 @@ import { useSessionStore } from '@/stores/session'
 import { useWordsStore } from '@/stores/words'
 import Flashcard from '@/components/learning/Flashcard.vue'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -208,10 +209,7 @@ function startNewSession() {
     </div>
 
     <!-- Loading -->
-    <div v-else-if="sessionStore.loading" class="text-center py-12">
-      <div class="animate-spin text-4xl mb-4">📚</div>
-      <p class="text-slate-600">Loading words...</p>
-    </div>
+    <LoadingSpinner v-else-if="sessionStore.loading" emoji="📚" text="Loading words..." />
 
     <!-- Error -->
     <div v-else-if="sessionStore.error" class="text-center py-12">
