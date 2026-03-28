@@ -7,6 +7,9 @@ import { useSpeech } from '@/composables/useSpeech'
 import LevelBadge from '@/components/learning/LevelBadge.vue'
 import type { Word } from '@/types'
 import { wordsApi } from '@/lib/api'
+import { useToast } from '@/composables/useToast'
+
+const toast = useToast()
 
 const wordsStore = useWordsStore()
 const listsStore = useListsStore()
@@ -91,8 +94,9 @@ async function toggleFavorite(word: Word) {
   try {
     const result = await wordsApi.toggleFavorite(word.id)
     word.favorited = result.favorited
+    toast.success(word.favorited ? `Added "${word.word}" to favorites` : `Removed "${word.word}" from favorites`)
   } catch (e: any) {
-    console.error('Failed to toggle favorite:', e)
+    toast.error('Failed to toggle favorite')
   }
 }
 

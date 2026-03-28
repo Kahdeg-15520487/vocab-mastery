@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useListsStore } from '@/stores/lists'
+import { useToast } from '@/composables/useToast'
 
 const emit = defineEmits<{
   close: []
 }>()
 
 const listsStore = useListsStore()
+const toast = useToast()
 
 const form = ref({
   name: '',
@@ -42,6 +44,7 @@ async function handleSubmit() {
     color: form.value.color,
     icon: form.value.icon
     })
+    toast.success(`List "${form.value.name.trim()}" created!`)
     emit('close')
   } catch (e: unknown) {
     error.value = (e as Error).message || 'Failed to create list'

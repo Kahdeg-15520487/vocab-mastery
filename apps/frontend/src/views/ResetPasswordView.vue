@@ -2,8 +2,10 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { request } from '@/lib/api'
+import { useToast } from '@/composables/useToast'
 
 const route = useRoute()
+const toast = useToast()
 const token = ref('')
 const password = ref('')
 const confirmPassword = ref('')
@@ -48,6 +50,7 @@ async function handleReset() {
       }),
     })
     success.value = true
+    toast.success('Password has been reset!')
   } catch (e: any) {
     error.value = e.message || 'Failed to reset password'
   } finally {

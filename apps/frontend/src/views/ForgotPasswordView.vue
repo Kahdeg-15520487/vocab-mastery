@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { request } from '@/lib/api'
+import { useToast } from '@/composables/useToast'
+
+const toast = useToast()
 
 const email = ref('')
 const loading = ref(false)
@@ -27,6 +30,7 @@ async function handleSubmit() {
     // In dev mode, show the reset token directly
     if (data.resetToken) {
       resetToken.value = data.resetToken
+      toast.info('Dev mode: reset token generated', 'Check below')
     }
   } catch (e: any) {
     error.value = e.message || 'Failed to send reset email'

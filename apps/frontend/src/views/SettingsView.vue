@@ -2,8 +2,10 @@
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { request } from '@/lib/api'
+import { useToast } from '@/composables/useToast'
 
 const authStore = useAuthStore()
+const toast = useToast()
 
 // Password change
 const currentPassword = ref('')
@@ -11,7 +13,6 @@ const newPassword = ref('')
 const confirmPassword = ref('')
 const passwordLoading = ref(false)
 const passwordError = ref('')
-const passwordSuccess = ref('')
 
 // Account deletion
 const deletePassword = ref('')
@@ -24,14 +25,12 @@ const dailyLearnGoal = ref(10)
 const dailyReviewGoal = ref(20)
 const goalsLoading = ref(false)
 const goalsSaving = ref(false)
-const goalsSuccess = ref('')
 const goalsError = ref('')
 
 // Data backup
 const exporting = ref(false)
 const importing = ref(false)
 const backupError = ref('')
-const backupSuccess = ref('')
 
 onMounted(async () => {
   await loadGoals()
@@ -56,7 +55,6 @@ async function loadGoals() {
 async function handleSaveGoals() {
   goalsSaving.value = true
   goalsError.value = ''
-  goalsSuccess.value = ''
 
   try {
     await request<any>('/progress/settings', {
@@ -66,8 +64,7 @@ async function handleSaveGoals() {
         dailyReviewGoal: dailyReviewGoal.value,
       }),
     })
-    goalsSuccess.value = 'Daily goals updated!'
-    setTimeout(() => { goalsSuccess.value = '' }, 3000)
+    toast.success('Daily goals updated!')
   } catch (e: any) {
     goalsError.value = e.message || 'Failed to update goals'
   } finally {
@@ -77,7 +74,6 @@ async function handleSaveGoals() {
 
 async function handleChangePassword() {
   passwordError.value = ''
-  passwordSuccess.value = ''
 
   if (!currentPassword.value || !newPassword.value || !confirmPassword.value) {
     passwordError.value = 'Please fill in all fields'
@@ -100,12 +96,11 @@ async function handleChangePassword() {
     const success = await authStore.changePassword(currentPassword.value, newPassword.value)
     
     if (success) {
-      passwordSuccess.value = 'Password changed successfully. Please log in again.'
+      toast.success('Password changed! Redirecting to login...')
       currentPassword.value = ''
       newPassword.value = ''
       confirmPassword.value = ''
       
-      // Redirect to login after 2 seconds
       setTimeout(() => {
         window.location.href = '/login'
       }, 2000)
@@ -146,7 +141,6 @@ async function handleDeleteAccount() {
 async function handleExport() {
   exporting.value = true
   backupError.value = ''
-  backupSuccess.value = ''
 
   try {
     const data = await request<any>('/progress/export')
@@ -157,8 +151,7 @@ async function handleExport() {
     a.download = `vocab-mastery-backup-${new Date().toISOString().slice(0, 10)}.json`
     a.click()
     URL.revokeObjectURL(url)
-    backupSuccess.value = 'Data exported successfully!'
-    setTimeout(() => { backupSuccess.value = '' }, 3000)
+    toast.success('Data exported successfully!')
   } catch (e: any) {
     backupError.value = e.message || 'Failed to export data'
   } finally {
@@ -173,7 +166,6 @@ async function handleImport(event: Event) {
 
   importing.value = true
   backupError.value = ''
-  backupSuccess.value = ''
 
   try {
     const text = await file.text()
@@ -188,8 +180,7 @@ async function handleImport(event: Event) {
       body: JSON.stringify(data),
     })
 
-    backupSuccess.value = `Imported ${result.imported} items successfully!`
-    setTimeout(() => { backupSuccess.value = '' }, 5000)
+    toast.success(`Imported ${result.imported} items successfully!`)
   } catch (e: any) {
     backupError.value = e.message || 'Failed to import data'
   } finally {
@@ -233,10 +224,6 @@ async function handleImport(event: Event) {
         <div v-if="goalsError" class="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
           {{ goalsError }}
         </div>
-        <div v-if="goalsSuccess" class="p-3 bg-green-50 text-green-700 rounded-lg text-sm">
-          {{ goalsSuccess }}
-        </div>
-
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label for="dailyLearnGoal" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
@@ -288,10 +275,6 @@ async function handleImport(event: Event) {
           {{ passwordError }}
         </div>
         
-        <div v-if="passwordSuccess" class="p-3 bg-green-50 text-green-700 rounded-lg text-sm">
-          {{ passwordSuccess }}
-        </div>
-
         <div>
           <label for="currentPassword" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Current Password
@@ -352,10 +335,6 @@ async function handleImport(event: Event) {
       <div v-if="backupError" class="p-3 bg-red-50 text-red-700 rounded-lg text-sm mb-4">
         {{ backupError }}
       </div>
-      <div v-if="backupSuccess" class="p-3 bg-green-50 text-green-700 rounded-lg text-sm mb-4">
-        {{ backupSuccess }}
-      </div>
-
       <div class="flex gap-3 flex-wrap">
         <button @click="handleExport" :disabled="exporting" class="btn btn-primary">
           <span v-if="exporting">Exporting...</span>

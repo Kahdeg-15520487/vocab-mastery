@@ -4,7 +4,10 @@
 
 ## Pending
 
-- [ ] **#171** Add forgot password flow (requires email service) #feature #frontend
+- [ ] **#181** **[high]** Toast notification system for user feedback ##feature ##frontend ##backend
+- [ ] **#182** Search bar in browse page with instant filtering ##feature ##frontend
+- [ ] **#183** Word detail page at /words/:id with full info, examples, progress ##feature ##frontend ##backend
+- [ ] **#184** Improve flashcard design with phonetic, examples, and richer content ##polish ##frontend
 
 ## Completed
 
@@ -46,6 +49,7 @@
 - [x] **#168** 📋 PHASE 4: Frontend Fixes (🟡 #16, #17, #23, #32) #PLAN
 - [x] **#169** **[low]** 📋 PHASE 5: Hardening & Polish (🟡 #18-#22, #24, 🔵 #28-#30) #PLAN
 - [x] **#170** Add Quiz mode — multiple choice vocabulary test #feature #frontend #backend
+- [x] **#171** Add forgot password flow (requires email service) #feature #frontend
 - [x] **#172** Add quiz difficulty options (easy/medium/hard) and configurable question count ##feature ##frontend
 - [x] **#173** Add export/import user progress data (backup & restore) ##feature ##frontend
 - [x] **#175** Add study session history page with past sessions list ##feature ##frontend ##backend
@@ -578,14 +582,15 @@
     {
       "id": 171,
       "text": "Add forgot password flow (requires email service)",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
         "frontend"
       ],
       "createdAt": 1774687878121,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774692536847
     },
     {
       "id": 172,
@@ -693,8 +698,58 @@
       "createdAt": 1774692230477,
       "archived": false,
       "completedAt": 1774692268878
+    },
+    {
+      "id": 181,
+      "text": "Toast notification system for user feedback",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "#feature",
+        "#frontend",
+        "#backend"
+      ],
+      "createdAt": 1774692575153,
+      "archived": false
+    },
+    {
+      "id": 182,
+      "text": "Search bar in browse page with instant filtering",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "#feature",
+        "#frontend"
+      ],
+      "createdAt": 1774692581310,
+      "archived": false
+    },
+    {
+      "id": 183,
+      "text": "Word detail page at /words/:id with full info, examples, progress",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "#feature",
+        "#frontend",
+        "#backend"
+      ],
+      "createdAt": 1774692587413,
+      "archived": false
+    },
+    {
+      "id": 184,
+      "text": "Improve flashcard design with phonetic, examples, and richer content",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "#polish",
+        "#frontend"
+      ],
+      "createdAt": 1774692592685,
+      "archived": false
     }
   ],
-  "nextId": 181
+  "nextId": 185
 }
 ```
