@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { request } from '@/lib/api'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
 
@@ -29,8 +29,11 @@ interface QuizData {
   questions: QuizQuestion[]
 }
 
-const router = useRouter()
-const loading = ref(true)
+const route = useRoute()
+
+// State
+const phase = ref<'setup' | 'playing' | 'results'>('setup')
+const loading = ref(false)
 const quizData = ref<QuizData | null>(null)
 const currentIndex = ref(0)
 const selectedId = ref<string | null>(null)
@@ -38,8 +41,21 @@ const answered = ref(false)
 const isCorrect = ref(false)
 const correctId = ref<string | null>(null)
 const score = ref(0)
-const showResults = ref(false)
 const startTime = ref(Date.now())
+
+// Quiz settings
+const questionCount = ref(10)
+const difficulty = ref<'mixed' | 'easy' | 'medium' | 'hard'>('mixed')
+const questionMode = ref<'word-to-def' | 'def-to-word'>('word-to-def')
+
+const difficultyOptions = [
+  { value: 'mixed', label: 'Mixed', icon: '🎲', desc: 'All CEFR levels' },
+  { value: 'easy', label: 'Easy', icon: '🟢', desc: 'A1–A2 words' },
+  { value: 'medium', label: 'Medium', icon: '🟡', desc: 'B1–B2 words' },
+  { value: 'hard', label: 'Hard', icon: '🔴', desc: 'C1–C2 words' },
+] as const
+
+const countOptions = [5, 10, 15, 20]
 
 const question = computed(() => {
   if (!quizData.value) return null
@@ -67,18 +83,36 @@ const resultMessage = computed(() => {
   return 'Keep practicing!'
 })
 
+function getLevelRange(diff: string): [string, string] | undefined {
+  switch (diff) {
+    case 'easy': return ['A1', 'A2']
+    case 'medium': return ['B1', 'B2']
+    case 'hard': return ['C1', 'C2']
+    default: return undefined
+  }
+}
+
 async function startQuiz() {
   loading.value = true
   try {
+    const body: any = {
+      questionCount: questionCount.value,
+    }
+    const levelRange = getLevelRange(difficulty.value)
+    if (levelRange) body.levelRange = levelRange
+    if (route.query.list) body.listId = route.query.list as string
+
     const data = await request<QuizData>('/sessions/quiz', {
       method: 'POST',
-      body: JSON.stringify({ questionCount: 10 }),
+      body: JSON.stringify(body),
     })
     quizData.value = data
+    score.value = 0
+    currentIndex.value = 0
     startTime.value = Date.now()
+    phase.value = 'playing'
   } catch (e: any) {
     alert(e.message || 'Failed to start quiz')
-    router.push('/')
   } finally {
     loading.value = false
   }
@@ -103,11 +137,8 @@ async function selectOption(option: QuizOption) {
     )
     isCorrect.value = result.correct
     correctId.value = result.correctId
-    if (result.correct) {
-      score.value++
-    }
+    if (result.correct) score.value++
   } catch {
-    // Fallback to client-side check
     isCorrect.value = option.correct
     correctId.value = question.value!.id
     if (option.correct) score.value++
@@ -123,7 +154,7 @@ function nextQuestion() {
     correctId.value = null
     startTime.value = Date.now()
   } else {
-    showResults.value = true
+    phase.value = 'results'
   }
 }
 
@@ -140,24 +171,202 @@ function optionClass(option: QuizOption): string {
   return 'border-slate-200 dark:border-slate-600 opacity-50'
 }
 
+// Auto-start if coming from a list (has query params)
 onMounted(() => {
-  startQuiz()
+  if (route.query.auto === 'true') {
+    startQuiz()
+  }
 })
 </script>
 
 <template>
   <div class="max-w-2xl mx-auto">
-    <!-- Loading -->
-    <div v-if="loading" class="text-center py-12">
-      <div class="animate-spin text-4xl mb-4">🧠</div>
-      <p class="text-slate-600 dark:text-slate-400">Preparing your quiz...</p>
+
+    <!-- ==================== SETUP PHASE ==================== -->
+    <div v-if="phase === 'setup'" class="space-y-8">
+      <div class="text-center">
+        <div class="text-6xl mb-4">🧠</div>
+        <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Quiz Mode</h1>
+        <p class="text-slate-500 dark:text-slate-400">Test your vocabulary knowledge with multiple-choice questions</p>
+      </div>
+
+      <!-- Difficulty -->
+      <div>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Difficulty</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <button
+            v-for="opt in difficultyOptions"
+            :key="opt.value"
+            @click="difficulty = opt.value"
+            class="p-4 rounded-xl border-2 transition-all text-center"
+            :class="difficulty === opt.value
+              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+              : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500'"
+          >
+            <div class="text-2xl mb-1">{{ opt.icon }}</div>
+            <div class="font-medium text-slate-900 dark:text-white text-sm">{{ opt.label }}</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400">{{ opt.desc }}</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Question Count -->
+      <div>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Number of Questions</h3>
+        <div class="flex gap-3">
+          <button
+            v-for="count in countOptions"
+            :key="count"
+            @click="questionCount = count"
+            class="flex-1 py-3 rounded-xl border-2 font-medium transition-all"
+            :class="questionCount === count
+              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300'
+              : 'border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-500'"
+          >
+            {{ count }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Question Mode -->
+      <div>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Question Type</h3>
+        <div class="grid grid-cols-2 gap-3">
+          <button
+            @click="questionMode = 'word-to-def'"
+            class="p-4 rounded-xl border-2 transition-all text-center"
+            :class="questionMode === 'word-to-def'
+              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+              : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500'"
+          >
+            <div class="text-xl mb-1">🔤 → 📖</div>
+            <div class="font-medium text-slate-900 dark:text-white text-sm">Word → Definition</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400">See word, pick definition</div>
+          </button>
+          <button
+            @click="questionMode = 'def-to-word'"
+            class="p-4 rounded-xl border-2 transition-all text-center"
+            :class="questionMode === 'def-to-word'
+              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+              : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500'"
+          >
+            <div class="text-xl mb-1">📖 → 🔤</div>
+            <div class="font-medium text-slate-900 dark:text-white text-sm">Definition → Word</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400">See definition, pick word</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Start Button -->
+      <div class="text-center">
+        <button @click="startQuiz" :disabled="loading" class="btn btn-primary text-lg px-8 py-3">
+          <span v-if="loading" class="animate-spin inline-block mr-2">⏳</span>
+          {{ loading ? 'Starting...' : '🧠 Start Quiz' }}
+        </button>
+      </div>
     </div>
 
-    <!-- Results -->
-    <div v-else-if="showResults && quizData" class="text-center space-y-6">
+    <!-- ==================== PLAYING PHASE ==================== -->
+    <div v-else-if="phase === 'playing' && question" class="space-y-6">
+      <!-- Header -->
+      <div class="flex items-center justify-between">
+        <button @click="phase = 'setup'" class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+          ← Exit
+        </button>
+        <span class="text-sm text-slate-500 dark:text-slate-400">
+          Question {{ currentIndex + 1 }} / {{ quizData!.questionCount }}
+        </span>
+        <span class="text-sm font-medium text-primary-600 dark:text-primary-400">
+          Score: {{ score }}
+        </span>
+      </div>
+
+      <!-- Progress -->
+      <ProgressBar :current="currentIndex" :total="quizData!.questionCount" />
+
+      <!-- Question Card -->
+      <div class="card text-center">
+        <!-- Word to Definition mode -->
+        <template v-if="questionMode === 'word-to-def'">
+          <div class="text-sm text-slate-500 dark:text-slate-400 mb-1">What is the definition of:</div>
+          <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">{{ question.word }}</h2>
+          <div v-if="question.phoneticUs" class="text-slate-500 dark:text-slate-400 text-sm mb-1">
+            {{ question.phoneticUs }}
+          </div>
+          <div class="text-xs text-slate-400">
+            {{ question.cefrLevel }} · {{ question.partOfSpeech.join(', ') }}
+          </div>
+        </template>
+        <!-- Definition to Word mode -->
+        <template v-else>
+          <div class="text-sm text-slate-500 dark:text-slate-400 mb-1">Which word matches this definition:</div>
+          <p class="text-lg font-semibold text-slate-900 dark:text-white mb-2">{{ question.definition }}</p>
+          <div class="text-xs text-slate-400">
+            {{ question.cefrLevel }} · {{ question.partOfSpeech.join(', ') }}
+          </div>
+        </template>
+      </div>
+
+      <!-- Options -->
+      <div class="space-y-3">
+        <button
+          v-for="option in question.options"
+          :key="option.id"
+          @click="selectOption(option)"
+          :disabled="answered"
+          class="w-full text-left p-4 rounded-xl border-2 transition-all duration-200"
+          :class="optionClass(option)"
+        >
+          <div class="flex items-center gap-3">
+            <span
+              class="flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-medium"
+              :class="answered && option.id === correctId ? 'border-green-500 bg-green-500 text-white' :
+                       answered && option.id === selectedId && !isCorrect ? 'border-red-500 bg-red-500 text-white' :
+                       'border-slate-300 dark:border-slate-500'"
+            >
+              <span v-if="answered && option.id === correctId">✓</span>
+              <span v-else-if="answered && option.id === selectedId && !isCorrect">✗</span>
+              <span v-else>{{ question.options.indexOf(option) + 1 }}</span>
+            </span>
+            <div class="min-w-0 flex-1">
+              <template v-if="questionMode === 'word-to-def'">
+                <div class="font-medium text-slate-900 dark:text-white">{{ option.word }}</div>
+                <div class="text-sm text-slate-500 dark:text-slate-400 truncate">{{ option.definition }}</div>
+              </template>
+              <template v-else>
+                <div class="font-medium text-slate-900 dark:text-white">{{ option.word }}</div>
+                <div class="text-sm text-slate-500 dark:text-slate-400 truncate">{{ option.definition }}</div>
+              </template>
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <!-- Feedback & Next -->
+      <div v-if="answered" class="text-center space-y-4">
+        <div v-if="isCorrect" class="text-green-600 dark:text-green-400 font-semibold text-lg">
+          ✅ Correct!
+        </div>
+        <div v-else class="text-red-600 dark:text-red-400 font-semibold text-lg">
+          ❌ Incorrect — the answer was <strong>{{ question.options.find(o => o.id === correctId)?.word }}</strong>
+        </div>
+
+        <!-- Show examples -->
+        <div v-if="question.examples?.length" class="text-sm text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
+          <div v-for="ex in question.examples.slice(0, 2)" :key="ex" class="italic">"{{ ex }}"</div>
+        </div>
+
+        <button @click="nextQuestion" class="btn btn-primary">
+          {{ currentIndex < quizData!.questionCount - 1 ? 'Next Question →' : 'See Results' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== RESULTS PHASE ==================== -->
+    <div v-else-if="phase === 'results' && quizData" class="text-center space-y-6">
       <div class="text-8xl mb-4">{{ resultEmoji }}</div>
       <h2 class="text-3xl font-bold text-slate-900 dark:text-white">{{ resultMessage }}</h2>
-      
+
       <div class="card">
         <div class="grid grid-cols-3 gap-6 text-center">
           <div>
@@ -177,98 +386,23 @@ onMounted(() => {
         </div>
       </div>
 
+      <!-- Difficulty & Mode info -->
+      <div class="text-sm text-slate-500 dark:text-slate-400">
+        {{ difficultyOptions.find(d => d.value === difficulty)?.icon }}
+        {{ difficultyOptions.find(d => d.value === difficulty)?.label }} ·
+        {{ quizData.questionCount }} questions
+      </div>
+
       <div class="flex gap-4 justify-center">
         <button @click="startQuiz" class="btn btn-primary">
           🔄 Try Again
         </button>
+        <button @click="phase = 'setup'" class="btn btn-secondary">
+          ⚙️ Change Settings
+        </button>
         <router-link to="/" class="btn btn-secondary">
           ← Home
         </router-link>
-      </div>
-    </div>
-
-    <!-- Quiz Question -->
-    <div v-else-if="question" class="space-y-6">
-      <!-- Header -->
-      <div class="flex items-center justify-between">
-        <router-link to="/" class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
-          ← Exit
-        </router-link>
-        <span class="text-sm text-slate-500 dark:text-slate-400">
-          Question {{ currentIndex + 1 }} / {{ quizData!.questionCount }}
-        </span>
-        <span class="text-sm font-medium text-primary-600 dark:text-primary-400">
-          Score: {{ score }}
-        </span>
-      </div>
-
-      <!-- Progress -->
-      <ProgressBar :current="currentIndex" :total="quizData!.questionCount" />
-
-      <!-- Question Card -->
-      <div class="card text-center">
-        <div class="text-sm text-slate-500 dark:text-slate-400 mb-1">
-          What is the definition of:
-        </div>
-        <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-          {{ question.word }}
-        </h2>
-        <div v-if="question.phoneticUs" class="text-slate-500 dark:text-slate-400 text-sm mb-1">
-          {{ question.phoneticUs }}
-        </div>
-        <div class="text-xs text-slate-400">
-          {{ question.cefrLevel }} · {{ question.partOfSpeech.join(', ') }}
-        </div>
-      </div>
-
-      <!-- Options -->
-      <div class="space-y-3">
-        <button
-          v-for="option in question.options"
-          :key="option.id"
-          @click="selectOption(option)"
-          :disabled="answered"
-          class="w-full text-left p-4 rounded-xl border-2 transition-all duration-200"
-          :class="optionClass(option)"
-        >
-          <div class="flex items-center gap-3">
-            <span
-              class="flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-medium"
-              :class="answered && option.id === correctId ? 'border-green-500 bg-green-500 text-white' : 
-                       answered && option.id === selectedId && !isCorrect ? 'border-red-500 bg-red-500 text-white' :
-                       'border-slate-300 dark:border-slate-500'"
-            >
-              <span v-if="answered && option.id === correctId">✓</span>
-              <span v-else-if="answered && option.id === selectedId && !isCorrect">✗</span>
-              <span v-else>{{ question.options.indexOf(option) + 1 }}</span>
-            </span>
-            <div class="min-w-0 flex-1">
-              <div class="font-medium text-slate-900 dark:text-white">{{ option.word }}</div>
-              <div class="text-sm text-slate-500 dark:text-slate-400 truncate">{{ option.definition }}</div>
-            </div>
-          </div>
-        </button>
-      </div>
-
-      <!-- Feedback & Next -->
-      <div v-if="answered" class="text-center space-y-4">
-        <div v-if="isCorrect" class="text-green-600 dark:text-green-400 font-semibold text-lg">
-          ✅ Correct!
-        </div>
-        <div v-else class="text-red-600 dark:text-red-400 font-semibold text-lg">
-          ❌ Incorrect — the answer was <strong>{{ question.options.find(o => o.id === correctId)?.word }}</strong>
-        </div>
-
-        <!-- Show examples if available -->
-        <div v-if="question.examples?.length" class="text-sm text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
-          <div v-for="ex in question.examples.slice(0, 2)" :key="ex" class="italic">
-            "{{ ex }}"
-          </div>
-        </div>
-
-        <button @click="nextQuestion" class="btn btn-primary">
-          {{ currentIndex < quizData!.questionCount - 1 ? 'Next Question →' : 'See Results' }}
-        </button>
       </div>
     </div>
   </div>
