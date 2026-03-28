@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, computed } from 'vue'
 import { useStatsStore } from '@/stores/stats'
+import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
 
 const statsStore = useStatsStore()
 
@@ -13,6 +14,7 @@ onMounted(async () => {
 
 const stats = computed(() => statsStore.stats)
 const dailyStats = computed(() => statsStore.dailyStats)
+const loading = computed(() => statsStore.loading)
 
 function formatDate(dateStr: string) {
   const date = new Date(dateStr)
@@ -29,8 +31,18 @@ function formatDate(dateStr: string) {
       </router-link>
     </div>
 
+    <!-- Loading Skeleton -->
+    <div v-if="loading && !stats" class="space-y-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <SkeletonLoader v-for="i in 4" :key="i" type="card" />
+      </div>
+      <SkeletonLoader type="card" />
+      <SkeletonLoader type="card" />
+      <SkeletonLoader type="card" />
+    </div>
+
     <!-- User Stats -->
-    <div v-if="stats" class="space-y-6">
+    <div v-else-if="stats" class="space-y-6">
       <!-- Overview Cards -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div class="card text-center">
@@ -170,8 +182,5 @@ function formatDate(dateStr: string) {
         </div>
       </div>
     </div>
-
-    <!-- Loading -->
-    <LoadingSpinner v-if="!stats" emoji="📊" text="Loading statistics..." />
   </div>
 </template>

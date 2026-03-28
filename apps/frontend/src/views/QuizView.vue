@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { request } from '@/lib/api'
+import { useToast } from '@/composables/useToast'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
 
 interface QuizOption {
@@ -30,6 +31,7 @@ interface QuizData {
 }
 
 const route = useRoute()
+const toast = useToast()
 
 // State
 const phase = ref<'setup' | 'playing' | 'results'>('setup')
@@ -114,7 +116,7 @@ async function startQuiz() {
     startTime.value = Date.now()
     phase.value = 'playing'
   } catch (e: any) {
-    alert(e.message || 'Failed to start quiz')
+    toast.error(e.message || 'Failed to start quiz')
   } finally {
     loading.value = false
   }

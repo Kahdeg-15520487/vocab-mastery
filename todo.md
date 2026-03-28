@@ -4,7 +4,11 @@
 
 ## Pending
 
-- [ ] **#190** Add responsive design improvements — improve mobile layout for browse cards and dashboard #polish #frontend
+- [ ] **#191** **[high]** Replace remaining alert() calls with toast notifications #bug #frontend
+- [ ] **#192** Replace LoadingSpinner with skeleton loading in StatsView, FavoritesView, HistoryView, WordDetailView #polish #frontend
+- [ ] **#193** **[high]** Fix StatsView loading state — spinner shows after content instead of before #bug #frontend
+- [ ] **#194** Add "Learn words from this list" button on ListView page #feature #frontend
+- [ ] **#195** **[low]** Add word count badges to theme cards on dashboard #polish #frontend
 
 ## Completed
 
@@ -64,6 +68,7 @@
 - [x] **#187** Fix BrowseView word detail modal — header layout broken (Full Details link overlaps close button) #bug #frontend
 - [x] **#188** Add part-of-speech tags to BrowseView word cards for better context #feature #frontend
 - [x] **#189** **[low]** Add keyboard navigation to browse word detail modal (Esc to close, arrow keys to navigate between words) #polish #frontend
+- [x] **#190** Add responsive design improvements — improve mobile layout for browse cards and dashboard #polish #frontend
 
 <!-- Raw Data -->
 ```json
@@ -827,16 +832,77 @@
     {
       "id": 190,
       "text": "Add responsive design improvements — improve mobile layout for browse cards and dashboard",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "polish",
         "frontend"
       ],
       "createdAt": 1774719925561,
+      "archived": false,
+      "completedAt": 1774720685461
+    },
+    {
+      "id": 191,
+      "text": "Replace remaining alert() calls with toast notifications",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "bug",
+        "frontend"
+      ],
+      "createdAt": 1774720931290,
+      "archived": false
+    },
+    {
+      "id": 192,
+      "text": "Replace LoadingSpinner with skeleton loading in StatsView, FavoritesView, HistoryView, WordDetailView",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "polish",
+        "frontend"
+      ],
+      "createdAt": 1774720936585,
+      "archived": false
+    },
+    {
+      "id": 193,
+      "text": "Fix StatsView loading state — spinner shows after content instead of before",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "bug",
+        "frontend"
+      ],
+      "createdAt": 1774720940621,
+      "archived": false
+    },
+    {
+      "id": 194,
+      "text": "Add \"Learn words from this list\" button on ListView page",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "frontend"
+      ],
+      "createdAt": 1774720946223,
+      "archived": false
+    },
+    {
+      "id": 195,
+      "text": "Add word count badges to theme cards on dashboard",
+      "done": false,
+      "priority": "low",
+      "tags": [
+        "polish",
+        "frontend"
+      ],
+      "createdAt": 1774720951408,
       "archived": false
     }
   ],
-  "nextId": 191
+  "nextId": 196
 }
 ```

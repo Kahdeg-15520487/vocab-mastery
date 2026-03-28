@@ -3,12 +3,13 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useListsStore, type ListDetail } from '@/stores/lists'
 import { wordsApi } from '@/lib/api'
-
+import { useToast } from '@/composables/useToast'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
 const route = useRoute()
 const router = useRouter()
 const listsStore = useListsStore()
+const toast = useToast()
 
 const listId = route.params.id as string
 const showAddWords = ref(false)
@@ -57,7 +58,7 @@ async function addWord(wordId: string) {
     // Remove from search results
     searchResults.value = searchResults.value.filter(w => w.id !== wordId)
   } catch (e: any) {
-    alert(e.message)
+    toast.error(e.message)
   }
 }
 
@@ -68,7 +69,7 @@ async function removeWord(wordId: string) {
     await listsStore.removeWordFromList(listId, wordId)
     await listsStore.fetchList(listId)
   } catch (e: any) {
-    alert(e.message)
+    toast.error(e.message)
   }
 }
 
@@ -79,7 +80,7 @@ async function deleteList() {
     await listsStore.deleteList(listId)
     router.push('/lists')
   } catch (e: any) {
-    alert(e.message)
+    toast.error(e.message)
   }
 }
 

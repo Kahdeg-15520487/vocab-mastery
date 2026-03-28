@@ -2,6 +2,9 @@
 import { ref, onMounted, computed } from 'vue'
 import UserEditModal from './UserEditModal.vue'
 import { adminApi } from '@/lib/api'
+import { useToast } from '@/composables/useToast'
+
+const toast = useToast()
 
 interface User {
   id: string
@@ -93,7 +96,7 @@ async function deleteUser(user: User) {
     users.value = users.value.filter(u => u.id !== user.id)
     total.value--
   } catch (e: any) {
-    alert(e.message)
+    toast.error(e.message)
   }
 }
 
