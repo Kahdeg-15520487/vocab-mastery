@@ -326,6 +326,8 @@ export async function authRoutes(app: FastifyInstance) {
         role: true,
         subscriptionTier: true,
         subscriptionExpiresAt: true,
+        totalXp: true,
+        level: true,
         createdAt: true,
         lastLoginAt: true,
       },

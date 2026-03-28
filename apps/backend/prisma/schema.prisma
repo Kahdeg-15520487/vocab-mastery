@@ -51,6 +51,10 @@ model User {
   dailyLearnGoal  Int @default(10) @map("daily_learn_goal")
   dailyReviewGoal Int @default(20) @map("daily_review_goal")
   
+  // XP & Level
+  totalXp Int @default(0) @map("total_xp")
+  level   Int @default(1) @map("level")
+  
   // Timestamps
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")

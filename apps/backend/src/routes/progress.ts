@@ -31,6 +31,12 @@ export async function progressRoutes(app: FastifyInstance) {
   app.get('/progress/dashboard', async (request, _reply) => {
     const userId = request.user!.userId;
 
+    // Get user XP/level
+    const userXp = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { totalXp: true, level: true },
+    });
+
     // Get streak
     const streak = await getStreak(userId);
 
@@ -144,6 +150,8 @@ export async function progressRoutes(app: FastifyInstance) {
         totalWordsLearned,
         totalWordsMastered,
         wordsDueForReview,
+        totalXp: userXp?.totalXp ?? 0,
+        level: userXp?.level ?? 1,
       },
       recentAchievements: recentAchievements.slice(0, 5),
       recentProgress: recentProgress.map(wp => ({

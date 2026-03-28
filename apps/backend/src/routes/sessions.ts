@@ -627,6 +627,12 @@ export async function sessionRoutes(app: FastifyInstance) {
       return [];
     });
 
+    // Award XP and update level
+    const xpEarned = session.totalCorrect * 5 + Math.round(accuracy / 10);
+    if (xpEarned > 0) {
+      await awardXp(userId, xpEarned);
+    }
+
     return {
       success: true,
       session: {
@@ -639,9 +645,45 @@ export async function sessionRoutes(app: FastifyInstance) {
         totalIncorrect: completedSession.totalIncorrect,
         accuracy,
       },
-      xpEarned: session.totalCorrect * 5 + Math.round(accuracy / 10),
+      xpEarned,
       newAchievements: newAchievementKeys,
     };
+  });
+}
+
+/**
+ * Award XP and auto-level up the user
+ * Level thresholds: level N requires sum(25*i for i in 1..N-1) XP
+ */
+async function awardXp(userId: string, xp: number): Promise<void> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { totalXp: true, level: true },
+  });
+  if (!user) return;
+
+  const newTotalXp = user.totalXp + xp;
+
+  // Calculate new level (each level requires progressively more XP)
+  // Level 1→2: 100 XP, Level 2→3: 150 XP, Level 3→4: 200 XP, etc.
+  // Formula: level N requires 50*(N+1) cumulative XP from previous levels
+  let newLevel = 1;
+  let xpNeeded = 0;
+  while (true) {
+    xpNeeded += 50 * (newLevel + 1);
+    if (newTotalXp >= xpNeeded) {
+      newLevel++;
+    } else {
+      break;
+    }
+  }
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      totalXp: newTotalXp,
+      level: newLevel,
+    },
   });
 }
 

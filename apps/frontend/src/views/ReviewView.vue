@@ -138,8 +138,9 @@ function startNewSession() {
           </div>
         </div>
         
-        <div v-if="sessionResult" class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-          <p class="text-primary-600 dark:text-primary-400 font-medium">+{{ sessionResult.xpEarned }} XP earned!</p>
+        <div v-if="sessionResult" class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-center gap-2">
+          <span class="text-2xl">⚡</span>
+          <span class="text-lg font-bold text-primary-600 dark:text-primary-400">+{{ sessionResult.xpEarned }} XP</span>
         </div>
       </div>
       

@@ -48,6 +48,8 @@ export interface DashboardData {
     totalWordsLearned: number;
     totalWordsMastered: number;
     wordsDueForReview: number;
+    totalXp: number;
+    level: number;
   };
   recentAchievements: Achievement[];
   recentProgress: Array<{

@@ -7,6 +7,8 @@ export interface User {
   role: 'LEARNER' | 'ADMIN';
   subscriptionTier: 'FREE' | 'EXPLORER' | 'WORDSMITH';
   subscriptionExpiresAt: string | null;
+  totalXp?: number;
+  level?: number;
   createdAt: string;
   lastLoginAt: string | null;
 }

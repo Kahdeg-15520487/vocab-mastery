@@ -164,7 +164,10 @@ function openSearch() {
           {{ isDark ? '☀️' : '🌙' }}
         </button>
         <template v-if="authStore.isAuthenticated">
-          <RouterLink to="/settings" class="text-sm text-slate-600 dark:text-slate-400">{{ authStore.user?.username }}</RouterLink>
+          <RouterLink to="/settings" class="text-sm text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400">
+            {{ authStore.user?.username }}
+            <span v-if="authStore.user?.level" class="text-xs text-primary-500 ml-1">Lv.{{ authStore.user.level }}</span>
+          </RouterLink>
           <button
             @click="handleLogout"
             class="text-sm text-primary-600 dark:text-primary-400"

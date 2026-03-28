@@ -47,6 +47,31 @@ const recentProgress = computed(() => {
   return dashboard.value?.recentProgress || []
 })
 
+// XP calculations
+const xpForLevel = (level: number) => {
+  // Same formula as backend: level N requires 50*(N+1) cumulative XP
+  let total = 0
+  for (let i = 1; i < level; i++) {
+    total += 50 * (i + 1)
+  }
+  return total
+}
+
+const xpForNextLevel = computed(() => {
+  const level = dashboard.value?.stats?.level ?? 1
+  return xpForLevel(level + 1)
+})
+
+const xpProgressPercent = computed(() => {
+  const totalXp = dashboard.value?.stats?.totalXp ?? 0
+  const level = dashboard.value?.stats?.level ?? 1
+  const currentLevelXp = xpForLevel(level)
+  const nextLevelXp = xpForLevel(level + 1)
+  const progress = nextLevelXp - currentLevelXp
+  if (progress === 0) return 100
+  return Math.min(100, Math.round(((totalXp - currentLevelXp) / progress) * 100))
+})
+
 function selectTheme(theme: any) {
   router.push(`/learn/${theme.slug}`)
 }
@@ -171,6 +196,29 @@ function selectTheme(theme: any) {
             :words-reviewed="dashboard.dailyGoal.wordsReviewed"
             :completed="dashboard.dailyGoal.completed"
           />
+
+          <!-- XP & Level -->
+          <div v-if="dashboard" class="card">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-semibold text-slate-900 dark:text-white">Level & XP</h3>
+              <span class="badge badge-primary">Lv. {{ dashboard.stats.level }}</span>
+            </div>
+            <div class="flex items-center gap-3 mb-2">
+              <div class="text-3xl">⚡</div>
+              <div class="flex-1">
+                <div class="flex justify-between text-sm mb-1">
+                  <span class="text-slate-600 dark:text-slate-400">{{ dashboard.stats.totalXp }} XP</span>
+                  <span class="text-slate-400 text-xs">Next: {{ xpForNextLevel }} XP</span>
+                </div>
+                <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5">
+                  <div
+                    class="bg-primary-500 h-2.5 rounded-full transition-all duration-500"
+                    :style="{ width: xpProgressPercent + '%' }"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Middle Column: CEFR Progress -->
