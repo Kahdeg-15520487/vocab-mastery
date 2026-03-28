@@ -37,6 +37,7 @@ export const useSessionStore = defineStore('session', () => {
   async function startSession(data: {
     type: 'learn' | 'review' | 'quiz'
     themeId?: string
+    listId?: string
     levelRange?: [string, string]
     wordCount?: number
   }) {

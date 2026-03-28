@@ -12,16 +12,37 @@ export async function sessionRoutes(app: FastifyInstance) {
     const body = request.body as {
       type: 'learn' | 'review' | 'quiz';
       themeId?: string;
+      listId?: string;
       levelRange?: [string, string];
       wordCount?: number;
     };
-    const { type, themeId, levelRange, wordCount = 20 } = body;
+    const { type, themeId, listId, levelRange, wordCount = 20 } = body;
 
     // Build query to get words for session
     const where: any = {};
 
     if (themeId) {
       where.themes = { some: { themeId } };
+    }
+
+    if (listId) {
+      // Verify user has access to this list
+      const list = await prisma.studyList.findUnique({
+        where: { id: listId },
+      });
+      if (!list) {
+        return reply.status(404).send({ error: 'List not found' });
+      }
+      if (list.userId !== userId) {
+        // Check if list is shared with user
+        const shared = await prisma.sharedList.findUnique({
+          where: { listId_sharedWith: { listId, sharedWith: userId } },
+        });
+        if (!shared) {
+          return reply.status(403).send({ error: 'Access denied' });
+        }
+      }
+      where.studyListWords = { some: { listId } };
     }
 
     if (levelRange) {

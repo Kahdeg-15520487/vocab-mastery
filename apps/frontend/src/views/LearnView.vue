@@ -12,6 +12,7 @@ const sessionStore = useSessionStore()
 const wordsStore = useWordsStore()
 
 const theme = computed(() => route.params.theme as string | undefined)
+const listId = computed(() => (route.query.list as string) || undefined)
 const sessionComplete = ref(false)
 const sessionResult = ref<any>(null)
 
@@ -37,6 +38,7 @@ onMounted(async () => {
   await sessionStore.startSession({
     type: 'learn',
     themeId,
+    listId: listId.value,
     wordCount: 10,
   })
 
@@ -106,6 +108,7 @@ function startNewSession() {
   sessionStore.startSession({
     type: 'learn',
     themeId,
+    listId: listId.value,
     wordCount: 10,
   })
 }

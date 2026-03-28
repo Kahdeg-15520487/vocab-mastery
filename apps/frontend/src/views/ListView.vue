@@ -84,6 +84,10 @@ async function deleteList() {
 function goBack() {
   router.push('/lists')
 }
+
+function studyList() {
+  router.push({ path: '/learn', query: { list: listId } })
+}
 </script>
 
 <template>
@@ -121,6 +125,13 @@ function goBack() {
           
           <div v-if="list.isOwner && !list.isSystem" class="flex gap-2">
             <button
+              @click="studyList"
+              class="btn btn-primary text-sm"
+              :disabled="list.pagination.total === 0"
+            >
+              📚 Study List
+            </button>
+            <button
               @click="showAddWords = !showAddWords"
               class="btn btn-secondary text-sm"
             >
@@ -131,6 +142,14 @@ function goBack() {
               class="btn btn-danger text-sm"
             >
               Delete
+            </button>
+          </div>
+          <div v-else-if="list.pagination.total > 0" class="flex gap-2">
+            <button
+              @click="studyList"
+              class="btn btn-primary text-sm"
+            >
+              📚 Study List
             </button>
           </div>
         </div>
