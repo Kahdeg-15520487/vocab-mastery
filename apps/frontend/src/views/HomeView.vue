@@ -112,13 +112,44 @@ function selectTheme(theme: any) {
     </div>
 
     <template v-else>
+      <!-- Review Alert Banner -->
+      <div
+        v-if="dashboard && dashboard.stats.wordsDueForReview > 0"
+        class="bg-gradient-to-r from-primary-500 to-primary-600 dark:from-primary-600 dark:to-primary-700 text-white rounded-xl p-4 flex items-center justify-between"
+      >
+        <div class="flex items-center gap-3">
+          <span class="text-3xl">🔄</span>
+          <div>
+            <div class="font-semibold">You have {{ dashboard.stats.wordsDueForReview }} words to review</div>
+            <div class="text-sm text-primary-100">Keep your streak alive — review now!</div>
+          </div>
+        </div>
+        <router-link
+          to="/review"
+          class="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg font-medium transition-colors text-sm"
+        >
+          Review Now →
+        </router-link>
+      </div>
+
       <!-- Welcome & Quick Stats -->
       <div class="text-center">
         <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">
-          Welcome back, {{ authStore.user?.username || 'there' }}! 👋
+          Welcome back, {{ authStore.user?.username || 'there' }}! {{ dashboard?.streak?.current ? '🔥' : '👋' }}
         </h1>
         <p class="text-slate-600 dark:text-slate-400">
-          Keep up the great work on your vocabulary journey!
+          <template v-if="(dashboard?.streak?.current ?? 0) >= 7">
+            Amazing {{ dashboard!.streak!.current }}-day streak! You're on fire!
+          </template>
+          <template v-else-if="dashboard?.dailyGoal?.completed">
+            Today's goal complete! Great work! 🎉
+          </template>
+          <template v-else-if="(dashboard?.stats?.wordsDueForReview ?? 0) > 0">
+            You have words waiting for review. Let's keep the momentum going!
+          </template>
+          <template v-else>
+            Keep up the great work on your vocabulary journey!
+          </template>
         </p>
       </div>
 
