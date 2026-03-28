@@ -17,7 +17,7 @@ export async function statsRoutes(app: FastifyInstance) {
       totalWords,
       statusCounts,
       levelDistribution,
-      totalXP,
+      userXpData,
       recentSessions,
     ] = await Promise.all([
       prisma.userStreak.findUnique({ where: { userId } }),
@@ -33,7 +33,10 @@ export async function statsRoutes(app: FastifyInstance) {
         by: ['cefrLevel'],
         _count: true,
       }),
-      prisma.userAchievement.count({ where: { userId } }),
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: { totalXp: true, level: true },
+      }),
       prisma.learningSession.findMany({
         where: {
           userId,
@@ -74,8 +77,8 @@ export async function statsRoutes(app: FastifyInstance) {
         currentStreak: streak?.currentStreak ?? 0,
         longestStreak: streak?.longestStreak ?? 0,
         lastActiveDate: streak?.lastActivityDate?.toISOString() ?? null,
-        totalXP: 0, // XP not tracked separately yet
-        level: 1, // Level not tracked separately yet
+        totalXP: userXpData?.totalXp ?? 0,
+        level: userXpData?.level ?? 1,
       },
       words: {
         total: totalWords,

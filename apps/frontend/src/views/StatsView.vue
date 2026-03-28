@@ -20,6 +20,32 @@ function formatDate(dateStr: string) {
   const date = new Date(dateStr)
   return date.toLocaleDateString('en-US', { weekday: 'short' })
 }
+
+// XP calculations (matching backend formula)
+const xpForLevel = (level: number) => {
+  let total = 0
+  for (let i = 1; i < level; i++) total += 50 * (i + 1)
+  return total
+}
+
+const statsXpProgress = computed(() => {
+  if (!stats.value) return 0
+  const totalXp = stats.value.user.totalXP
+  const level = stats.value.user.level
+  const currentLevelXp = xpForLevel(level)
+  const nextLevelXp = xpForLevel(level + 1)
+  const range = nextLevelXp - currentLevelXp
+  if (range === 0) return 100
+  return Math.min(100, Math.round(((totalXp - currentLevelXp) / range) * 100))
+})
+
+const statsXpNeeded = computed(() => {
+  if (!stats.value) return 0
+  const totalXp = stats.value.user.totalXP
+  const level = stats.value.user.level
+  const nextLevelXp = xpForLevel(level + 1)
+  return nextLevelXp - totalXp
+})
 </script>
 
 <template>
@@ -170,13 +196,13 @@ function formatDate(dateStr: string) {
               <span class="text-slate-600 dark:text-slate-400">{{ stats.user.totalXP }} XP</span>
             </div>
             <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-              <div 
-                class="h-full bg-yellow-500"
-                :style="{ width: `${(stats.user.totalXP % 100)}%` }"
+              <div
+                class="h-full bg-yellow-500 transition-all duration-500"
+                :style="{ width: statsXpProgress + '%' }"
               />
             </div>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              {{ 100 - (stats.user.totalXP % 100) }} XP to next level
+              {{ statsXpNeeded }} XP to next level
             </p>
           </div>
         </div>
