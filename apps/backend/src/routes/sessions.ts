@@ -252,6 +252,54 @@ export async function sessionRoutes(app: FastifyInstance) {
       LIMIT 100
     `;
 
+    // Helper: sanitize definition to hide the answer word for quiz questions
+    function sanitizeDefinition(word: string, definition: string): string {
+      let sanitized = definition;
+      const w = word.toLowerCase().replace(/[^a-z]/g, '');
+      
+      // Variants to mask: the word itself, common forms, and split forms
+      const patterns: string[] = [];
+      
+      // Exact word and common inflections
+      patterns.push(w, w + 's', w + 'es', w + 'ed', w + 'ing', w + 'er', w + 'ly');
+      // -y → -ies, -ied
+      if (w.endsWith('y')) {
+        const base = w.slice(0, -1);
+        patterns.push(base + 'ies', base + 'ied', base + 'ier', base + 'iest');
+      }
+      // -e → -ed, -ing, -er
+      if (w.endsWith('e')) {
+        const base = w.slice(0, -1);
+        patterns.push(base + 'ing', base + 'ed', base + 'er', base + 'est');
+      }
+      // Split form: "cannot" → "can not", "onto" → "on to"
+      if (w.length >= 4) {
+        for (let i = 2; i <= w.length - 2; i++) {
+          const part1 = w.slice(0, i);
+          const part2 = w.slice(i);
+          // Only add if both parts are at least 2 chars and look like real words
+          if (part2.length >= 2) {
+            patterns.push(part1 + ' ' + part2);
+            patterns.push(part1 + '-' + part2);
+          }
+        }
+      }
+      
+      // Sort by length descending so longer matches are replaced first
+      patterns.sort((a, b) => b.length - a.length);
+      
+      for (const variant of patterns) {
+        if (variant.length >= 2) {
+          const escaped = variant.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          // Match whole words only, case-insensitive
+          const re = new RegExp(`\\b${escaped}\\b`, 'gi');
+          sanitized = sanitized.replace(re, '____');
+        }
+      }
+      
+      return sanitized;
+    }
+
     // Build questions
     const questions = quizWords.map((word, index) => {
       // Pick 3 random wrong answers
@@ -268,14 +316,25 @@ export async function sessionRoutes(app: FastifyInstance) {
         ...wrongAnswers.map(w => ({ ...w, correct: false })),
       ].sort(() => Math.random() - 0.5);
 
+      // Sanitize definition: hide the answer word and its variants/split forms
+      const safeDefinition = sanitizeDefinition(word.word, word.definition || '');
+
+      // Sanitize examples too: remove any that contain the answer word
+      const safeExamples = (word.examples as string[] || []).filter(ex => {
+        const exLower = ex.toLowerCase();
+        const wLower = word.word.toLowerCase();
+        // Keep example if it doesn't contain the word
+        return !exLower.includes(wLower) && !exLower.includes(wLower.replace(/ /g, ''));
+      });
+
       return {
         index,
         id: word.id,
         word: word.word,
         phoneticUs: word.phoneticUs,
         partOfSpeech: word.partOfSpeech as string[],
-        definition: word.definition,
-        examples: word.examples as string[],
+        definition: safeDefinition,
+        examples: safeExamples,
         cefrLevel: word.cefrLevel,
         options,
       };

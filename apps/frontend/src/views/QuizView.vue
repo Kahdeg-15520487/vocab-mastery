@@ -316,7 +316,7 @@ onMounted(() => {
           <div class="text-sm text-slate-500 dark:text-slate-400 mb-1">Which word matches this definition:</div>
           <p class="text-lg font-semibold text-slate-900 dark:text-white mb-2">{{ question.definition }}</p>
           <div class="text-xs text-slate-400">
-            {{ question.cefrLevel }} · {{ question.partOfSpeech.join(', ') }}
+            {{ question.cefrLevel }}
           </div>
         </template>
       </div>
