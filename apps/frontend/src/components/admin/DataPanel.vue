@@ -184,8 +184,8 @@ onMounted(fetchStats)
 <template>
   <div class="space-y-6">
     <!-- Stats Section -->
-    <div class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-lg font-semibold text-slate-800 mb-4">Word Database Stats</h2>
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">Word Database Stats</h2>
 
       <!-- Loading -->
       <div v-if="loading" class="text-center py-4">
@@ -199,32 +199,32 @@ onMounted(fetchStats)
 
       <!-- Stats Grid -->
       <div v-else-if="stats" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="bg-slate-50 rounded-lg p-4 text-center">
+        <div class="bg-slate-50 dark:bg-slate-900 rounded-lg p-4 text-center">
           <div class="text-2xl font-bold text-indigo-600">{{ formatNumber(stats.total) }}</div>
-          <div class="text-sm text-slate-600">Total Words</div>
+          <div class="text-sm text-slate-600 dark:text-slate-400">Total Words</div>
         </div>
-        <div class="bg-slate-50 rounded-lg p-4 text-center">
+        <div class="bg-slate-50 dark:bg-slate-900 rounded-lg p-4 text-center">
           <div class="text-2xl font-bold text-green-600">{{ formatNumber(stats.withDefinition) }}</div>
-          <div class="text-sm text-slate-600">With Definitions</div>
+          <div class="text-sm text-slate-600 dark:text-slate-400">With Definitions</div>
         </div>
-        <div class="bg-slate-50 rounded-lg p-4 text-center">
+        <div class="bg-slate-50 dark:bg-slate-900 rounded-lg p-4 text-center">
           <div class="text-2xl font-bold text-blue-600">{{ formatNumber(stats.withExamples) }}</div>
-          <div class="text-sm text-slate-600">With Examples</div>
+          <div class="text-sm text-slate-600 dark:text-slate-400">With Examples</div>
         </div>
-        <div class="bg-slate-50 rounded-lg p-4 text-center">
+        <div class="bg-slate-50 dark:bg-slate-900 rounded-lg p-4 text-center">
           <div class="text-2xl font-bold text-purple-600">{{ Object.keys(stats.byLevel).length }}</div>
-          <div class="text-sm text-slate-600">CEFR Levels</div>
+          <div class="text-sm text-slate-600 dark:text-slate-400">CEFR Levels</div>
         </div>
       </div>
 
       <!-- By Level -->
       <div v-if="stats && Object.keys(stats.byLevel).length > 0" class="mt-4">
-        <h3 class="text-sm font-medium text-slate-700 mb-2">By CEFR Level</h3>
+        <h3 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">By CEFR Level</h3>
         <div class="flex flex-wrap gap-2">
           <span
             v-for="(count, level) in stats.byLevel"
             :key="level"
-            class="px-3 py-1 bg-slate-100 rounded-full text-sm"
+            class="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-sm"
           >
             {{ level }}: {{ formatNumber(count) }}
           </span>
@@ -233,12 +233,12 @@ onMounted(fetchStats)
 
       <!-- By List -->
       <div v-if="stats && Object.keys(stats.byList).length > 0" class="mt-4">
-        <h3 class="text-sm font-medium text-slate-700 mb-2">By Oxford List</h3>
+        <h3 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">By Oxford List</h3>
         <div class="flex flex-wrap gap-2">
           <span
             v-for="(count, list) in stats.byList"
             :key="list"
-            class="px-3 py-1 bg-slate-100 rounded-full text-sm"
+            class="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-sm"
           >
             Oxford {{ list }}: {{ formatNumber(count) }}
           </span>
@@ -247,9 +247,9 @@ onMounted(fetchStats)
     </div>
 
     <!-- Export Section -->
-    <div class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-lg font-semibold text-slate-800 mb-2">Export Words</h2>
-      <p class="text-sm text-slate-600 mb-4">
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2">Export Words</h2>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
         Download all words as a JSON file. The file includes word data, definitions, examples, and theme associations.
       </p>
 
@@ -263,10 +263,10 @@ onMounted(fetchStats)
     </div>
 
     <!-- Import Section -->
-    <div class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-lg font-semibold text-slate-800 mb-2">Import Words</h2>
-      <p class="text-sm text-slate-600 mb-4">
-        Import words from a JSON file. The file should match the export format with a <code class="bg-slate-100 px-1 rounded">words</code> array.
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2">Import Words</h2>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+        Import words from a JSON file. The file should match the export format with a <code class="bg-slate-100 dark:bg-slate-700 px-1 rounded">words</code> array.
       </p>
 
       <!-- File Input -->
@@ -278,7 +278,7 @@ onMounted(fetchStats)
               type="file"
               accept=".json"
               @change="handleFileSelect"
-              class="block w-full text-sm text-slate-500
+              class="block w-full text-sm text-slate-500 dark:text-slate-400
                 file:mr-4 file:py-2 file:px-4
                 file:rounded-md file:border-0
                 file:text-sm file:font-medium
@@ -294,9 +294,9 @@ onMounted(fetchStats)
             id="mergeMode"
             type="checkbox"
             v-model="mergeMode"
-            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded"
+            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-600 rounded"
           />
-          <label for="mergeMode" class="text-sm text-slate-700">
+          <label for="mergeMode" class="text-sm text-slate-700 dark:text-slate-300">
             Merge mode (update existing words, keep others)
           </label>
         </div>
@@ -340,16 +340,16 @@ onMounted(fetchStats)
     </div>
 
     <!-- Oxford Word Lists Import -->
-    <div class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-lg font-semibold text-slate-800 mb-2">Oxford Word Lists</h2>
-      <p class="text-sm text-slate-600 mb-4">
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2">Oxford Word Lists</h2>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
         Import official Oxford 3000 and Oxford 5000 word lists. These are text files with words organized by CEFR level (A1-C2).
       </p>
 
       <!-- Oxford 3000 -->
-      <div class="border border-slate-200 rounded-lg p-4 mb-4">
-        <h3 class="font-medium text-slate-800 mb-2">📚 Oxford 3000</h3>
-        <p class="text-sm text-slate-500 mb-3">Core vocabulary for A1-B2 learners (~3,000 words)</p>
+      <div class="border border-slate-200 dark:border-slate-700 rounded-lg p-4 mb-4">
+        <h3 class="font-medium text-slate-800 dark:text-slate-200 mb-2">📚 Oxford 3000</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">Core vocabulary for A1-B2 learners (~3,000 words)</p>
         
         <div class="flex flex-wrap items-center gap-3">
           <label class="flex-1 min-w-[200px]">
@@ -358,7 +358,7 @@ onMounted(fetchStats)
               type="file"
               accept=".txt"
               @change="handleOxfordFileSelect($event, '3000')"
-              class="block w-full text-sm text-slate-500
+              class="block w-full text-sm text-slate-500 dark:text-slate-400
                 file:mr-4 file:py-2 file:px-4
                 file:rounded-md file:border-0
                 file:text-sm file:font-medium
@@ -377,9 +377,9 @@ onMounted(fetchStats)
       </div>
 
       <!-- Oxford 5000 -->
-      <div class="border border-slate-200 rounded-lg p-4 mb-4">
-        <h3 class="font-medium text-slate-800 mb-2">📖 Oxford 5000</h3>
-        <p class="text-sm text-slate-500 mb-3">Extended vocabulary for B2-C1 learners (~2,000 additional words)</p>
+      <div class="border border-slate-200 dark:border-slate-700 rounded-lg p-4 mb-4">
+        <h3 class="font-medium text-slate-800 dark:text-slate-200 mb-2">📖 Oxford 5000</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">Extended vocabulary for B2-C1 learners (~2,000 additional words)</p>
         
         <div class="flex flex-wrap items-center gap-3">
           <label class="flex-1 min-w-[200px]">
@@ -388,7 +388,7 @@ onMounted(fetchStats)
               type="file"
               accept=".txt"
               @change="handleOxfordFileSelect($event, '5000')"
-              class="block w-full text-sm text-slate-500
+              class="block w-full text-sm text-slate-500 dark:text-slate-400
                 file:mr-4 file:py-2 file:px-4
                 file:rounded-md file:border-0
                 file:text-sm file:font-medium
@@ -412,9 +412,9 @@ onMounted(fetchStats)
           id="oxfordMergeMode"
           type="checkbox"
           v-model="oxfordMergeMode"
-          class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded"
+          class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-600 rounded"
         />
-        <label for="oxfordMergeMode" class="text-sm text-slate-700">
+        <label for="oxfordMergeMode" class="text-sm text-slate-700 dark:text-slate-300">
           Merge mode (keep existing words and their definitions)
         </label>
       </div>
@@ -444,9 +444,9 @@ onMounted(fetchStats)
       </div>
 
       <!-- Format Info -->
-      <div class="mt-4 text-sm text-slate-500 bg-slate-50 rounded-lg p-3">
-        <p class="font-medium text-slate-600 mb-1">Expected file format:</p>
-        <code class="text-xs block bg-slate-100 p-2 rounded">
+      <div class="mt-4 text-sm text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 rounded-lg p-3">
+        <p class="font-medium text-slate-600 dark:text-slate-400 mb-1">Expected file format:</p>
+        <code class="text-xs block bg-slate-100 dark:bg-slate-700 p-2 rounded">
           A1<br>
           a, an indefinite article<br>
           about prep., adv.<br>

@@ -44,10 +44,10 @@ function selectTheme(theme: any) {
     <template v-else>
       <!-- Welcome & Quick Stats -->
       <div class="text-center">
-        <h1 class="text-2xl font-bold text-slate-900 mb-2">
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">
           Welcome back, {{ authStore.user?.username || 'there' }}! 👋
         </h1>
-        <p class="text-slate-600">
+        <p class="text-slate-600 dark:text-slate-400">
           Keep up the great work on your vocabulary journey!
         </p>
       </div>
@@ -88,13 +88,13 @@ function selectTheme(theme: any) {
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <router-link to="/learn" class="card hover:shadow-md transition-shadow text-center group">
           <div class="text-4xl mb-2">📚</div>
-          <div class="font-semibold text-slate-900 group-hover:text-primary-600">Learn</div>
-          <div class="text-sm text-slate-500">Learn new words</div>
+          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Learn</div>
+          <div class="text-sm text-slate-500 dark:text-slate-400">Learn new words</div>
         </router-link>
         <router-link to="/review" class="card hover:shadow-md transition-shadow text-center group relative">
           <div class="text-4xl mb-2">🔄</div>
-          <div class="font-semibold text-slate-900 group-hover:text-primary-600">Review</div>
-          <div class="text-sm text-slate-500">
+          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Review</div>
+          <div class="text-sm text-slate-500 dark:text-slate-400">
             {{ dashboard && dashboard.stats.wordsDueForReview > 0 ? `${dashboard.stats.wordsDueForReview} due` : 'Review due words' }}
           </div>
           <span
@@ -106,8 +106,8 @@ function selectTheme(theme: any) {
         </router-link>
         <router-link to="/browse" class="card hover:shadow-md transition-shadow text-center group">
           <div class="text-4xl mb-2">📖</div>
-          <div class="font-semibold text-slate-900 group-hover:text-primary-600">Browse</div>
-          <div class="text-sm text-slate-500">Explore all words</div>
+          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Browse</div>
+          <div class="text-sm text-slate-500 dark:text-slate-400">Explore all words</div>
         </router-link>
       </div>
 
@@ -116,22 +116,22 @@ function selectTheme(theme: any) {
 
       <!-- Recent Achievements -->
       <div v-if="dashboard && dashboard.recentAchievements.length > 0">
-        <h2 class="text-xl font-bold text-slate-900 mb-4">Recent Achievements</h2>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Recent Achievements</h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
           <div
             v-for="achievement in dashboard.recentAchievements"
             :key="achievement.key"
-            class="bg-white rounded-lg shadow-sm p-4 text-center"
+            class="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-4 text-center"
           >
             <div class="text-3xl mb-2">{{ achievement.icon }}</div>
-            <div class="font-medium text-sm text-slate-800">{{ achievement.name }}</div>
-            <div class="text-xs text-slate-500 mt-1">
+            <div class="font-medium text-sm text-slate-800 dark:text-slate-200">{{ achievement.name }}</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">
               {{ achievement.unlockedAt ? new Date(achievement.unlockedAt).toLocaleDateString() : '' }}
             </div>
           </div>
         </div>
         <div class="mt-4 text-center">
-          <router-link to="/achievements" class="text-primary-600 hover:underline text-sm">
+          <router-link to="/achievements" class="text-primary-600 dark:text-primary-400 hover:underline text-sm">
             View all achievements →
           </router-link>
         </div>
@@ -139,7 +139,7 @@ function selectTheme(theme: any) {
 
       <!-- Themes Section -->
       <div>
-        <h2 class="text-xl font-bold text-slate-900 mb-4">Learn by Theme</h2>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Learn by Theme</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <ThemeCard
             v-for="theme in themes"

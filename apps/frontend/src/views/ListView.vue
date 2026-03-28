@@ -96,7 +96,7 @@ function studyList() {
   <div class="space-y-6">
     <!-- Header -->
     <div class="flex items-center gap-4">
-      <button @click="goBack" class="text-slate-500 hover:text-slate-700">
+      <button @click="goBack" class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-300">
         ← Back
       </button>
     </div>
@@ -107,14 +107,14 @@ function studyList() {
     <!-- List Content -->
     <div v-else-if="list">
       <!-- List Header -->
-      <div class="bg-white rounded-xl shadow-sm p-6" :style="{ borderLeft: `4px solid ${list.color}` }">
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6" :style="{ borderLeft: `4px solid ${list.color}` }">
         <div class="flex items-start justify-between">
           <div class="flex items-center gap-4">
             <span class="text-4xl">{{ list.icon }}</span>
             <div>
-              <h1 class="text-2xl font-bold text-slate-800">{{ list.name }}</h1>
-              <p v-if="list.description" class="text-slate-600 mt-1">{{ list.description }}</p>
-              <p class="text-sm text-slate-500 mt-2">
+              <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-200">{{ list.name }}</h1>
+              <p v-if="list.description" class="text-slate-600 dark:text-slate-400 mt-1">{{ list.description }}</p>
+              <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">
                 {{ list.pagination.total }} words
                 <span v-if="!list.isOwner" class="ml-2">
                   • Shared by {{ list.owner?.username }}
@@ -156,8 +156,8 @@ function studyList() {
       </div>
 
       <!-- Add Words Panel -->
-      <div v-if="showAddWords && list.isOwner" class="bg-white rounded-xl shadow-sm p-6">
-        <h2 class="font-semibold text-slate-800 mb-4">Add Words</h2>
+      <div v-if="showAddWords && list.isOwner" class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6">
+        <h2 class="font-semibold text-slate-800 dark:text-slate-200 mb-4">Add Words</h2>
         
         <div class="flex gap-2 mb-4">
           <input
@@ -178,11 +178,11 @@ function studyList() {
           <div
             v-for="word in searchResults"
             :key="word.id"
-            class="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
+            class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900 rounded-lg"
           >
             <div>
               <span class="font-medium">{{ word.word }}</span>
-              <span class="text-sm text-slate-500 ml-2">{{ word.cefrLevel }}</span>
+              <span class="text-sm text-slate-500 dark:text-slate-400 ml-2">{{ word.cefrLevel }}</span>
             </div>
             <button
               @click="addWord(word.id)"
@@ -193,7 +193,7 @@ function studyList() {
           </div>
         </div>
         
-        <p v-else-if="searchQuery && !searching" class="text-slate-500 text-center py-4">
+        <p v-else-if="searchQuery && !searching" class="text-slate-500 dark:text-slate-400 text-center py-4">
           <template v-if="searchQuery.length < 2">
             Type at least 2 characters to search.
           </template>
@@ -204,23 +204,23 @@ function studyList() {
       </div>
 
       <!-- Words List -->
-      <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm overflow-hidden">
         <table class="w-full">
-          <thead class="bg-slate-50">
+          <thead class="bg-slate-50 dark:bg-slate-900">
             <tr>
-              <th class="text-left px-4 py-3 text-sm font-medium text-slate-600">Word</th>
-              <th class="text-left px-4 py-3 text-sm font-medium text-slate-600">Definition</th>
-              <th class="text-left px-4 py-3 text-sm font-medium text-slate-600">Level</th>
-              <th v-if="list.isOwner" class="text-right px-4 py-3 text-sm font-medium text-slate-600">Actions</th>
+              <th class="text-left px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400">Word</th>
+              <th class="text-left px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400">Definition</th>
+              <th class="text-left px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400">Level</th>
+              <th v-if="list.isOwner" class="text-right px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
-            <tr v-for="word in list.words" :key="word.id" class="hover:bg-slate-50">
+            <tr v-for="word in list.words" :key="word.id" class="hover:bg-slate-50 dark:hover:bg-slate-700 dark:bg-slate-900">
               <td class="px-4 py-3">
-                <div class="font-medium text-slate-800">{{ word.word }}</div>
-                <div v-if="word.phoneticUs" class="text-sm text-slate-500">{{ word.phoneticUs }}</div>
+                <div class="font-medium text-slate-800 dark:text-slate-200">{{ word.word }}</div>
+                <div v-if="word.phoneticUs" class="text-sm text-slate-500 dark:text-slate-400">{{ word.phoneticUs }}</div>
               </td>
-              <td class="px-4 py-3 text-sm text-slate-600 max-w-md truncate">
+              <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 max-w-md truncate">
                 {{ word.definition || 'No definition' }}
               </td>
               <td class="px-4 py-3">
@@ -242,7 +242,7 @@ function studyList() {
 
         <!-- Empty State -->
         <div v-if="list.words.length === 0" class="text-center py-12">
-          <p class="text-slate-500">No words in this list yet.</p>
+          <p class="text-slate-500 dark:text-slate-400">No words in this list yet.</p>
           <button
             v-if="list.isOwner"
             @click="showAddWords = true"
@@ -254,7 +254,7 @@ function studyList() {
 
         <!-- Pagination -->
         <div v-if="list.pagination.totalPages > 1" class="flex items-center justify-between px-4 py-3 border-t">
-          <p class="text-sm text-slate-500">
+          <p class="text-sm text-slate-500 dark:text-slate-400">
             Showing {{ list.words.length }} of {{ list.pagination.total }} words
           </p>
           <div class="flex gap-2">
@@ -279,7 +279,7 @@ function studyList() {
 
     <!-- Not Found -->
     <div v-else class="text-center py-12">
-      <p class="text-slate-500">List not found or you don't have access.</p>
+      <p class="text-slate-500 dark:text-slate-400">List not found or you don't have access.</p>
       <button @click="goBack" class="btn btn-primary mt-4">
         Back to Lists
       </button>

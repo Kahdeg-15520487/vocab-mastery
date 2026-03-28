@@ -23,9 +23,9 @@ const reviewProgress = computed(() => {
 </script>
 
 <template>
-  <div class="bg-white rounded-xl shadow-sm p-6">
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="text-lg font-semibold text-slate-800">Daily Goals</h3>
+      <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Daily Goals</h3>
       <span v-if="completed" class="text-green-500 text-xl">✅</span>
     </div>
     
@@ -33,12 +33,12 @@ const reviewProgress = computed(() => {
       <!-- Learn Goal -->
       <div>
         <div class="flex justify-between text-sm mb-1">
-          <span class="text-slate-600">Learn</span>
+          <span class="text-slate-600 dark:text-slate-400">Learn</span>
           <span class="font-medium">
             {{ wordsLearned }} / {{ wordsToLearn }}
           </span>
         </div>
-        <div class="h-3 bg-slate-100 rounded-full overflow-hidden">
+        <div class="h-3 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
           <div
             class="h-full transition-all duration-300 rounded-full"
             :class="learnProgress >= 100 ? 'bg-green-500' : 'bg-indigo-500'"
@@ -50,12 +50,12 @@ const reviewProgress = computed(() => {
       <!-- Review Goal -->
       <div>
         <div class="flex justify-between text-sm mb-1">
-          <span class="text-slate-600">Review</span>
+          <span class="text-slate-600 dark:text-slate-400">Review</span>
           <span class="font-medium">
             {{ wordsReviewed }} / {{ wordsToReview }}
           </span>
         </div>
-        <div class="h-3 bg-slate-100 rounded-full overflow-hidden">
+        <div class="h-3 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
           <div
             class="h-full transition-all duration-300 rounded-full"
             :class="reviewProgress >= 100 ? 'bg-green-500' : 'bg-purple-500'"

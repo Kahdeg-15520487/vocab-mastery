@@ -27,8 +27,8 @@ function getLevelColor(level: string): string {
 </script>
 
 <template>
-  <div class="bg-white rounded-xl shadow-sm p-6">
-    <h3 class="text-lg font-semibold text-slate-800 mb-4">CEFR Progress</h3>
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6">
+    <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">CEFR Progress</h3>
     
     <div class="space-y-4">
       <div
@@ -37,12 +37,12 @@ function getLevelColor(level: string): string {
         class="space-y-1"
       >
         <div class="flex justify-between text-sm">
-          <span class="font-medium text-slate-700">{{ level.level }}</span>
-          <span class="text-slate-500">
+          <span class="font-medium text-slate-700 dark:text-slate-300">{{ level.level }}</span>
+          <span class="text-slate-500 dark:text-slate-400">
             {{ level.learned }} / {{ level.total }} words
           </span>
         </div>
-        <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+        <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
           <div
             class="h-full transition-all duration-300 rounded-full"
             :class="getLevelColor(level.level)"

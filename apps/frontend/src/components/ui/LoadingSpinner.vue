@@ -28,6 +28,6 @@ const emojiSizes = {
       <span class="inline-block animate-spin">{{ emoji }}</span>
     </div>
     <div v-else :class="['animate-spin rounded-full border-b-2 border-indigo-600 mx-auto', sizeClasses[size]]"></div>
-    <p v-if="text" class="mt-2 text-slate-600">{{ text }}</p>
+    <p v-if="text" class="mt-2 text-slate-600 dark:text-slate-400">{{ text }}</p>
   </div>
 </template>

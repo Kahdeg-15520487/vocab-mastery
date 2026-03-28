@@ -2,8 +2,11 @@
 import { RouterLink, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
+import { useTheme } from '@/composables/useTheme'
+
 const route = useRoute()
 const authStore = useAuthStore()
+const { isDark, toggleTheme } = useTheme()
 
 const navItems = [
   { path: '/', label: 'Home', icon: '🏠' },
@@ -29,12 +32,12 @@ async function handleLogout() {
 
 <template>
   <!-- Desktop Navigation -->
-  <nav class="hidden md:block bg-white border-b border-slate-200 sticky top-0 z-50">
+  <nav class="hidden md:block bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50 dark:bg-slate-800 dark:border-slate-700">
     <div class="container mx-auto px-4">
       <div class="flex items-center justify-between h-16">
         <RouterLink to="/" class="flex items-center gap-2">
           <span class="text-2xl">📚</span>
-          <span class="font-bold text-xl text-primary-600">Vocab Master</span>
+          <span class="font-bold text-xl text-primary-600 dark:text-primary-400">Vocab Master</span>
         </RouterLink>
         
         <div class="flex items-center gap-1">
@@ -45,8 +48,8 @@ async function handleLogout() {
             :class="[
               'px-4 py-2 rounded-lg transition-colors',
               isActive(item.path)
-                ? 'bg-primary-100 text-primary-700 font-medium'
-                : 'text-slate-600 hover:bg-slate-100'
+                ? 'bg-primary-100 text-primary-700 font-medium dark:bg-primary-900/30 dark:text-primary-300'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-700'
             ]"
           >
             {{ item.label }}
@@ -59,8 +62,8 @@ async function handleLogout() {
             :class="[
               'px-4 py-2 rounded-lg transition-colors',
               isActive(adminNavItem.path)
-                ? 'bg-amber-100 text-amber-700 font-medium'
-                : 'text-slate-600 hover:bg-slate-100'
+                ? 'bg-amber-100 text-amber-700 font-medium dark:bg-amber-900/30 dark:text-amber-300'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-700'
             ]"
           >
             {{ adminNavItem.label }}
@@ -69,10 +72,17 @@ async function handleLogout() {
 
         <!-- Auth section -->
         <div class="flex items-center gap-3">
+          <button
+            @click="toggleTheme"
+            class="p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-700 transition-colors"
+            :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+          >
+            {{ isDark ? '☀️' : '🌙' }}
+          </button>
           <template v-if="authStore.isAuthenticated">
             <RouterLink
               to="/settings"
-              class="text-sm text-slate-600 hover:text-slate-900"
+              class="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white dark:text-slate-400 dark:hover:text-slate-200"
             >
               {{ authStore.user?.username }}
             </RouterLink>
@@ -97,25 +107,32 @@ async function handleLogout() {
   </nav>
 
   <!-- Mobile Top Bar -->
-  <nav class="md:hidden bg-white border-b border-slate-200 sticky top-0 z-50">
+  <nav class="md:hidden bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50 dark:bg-slate-800 dark:border-slate-700">
     <div class="flex items-center justify-between px-4 h-14">
       <RouterLink to="/" class="flex items-center gap-2">
         <span class="text-xl">📚</span>
-        <span class="font-bold text-primary-600">Vocab Master</span>
+        <span class="font-bold text-primary-600 dark:text-primary-400">Vocab Master</span>
       </RouterLink>
 
       <div class="flex items-center gap-2">
+        <button
+          @click="toggleTheme"
+          class="p-1 rounded text-slate-600 dark:text-slate-400"
+          :title="isDark ? '☀️' : '🌙'"
+        >
+          {{ isDark ? '☀️' : '🌙' }}
+        </button>
         <template v-if="authStore.isAuthenticated">
-          <RouterLink to="/settings" class="text-sm text-slate-600">{{ authStore.user?.username }}</RouterLink>
+          <RouterLink to="/settings" class="text-sm text-slate-600 dark:text-slate-400">{{ authStore.user?.username }}</RouterLink>
           <button
             @click="handleLogout"
-            class="text-sm text-primary-600"
+            class="text-sm text-primary-600 dark:text-primary-400"
           >
             Logout
           </button>
         </template>
         <template v-else>
-          <RouterLink to="/login" class="text-sm text-primary-600">
+          <RouterLink to="/login" class="text-sm text-primary-600 dark:text-primary-400">
             Login
           </RouterLink>
         </template>
@@ -124,7 +141,7 @@ async function handleLogout() {
   </nav>
 
   <!-- Mobile Bottom Navigation -->
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50">
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 z-50 dark:bg-slate-800 dark:border-slate-700">
     <div class="flex items-center justify-around py-2">
       <RouterLink
         v-for="item in navItems"
@@ -133,8 +150,8 @@ async function handleLogout() {
         :class="[
           'flex flex-col items-center py-2 px-4 rounded-lg transition-colors',
           isActive(item.path)
-            ? 'text-primary-600'
-            : 'text-slate-500'
+            ? 'text-primary-600 dark:text-primary-400'
+            : 'text-slate-500 dark:text-slate-400'
         ]"
       >
         <span class="text-xl">{{ item.icon }}</span>

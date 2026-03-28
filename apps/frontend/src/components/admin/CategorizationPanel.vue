@@ -200,11 +200,11 @@ function getThemeIcon(slug: string): string {
 
 <template>
   <div class="space-y-6">
-    <h2 class="text-xl font-bold text-slate-900">LLM Word Categorization</h2>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">LLM Word Categorization</h2>
 
     <!-- LLM Status -->
     <div class="card">
-      <h3 class="font-semibold text-slate-700 mb-3">LLM Status</h3>
+      <h3 class="font-semibold text-slate-700 dark:text-slate-300 mb-3">LLM Status</h3>
       <div v-if="llmStatus" class="flex items-center gap-3">
         <span 
           :class="[
@@ -212,14 +212,14 @@ function getThemeIcon(slug: string): string {
             llmStatus.available ? 'bg-green-500' : 'bg-red-500'
           ]"
         />
-        <span v-if="llmStatus.available" class="text-slate-700">
+        <span v-if="llmStatus.available" class="text-slate-700 dark:text-slate-300">
           {{ llmStatus.provider }} ({{ llmStatus.model }})
         </span>
         <span v-else class="text-red-600">
           {{ llmStatus.error || 'Not available' }}
         </span>
       </div>
-      <p v-else class="text-slate-500">Checking...</p>
+      <p v-else class="text-slate-500 dark:text-slate-400">Checking...</p>
     </div>
 
     <!-- Error -->
@@ -234,10 +234,10 @@ function getThemeIcon(slug: string): string {
 
     <!-- Progress -->
     <div v-if="stats" class="card">
-      <h3 class="font-semibold text-slate-700 mb-3">Categorization Progress</h3>
+      <h3 class="font-semibold text-slate-700 dark:text-slate-300 mb-3">Categorization Progress</h3>
       
       <div class="mb-4">
-        <div class="flex justify-between text-sm text-slate-600 mb-1">
+        <div class="flex justify-between text-sm text-slate-600 dark:text-slate-400 mb-1">
           <span>{{ stats.categorizedWords.toLocaleString() }} / {{ stats.totalWords.toLocaleString() }} words</span>
           <span>{{ progress }}%</span>
         </div>
@@ -254,13 +254,13 @@ function getThemeIcon(slug: string): string {
         <div 
           v-for="theme in stats.themeStats" 
           :key="theme.themeId"
-          class="bg-slate-50 rounded-lg p-3"
+          class="bg-slate-50 dark:bg-slate-900 rounded-lg p-3"
         >
           <div class="flex items-center gap-2 mb-1">
             <span>{{ getThemeIcon(theme.themeSlug) }}</span>
-            <span class="text-sm font-medium text-slate-700">{{ theme.themeName }}</span>
+            <span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ theme.themeName }}</span>
           </div>
-          <p class="text-lg font-bold text-slate-900">{{ theme.count.toLocaleString() }}</p>
+          <p class="text-lg font-bold text-slate-900 dark:text-white">{{ theme.count.toLocaleString() }}</p>
         </div>
       </div>
     </div>
@@ -300,8 +300,8 @@ function getThemeIcon(slug: string): string {
 
     <!-- Preview -->
     <div class="card">
-      <h3 class="font-semibold text-slate-700 mb-3">Preview Categorization</h3>
-      <p class="text-sm text-slate-500 mb-3">
+      <h3 class="font-semibold text-slate-700 dark:text-slate-300 mb-3">Preview Categorization</h3>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">
         Test the LLM categorization on a single word.
       </p>
       
@@ -322,8 +322,8 @@ function getThemeIcon(slug: string): string {
         </button>
       </div>
 
-      <div v-if="previewResult" class="mt-4 p-4 bg-slate-50 rounded-lg">
-        <p class="text-slate-700">
+      <div v-if="previewResult" class="mt-4 p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+        <p class="text-slate-700 dark:text-slate-300">
           <span class="font-medium">"{{ previewResult.word }}"</span>
           → 
           <span class="badge" :class="previewResult.category === 'general' ? 'badge-secondary' : 'badge-primary'">
@@ -335,8 +335,8 @@ function getThemeIcon(slug: string): string {
 
     <!-- Start Job -->
     <div class="card">
-      <h3 class="font-semibold text-slate-700 mb-3">Start Categorization Job</h3>
-      <p class="text-sm text-slate-500 mb-3">
+      <h3 class="font-semibold text-slate-700 dark:text-slate-300 mb-3">Start Categorization Job</h3>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">
         Jobs run in the background. You can close this page and check progress later.
       </p>
 
@@ -367,9 +367,9 @@ function getThemeIcon(slug: string): string {
 
     <!-- Job History -->
     <div class="card">
-      <h3 class="font-semibold text-slate-700 mb-3">Job History</h3>
+      <h3 class="font-semibold text-slate-700 dark:text-slate-300 mb-3">Job History</h3>
       
-      <div v-if="jobs.length === 0" class="text-slate-500 text-sm">
+      <div v-if="jobs.length === 0" class="text-slate-500 dark:text-slate-400 text-sm">
         No jobs yet.
       </div>
       
@@ -377,17 +377,17 @@ function getThemeIcon(slug: string): string {
         <div 
           v-for="job in jobs" 
           :key="job.id"
-          class="border border-slate-200 rounded-lg p-3"
+          class="border border-slate-200 dark:border-slate-700 rounded-lg p-3"
         >
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-2">
-              <span class="font-mono text-xs text-slate-500">{{ job.id.slice(0, 8) }}</span>
+              <span class="font-mono text-xs text-slate-500 dark:text-slate-400">{{ job.id.slice(0, 8) }}</span>
               <span :class="['badge text-xs', getStatusColor(job.status)]">
                 {{ job.status }}
               </span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-xs text-slate-500">{{ formatDate(job.createdAt) }}</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">{{ formatDate(job.createdAt) }}</span>
               <button 
                 v-if="job.status !== 'RUNNING' && job.status !== 'PENDING'"
                 @click="deleteJob(job.id)"
@@ -398,7 +398,7 @@ function getThemeIcon(slug: string): string {
             </div>
           </div>
           
-          <div class="text-sm text-slate-600">
+          <div class="text-sm text-slate-600 dark:text-slate-400">
             {{ job.processedItems }} / {{ job.totalItems }} words ({{ job.progress }}%)
           </div>
           

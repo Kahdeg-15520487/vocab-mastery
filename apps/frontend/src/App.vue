@@ -13,7 +13,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50">
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-900">
     <AppNavigation />
     <main class="container mx-auto px-4 py-6 pb-20 md:pb-6">
       <RouterView />

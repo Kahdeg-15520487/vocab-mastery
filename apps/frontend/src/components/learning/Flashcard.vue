@@ -50,11 +50,11 @@ function respond(response: 'easy' | 'medium' | 'hard' | 'forgot') {
         <div class="flashcard-front card min-h-[300px] flex flex-col items-center justify-center text-center">
           <LevelBadge :level="level" class="absolute top-4 right-4" />
           
-          <h2 class="text-3xl font-bold text-slate-900 mb-2">
+          <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">
             {{ word.word }}
           </h2>
           
-          <p class="text-slate-500 mb-4">
+          <p class="text-slate-500 dark:text-slate-400 mb-4">
             {{ word.phoneticUs }}
           </p>
           
@@ -76,26 +76,26 @@ function respond(response: 'easy' | 'medium' | 'hard' | 'forgot') {
         <div class="flashcard-back card min-h-[300px] absolute inset-0 flex flex-col">
           <LevelBadge :level="level" class="absolute top-4 right-4" />
           
-          <h3 class="text-xl font-bold text-slate-900 mb-2">
+          <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">
             {{ word.word }}
           </h3>
           
-          <p class="text-slate-500 text-sm mb-4">
+          <p class="text-slate-500 dark:text-slate-400 text-sm mb-4">
             {{ word.phoneticUs }}
           </p>
           
           <div class="flex-1 overflow-auto">
-            <p class="text-slate-700 mb-3">
+            <p class="text-slate-700 dark:text-slate-300 mb-3">
               <span class="text-xs uppercase text-slate-400">Definition:</span><br>
               {{ word.definition }}
             </p>
             
-            <p class="text-slate-600 text-sm mb-3" v-if="word.examples?.length">
+            <p class="text-slate-600 dark:text-slate-400 text-sm mb-3" v-if="word.examples?.length">
               <span class="text-xs uppercase text-slate-400">Example:</span><br>
               <em>"{{ word.examples[0] }}"</em>
             </p>
             
-            <p class="text-slate-500 text-sm" v-if="word.synonyms?.length">
+            <p class="text-slate-500 dark:text-slate-400 text-sm" v-if="word.synonyms?.length">
               <span class="text-xs uppercase text-slate-400">Synonyms:</span>
               {{ word.synonyms.join(' • ') }}
             </p>

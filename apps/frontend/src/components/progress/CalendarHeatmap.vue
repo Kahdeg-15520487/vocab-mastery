@@ -50,7 +50,7 @@ const weeks = computed(() => {
 
 function getLevelColor(level: number): string {
   switch (level) {
-    case 0: return 'bg-slate-100'
+    case 0: return 'bg-slate-100 dark:bg-slate-700'
     case 1: return 'bg-green-200'
     case 2: return 'bg-green-300'
     case 3: return 'bg-green-400'
@@ -67,8 +67,8 @@ function formatDate(dateStr: string): string {
 </script>
 
 <template>
-  <div class="bg-white rounded-xl shadow-sm p-6">
-    <h3 class="text-lg font-semibold text-slate-800 mb-4">Activity</h3>
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6">
+    <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">Activity</h3>
     
     <div class="overflow-x-auto">
       <div class="inline-flex gap-1">
@@ -118,10 +118,10 @@ function formatDate(dateStr: string): string {
     </div>
     
     <!-- Legend -->
-    <div class="flex items-center justify-end gap-2 mt-4 text-xs text-slate-500">
+    <div class="flex items-center justify-end gap-2 mt-4 text-xs text-slate-500 dark:text-slate-400">
       <span>Less</span>
       <div class="flex gap-1">
-        <div class="w-3 h-3 rounded-sm bg-slate-100"></div>
+        <div class="w-3 h-3 rounded-sm bg-slate-100 dark:bg-slate-700"></div>
         <div class="w-3 h-3 rounded-sm bg-green-200"></div>
         <div class="w-3 h-3 rounded-sm bg-green-300"></div>
         <div class="w-3 h-3 rounded-sm bg-green-400"></div>

@@ -66,11 +66,11 @@ async function handleSubmit() {
 
 <template>
   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full mx-4">
       <!-- Header -->
-      <div class="px-6 py-4 border-b border-slate-200">
-        <h3 class="text-lg font-semibold text-slate-900">Edit User</h3>
-        <p class="text-sm text-slate-500">{{ user.username }} ({{ user.email }})</p>
+      <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Edit User</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400">{{ user.username }} ({{ user.email }})</p>
       </div>
 
       <!-- Form -->
@@ -82,23 +82,23 @@ async function handleSubmit() {
 
         <!-- Role -->
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Role</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Role</label>
           <select
             v-model="form.role"
-            class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
           >
             <option value="LEARNER">Learner</option>
             <option value="ADMIN">Admin</option>
           </select>
-          <p class="mt-1 text-xs text-slate-500">Admins can access this panel and manage users</p>
+          <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Admins can access this panel and manage users</p>
         </div>
 
         <!-- Subscription Tier -->
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Subscription Tier</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Subscription Tier</label>
           <select
             v-model="form.subscriptionTier"
-            class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
           >
             <option value="FREE">Free</option>
             <option value="EXPLORER">Explorer ($4.99/mo)</option>
@@ -108,16 +108,16 @@ async function handleSubmit() {
 
         <!-- Subscription Expiry -->
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Subscription Expiry
             <span class="text-slate-400 font-normal">(optional)</span>
           </label>
           <input
             v-model="form.subscriptionExpiresAt"
             type="date"
-            class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
           />
-          <p class="mt-1 text-xs text-slate-500">Leave empty for no expiry</p>
+          <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Leave empty for no expiry</p>
         </div>
 
         <!-- Actions -->
@@ -125,7 +125,7 @@ async function handleSubmit() {
           <button
             type="button"
             @click="emit('close')"
-            class="px-4 py-2 text-slate-700 hover:text-slate-900"
+            class="px-4 py-2 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white dark:text-white"
             :disabled="loading"
           >
             Cancel

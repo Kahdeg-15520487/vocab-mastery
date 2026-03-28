@@ -140,22 +140,22 @@ async function handleDeleteAccount() {
 
 <template>
   <div class="container mx-auto px-4 py-8 max-w-2xl">
-    <h1 class="text-2xl font-bold text-slate-900 mb-6">Settings</h1>
+    <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-6">Settings</h1>
 
     <!-- User Info -->
     <div class="card mb-6">
-      <h2 class="text-lg font-semibold text-slate-900 mb-4">Account Information</h2>
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Account Information</h2>
       <div class="space-y-2">
         <div class="flex justify-between">
-          <span class="text-slate-600">Email:</span>
+          <span class="text-slate-600 dark:text-slate-400">Email:</span>
           <span class="font-medium">{{ authStore.user?.email }}</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-slate-600">Username:</span>
+          <span class="text-slate-600 dark:text-slate-400">Username:</span>
           <span class="font-medium">{{ authStore.user?.username }}</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-slate-600">Subscription:</span>
+          <span class="text-slate-600 dark:text-slate-400">Subscription:</span>
           <span class="badge badge-primary">{{ authStore.user?.subscriptionTier }}</span>
         </div>
       </div>
@@ -163,8 +163,8 @@ async function handleDeleteAccount() {
 
     <!-- Daily Goals -->
     <div class="card mb-6">
-      <h2 class="text-lg font-semibold text-slate-900 mb-4">Daily Goals</h2>
-      <p class="text-sm text-slate-600 mb-4">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Daily Goals</h2>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
         Set your daily learning targets. These appear on your dashboard.
       </p>
       
@@ -178,7 +178,7 @@ async function handleDeleteAccount() {
 
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label for="dailyLearnGoal" class="block text-sm font-medium text-slate-700 mb-1">
+            <label for="dailyLearnGoal" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Words to Learn / Day
             </label>
             <input
@@ -192,7 +192,7 @@ async function handleDeleteAccount() {
             />
           </div>
           <div>
-            <label for="dailyReviewGoal" class="block text-sm font-medium text-slate-700 mb-1">
+            <label for="dailyReviewGoal" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Words to Review / Day
             </label>
             <input
@@ -220,7 +220,7 @@ async function handleDeleteAccount() {
 
     <!-- Change Password -->
     <div class="card mb-6">
-      <h2 class="text-lg font-semibold text-slate-900 mb-4">Change Password</h2>
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Change Password</h2>
       
       <form @submit.prevent="handleChangePassword" class="space-y-4">
         <div v-if="passwordError" class="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
@@ -232,7 +232,7 @@ async function handleDeleteAccount() {
         </div>
 
         <div>
-          <label for="currentPassword" class="block text-sm font-medium text-slate-700 mb-1">
+          <label for="currentPassword" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Current Password
           </label>
           <input
@@ -245,7 +245,7 @@ async function handleDeleteAccount() {
         </div>
 
         <div>
-          <label for="newPassword" class="block text-sm font-medium text-slate-700 mb-1">
+          <label for="newPassword" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             New Password
           </label>
           <input
@@ -258,7 +258,7 @@ async function handleDeleteAccount() {
         </div>
 
         <div>
-          <label for="confirmPassword" class="block text-sm font-medium text-slate-700 mb-1">
+          <label for="confirmPassword" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Confirm New Password
           </label>
           <input

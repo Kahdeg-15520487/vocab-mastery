@@ -20,10 +20,10 @@ const emit = defineEmits<{
       <div class="flex items-center gap-3">
         <span class="text-3xl">{{ theme.icon }}</span>
         <div>
-          <h3 class="font-semibold text-slate-900 group-hover:text-primary-600 transition-colors">
+          <h3 class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400 transition-colors">
             {{ theme.name }}
           </h3>
-          <p class="text-sm text-slate-500">
+          <p class="text-sm text-slate-500 dark:text-slate-400">
             {{ theme.wordCount || 0 }} words
           </p>
         </div>
@@ -32,7 +32,7 @@ const emit = defineEmits<{
     </div>
     
     <div v-if="progress !== undefined" class="mt-4">
-      <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
+      <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
         <span>Progress</span>
         <span>{{ progress }}%</span>
       </div>

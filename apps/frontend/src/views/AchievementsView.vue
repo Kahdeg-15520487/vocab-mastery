@@ -28,14 +28,14 @@ const totalXP = computed(() =>
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-slate-900">Achievements</h1>
-        <p class="text-slate-600 mt-1">Track your learning milestones</p>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Achievements</h1>
+        <p class="text-slate-600 dark:text-slate-400 mt-1">Track your learning milestones</p>
       </div>
       <div class="text-right">
         <div class="text-2xl font-bold text-yellow-600">
           {{ unlockedCount }} / {{ achievements.length }}
         </div>
-        <div class="text-sm text-slate-500">
+        <div class="text-sm text-slate-500 dark:text-slate-400">
           ⭐ {{ totalXP }} XP earned from achievements
         </div>
       </div>
@@ -49,7 +49,7 @@ const totalXP = computed(() =>
           :style="{ width: `${achievements.length ? (unlockedCount / achievements.length * 100) : 0}%` }"
         ></div>
       </div>
-      <div class="text-xs text-slate-500 mt-1 text-right">
+      <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 text-right">
         {{ achievements.length ? Math.round(unlockedCount / achievements.length * 100) : 0 }}% complete
       </div>
     </div>
@@ -62,7 +62,7 @@ const totalXP = computed(() =>
 
     <!-- Back -->
     <div class="mt-6 text-center">
-      <router-link to="/" class="text-primary-600 hover:underline text-sm">
+      <router-link to="/" class="text-primary-600 dark:text-primary-400 hover:underline text-sm">
         ← Back to Dashboard
       </router-link>
     </div>

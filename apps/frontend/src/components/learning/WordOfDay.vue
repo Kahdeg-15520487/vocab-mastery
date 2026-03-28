@@ -32,7 +32,7 @@ function revealDefinition() {
 
   <div v-else-if="wordOfDay" class="card bg-gradient-to-br from-primary-50 to-secondary-50 border-primary-200">
     <div class="flex items-center justify-between mb-3">
-      <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+      <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
         <span>✨</span> Word of the Day
       </h2>
       <LevelBadge :level="wordOfDay.cefrLevel" />
@@ -40,23 +40,23 @@ function revealDefinition() {
 
     <div class="mb-3">
       <h3 class="text-2xl font-bold text-primary-700">{{ wordOfDay.word }}</h3>
-      <p class="text-slate-500 text-sm">{{ wordOfDay.phoneticUs }}</p>
+      <p class="text-slate-500 dark:text-slate-400 text-sm">{{ wordOfDay.phoneticUs }}</p>
     </div>
 
     <!-- Hidden definition - click to reveal -->
     <div v-if="!showDefinition">
       <button
         @click="revealDefinition"
-        class="text-sm text-primary-600 hover:text-primary-800 underline underline-offset-2"
+        class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 underline underline-offset-2"
       >
         Click to reveal definition
       </button>
     </div>
 
     <div v-else>
-      <p class="text-slate-700 mb-2">{{ wordOfDay.definition }}</p>
+      <p class="text-slate-700 dark:text-slate-300 mb-2">{{ wordOfDay.definition }}</p>
       
-      <p v-if="wordOfDay.examples?.length" class="text-slate-600 text-sm italic mt-2">
+      <p v-if="wordOfDay.examples?.length" class="text-slate-600 dark:text-slate-400 text-sm italic mt-2">
         "{{ wordOfDay.examples[0] }}"
       </p>
 
@@ -64,7 +64,7 @@ function revealDefinition() {
         <span
           v-for="syn in wordOfDay.synonyms"
           :key="syn"
-          class="px-2 py-0.5 bg-white/60 text-slate-600 rounded text-xs"
+          class="px-2 py-0.5 bg-white/60 text-slate-600 dark:text-slate-400 rounded text-xs"
         >
           {{ syn }}
         </span>

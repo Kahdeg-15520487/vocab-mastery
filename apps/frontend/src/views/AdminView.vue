@@ -21,12 +21,12 @@ const tabs = [
   <div class="max-w-6xl mx-auto">
     <!-- Header -->
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-slate-800">Admin Panel</h1>
-      <p class="text-slate-600">Manage users, view statistics, and configure settings</p>
+      <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-200">Admin Panel</h1>
+      <p class="text-slate-600 dark:text-slate-400">Manage users, view statistics, and configure settings</p>
     </div>
 
     <!-- Tabs -->
-    <div class="border-b border-slate-200 mb-6">
+    <div class="border-b border-slate-200 dark:border-slate-700 mb-6">
       <nav class="flex space-x-8">
         <button
           v-for="tab in tabs"
@@ -36,7 +36,7 @@ const tabs = [
             'py-3 px-1 border-b-2 font-medium text-sm transition-colors',
             activeTab === tab.key
               ? 'border-indigo-500 text-indigo-600'
-              : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:border-slate-600'
           ]"
         >
           <span class="mr-2">{{ tab.icon }}</span>

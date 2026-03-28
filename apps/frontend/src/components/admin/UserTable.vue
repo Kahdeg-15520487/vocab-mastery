@@ -106,12 +106,12 @@ function getTierBadgeClass(tier: string) {
   switch (tier) {
     case 'EXPLORER': return 'bg-blue-100 text-blue-800'
     case 'WORDSMITH': return 'bg-purple-100 text-purple-800'
-    default: return 'bg-slate-100 text-slate-800'
+    default: return 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200'
   }
 }
 
 function getRoleBadgeClass(role: string) {
-  return role === 'ADMIN' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-800'
+  return role === 'ADMIN' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200'
 }
 
 onMounted(fetchUsers)
@@ -120,25 +120,25 @@ onMounted(fetchUsers)
 <template>
   <div>
     <!-- Filters -->
-    <div class="bg-white rounded-lg shadow p-4 mb-4">
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-4 mb-4">
       <div class="flex flex-wrap gap-4 items-end">
         <div class="flex-1 min-w-[200px]">
-          <label class="block text-sm font-medium text-slate-700 mb-1">Search</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Search</label>
           <input
             v-model="search"
             @keyup.enter="handleSearch"
             type="text"
             placeholder="Email or username..."
-            class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
           />
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Role</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Role</label>
           <select
             v-model="roleFilter"
             @change="handleSearch"
-            class="px-3 py-2 border border-slate-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+            class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
           >
             <option value="">All</option>
             <option value="LEARNER">Learner</option>
@@ -147,11 +147,11 @@ onMounted(fetchUsers)
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Tier</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tier</label>
           <select
             v-model="tierFilter"
             @change="handleSearch"
-            class="px-3 py-2 border border-slate-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+            class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
           >
             <option value="">All</option>
             <option value="FREE">Free</option>
@@ -177,45 +177,45 @@ onMounted(fetchUsers)
     <!-- Loading -->
     <div v-if="loading" class="text-center py-8">
       <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-      <p class="mt-2 text-slate-600">Loading users...</p>
+      <p class="mt-2 text-slate-600 dark:text-slate-400">Loading users...</p>
     </div>
 
     <!-- Users Table -->
-    <div v-else class="bg-white rounded-lg shadow overflow-hidden">
+    <div v-else class="bg-white dark:bg-slate-800 rounded-lg shadow overflow-hidden">
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-slate-200">
-          <thead class="bg-slate-50">
+          <thead class="bg-slate-50 dark:bg-slate-900">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 User
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Role
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Tier
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Created
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Last Login
               </th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
+              <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-slate-200">
-            <tr v-for="user in users" :key="user.id" class="hover:bg-slate-50">
+            <tr v-for="user in users" :key="user.id" class="hover:bg-slate-50 dark:hover:bg-slate-700 dark:bg-slate-900">
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
                   <div>
-                    <div class="text-sm font-medium text-slate-900">
+                    <div class="text-sm font-medium text-slate-900 dark:text-white">
                       {{ user.username }}
                       <span v-if="user.hasGoogleAuth" class="ml-1 text-xs" title="Google Auth">🔗</span>
                     </div>
-                    <div class="text-sm text-slate-500">{{ user.email }}</div>
+                    <div class="text-sm text-slate-500 dark:text-slate-400">{{ user.email }}</div>
                   </div>
                 </div>
               </td>
@@ -229,10 +229,10 @@ onMounted(fetchUsers)
                   {{ user.subscriptionTier }}
                 </span>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
                 {{ formatDate(user.createdAt) }}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
                 {{ formatDate(user.lastLoginAt) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -255,8 +255,8 @@ onMounted(fetchUsers)
       </div>
 
       <!-- Pagination -->
-      <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-slate-200 sm:px-6">
-        <div class="text-sm text-slate-700">
+      <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-slate-200 dark:border-slate-700 sm:px-6">
+        <div class="text-sm text-slate-700 dark:text-slate-300">
           Showing {{ users.length }} of {{ total }} users
         </div>
         <div class="flex gap-2">

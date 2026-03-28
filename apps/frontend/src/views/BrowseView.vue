@@ -128,7 +128,7 @@ const visiblePages = computed(() => {
 
 <template>
   <div>
-    <h1 class="text-2xl font-bold text-slate-900 mb-6">Browse Vocabulary</h1>
+    <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-6">Browse Vocabulary</h1>
 
     <!-- Filters -->
     <div class="card mb-6">
@@ -176,12 +176,12 @@ const visiblePages = computed(() => {
         <div class="flex items-start justify-between">
           <div class="flex-1">
             <div class="flex items-center gap-3 mb-1">
-              <h3 class="text-lg font-semibold text-slate-900">{{ word.word }}</h3>
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white">{{ word.word }}</h3>
               <LevelBadge :level="word.cefrLevel" />
               <span v-if="word.oxfordList === '3000'" class="badge badge-secondary">Oxford 3000</span>
               <span v-else class="badge badge-primary">Oxford 5000</span>
             </div>
-            <p class="text-slate-500 text-sm mb-2 flex items-center gap-2">
+            <p class="text-slate-500 dark:text-slate-400 text-sm mb-2 flex items-center gap-2">
               {{ word.phoneticUs }}
               <button
                 @click.stop="speak(word.word)"
@@ -191,8 +191,8 @@ const visiblePages = computed(() => {
                 🔊
               </button>
             </p>
-            <p class="text-slate-700 line-clamp-2">{{ word.definition }}</p>
-            <p v-if="word.synonyms?.length" class="text-sm text-slate-500 mt-2">
+            <p class="text-slate-700 dark:text-slate-300 line-clamp-2">{{ word.definition }}</p>
+            <p v-if="word.synonyms?.length" class="text-sm text-slate-500 dark:text-slate-400 mt-2">
               {{ formatSynonyms(word.synonyms) }}
             </p>
           </div>
@@ -216,7 +216,7 @@ const visiblePages = computed(() => {
     <!-- Empty State -->
     <div v-else-if="!wordsStore.loading" class="text-center py-12">
       <div class="text-4xl mb-4">🔍</div>
-      <p class="text-slate-600">No words found matching your criteria.</p>
+      <p class="text-slate-600 dark:text-slate-400">No words found matching your criteria.</p>
     </div>
 
     <!-- Loading -->
@@ -224,7 +224,7 @@ const visiblePages = computed(() => {
 
     <!-- Pagination -->
     <div v-if="totalPages > 1" class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <p class="text-sm text-slate-500">
+      <p class="text-sm text-slate-500 dark:text-slate-400">
         Showing {{ wordsStore.words.length }} of {{ totalWords }} words (Page {{ currentPage }} of {{ totalPages }})
       </p>
       
@@ -236,8 +236,8 @@ const visiblePages = computed(() => {
           :class="[
             'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
             currentPage === 1
-              ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-              : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50'
+              ? 'bg-slate-100 dark:bg-slate-700 text-slate-400 cursor-not-allowed'
+              : 'bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 dark:bg-slate-900'
           ]"
         >
           ← Previous
@@ -248,7 +248,7 @@ const visiblePages = computed(() => {
           <button
             v-if="currentPage > 3"
             @click="goToPage(1)"
-            class="px-3 py-2 rounded-lg text-sm bg-white border border-slate-300 text-slate-700 hover:bg-slate-50"
+            class="px-3 py-2 rounded-lg text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 dark:bg-slate-900"
           >
             1
           </button>
@@ -262,7 +262,7 @@ const visiblePages = computed(() => {
               'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
               p === currentPage
                 ? 'bg-primary-600 text-white'
-                : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50'
+                : 'bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 dark:bg-slate-900'
             ]"
           >
             {{ p }}
@@ -272,7 +272,7 @@ const visiblePages = computed(() => {
           <button
             v-if="currentPage < totalPages - 2"
             @click="goToPage(totalPages)"
-            class="px-3 py-2 rounded-lg text-sm bg-white border border-slate-300 text-slate-700 hover:bg-slate-50"
+            class="px-3 py-2 rounded-lg text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 dark:bg-slate-900"
           >
             {{ totalPages }}
           </button>
@@ -285,8 +285,8 @@ const visiblePages = computed(() => {
           :class="[
             'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
             currentPage === totalPages
-              ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-              : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50'
+              ? 'bg-slate-100 dark:bg-slate-700 text-slate-400 cursor-not-allowed'
+              : 'bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 dark:bg-slate-900'
           ]"
         >
           Next →
@@ -300,15 +300,15 @@ const visiblePages = computed(() => {
       class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
       @click.self="closeWordDetail"
     >
-      <div class="bg-white rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl">
+      <div class="bg-white dark:bg-slate-800 rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl">
         <!-- Header -->
-        <div class="sticky top-0 bg-white border-b border-slate-200 p-4 flex items-start justify-between">
+        <div class="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 flex items-start justify-between">
           <div>
             <div class="flex items-center gap-3 mb-1">
-              <h2 class="text-2xl font-bold text-slate-900">{{ selectedWord.word }}</h2>
+              <h2 class="text-2xl font-bold text-slate-900 dark:text-white">{{ selectedWord.word }}</h2>
               <LevelBadge :level="selectedWord.cefrLevel" />
             </div>
-            <p class="text-slate-500 flex items-center gap-2">
+            <p class="text-slate-500 dark:text-slate-400 flex items-center gap-2">
               {{ selectedWord.phoneticUs }}
               <button
                 @click="speak(selectedWord.word)"
@@ -322,7 +322,7 @@ const visiblePages = computed(() => {
               UK: {{ selectedWord.phoneticUk }}
             </p>
           </div>
-          <button @click="closeWordDetail" class="text-slate-400 hover:text-slate-600 text-2xl">
+          <button @click="closeWordDetail" class="text-slate-400 hover:text-slate-600 dark:text-slate-400 text-2xl">
             ×
           </button>
         </div>
@@ -331,7 +331,7 @@ const visiblePages = computed(() => {
         <div class="p-4 space-y-4">
           <!-- Part of Speech -->
           <div v-if="selectedWord.partOfSpeech?.length">
-            <span class="text-sm text-slate-500">Part of Speech:</span>
+            <span class="text-sm text-slate-500 dark:text-slate-400">Part of Speech:</span>
             <div class="flex gap-2 mt-1">
               <span 
                 v-for="pos in selectedWord.partOfSpeech" 
@@ -345,8 +345,8 @@ const visiblePages = computed(() => {
 
           <!-- Definition -->
           <div v-if="hasDefinition(selectedWord)">
-            <h3 class="text-sm font-semibold text-slate-500 mb-2">Definition</h3>
-            <p class="text-slate-700 whitespace-pre-line">{{ selectedWord.definition }}</p>
+            <h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-2">Definition</h3>
+            <p class="text-slate-700 dark:text-slate-300 whitespace-pre-line">{{ selectedWord.definition }}</p>
           </div>
           <div v-else class="text-slate-400 italic">
             No definition available yet. Run the crawler to add definitions.
@@ -354,12 +354,12 @@ const visiblePages = computed(() => {
 
           <!-- Examples -->
           <div v-if="selectedWord.examples?.length">
-            <h3 class="text-sm font-semibold text-slate-500 mb-2">Examples</h3>
+            <h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-2">Examples</h3>
             <ul class="space-y-2">
               <li 
                 v-for="(example, i) in selectedWord.examples" 
                 :key="i"
-                class="text-slate-600 pl-4 border-l-2 border-primary-200"
+                class="text-slate-600 dark:text-slate-400 pl-4 border-l-2 border-primary-200"
               >
                 {{ example }}
               </li>
@@ -368,7 +368,7 @@ const visiblePages = computed(() => {
 
           <!-- Synonyms -->
           <div v-if="selectedWord.synonyms?.length">
-            <h3 class="text-sm font-semibold text-slate-500 mb-2">Synonyms</h3>
+            <h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-2">Synonyms</h3>
             <div class="flex flex-wrap gap-2">
               <span 
                 v-for="syn in selectedWord.synonyms" 
@@ -382,7 +382,7 @@ const visiblePages = computed(() => {
 
           <!-- Antonyms -->
           <div v-if="selectedWord.antonyms?.length">
-            <h3 class="text-sm font-semibold text-slate-500 mb-2">Antonyms</h3>
+            <h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-2">Antonyms</h3>
             <div class="flex flex-wrap gap-2">
               <span 
                 v-for="ant in selectedWord.antonyms" 
@@ -396,12 +396,12 @@ const visiblePages = computed(() => {
 
           <!-- Themes -->
           <div v-if="selectedWord.themes?.length">
-            <h3 class="text-sm font-semibold text-slate-500 mb-2">Themes</h3>
+            <h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-2">Themes</h3>
             <div class="flex flex-wrap gap-2">
               <span 
                 v-for="theme in selectedWord.themes" 
                 :key="theme"
-                class="px-2 py-1 bg-slate-100 text-slate-700 rounded text-sm"
+                class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded text-sm"
               >
                 {{ theme }}
               </span>
@@ -409,7 +409,7 @@ const visiblePages = computed(() => {
           </div>
 
           <!-- Word Lists -->
-          <div class="flex gap-2 text-sm text-slate-500">
+          <div class="flex gap-2 text-sm text-slate-500 dark:text-slate-400">
             <span v-if="selectedWord.oxfordList === '3000'" class="badge badge-secondary">
               Oxford 3000
             </span>
@@ -419,7 +419,7 @@ const visiblePages = computed(() => {
           </div>
 
           <!-- Add to Study List -->
-          <div class="border-t border-slate-200 pt-4">
+          <div class="border-t border-slate-200 dark:border-slate-700 pt-4">
             <button
               @click="showListPicker = !showListPicker"
               class="btn btn-secondary w-full flex items-center justify-center gap-2"
@@ -429,8 +429,8 @@ const visiblePages = computed(() => {
             </button>
 
             <div v-if="showListPicker" class="mt-3 space-y-2 max-h-40 overflow-y-auto">
-              <div v-if="listsStore.lists.length === 0" class="text-center py-2 text-sm text-slate-500">
-                No lists yet. <RouterLink to="/lists" class="text-primary-600">Create one</RouterLink>
+              <div v-if="listsStore.lists.length === 0" class="text-center py-2 text-sm text-slate-500 dark:text-slate-400">
+                No lists yet. <RouterLink to="/lists" class="text-primary-600 dark:text-primary-400">Create one</RouterLink>
               </div>
               <button
                 v-for="list in listsStore.lists"
@@ -441,7 +441,7 @@ const visiblePages = computed(() => {
                   'w-full text-left px-3 py-2 rounded-lg text-sm transition-colors',
                   addedToList === list.id
                     ? 'bg-secondary-50 text-secondary-700'
-                    : 'hover:bg-slate-50 text-slate-700'
+                    : 'hover:bg-slate-50 dark:hover:bg-slate-700 dark:bg-slate-900 text-slate-700 dark:text-slate-300'
                 ]"
               >
                 <span class="font-medium">{{ list.name }}</span>

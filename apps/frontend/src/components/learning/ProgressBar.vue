@@ -16,8 +16,8 @@ const percent = computed(() => {
 <template>
   <div class="w-full">
     <div class="flex items-center justify-between mb-2" v-if="label">
-      <span class="text-sm font-medium text-slate-700">{{ label }}</span>
-      <span class="text-sm text-slate-500">{{ current }}/{{ total }}</span>
+      <span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ label }}</span>
+      <span class="text-sm text-slate-500 dark:text-slate-400">{{ current }}/{{ total }}</span>
     </div>
     <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
       <div 

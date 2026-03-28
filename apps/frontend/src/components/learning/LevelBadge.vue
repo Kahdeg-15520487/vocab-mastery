@@ -26,7 +26,7 @@ const levelIcons: Record<string, string> = {
   <span 
     :class="[
       'badge inline-flex items-center gap-1',
-      levelColors[level] || 'bg-slate-100 text-slate-800'
+      levelColors[level] || 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200'
     ]"
   >
     <span>{{ levelIcons[level] || '📖' }}</span>

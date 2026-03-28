@@ -17,14 +17,14 @@ function openList() {
 <template>
   <div
     @click="openList"
-    class="bg-white rounded-xl shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow"
+    class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow"
     :style="{ borderLeft: `4px solid ${list.color}` }"
   >
     <div class="flex items-start gap-3">
       <div class="text-2xl">{{ list.icon }}</div>
       <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-slate-800 truncate">{{ list.name }}</h3>
-        <p v-if="list.description" class="text-sm text-slate-500 truncate">
+        <h3 class="font-semibold text-slate-800 dark:text-slate-200 truncate">{{ list.name }}</h3>
+        <p v-if="list.description" class="text-sm text-slate-500 dark:text-slate-400 truncate">
           {{ list.description }}
         </p>
       </div>
@@ -33,7 +33,7 @@ function openList() {
       </div>
     </div>
     
-    <div class="mt-3 flex items-center justify-between text-sm text-slate-500">
+    <div class="mt-3 flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
       <span>{{ list.wordCount }} words</span>
       <span v-if="!list.isOwner" class="text-slate-400">
         Shared by {{ list.owner?.username }}

@@ -122,33 +122,33 @@ function startNewSession() {
       <div class="text-6xl mb-4">
         {{ sessionStore.stats.accuracy >= 90 ? '🏆' : sessionStore.stats.accuracy >= 70 ? '🎉' : sessionStore.stats.accuracy >= 50 ? '💪' : '📚' }}
       </div>
-      <h2 class="text-2xl font-bold text-slate-900 mb-2">
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">
         {{ sessionStore.stats.accuracy >= 90 ? 'Outstanding!' : sessionStore.stats.accuracy >= 70 ? 'Session Complete!' : sessionStore.stats.accuracy >= 50 ? 'Keep Practicing!' : 'Don\'t Give Up!' }}
       </h2>
-      <p class="text-slate-600 mb-6">
+      <p class="text-slate-600 dark:text-slate-400 mb-6">
         {{ sessionStore.stats.accuracy >= 90 ? 'Amazing accuracy! You\'re mastering these words.' : sessionStore.stats.accuracy >= 70 ? 'Great job! You\'re making solid progress.' : sessionStore.stats.accuracy >= 50 ? 'Every session counts. Try reviewing these words again.' : 'Repetition is key. Review these words to strengthen your memory.' }}
       </p>
       
       <div class="card mb-6">
         <div class="grid grid-cols-3 gap-4 text-center mb-4">
           <div>
-            <div class="text-2xl font-bold text-primary-600">{{ sessionStore.stats.total }}</div>
-            <div class="text-sm text-slate-500">Words</div>
+            <div class="text-2xl font-bold text-primary-600 dark:text-primary-400">{{ sessionStore.stats.total }}</div>
+            <div class="text-sm text-slate-500 dark:text-slate-400">Words</div>
           </div>
           <div>
             <div class="text-2xl font-bold text-secondary-600">{{ sessionStore.stats.correct }}</div>
-            <div class="text-sm text-slate-500">Correct</div>
+            <div class="text-sm text-slate-500 dark:text-slate-400">Correct</div>
           </div>
           <div>
             <div class="text-2xl font-bold" :class="sessionStore.stats.accuracy >= 80 ? 'text-secondary-600' : 'text-warning-600'">
               {{ sessionStore.stats.accuracy }}%
             </div>
-            <div class="text-sm text-slate-500">Accuracy</div>
+            <div class="text-sm text-slate-500 dark:text-slate-400">Accuracy</div>
           </div>
         </div>
 
         <!-- Response Breakdown -->
-        <div class="grid grid-cols-4 gap-2 pt-4 border-t border-slate-200">
+        <div class="grid grid-cols-4 gap-2 pt-4 border-t border-slate-200 dark:border-slate-700">
           <div class="text-center">
             <div class="text-lg">😵</div>
             <div class="text-sm font-bold text-danger-600">{{ sessionStore.responseBreakdown.forgot }}</div>
@@ -161,7 +161,7 @@ function startNewSession() {
           </div>
           <div class="text-center">
             <div class="text-lg">😊</div>
-            <div class="text-sm font-bold text-primary-600">{{ sessionStore.responseBreakdown.medium }}</div>
+            <div class="text-sm font-bold text-primary-600 dark:text-primary-400">{{ sessionStore.responseBreakdown.medium }}</div>
             <div class="text-xs text-slate-400">Good</div>
           </div>
           <div class="text-center">
@@ -171,8 +171,8 @@ function startNewSession() {
           </div>
         </div>
         
-        <div v-if="sessionResult" class="mt-4 pt-4 border-t border-slate-200">
-          <p class="text-primary-600 font-medium">+{{ sessionResult.xpEarned }} XP earned!</p>
+        <div v-if="sessionResult" class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+          <p class="text-primary-600 dark:text-primary-400 font-medium">+{{ sessionResult.xpEarned }} XP earned!</p>
         </div>
       </div>
       
@@ -214,7 +214,7 @@ function startNewSession() {
     <!-- Error -->
     <div v-else-if="sessionStore.error" class="text-center py-12">
       <div class="text-4xl mb-4">😕</div>
-      <p class="text-slate-600 mb-4">{{ sessionStore.error }}</p>
+      <p class="text-slate-600 dark:text-slate-400 mb-4">{{ sessionStore.error }}</p>
       <button @click="router.push('/')" class="btn btn-primary">
         Back to Home
       </button>
@@ -223,7 +223,7 @@ function startNewSession() {
     <!-- Session loaded but no current word -->
     <div v-else-if="sessionStore.session" class="text-center py-12">
       <div class="text-4xl mb-4">⚠️</div>
-      <p class="text-slate-600 mb-2">Session loaded but no words available</p>
+      <p class="text-slate-600 dark:text-slate-400 mb-2">Session loaded but no words available</p>
       <p class="text-sm text-slate-400 mb-4">Words: {{ sessionStore.session.words?.length || 0 }}</p>
       <button @click="startNewSession" class="btn btn-primary">
         Try Again
@@ -233,7 +233,7 @@ function startNewSession() {
     <!-- No session started -->
     <div v-else class="text-center py-12">
       <div class="text-4xl mb-4">📚</div>
-      <p class="text-slate-600 mb-4">Starting learning session...</p>
+      <p class="text-slate-600 dark:text-slate-400 mb-4">Starting learning session...</p>
       <button @click="startNewSession" class="btn btn-primary">
         Start Learning
       </button>

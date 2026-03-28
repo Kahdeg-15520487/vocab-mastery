@@ -283,8 +283,8 @@ async function testNewProvider() {
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div>
-        <h2 class="text-lg font-semibold text-slate-800">LLM Providers</h2>
-        <p class="text-sm text-slate-600">Configure multiple OpenAI-compatible API providers.</p>
+        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200">LLM Providers</h2>
+        <p class="text-sm text-slate-600 dark:text-slate-400">Configure multiple OpenAI-compatible API providers.</p>
       </div>
       
       <!-- Status Badge -->
@@ -295,7 +295,7 @@ async function testNewProvider() {
             llmStatus?.available ? 'bg-green-500' : 'bg-red-500'
           ]"
         />
-        <span class="text-sm text-slate-600">
+        <span class="text-sm text-slate-600 dark:text-slate-400">
           {{ llmStatus?.available ? 'Connected' : 'Disconnected' }}
         </span>
       </div>
@@ -314,7 +314,7 @@ async function testNewProvider() {
     <!-- Loading -->
     <div v-if="loading" class="text-center py-8">
       <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
-      <p class="mt-2 text-slate-600">Loading providers...</p>
+      <p class="mt-2 text-slate-600 dark:text-slate-400">Loading providers...</p>
     </div>
 
     <!-- Provider List -->
@@ -332,24 +332,24 @@ async function testNewProvider() {
           <div class="flex items-start justify-between">
             <div class="flex-1">
               <div class="flex items-center gap-2">
-                <h3 class="font-semibold text-slate-800">{{ provider.name }}</h3>
+                <h3 class="font-semibold text-slate-800 dark:text-slate-200">{{ provider.name }}</h3>
                 <span v-if="provider.isActive" class="badge badge-primary">Active</span>
               </div>
-              <div class="mt-1 text-sm text-slate-600 space-y-1">
+              <div class="mt-1 text-sm text-slate-600 dark:text-slate-400 space-y-1">
                 <div>
-                  <span class="text-slate-500">Provider:</span> 
+                  <span class="text-slate-500 dark:text-slate-400">Provider:</span> 
                   <span class="font-medium">{{ provider.provider }}</span>
                 </div>
                 <div>
-                  <span class="text-slate-500">Model:</span> 
-                  <span class="font-mono text-xs bg-slate-100 px-1 rounded">{{ provider.model }}</span>
+                  <span class="text-slate-500 dark:text-slate-400">Model:</span> 
+                  <span class="font-mono text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">{{ provider.model }}</span>
                 </div>
                 <div v-if="provider.baseUrl">
-                  <span class="text-slate-500">Base URL:</span> 
+                  <span class="text-slate-500 dark:text-slate-400">Base URL:</span> 
                   <span class="font-mono text-xs">{{ provider.baseUrl }}</span>
                 </div>
                 <div>
-                  <span class="text-slate-500">API Key:</span> 
+                  <span class="text-slate-500 dark:text-slate-400">API Key:</span> 
                   <span :class="provider.hasApiKey ? 'text-green-600' : 'text-red-600'">
                     {{ provider.hasApiKey ? '✓ Configured' : '✗ Not set' }}
                   </span>
@@ -391,7 +391,7 @@ async function testNewProvider() {
       </div>
 
       <!-- Empty State -->
-      <div v-else class="text-center py-8 text-slate-500">
+      <div v-else class="text-center py-8 text-slate-500 dark:text-slate-400">
         <p>No providers configured yet.</p>
         <p class="text-sm mt-1">Add a provider to get started.</p>
       </div>
@@ -407,13 +407,13 @@ async function testNewProvider() {
 
     <!-- Provider Form Modal -->
     <div v-if="showForm" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
         <div class="p-6">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-slate-800">
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200">
               {{ editingProvider ? 'Edit Provider' : 'Add Provider' }}
             </h3>
-            <button @click="closeForm" class="text-slate-400 hover:text-slate-600">
+            <button @click="closeForm" class="text-slate-400 hover:text-slate-600 dark:text-slate-400">
               ✕
             </button>
           </div>
@@ -421,7 +421,7 @@ async function testNewProvider() {
           <div class="space-y-4">
             <!-- Name -->
             <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">Name *</label>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Name *</label>
               <input
                 v-model="formData.name"
                 type="text"
@@ -432,7 +432,7 @@ async function testNewProvider() {
 
             <!-- Provider Preset -->
             <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">Provider Type</label>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Provider Type</label>
               <select 
                 v-model="formData.provider" 
                 @change="onPresetChange"
@@ -446,7 +446,7 @@ async function testNewProvider() {
 
             <!-- Base URL -->
             <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">Base URL</label>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Base URL</label>
               <input
                 v-model="formData.baseUrl"
                 type="url"
@@ -457,7 +457,7 @@ async function testNewProvider() {
 
             <!-- API Key -->
             <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">API Key</label>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">API Key</label>
               <div class="relative">
                 <input
                   v-model="formData.apiKey"
@@ -468,19 +468,19 @@ async function testNewProvider() {
                 <button
                   type="button"
                   @click="showApiKey = !showApiKey"
-                  class="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-slate-500 hover:text-slate-700"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-300"
                 >
                   {{ showApiKey ? 'Hide' : 'Show' }}
                 </button>
               </div>
-              <p v-if="editingProvider?.hasApiKey" class="text-xs text-slate-500 mt-1">
+              <p v-if="editingProvider?.hasApiKey" class="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 Leave empty to keep existing key
               </p>
             </div>
 
             <!-- Model -->
             <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">Model *</label>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Model *</label>
               
               <!-- Preset Models -->
               <template v-if="selectedPreset.models.length > 0">
@@ -489,7 +489,7 @@ async function testNewProvider() {
                     {{ m }}
                   </option>
                 </select>
-                <p class="text-xs text-slate-500 mb-2">Or enter a custom model:</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Or enter a custom model:</p>
               </template>
               
               <input
@@ -502,7 +502,7 @@ async function testNewProvider() {
 
             <!-- Context -->
             <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">System Prompt</label>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">System Prompt</label>
               <textarea
                 v-model="formData.context"
                 rows="2"
@@ -513,7 +513,7 @@ async function testNewProvider() {
 
             <!-- Max Tokens -->
             <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">Max Tokens</label>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Max Tokens</label>
               <input
                 v-model.number="formData.maxTokens"
                 type="number"
@@ -523,7 +523,7 @@ async function testNewProvider() {
                 class="input"
                 placeholder="4096"
               />
-              <p class="text-xs text-slate-500 mt-1">
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 Maximum response tokens. Check your provider's limits (e.g. DeepSeek: 8192, OpenAI: 16384)
               </p>
             </div>
@@ -557,23 +557,23 @@ async function testNewProvider() {
     </div>
 
     <!-- Provider Examples -->
-    <div class="card bg-slate-50 border border-slate-200">
-      <h3 class="font-semibold text-slate-700 mb-3">📋 Popular OpenAI-Compatible Providers</h3>
+    <div class="card bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+      <h3 class="font-semibold text-slate-700 dark:text-slate-300 mb-3">📋 Popular OpenAI-Compatible Providers</h3>
       
-      <div class="text-sm text-slate-600 space-y-2">
-        <div class="flex justify-between items-center py-1 border-b border-slate-200">
+      <div class="text-sm text-slate-600 dark:text-slate-400 space-y-2">
+        <div class="flex justify-between items-center py-1 border-b border-slate-200 dark:border-slate-700">
           <span class="font-medium">OpenAI</span>
           <code class="text-xs bg-slate-200 px-2 py-0.5 rounded">https://api.openai.com/v1</code>
         </div>
-        <div class="flex justify-between items-center py-1 border-b border-slate-200">
+        <div class="flex justify-between items-center py-1 border-b border-slate-200 dark:border-slate-700">
           <span class="font-medium">Anthropic</span>
           <code class="text-xs bg-slate-200 px-2 py-0.5 rounded">https://api.anthropic.com/v1</code>
         </div>
-        <div class="flex justify-between items-center py-1 border-b border-slate-200">
+        <div class="flex justify-between items-center py-1 border-b border-slate-200 dark:border-slate-700">
           <span class="font-medium">Groq</span>
           <code class="text-xs bg-slate-200 px-2 py-0.5 rounded">https://api.groq.com/openai/v1</code>
         </div>
-        <div class="flex justify-between items-center py-1 border-b border-slate-200">
+        <div class="flex justify-between items-center py-1 border-b border-slate-200 dark:border-slate-700">
           <span class="font-medium">OpenRouter</span>
           <code class="text-xs bg-slate-200 px-2 py-0.5 rounded">https://openrouter.ai/api/v1</code>
         </div>

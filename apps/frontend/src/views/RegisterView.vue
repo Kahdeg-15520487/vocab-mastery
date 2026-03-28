@@ -46,17 +46,17 @@ async function handleRegister() {
   <div class="min-h-screen flex items-center justify-center px-4">
     <div class="w-full max-w-md">
       <div class="text-center mb-8">
-        <h1 class="text-2xl font-bold text-slate-900">Create Account</h1>
-        <p class="text-slate-600">Join Vocab Master today</p>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Create Account</h1>
+        <p class="text-slate-600 dark:text-slate-400">Join Vocab Master today</p>
       </div>
 
       <form @submit.prevent="handleRegister" class="space-y-4">
-        <div v-if="error" class="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+        <div v-if="error" class="p-3 bg-red-50 dark:bg-red-900/20 dark:text-red-400 rounded-lg text-sm">
           {{ error }}
         </div>
 
         <div>
-          <label for="email" class="block text-sm font-medium text-slate-700 mb-1">
+          <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Email
           </label>
           <input
@@ -70,7 +70,7 @@ async function handleRegister() {
         </div>
 
         <div>
-          <label for="username" class="block text-sm font-medium text-slate-700 mb-1">
+          <label for="username" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Username
           </label>
           <input
@@ -84,7 +84,7 @@ async function handleRegister() {
         </div>
 
         <div>
-          <label for="password" class="block text-sm font-medium text-slate-700 mb-1">
+          <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Password
           </label>
           <input
@@ -98,7 +98,7 @@ async function handleRegister() {
         </div>
 
         <div>
-          <label for="confirmPassword" class="block text-sm font-medium text-slate-700 mb-1">
+          <label for="confirmPassword" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Confirm Password
           </label>
           <input
@@ -120,9 +120,9 @@ async function handleRegister() {
           <span v-else>Create Account</span>
         </button>
 
-        <p class="text-center text-sm text-slate-600 mt-4">
+        <p class="text-center text-sm text-slate-600 dark:text-slate-400 mt-4">
           Already have an account?
-          <RouterLink to="/login" class="text-primary-600 hover:underline">
+          <RouterLink to="/login" class="text-primary-600 dark:text-primary-400 hover:underline">
             Sign in
           </RouterLink>
         </p>

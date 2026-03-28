@@ -53,11 +53,11 @@ async function handleSubmit() {
 
 <template>
   <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl shadow-xl max-w-md w-full">
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-md w-full">
       <!-- Header -->
       <div class="flex items-center justify-between p-4 border-b">
         <h2 class="text-lg font-semibold">Create New List</h2>
-        <button @click="emit('close')" class="text-slate-400 hover:text-slate-600">
+        <button @click="emit('close')" class="text-slate-400 hover:text-slate-600 dark:text-slate-400">
           ✕
         </button>
       </div>
@@ -71,11 +71,11 @@ async function handleSubmit() {
 
         <!-- Name -->
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Name *</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Name *</label>
           <input
             v-model="form.name"
             type="text"
-            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             placeholder="My Vocabulary List"
             required
           />
@@ -83,10 +83,10 @@ async function handleSubmit() {
 
         <!-- Description -->
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Description</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Description</label>
           <textarea
             v-model="form.description"
-            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             placeholder="Optional description..."
             rows="2"
           ></textarea>
@@ -94,7 +94,7 @@ async function handleSubmit() {
 
         <!-- Color -->
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Color</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Color</label>
           <div class="flex gap-2 flex-wrap">
             <button
               v-for="c in colors"
@@ -110,7 +110,7 @@ async function handleSubmit() {
 
         <!-- Icon -->
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Icon</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Icon</label>
           <div class="flex gap-2 flex-wrap">
             <button
               v-for="i in icons"
@@ -130,7 +130,7 @@ async function handleSubmit() {
           <button
             type="button"
             @click="emit('close')"
-            class="px-4 py-2 text-slate-600 hover:text-slate-800"
+            class="px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-slate-200"
           >
             Cancel
           </button>

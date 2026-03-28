@@ -55,10 +55,10 @@ const totalXP = computed(() =>
 </script>
 
 <template>
-  <div class="bg-white rounded-xl shadow-sm p-6">
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="text-lg font-semibold text-slate-800">Achievements</h3>
-      <div class="text-sm text-slate-500">
+      <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Achievements</h3>
+      <div class="text-sm text-slate-500 dark:text-slate-400">
         {{ unlockedCount }} / {{ achievements.length }} unlocked
         <span v-if="totalXP > 0" class="ml-2 text-yellow-600">
           ⭐ {{ totalXP }} XP
@@ -67,7 +67,7 @@ const totalXP = computed(() =>
     </div>
     
     <div v-for="(achievementsInCategory, category) in groupedAchievements" :key="category" class="mb-6 last:mb-0">
-      <h4 class="text-sm font-medium text-slate-500 mb-2">
+      <h4 class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
         {{ categoryLabels[category] || category }}
       </h4>
       
@@ -81,7 +81,7 @@ const totalXP = computed(() =>
             class="w-full aspect-square rounded-lg flex items-center justify-center text-2xl transition-transform group-hover:scale-110"
             :class="achievement.unlocked 
               ? 'bg-gradient-to-br from-yellow-100 to-orange-100' 
-              : 'bg-slate-100 opacity-40'"
+              : 'bg-slate-100 dark:bg-slate-700 opacity-40'"
           >
             {{ achievement.unlocked ? achievement.icon : '🔒' }}
           </div>
@@ -103,7 +103,7 @@ const totalXP = computed(() =>
       </div>
     </div>
     
-    <div v-if="achievements.length === 0" class="text-center py-8 text-slate-500">
+    <div v-if="achievements.length === 0" class="text-center py-8 text-slate-500 dark:text-slate-400">
       Start learning to unlock achievements!
     </div>
   </div>

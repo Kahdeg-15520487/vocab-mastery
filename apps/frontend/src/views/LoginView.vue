@@ -45,17 +45,17 @@ function handleGoogleLogin() {
   <div class="min-h-screen flex items-center justify-center px-4">
     <div class="w-full max-w-md">
       <div class="text-center mb-8">
-        <h1 class="text-2xl font-bold text-slate-900">Welcome Back</h1>
-        <p class="text-slate-600">Sign in to your account</p>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Welcome Back</h1>
+        <p class="text-slate-600 dark:text-slate-400">Sign in to your account</p>
       </div>
 
       <form @submit.prevent="handleLogin" class="space-y-4">
-        <div v-if="error" class="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+        <div v-if="error" class="p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg text-sm">
           {{ error }}
         </div>
 
         <div>
-          <label for="email" class="block text-sm font-medium text-slate-700 mb-1">
+          <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Email
           </label>
           <input
@@ -69,7 +69,7 @@ function handleGoogleLogin() {
         </div>
 
         <div>
-          <label for="password" class="block text-sm font-medium text-slate-700 mb-1">
+          <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Password
           </label>
           <input
@@ -94,10 +94,10 @@ function handleGoogleLogin() {
         <!-- Divider -->
         <div class="relative my-6">
           <div class="absolute inset-0 flex items-center">
-            <div class="w-full border-t border-slate-300"></div>
+            <div class="w-full border-t border-slate-300 dark:border-slate-600"></div>
           </div>
           <div class="relative flex justify-center text-sm">
-            <span class="px-2 bg-white text-slate-500">Or continue with</span>
+            <span class="px-2 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400">Or continue with</span>
           </div>
         </div>
 
@@ -105,7 +105,7 @@ function handleGoogleLogin() {
         <button
           type="button"
           @click="handleGoogleLogin"
-          class="w-full flex items-center justify-center gap-3 px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+          class="w-full flex items-center justify-center gap-3 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 dark:bg-slate-900 dark:hover:bg-slate-700 transition-colors"
         >
           <svg class="w-5 h-5" viewBox="0 0 24 24">
             <path
@@ -125,12 +125,12 @@ function handleGoogleLogin() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
             />
           </svg>
-          <span class="text-slate-700 font-medium">Sign in with Google</span>
+          <span class="text-slate-700 dark:text-slate-300 font-medium">Sign in with Google</span>
         </button>
 
-        <p class="text-center text-sm text-slate-600 mt-4">
+        <p class="text-center text-sm text-slate-600 dark:text-slate-400 mt-4">
           Don't have an account?
-          <RouterLink to="/register" class="text-primary-600 hover:underline">
+          <RouterLink to="/register" class="text-primary-600 dark:text-primary-400 hover:underline">
             Create one
           </RouterLink>
         </p>
