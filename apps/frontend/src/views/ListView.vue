@@ -124,14 +124,22 @@ function studyList() {
             </div>
           </div>
           
-          <div v-if="list.isOwner && !list.isSystem" class="flex gap-2">
+          <div class="flex gap-2">
             <button
               @click="studyList"
               class="btn btn-primary text-sm"
               :disabled="list.pagination.total === 0"
             >
-              📚 Study List
+              📚 Study
             </button>
+            <button
+              @click="router.push({ path: '/quiz', query: { list: listId } })"
+              class="btn btn-secondary text-sm"
+              :disabled="list.pagination.total === 0"
+            >
+              🧠 Quiz
+            </button>
+            <template v-if="list.isOwner && !list.isSystem">
             <button
               @click="showAddWords = !showAddWords"
               class="btn btn-secondary text-sm"
@@ -144,14 +152,7 @@ function studyList() {
             >
               Delete
             </button>
-          </div>
-          <div v-else-if="list.pagination.total > 0" class="flex gap-2">
-            <button
-              @click="studyList"
-              class="btn btn-primary text-sm"
-            >
-              📚 Study List
-            </button>
+            </template>
           </div>
         </div>
       </div>

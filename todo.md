@@ -4,7 +4,6 @@
 
 ## Pending
 
-- [ ] **#192** Replace LoadingSpinner with skeleton loading in StatsView, FavoritesView, HistoryView, WordDetailView #polish #frontend
 - [ ] **#194** Add "Learn words from this list" button on ListView page #feature #frontend
 - [ ] **#195** **[low]** Add word count badges to theme cards on dashboard #polish #frontend
 
@@ -68,6 +67,7 @@
 - [x] **#189** **[low]** Add keyboard navigation to browse word detail modal (Esc to close, arrow keys to navigate between words) #polish #frontend
 - [x] **#190** Add responsive design improvements — improve mobile layout for browse cards and dashboard #polish #frontend
 - [x] **#191** **[high]** Replace remaining alert() calls with toast notifications #bug #frontend
+- [x] **#192** Replace LoadingSpinner with skeleton loading in StatsView, FavoritesView, HistoryView, WordDetailView #polish #frontend
 - [x] **#193** **[high]** Fix StatsView loading state — spinner shows after content instead of before #bug #frontend
 
 <!-- Raw Data -->
@@ -858,14 +858,15 @@
     {
       "id": 192,
       "text": "Replace LoadingSpinner with skeleton loading in StatsView, FavoritesView, HistoryView, WordDetailView",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "polish",
         "frontend"
       ],
       "createdAt": 1774720936585,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774721199193
     },
     {
       "id": 193,
