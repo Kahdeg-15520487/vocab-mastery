@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { wordsApi } from '@/lib/api'
+import { useToast } from '@/composables/useToast'
 import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
 import LevelBadge from '@/components/learning/LevelBadge.vue'
 import { useSpeech } from '@/composables/useSpeech'
@@ -21,6 +22,7 @@ interface Favorite {
 }
 
 const { speak } = useSpeech()
+const toast = useToast()
 const loading = ref(true)
 const favorites = ref<Favorite[]>([])
 const total = ref(0)
@@ -44,12 +46,18 @@ async function loadFavorites() {
 }
 
 async function removeFavorite(fav: Favorite) {
+  // Optimistic remove
+  const backup = [...favorites.value]
+  favorites.value = favorites.value.filter(f => f.id !== fav.id)
+  total.value--
+
   try {
     await wordsApi.toggleFavorite(fav.word.id)
-    favorites.value = favorites.value.filter(f => f.id !== fav.id)
-    total.value--
   } catch (e: any) {
-    console.error('Failed to remove favorite:', e)
+    // Rollback
+    favorites.value = backup
+    total.value++
+    toast.error('Failed to remove favorite')
   }
 }
 

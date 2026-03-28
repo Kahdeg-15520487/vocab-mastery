@@ -99,11 +99,16 @@ function openWordDetail(word: Word) {
 }
 
 async function toggleFavorite(word: Word) {
+  // Optimistic update — toggle immediately
+  const wasFavorited = word.favorited
+  word.favorited = !word.favorited
+  toast.success(word.favorited ? `Added "${word.word}" to favorites` : `Removed "${word.word}" from favorites`)
+
   try {
     const result = await wordsApi.toggleFavorite(word.id)
-    word.favorited = result.favorited
-    toast.success(word.favorited ? `Added "${word.word}" to favorites` : `Removed "${word.word}" from favorites`)
+    word.favorited = result.favorited // sync with server truth
   } catch (e: any) {
+    word.favorited = wasFavorited // rollback on error
     toast.error('Failed to toggle favorite')
   }
 }

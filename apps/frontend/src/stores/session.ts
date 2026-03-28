@@ -69,19 +69,17 @@ export const useSessionStore = defineStore('session', () => {
     // Store response locally
     responses.value.set(wordId, { response, responseTime })
 
-    try {
-      // Send to API
-      await sessionsApi.respond(session.value.sessionId, wordId, response, responseTime)
-      
-      // Update progress on backend
-      await progressApi.update(wordId, response, responseTime)
-    } catch (e: any) {
-      error.value = e.message
-    }
-
-    // Move to next word
+    // Move to next word immediately — don't block on API
     currentIndex.value++
     wordStartTime.value = Date.now()
+
+    // Fire-and-forget: both calls in parallel, non-blocking
+    Promise.all([
+      sessionsApi.respond(session.value!.sessionId, wordId, response, responseTime),
+      progressApi.update(wordId, response, responseTime),
+    ]).catch((e: any) => {
+      error.value = e.message
+    })
   }
 
   // Complete session

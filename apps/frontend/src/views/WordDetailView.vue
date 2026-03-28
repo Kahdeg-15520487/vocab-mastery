@@ -70,11 +70,16 @@ onMounted(async () => {
 
 async function toggleFavorite() {
   if (!word.value) return
+  // Optimistic update
+  const wasFavorited = word.value.favorited
+  word.value = { ...word.value, favorited: !wasFavorited }
+  toast.success(!wasFavorited ? `Added "${word.value.word}" to favorites` : `Removed "${word.value.word}" from favorites`)
+
   try {
     const result = await wordsApi.toggleFavorite(word.value.id)
     word.value = { ...word.value, favorited: result.favorited }
-    toast.success(result.favorited ? `Added "${word.value.word}" to favorites` : `Removed "${word.value.word}" from favorites`)
   } catch {
+    word.value = { ...word.value!, favorited: wasFavorited }
     toast.error('Failed to toggle favorite')
   }
 }
