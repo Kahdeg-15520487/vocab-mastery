@@ -617,12 +617,9 @@ export async function sessionRoutes(app: FastifyInstance) {
       where.cefrLevel = { in: levels.slice(startIdx, endIdx + 1) };
     }
 
-    // Get words that have examples
+    // Get words (over-fetch since we filter by examples after)
     let fillWords = await prisma.word.findMany({
-      where: {
-        ...where,
-        examples: { isEmpty: false },
-      },
+      where,
       take: wordCount * 3, // over-fetch since some may not have good examples
       orderBy: { frequency: 'asc' },
     });
