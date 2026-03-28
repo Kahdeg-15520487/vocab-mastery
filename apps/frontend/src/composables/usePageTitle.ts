@@ -13,6 +13,7 @@ const titles: Record<string, string> = {
   '/stats': 'Statistics',
   '/achievements': 'Achievements',
   '/spelling': 'Spelling Practice',
+  '/fill-blank': 'Fill in the Blank',
   '/leaderboard': 'Leaderboard',
   '/words': 'Word Details',
   '/settings': 'Settings',

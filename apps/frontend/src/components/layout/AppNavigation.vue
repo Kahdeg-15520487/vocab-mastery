@@ -21,9 +21,10 @@ const desktopOnlyItems = [
   { path: '/favorites', label: 'Favorites', icon: '❤️' },
   { path: '/lists', label: 'Lists', icon: '📋' },
   { path: '/spelling', label: 'Spelling', icon: '✍️' },
+  { path: '/fill-blank', label: 'Fill Blank', icon: '📝' },
   { path: '/stats', label: 'Stats', icon: '📊' },
   { path: '/leaderboard', label: 'Leaderboard', icon: '🏆' },
-  { path: '/history', label: 'History', icon: '📝' },
+  { path: '/history', label: 'History', icon: '📜' },
 ]
 
 const adminNavItem = { path: '/admin', label: 'Admin', icon: '⚙️' }

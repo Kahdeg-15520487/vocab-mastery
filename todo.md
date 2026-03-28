@@ -4,7 +4,6 @@
 
 ## Pending
 
-- [ ] **#197** Add spelling/typing practice mode #feature #frontend #backend
 - [ ] **#199** Add word context sentences from examples (fill-in-the-blank mode) #feature #frontend
 
 ## Completed
@@ -72,6 +71,7 @@
 - [x] **#194** Add "Learn words from this list" button on ListView page #feature #frontend
 - [x] **#195** **[low]** Add word count badges to theme cards on dashboard #polish #frontend
 - [x] **#196** Add leaderboard feature (XP-based ranking) #feature #frontend #backend
+- [x] **#197** Add spelling/typing practice mode #feature #frontend #backend
 - [x] **#198** **[low]** Add confetti animation on level-up / achievement unlock #polish #frontend
 
 <!-- Raw Data -->
@@ -928,7 +928,7 @@
     {
       "id": 197,
       "text": "Add spelling/typing practice mode",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
@@ -936,7 +936,8 @@
         "backend"
       ],
       "createdAt": 1774724267829,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774725600223
     },
     {
       "id": 198,

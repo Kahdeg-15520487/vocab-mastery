@@ -81,6 +81,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/fill-blank',
+    name: 'fill-blank',
+    component: () => import('@/views/FillBlankView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/browse',
     name: 'browse',
     component: () => import('@/views/BrowseView.vue'),

@@ -625,6 +625,159 @@ export async function sessionRoutes(app: FastifyInstance) {
     };
   });
 
+  // ============================================
+  // Fill-in-the-Blank Practice Mode
+  // ============================================
+
+  app.post('/sessions/fill-blank', async (request, reply) => {
+    const userId = request.user!.userId;
+    const body = request.body as {
+      themeId?: string;
+      listId?: string;
+      levelRange?: [string, string];
+      wordCount?: number;
+    };
+    const { themeId, listId, levelRange, wordCount = 15 } = body;
+
+    const where: any = {};
+    if (themeId) where.themes = { some: { themeId } };
+    if (listId) {
+      const list = await prisma.studyList.findUnique({ where: { id: listId } });
+      if (!list) return reply.status(404).send({ error: 'List not found' });
+      if (list.userId !== userId) {
+        const shared = await prisma.sharedList.findUnique({
+          where: { listId_sharedWith: { listId, sharedWith: userId } },
+        });
+        if (!shared) return reply.status(403).send({ error: 'Access denied' });
+      }
+      where.studyListWords = { some: { listId } };
+    }
+    if (levelRange) {
+      const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+      const startIdx = levels.indexOf(levelRange[0]);
+      const endIdx = levels.indexOf(levelRange[1]);
+      where.cefrLevel = { in: levels.slice(startIdx, endIdx + 1) };
+    }
+
+    // Get words that have examples
+    let fillWords = await prisma.word.findMany({
+      where: {
+        ...where,
+        examples: { isEmpty: false },
+      },
+      take: wordCount * 3, // over-fetch since some may not have good examples
+      orderBy: { frequency: 'asc' },
+    });
+
+    // Filter to words with actual non-empty examples
+    fillWords = fillWords.filter(w => {
+      const examples = w.examples as string[] || [];
+      return examples.length > 0;
+    }).slice(0, wordCount);
+
+    if (fillWords.length < 3) {
+      return reply.status(400).send({ error: 'Not enough words with examples for fill-in-the-blank' });
+    }
+
+    fillWords = fillWords.sort(() => Math.random() - 0.5);
+
+    const session = await prisma.learningSession.create({
+      data: {
+        userId,
+        type: 'learn',
+        themeId,
+        sessionWords: {
+          create: fillWords.map(word => ({ wordId: word.id })),
+        },
+      },
+    });
+
+    const questions = fillWords.map((word, index) => {
+      const examples = (word.examples as string[] || []);
+      // Pick a random example
+      const sentence = examples[Math.floor(Math.random() * examples.length)] || '';
+      // Mask the word in the sentence
+      const escapedWord = word.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const maskedSentence = sentence.replace(
+        new RegExp(`\\b${escapedWord}\\b`, 'gi'),
+        '________'
+      );
+
+      return {
+        index,
+        id: word.id,
+        word: word.word,
+        sentence: maskedSentence,
+        definition: word.definition,
+        partOfSpeech: word.partOfSpeech as string[],
+        cefrLevel: word.cefrLevel,
+      };
+    });
+
+    return {
+      sessionId: session.id,
+      questionCount: questions.length,
+      questions,
+    };
+  });
+
+  // Check fill-blank answer (reuses spelling check logic)
+  app.post('/sessions/fill-blank/:sessionId/check', async (request, reply) => {
+    const userId = request.user!.userId;
+    const { sessionId } = request.params as { sessionId: string };
+    const body = request.body as {
+      wordId: string;
+      answer: string;
+      responseTime?: number;
+    };
+
+    const session = await prisma.learningSession.findFirst({
+      where: { id: sessionId, userId },
+    });
+    if (!session) return reply.status(404).send({ error: 'Session not found' });
+
+    const word = await prisma.word.findUnique({ where: { id: body.wordId } });
+    if (!word) return reply.status(404).send({ error: 'Word not found' });
+
+    const userAnswer = body.answer.trim().toLowerCase();
+    const correctAnswer = word.word.trim().toLowerCase();
+    const isCorrect = userAnswer === correctAnswer;
+
+    let isClose = false;
+    if (!isCorrect) {
+      const dist = levenshtein(userAnswer, correctAnswer);
+      isClose = dist > 0 && dist <= 2 && dist < correctAnswer.length / 3;
+    }
+
+    const sessionWord = await prisma.sessionWord.findFirst({
+      where: { sessionId, wordId: body.wordId },
+    });
+    if (sessionWord) {
+      await prisma.sessionWord.update({
+        where: { id: sessionWord.id },
+        data: {
+          shown: true,
+          response: isCorrect ? 'easy' : 'forgot',
+          responseTime: body.responseTime,
+        },
+      });
+    }
+
+    await prisma.learningSession.update({
+      where: { id: sessionId },
+      data: {
+        totalCorrect: { increment: isCorrect ? 1 : 0 },
+        totalIncorrect: { increment: isCorrect ? 0 : 1 },
+      },
+    });
+
+    return {
+      correct: isCorrect,
+      close: isClose,
+      correctAnswer: word.word,
+    };
+  });
+
   // Get session history (paginated list)
   app.get('/sessions', async (request, _reply) => {
     const userId = request.user!.userId;
