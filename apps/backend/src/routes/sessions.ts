@@ -2,6 +2,8 @@ import { FastifyInstance } from 'fastify';
 import { Prisma } from '@prisma/client';
 import prisma from '../lib/prisma.js';
 import { authenticate } from '../middleware/auth.js';
+import { calculateNextReview, responseToQuality } from '../lib/spaced-repetition.js';
+import type { WordStatus } from '../lib/spaced-repetition.js';
 
 export async function sessionRoutes(app: FastifyInstance) {
   // All session routes require authentication
@@ -401,6 +403,54 @@ export async function sessionRoutes(app: FastifyInstance) {
         totalIncorrect: { increment: isCorrect ? 0 : 1 },
       },
     });
+
+    // Update word progress (spaced repetition) for quiz answers
+    const existingProgress = await prisma.wordProgress.findUnique({
+      where: { userId_wordId: { userId, wordId: body.wordId } },
+    });
+
+    if (existingProgress) {
+      // Word has been seen before — update with quiz response
+      const response = isCorrect ? 'easy' : 'forgot';
+      const quality = responseToQuality(response);
+      const updated = calculateNextReview({
+        wordId: body.wordId,
+        status: existingProgress.status as WordStatus,
+        interval: existingProgress.interval,
+        easeFactor: existingProgress.easeFactor,
+        repetitions: existingProgress.repetitions,
+        nextReview: existingProgress.nextReview,
+        lastReview: existingProgress.lastReview,
+        totalReviews: existingProgress.totalReviews,
+        correctReviews: existingProgress.correctReviews,
+      }, quality);
+      await prisma.wordProgress.update({
+        where: { id: existingProgress.id },
+        data: {
+          status: updated.status,
+          interval: updated.interval,
+          easeFactor: updated.easeFactor,
+          repetitions: updated.repetitions,
+          nextReview: updated.nextReview,
+          lastReview: updated.lastReview,
+          totalReviews: updated.totalReviews,
+          correctReviews: updated.correctReviews,
+        },
+      });
+    } else if (isCorrect) {
+      // New word answered correctly in quiz — mark as learning
+      await prisma.wordProgress.create({
+        data: {
+          userId,
+          wordId: body.wordId,
+          status: 'learning',
+          interval: 1,
+          easeFactor: 2.5,
+          repetitions: 1,
+          nextReview: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+        },
+      });
+    }
 
     return { correct: isCorrect, correctId: body.wordId };
   });
