@@ -52,9 +52,14 @@ const statsXpNeeded = computed(() => {
   <div>
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold text-slate-900 dark:text-white">📊 Statistics</h1>
-      <router-link to="/history" class="text-primary-600 dark:text-primary-400 hover:underline text-sm">
-        View session history →
-      </router-link>
+      <div class="flex items-center gap-4">
+        <router-link to="/leaderboard" class="text-primary-600 dark:text-primary-400 hover:underline text-sm">
+          🏆 Leaderboard →
+        </router-link>
+        <router-link to="/history" class="text-primary-600 dark:text-primary-400 hover:underline text-sm">
+          View session history →
+        </router-link>
+      </div>
     </div>
 
     <!-- Loading Skeleton -->

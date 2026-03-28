@@ -219,4 +219,62 @@ export async function statsRoutes(app: FastifyInstance) {
       })),
     };
   });
+
+  // ============================================
+  // GET /stats/leaderboard - XP-based ranking
+  // ============================================
+  app.get('/stats/leaderboard', async (request, _reply) => {
+    const userId = request.user!.userId;
+    const query = request.query as Record<string, string | undefined>;
+    const page = parseInt(query.page || '1', 10);
+    const limit = Math.min(parseInt(query.limit || '20', 10), 50);
+
+    const [users, total, currentUser] = await Promise.all([
+      prisma.user.findMany({
+        where: { totalXp: { gt: 0 } },
+        orderBy: [{ totalXp: 'desc' }, { createdAt: 'asc' }],
+        skip: (page - 1) * limit,
+        take: limit,
+        select: {
+          id: true,
+          username: true,
+          totalXp: true,
+          level: true,
+          createdAt: true,
+        },
+      }),
+      prisma.user.count({ where: { totalXp: { gt: 0 } } }),
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true, username: true, totalXp: true, level: true },
+      }),
+    ]);
+
+    // Calculate user's rank
+    const userRank = currentUser
+      ? await prisma.user.count({
+          where: { totalXp: { gt: currentUser.totalXp } },
+        })
+      : null;
+
+    return {
+      entries: users.map((u, i) => ({
+        rank: (page - 1) * limit + i + 1,
+        id: u.id,
+        username: u.username,
+        totalXp: u.totalXp,
+        level: u.level,
+      })),
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+      currentUser: currentUser ? {
+        rank: (userRank ?? 0) + 1,
+        id: currentUser.id,
+        username: currentUser.username,
+        totalXp: currentUser.totalXp,
+        level: currentUser.level,
+      } : null,
+    };
+  });
 }
