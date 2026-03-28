@@ -1,17 +1,31 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { RouterView } from 'vue-router'
+import { onMounted, onUnmounted } from 'vue'
+import { RouterView, useRouter } from 'vue-router'
 import AppNavigation from '@/components/layout/AppNavigation.vue'
 import ToastContainer from '@/components/ui/ToastContainer.vue'
 import { useAuthStore } from '@/stores/auth'
 import { usePageTitle } from '@/composables/usePageTitle'
 
 const authStore = useAuthStore()
+const router = useRouter()
 usePageTitle()
+
+function handleGlobalKeydown(e: KeyboardEvent) {
+  // Ctrl+K or Cmd+K → open search
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault()
+    router.push('/browse?focus=search')
+  }
+}
 
 // Fetch user on app mount
 onMounted(async () => {
   await authStore.fetchUser()
+  window.addEventListener('keydown', handleGlobalKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleGlobalKeydown)
 })
 </script>
 

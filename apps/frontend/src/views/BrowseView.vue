@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch, computed, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
 import { useWordsStore } from '@/stores/words'
 import { useListsStore } from '@/stores/lists'
 import { useSpeech } from '@/composables/useSpeech'
@@ -8,6 +9,7 @@ import type { Word } from '@/types'
 import { wordsApi } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
 
+const route = useRoute()
 const toast = useToast()
 
 const wordsStore = useWordsStore()
@@ -15,6 +17,7 @@ const listsStore = useListsStore()
 const { speak } = useSpeech()
 
 const search = ref('')
+const searchInput = ref<HTMLInputElement | null>(null)
 const searchDebounced = ref('')
 const selectedTheme = ref('')
 const selectedLevel = ref('')
@@ -36,6 +39,12 @@ onMounted(async () => {
     wordsStore.fetchWords({ page: page.value, limit }),
     listsStore.fetchLists(),
   ])
+  
+  // Auto-focus search if requested via query param
+  if (route.query.focus === 'search') {
+    await nextTick()
+    searchInput.value?.focus()
+  }
 })
 
 async function loadWords() {
@@ -176,6 +185,7 @@ const visiblePages = computed(() => {
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="md:col-span-2">
           <input
+            ref="searchInput"
             v-model="search"
             type="text"
             placeholder="Search words..."
