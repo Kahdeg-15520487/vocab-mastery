@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue'
 import { useWordsStore } from '@/stores/words'
+import { useListsStore } from '@/stores/lists'
 import LevelBadge from '@/components/learning/LevelBadge.vue'
 import type { Word } from '@/types'
 
 const wordsStore = useWordsStore()
+const listsStore = useListsStore()
 
 const search = ref('')
 const searchDebounced = ref('')
@@ -13,6 +15,9 @@ const selectedLevel = ref('')
 const page = ref(1)
 const limit = 50
 const selectedWord = ref<Word | null>(null)
+const showListPicker = ref(false)
+const addingToList = ref(false)
+const addedToList = ref<string | null>(null)
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
 const totalPages = computed(() => wordsStore.pagination.totalPages)
@@ -23,6 +28,7 @@ onMounted(async () => {
   await Promise.all([
     wordsStore.fetchThemes(),
     wordsStore.fetchWords({ page: page.value, limit }),
+    listsStore.fetchLists(),
   ])
 })
 
@@ -79,6 +85,21 @@ function openWordDetail(word: Word) {
 
 function closeWordDetail() {
   selectedWord.value = null
+  showListPicker.value = false
+  addedToList.value = null
+}
+
+async function addWordToList(listId: string) {
+  if (!selectedWord.value) return
+  addingToList.value = true
+  try {
+    await listsStore.addWordToList(listId, selectedWord.value.id)
+    addedToList.value = listId
+  } catch (e: any) {
+    console.error('Failed to add word to list:', e.message)
+  } finally {
+    addingToList.value = false
+  }
 }
 
 function hasDefinition(word: Word): boolean {
@@ -377,6 +398,39 @@ const visiblePages = computed(() => {
             <span v-else class="badge badge-primary">
               Oxford 5000
             </span>
+          </div>
+
+          <!-- Add to Study List -->
+          <div class="border-t border-slate-200 pt-4">
+            <button
+              @click="showListPicker = !showListPicker"
+              class="btn btn-secondary w-full flex items-center justify-center gap-2"
+            >
+              <span>📋</span>
+              <span>{{ addedToList ? 'Added to List ✓' : 'Add to Study List' }}</span>
+            </button>
+
+            <div v-if="showListPicker" class="mt-3 space-y-2 max-h-40 overflow-y-auto">
+              <div v-if="listsStore.lists.length === 0" class="text-center py-2 text-sm text-slate-500">
+                No lists yet. <RouterLink to="/lists" class="text-primary-600">Create one</RouterLink>
+              </div>
+              <button
+                v-for="list in listsStore.lists"
+                :key="list.id"
+                @click="addWordToList(list.id)"
+                :disabled="addingToList || addedToList === list.id"
+                :class="[
+                  'w-full text-left px-3 py-2 rounded-lg text-sm transition-colors',
+                  addedToList === list.id
+                    ? 'bg-secondary-50 text-secondary-700'
+                    : 'hover:bg-slate-50 text-slate-700'
+                ]"
+              >
+                <span class="font-medium">{{ list.name }}</span>
+                <span class="text-slate-400 ml-2">({{ list.wordCount || 0 }} words)</span>
+                <span v-if="addedToList === list.id" class="ml-2">✓</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
