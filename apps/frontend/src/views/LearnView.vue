@@ -101,6 +101,11 @@ async function handleResponse(response: 'easy' | 'medium' | 'hard' | 'forgot') {
         toast.success(`🏆 ${name}`, 'Achievement Unlocked!')
       }
     }
+
+    // Show level-up notification
+    if (result?.leveledUp) {
+      toast.success('🎉 You reached a new level!', 'Level Up!')
+    }
   }
 }
 

@@ -627,10 +627,11 @@ export async function sessionRoutes(app: FastifyInstance) {
       return [];
     });
 
-    // Award XP and update level
+    // Award XP and check for level up
     const xpEarned = session.totalCorrect * 5 + Math.round(accuracy / 10);
+    let leveledUp = false;
     if (xpEarned > 0) {
-      await awardXp(userId, xpEarned);
+      leveledUp = await awardXp(userId, xpEarned);
     }
 
     return {
@@ -646,6 +647,7 @@ export async function sessionRoutes(app: FastifyInstance) {
         accuracy,
       },
       xpEarned,
+      leveledUp,
       newAchievements: newAchievementKeys,
     };
   });
@@ -655,12 +657,12 @@ export async function sessionRoutes(app: FastifyInstance) {
  * Award XP and auto-level up the user
  * Level thresholds: level N requires sum(25*i for i in 1..N-1) XP
  */
-async function awardXp(userId: string, xp: number): Promise<void> {
+async function awardXp(userId: string, xp: number): Promise<boolean> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { totalXp: true, level: true },
   });
-  if (!user) return;
+  if (!user) return false;
 
   const newTotalXp = user.totalXp + xp;
 
@@ -685,6 +687,8 @@ async function awardXp(userId: string, xp: number): Promise<void> {
       level: newLevel,
     },
   });
+
+  return newLevel > user.level;
 }
 
 /**
