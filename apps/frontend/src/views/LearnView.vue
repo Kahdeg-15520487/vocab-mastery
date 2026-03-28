@@ -193,12 +193,15 @@ function startNewSession() {
         />
       </div>
 
-      <!-- Flashcard -->
-      <Flashcard
-        :word="sessionStore.currentWord"
-        @response="handleResponse"
-        @flip="handleCardFlip"
-      />
+      <!-- Flashcard with transition -->
+      <Transition name="card" mode="out-in">
+        <Flashcard
+          :key="sessionStore.currentWord?.id"
+          :word="sessionStore.currentWord"
+          @response="handleResponse"
+          @flip="handleCardFlip"
+        />
+      </Transition>
     </div>
 
     <!-- Loading -->
@@ -236,3 +239,20 @@ function startNewSession() {
     </div>
   </div>
 </template>
+
+<style scoped>
+.card-enter-active,
+.card-leave-active {
+  transition: all 0.3s ease;
+}
+
+.card-enter-from {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.card-leave-to {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+</style>
