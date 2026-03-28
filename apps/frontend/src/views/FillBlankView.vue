@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { request } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
+import { useListsStore } from '@/stores/lists'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
 import LevelBadge from '@/components/learning/LevelBadge.vue'
 import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
@@ -24,6 +25,10 @@ const phase = ref<'setup' | 'playing' | 'results'>('setup')
 
 const wordCount = ref(10)
 const wordCountOptions = [5, 10, 15, 20]
+const selectedListId = ref('')
+
+const listsStore = useListsStore()
+onMounted(() => { listsStore.fetchLists() })
 
 // Game state
 const questions = ref<FillBlankQuestion[]>([])
@@ -92,7 +97,7 @@ async function startPractice() {
   try {
     const data = await request<{ sessionId: string; questionCount: number; questions: any[] }>('/sessions/fill-blank', {
       method: 'POST',
-      body: JSON.stringify({ wordCount: wordCount.value }),
+      body: JSON.stringify({ wordCount: wordCount.value, listId: selectedListId.value || undefined }),
     })
     sessionId.value = data.sessionId
     questions.value = data.questions
@@ -222,6 +227,19 @@ const missedWords = computed(() =>
               {{ count }}
             </button>
           </div>
+        </div>
+
+        <!-- Study from List (optional) -->
+        <div v-if="listsStore.lists.length > 0">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            Study from List <span class="text-slate-400">(optional)</span>
+          </label>
+          <select v-model="selectedListId" class="input w-full">
+            <option value="">All words</option>
+            <option v-for="list in listsStore.lists" :key="list.id" :value="list.id">
+              {{ list.icon }} {{ list.name }} ({{ list.wordCount }} words)
+            </option>
+          </select>
         </div>
 
         <button

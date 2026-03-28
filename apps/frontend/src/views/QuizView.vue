@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { request } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
+import { useListsStore } from '@/stores/lists'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
 import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
 
@@ -53,6 +54,10 @@ const missedQuestions = ref<Array<{ question: QuizQuestion; selectedId: string }
 const questionCount = ref(10)
 const difficulty = ref<'mixed' | 'easy' | 'medium' | 'hard'>('mixed')
 const questionMode = ref<'word-to-def' | 'def-to-word'>('word-to-def')
+const selectedListId = ref('')
+
+const listsStore = useListsStore()
+onMounted(() => { listsStore.fetchLists() })
 
 const difficultyOptions = [
   { value: 'mixed', label: 'Mixed', icon: '🎲', desc: 'All CEFR levels' },
@@ -107,6 +112,7 @@ async function startQuiz() {
     const levelRange = getLevelRange(difficulty.value)
     if (levelRange) body.levelRange = levelRange
     if (route.query.list) body.listId = route.query.list as string
+    else if (selectedListId.value) body.listId = selectedListId.value
 
     const data = await request<QuizData>('/sessions/quiz', {
       method: 'POST',
@@ -283,6 +289,17 @@ onMounted(() => {
             <div class="text-xs text-slate-500 dark:text-slate-400">See definition, pick word</div>
           </button>
         </div>
+      </div>
+
+      <!-- Study from List (optional) -->
+      <div v-if="listsStore.lists.length > 0">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Study from List <span class="text-slate-400 font-normal text-sm">(optional)</span></h3>
+        <select v-model="selectedListId" class="input w-full">
+          <option value="">All words</option>
+          <option v-for="list in listsStore.lists" :key="list.id" :value="list.id">
+            {{ list.icon }} {{ list.name }} ({{ list.wordCount }} words)
+          </option>
+        </select>
       </div>
 
       <!-- Start Button -->
