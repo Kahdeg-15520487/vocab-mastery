@@ -50,6 +50,13 @@ export interface DashboardData {
     wordsDueForReview: number;
   };
   recentAchievements: Achievement[];
+  recentProgress: Array<{
+    wordId: string;
+    word: string;
+    cefrLevel: string;
+    status: string;
+    updatedAt: string;
+  }>;
   activity: Array<{
     date: string;
     completed: boolean;

@@ -109,6 +109,14 @@ export async function progressRoutes(app: FastifyInstance) {
       },
     });
 
+    // Recent progress (last 6 words learned)
+    const recentProgress = await prisma.wordProgress.findMany({
+      where: { userId, status: { not: 'new' } },
+      orderBy: { updatedAt: 'desc' },
+      take: 6,
+      include: { word: { select: { word: true, cefrLevel: true } } },
+    });
+
     return {
       streak: {
         current: streak.currentStreak,
@@ -138,6 +146,13 @@ export async function progressRoutes(app: FastifyInstance) {
         wordsDueForReview,
       },
       recentAchievements: recentAchievements.slice(0, 5),
+      recentProgress: recentProgress.map(wp => ({
+        wordId: wp.wordId,
+        word: wp.word.word,
+        cefrLevel: wp.word.cefrLevel,
+        status: wp.status,
+        updatedAt: wp.updatedAt,
+      })),
       activity: dailyGoals.map((g) => ({
         date: g.date,
         completed: g.completed,

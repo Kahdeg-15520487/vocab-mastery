@@ -31,6 +31,10 @@ const dashboard = computed(() => progressStore.dashboard)
 const calendar = computed(() => progressStore.calendar)
 const loading = computed(() => progressStore.loading)
 
+const recentProgress = computed(() => {
+  return dashboard.value?.recentProgress || []
+})
+
 function selectTheme(theme: any) {
   router.push(`/learn/${theme.slug}`)
 }
@@ -118,6 +122,40 @@ function selectTheme(theme: any) {
 
       <!-- Activity Calendar -->
       <CalendarHeatmap :activities="calendar" />
+
+      <!-- Recently Learned Words -->
+      <div v-if="dashboard && dashboard.stats.totalWordsLearned > 0">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white">Recent Words</h2>
+          <router-link to="/browse" class="text-primary-600 dark:text-primary-400 hover:underline text-sm">
+            View all →
+          </router-link>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div
+            v-for="wp in recentProgress"
+            :key="wp.wordId"
+            class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-4"
+          >
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="font-semibold text-slate-900 dark:text-white">{{ wp.word }}</span>
+                <span v-if="wp.cefrLevel" class="ml-2 text-xs text-slate-400">{{ wp.cefrLevel }}</span>
+              </div>
+              <span
+                class="text-xs font-medium px-2 py-0.5 rounded-full"
+                :class="{
+                  'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300': wp.status === 'learning',
+                  'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300': wp.status === 'reviewing',
+                  'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300': wp.status === 'mastered',
+                }"
+              >
+                {{ wp.status }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Recent Achievements -->
       <div v-if="dashboard && dashboard.recentAchievements.length > 0">
