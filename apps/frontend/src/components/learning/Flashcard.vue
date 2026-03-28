@@ -141,28 +141,3 @@ function respond(response: 'easy' | 'medium' | 'hard' | 'forgot') {
     </div>
   </div>
 </template>
-
-<style scoped>
-.flashcard-container {
-  perspective: 1000px;
-}
-
-.flashcard {
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
-}
-
-.flashcard.flipped {
-  transform: rotateY(180deg);
-}
-
-.flashcard-front,
-.flashcard-back {
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-.flashcard-back {
-  transform: rotateY(180deg);
-}
-</style>
