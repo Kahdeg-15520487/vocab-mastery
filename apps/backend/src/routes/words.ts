@@ -210,6 +210,41 @@ export async function wordRoutes(app: FastifyInstance) {
   });
 
   // Get single word - guests get limited fields, authenticated users get full data
+  // Word counts per CEFR level and theme (for browse filter badges)
+  app.get('/words/counts', { preHandler: optionalAuth }, async () => {
+    const [levelCounts, themeCounts, total, unthemedCount] = await Promise.all([
+      prisma.word.groupBy({
+        by: ['cefrLevel'],
+        _count: { id: true },
+      }),
+      prisma.wordTheme.groupBy({
+        by: ['themeId'],
+        _count: { wordId: true },
+      }),
+      prisma.word.count(),
+      prisma.word.count({
+        where: { themes: { none: {} } },
+      }),
+    ]);
+
+    const levels: Record<string, number> = {};
+    for (const row of levelCounts) {
+      if (row.cefrLevel) levels[row.cefrLevel] = row._count.id;
+    }
+
+    // Map themeId to slug
+    const dbThemes = await prisma.theme.findMany({ select: { id: true, slug: true } });
+    const themeSlugMap = Object.fromEntries(dbThemes.map(t => [t.id, t.slug]));
+
+    const themes: Record<string, number> = { none: unthemedCount };
+    for (const row of themeCounts) {
+      const slug = themeSlugMap[row.themeId];
+      if (slug) themes[slug] = row._count.wordId;
+    }
+
+    return { total, levels, themes };
+  });
+
   app.get('/words/:id', { preHandler: optionalAuth }, async (request, reply) => {
     const { id } = request.params as { id: string };
 

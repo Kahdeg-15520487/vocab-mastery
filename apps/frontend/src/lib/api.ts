@@ -205,6 +205,8 @@ export const wordsApi = {
   },
 
   checkFavorite: (wordId: string) => request<{ favorited: boolean }>(`/words/${wordId}/favorite`),
+
+  getCounts: () => request<{ total: number; levels: Record<string, number>; themes: Record<string, number> }>('/words/counts'),
 }
 
 // Themes API

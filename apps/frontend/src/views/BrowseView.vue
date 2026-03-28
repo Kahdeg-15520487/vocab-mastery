@@ -38,6 +38,7 @@ onMounted(async () => {
     wordsStore.fetchThemes(),
     wordsStore.fetchWords({ page: page.value, limit }),
     listsStore.fetchLists(),
+    wordsStore.fetchCounts(),
   ])
   
   // Auto-focus search if requested via query param
@@ -198,20 +199,17 @@ const visiblePages = computed(() => {
           />
         </div>
         <select v-model="selectedTheme" class="input">
-          <option value="">All Themes</option>
-          <option value="none">📝 No Theme</option>
+          <option value="">All Themes{{ wordsStore.wordCounts ? ` (${wordsStore.wordCounts.total})` : '' }}</option>
+          <option value="none">📝 No Theme{{ wordsStore.wordCounts?.themes.none ? ` (${wordsStore.wordCounts.themes.none})` : '' }}</option>
           <option v-for="theme in wordsStore.themes" :key="theme.id" :value="theme.slug">
-            {{ theme.icon }} {{ theme.name }}
+            {{ theme.icon }} {{ theme.name }}{{ wordsStore.wordCounts?.themes[theme.slug] ? ` (${wordsStore.wordCounts.themes[theme.slug]})` : '' }}
           </option>
         </select>
         <select v-model="selectedLevel" class="input">
-          <option value="">All Levels</option>
-          <option value="A1">A1 - Beginner</option>
-          <option value="A2">A2 - Elementary</option>
-          <option value="B1">B1 - Intermediate</option>
-          <option value="B2">B2 - Upper-Intermediate</option>
-          <option value="C1">C1 - Advanced</option>
-          <option value="C2">C2 - Proficient</option>
+          <option value="">All Levels{{ wordsStore.wordCounts ? ` (${wordsStore.wordCounts.total})` : '' }}</option>
+          <option v-for="lvl in ['A1','A2','B1','B2','C1','C2']" :key="lvl" :value="lvl">
+            {{ lvl }} - {{ { A1:'Beginner', A2:'Elementary', B1:'Intermediate', B2:'Upper-Intermediate', C1:'Advanced', C2:'Proficient' }[lvl] }}{{ wordsStore.wordCounts?.levels[lvl] ? ` (${wordsStore.wordCounts.levels[lvl]})` : '' }}
+          </option>
         </select>
       </div>
     </div>

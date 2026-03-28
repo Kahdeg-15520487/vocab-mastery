@@ -353,7 +353,15 @@ const missedWords = computed(() =>
             class="btn btn-secondary text-sm"
             title="Reveal first letter"
           >
-            💡 Hint
+            💡
+          </button>
+          <button
+            v-if="!currentResult"
+            @click="checkAnswer"
+            :disabled="!answer.trim()"
+            class="btn btn-primary text-sm"
+          >
+            Check
           </button>
         </div>
 

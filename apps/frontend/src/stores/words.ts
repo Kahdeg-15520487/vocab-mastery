@@ -15,6 +15,7 @@ export const useWordsStore = defineStore('words', () => {
     total: 0,
     totalPages: 0,
   })
+  const wordCounts = ref<{ total: number; levels: Record<string, number>; themes: Record<string, number> } | null>(null)
 
   // Fetch all themes
   async function fetchThemes() {
@@ -26,6 +27,16 @@ export const useWordsStore = defineStore('words', () => {
       error.value = e.message
     } finally {
       loading.value = false
+    }
+  }
+
+  // Fetch word counts for filter badges
+  async function fetchCounts() {
+    try {
+      const data = await wordsApi.getCounts()
+      wordCounts.value = data
+    } catch {
+      // Silently fail — counts are optional UX enhancement
     }
   }
 
@@ -86,9 +97,11 @@ export const useWordsStore = defineStore('words', () => {
     loading,
     error,
     pagination,
+    wordCounts,
     fetchThemes,
     fetchWords,
     fetchWord,
     fetchDueWords,
+    fetchCounts,
   }
 })
