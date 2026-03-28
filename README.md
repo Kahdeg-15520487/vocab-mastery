@@ -132,12 +132,21 @@ npm run docker:down
 | POST | `/api/auth/login` | Login (5/min) |
 | POST | `/api/auth/refresh` | Refresh tokens (10/min) |
 | POST | `/api/auth/logout` | Logout |
+| POST | `/api/auth/logout-all` | Revoke all sessions |
 | GET | `/api/auth/me` | Get current user |
+| PUT | `/api/auth/password` | Change password |
+| DELETE | `/api/auth/account` | Delete account |
+| POST | `/api/auth/forgot-password` | Request password reset (3/min) |
+| POST | `/api/auth/reset-password` | Reset password with token (5/min) |
 | **Words** | | |
-| GET | `/api/words` | List words (filter, paginate) |
-| GET | `/api/words/:id` | Get single word |
+| GET | `/api/words` | List words (filter, search, paginate) |
+| GET | `/api/words/:id` | Get single word with progress |
 | GET | `/api/words/due` | Get words due for review |
+| GET | `/api/words/daily` | Word of the day |
 | GET | `/api/words/search` | Search words |
+| POST | `/api/words/:wordId/favorite` | Toggle word favorite |
+| GET | `/api/words/:wordId/favorite` | Check favorite status |
+| GET | `/api/words/favorites` | List favorite words |
 | **Themes** | | |
 | GET | `/api/themes` | List all themes |
 | GET | `/api/themes/:slug` | Get theme with words |
@@ -146,11 +155,18 @@ npm run docker:down
 | POST | `/api/progress/:wordId` | Update word progress |
 | POST | `/api/progress/batch` | Batch update progress |
 | GET | `/api/progress/achievements` | List achievements |
-| GET | `/api/progress/calendar` | Activity calendar |
+| GET | `/api/progress/calendar` | Activity calendar (90 days) |
+| GET | `/api/progress/review-schedule` | Upcoming review schedule (14 days) |
+| GET | `/api/progress/export` | Export user data as JSON |
+| POST | `/api/progress/import` | Import user data from JSON |
+| PUT | `/api/progress/settings` | Update daily goals |
 | **Sessions** | | |
 | POST | `/api/sessions` | Start learning session |
 | POST | `/api/sessions/:id/respond` | Submit response |
 | POST | `/api/sessions/:id/complete` | Complete session |
+| POST | `/api/sessions/quiz` | Start quiz session |
+| POST | `/api/sessions/quiz/:id/answer` | Submit quiz answer |
+| GET | `/api/sessions` | Session history (paginated) |
 | **Lists** | | |
 | GET | `/api/lists` | User's study lists |
 | POST | `/api/lists` | Create list |
@@ -161,26 +177,42 @@ npm run docker:down
 | **Admin** | | |
 | GET | `/api/admin/stats` | Platform statistics |
 | GET | `/api/admin/users` | List users (paginated) |
+| PUT | `/api/admin/users/:id` | Update user |
+| DELETE | `/api/admin/users/:id` | Delete user |
 | GET | `/api/admin/llm/providers` | List LLM providers |
 | POST | `/api/admin/llm/providers` | Create provider |
 | POST | `/api/admin/jobs/categorize` | Start categorize job |
 | GET | `/api/admin/jobs` | List background jobs |
+| DELETE | `/api/admin/jobs/:id` | Delete job |
+| POST | `/api/admin/jobs/:id/cancel` | Cancel running job |
+| GET/POST | `/api/data/import` | Import words (Oxford/JSON) |
+| GET | `/api/data/export` | Export words |
 
 ## Features
 
 - 🎴 **Spaced Repetition** - SM-2 algorithm for optimal review scheduling
 - 🏷️ **Theme-based Learning** - Organize vocabulary by topic (9 categories via LLM)
 - 📊 **Progress Tracking** - Statistics, streaks, daily goals, achievements, calendar heatmap
-- 🔊 **Pronunciation** - Text-to-speech with Web Speech API
-- 📱 **PWA** - Installable, works offline
-- 🎯 **CEFR Levels** - A1-C2 difficulty levels
+- 🌙 **Dark Mode** - System/light/dark toggle with full component support
+- 🧠 **Quiz Mode** - Multiple-choice quizzes with difficulty levels and scoring
+- ❤️ **Favorites** - Bookmark words for quick access
+- 📝 **Session History** - Track all learning, review, and quiz sessions
+- 🔊 **Pronunciation** - Text-to-speech with US/UK accents
+- 📱 **PWA** - Installable, works offline with service worker
+- 🎯 **CEFR Levels** - A1-C2 difficulty levels with color-coded badges
 - 📚 **Oxford 3000/5000** - Based on Oxford word lists (4,921 words)
-- 🔐 **Authentication** - JWT + refresh tokens, Google OAuth, role-based access
+- 🔐 **Authentication** - JWT + refresh tokens, Google OAuth, password reset
 - 👨‍💼 **Admin Panel** - User management, word import/export, LLM categorization
 - 🤖 **LLM Categorization** - Auto-categorize words using any OpenAI-compatible API
 - 📋 **Custom Word Lists** - Create and manage personal study lists
+- 💾 **Data Backup** - Export/import user progress as JSON
+- 📅 **Review Schedule** - Upcoming review forecast on dashboard
 - ⚡ **Rate Limiting** - Global + per-route rate limiting for security
 - 🔄 **Background Jobs** - Long-running LLM tasks with progress tracking
+- 🔔 **Toast Notifications** - Real-time feedback for user actions
+- 📖 **Word Detail Page** - Full word info, examples, synonyms, progress stats
+- ⌨️ **Keyboard Shortcuts** - Space to flip, 1-4 for responses in flashcards
+- ✨ **Page Transitions** - Smooth animations between views
 
 ## LLM Word Categorization
 
