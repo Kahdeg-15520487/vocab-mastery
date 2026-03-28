@@ -42,6 +42,7 @@ const isCorrect = ref(false)
 const correctId = ref<string | null>(null)
 const score = ref(0)
 const startTime = ref(Date.now())
+const missedQuestions = ref<Array<{ question: QuizQuestion; selectedId: string }>>([])
 
 // Quiz settings
 const questionCount = ref(10)
@@ -109,6 +110,7 @@ async function startQuiz() {
     quizData.value = data
     score.value = 0
     currentIndex.value = 0
+    missedQuestions.value = []
     startTime.value = Date.now()
     phase.value = 'playing'
   } catch (e: any) {
@@ -127,6 +129,7 @@ async function selectOption(option: QuizOption) {
   isCorrect.value = option.correct
   correctId.value = question.value!.id
   if (option.correct) score.value++
+  else missedQuestions.value.push({ question: question.value!, selectedId: option.id })
 
   // Fire-and-forget: record answer on server for session tracking
   try {
@@ -421,6 +424,39 @@ onMounted(() => {
         <router-link to="/" class="btn btn-secondary">
           ← Home
         </router-link>
+      </div>
+
+      <!-- Missed Questions Review -->
+      <div v-if="missedQuestions.length > 0" class="text-left">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">
+          📝 Words to Review ({{ missedQuestions.length }} missed)
+        </h3>
+        <div class="space-y-3">
+          <div
+            v-for="missed in missedQuestions"
+            :key="missed.question.id"
+            class="card border-l-4 border-red-400 dark:border-red-600"
+          >
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="font-semibold text-slate-900 dark:text-white">
+                  {{ missed.question.word }}
+                  <span class="text-xs font-normal text-slate-400 ml-2">{{ missed.question.cefrLevel }}</span>
+                </div>
+                <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">{{ missed.question.definition }}</div>
+                <div v-if="missed.question.examples?.length" class="text-xs text-slate-500 dark:text-slate-500 italic mt-1">
+                  "{{ missed.question.examples[0] }}"
+                </div>
+              </div>
+              <router-link
+                :to="`/words/${missed.question.id}`"
+                class="text-xs text-primary-600 dark:text-primary-400 hover:underline flex-shrink-0"
+              >
+                Details →
+              </router-link>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
