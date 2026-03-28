@@ -100,6 +100,15 @@ export async function progressRoutes(app: FastifyInstance) {
       where: { userId, status: 'mastered' },
     });
 
+    // Count words due for review
+    const wordsDueForReview = await prisma.wordProgress.count({
+      where: {
+        userId,
+        nextReview: { lte: new Date() },
+        status: { not: 'new' },
+      },
+    });
+
     return {
       streak: {
         current: streak.currentStreak,
@@ -126,6 +135,7 @@ export async function progressRoutes(app: FastifyInstance) {
       stats: {
         totalWordsLearned,
         totalWordsMastered,
+        wordsDueForReview,
       },
       recentAchievements: recentAchievements.slice(0, 5),
       activity: dailyGoals.map((g) => ({

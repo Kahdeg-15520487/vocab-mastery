@@ -91,10 +91,18 @@ function selectTheme(theme: any) {
           <div class="font-semibold text-slate-900 group-hover:text-primary-600">Learn</div>
           <div class="text-sm text-slate-500">Learn new words</div>
         </router-link>
-        <router-link to="/review" class="card hover:shadow-md transition-shadow text-center group">
+        <router-link to="/review" class="card hover:shadow-md transition-shadow text-center group relative">
           <div class="text-4xl mb-2">🔄</div>
           <div class="font-semibold text-slate-900 group-hover:text-primary-600">Review</div>
-          <div class="text-sm text-slate-500">Review due words</div>
+          <div class="text-sm text-slate-500">
+            {{ dashboard && dashboard.stats.wordsDueForReview > 0 ? `${dashboard.stats.wordsDueForReview} due` : 'Review due words' }}
+          </div>
+          <span
+            v-if="dashboard && dashboard.stats.wordsDueForReview > 0"
+            class="absolute top-2 right-2 inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-danger-500 rounded-full"
+          >
+            {{ dashboard.stats.wordsDueForReview > 99 ? '99+' : dashboard.stats.wordsDueForReview }}
+          </span>
         </router-link>
         <router-link to="/browse" class="card hover:shadow-md transition-shadow text-center group">
           <div class="text-4xl mb-2">📖</div>

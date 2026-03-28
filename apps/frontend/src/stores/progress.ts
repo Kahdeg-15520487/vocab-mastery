@@ -47,6 +47,7 @@ export interface DashboardData {
   stats: {
     totalWordsLearned: number;
     totalWordsMastered: number;
+    wordsDueForReview: number;
   };
   recentAchievements: Achievement[];
   activity: Array<{
