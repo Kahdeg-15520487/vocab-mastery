@@ -3,6 +3,7 @@ import { onMounted, onUnmounted } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 import AppNavigation from '@/components/layout/AppNavigation.vue'
 import ToastContainer from '@/components/ui/ToastContainer.vue'
+import OfflineBanner from '@/components/ui/OfflineBanner.vue'
 import { useAuthStore } from '@/stores/auth'
 import { usePageTitle } from '@/composables/usePageTitle'
 
@@ -40,6 +41,7 @@ onUnmounted(() => {
       </RouterView>
     </main>
     <ToastContainer />
+    <OfflineBanner />
   </div>
 </template>
 
