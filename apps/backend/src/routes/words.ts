@@ -38,6 +38,10 @@ export async function wordRoutes(app: FastifyInstance) {
           progress: {
             where: { userId },
           },
+          favorites: {
+            where: { userId },
+            select: { id: true },
+          },
         },
         skip: (page - 1) * limit,
         take: limit,
@@ -65,6 +69,7 @@ export async function wordRoutes(app: FastifyInstance) {
         interval: word.progress[0].interval,
         nextReview: word.progress[0].nextReview,
       } : null,
+      favorited: word.favorites.length > 0,
     }));
 
     return {
@@ -215,6 +220,9 @@ export async function wordRoutes(app: FastifyInstance) {
         progress: request.user
           ? { where: { userId: request.user.userId } }
           : false,
+        favorites: request.user
+          ? { where: { userId: request.user.userId }, select: { id: true } }
+          : false,
       },
     });
 
@@ -252,6 +260,93 @@ export async function wordRoutes(app: FastifyInstance) {
       frequency: word.frequency,
       themes: word.themes.map(t => ({ id: t.theme.id, name: t.theme.name, slug: t.theme.slug })),
       progress: word.progress?.[0] || null,
+      favorited: request.user ? (word.favorites as any[])?.length > 0 : false,
     };
+  });
+
+  // ============================================
+  // WORD FAVORITES
+  // ============================================
+
+  // GET /words/favorites - List user's favorite words
+  app.get('/words/favorites', { preHandler: authenticate }, async (request, _reply) => {
+    const userId = request.user!.userId;
+    const query = request.query as Record<string, string | undefined>;
+    const page = parseInt(query.page || '1', 10);
+    const limit = parseInt(query.limit || '20', 10);
+
+    const [favorites, total] = await Promise.all([
+      prisma.wordFavorite.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+        include: {
+          word: {
+            select: {
+              id: true,
+              word: true,
+              phoneticUs: true,
+              definition: true,
+              cefrLevel: true,
+              partOfSpeech: true,
+            },
+          },
+        },
+      }),
+      prisma.wordFavorite.count({ where: { userId } }),
+    ]);
+
+    return {
+      favorites: favorites.map(f => ({
+        id: f.id,
+        createdAt: f.createdAt,
+        word: f.word,
+      })),
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
+  });
+
+  // POST /words/:wordId/favorite - Toggle favorite
+  app.post('/words/:wordId/favorite', { preHandler: authenticate }, async (request, reply) => {
+    const userId = request.user!.userId;
+    const { wordId } = request.params as { wordId: string };
+
+    // Check word exists
+    const word = await prisma.word.findUnique({ where: { id: wordId } });
+    if (!word) {
+      return reply.status(404).send({ error: 'Word not found' });
+    }
+
+    // Check if already favorited
+    const existing = await prisma.wordFavorite.findUnique({
+      where: { userId_wordId: { userId, wordId } },
+    });
+
+    if (existing) {
+      // Remove favorite
+      await prisma.wordFavorite.delete({ where: { id: existing.id } });
+      return { favorited: false };
+    } else {
+      // Add favorite
+      await prisma.wordFavorite.create({
+        data: { userId, wordId },
+      });
+      return { favorited: true };
+    }
+  });
+
+  // GET /words/:wordId/favorite - Check if word is favorited
+  app.get('/words/:wordId/favorite', { preHandler: authenticate }, async (request, _reply) => {
+    const userId = request.user!.userId;
+    const { wordId } = request.params as { wordId: string };
+
+    const favorite = await prisma.wordFavorite.findUnique({
+      where: { userId_wordId: { userId, wordId } },
+    });
+
+    return { favorited: !!favorite };
   });
 }

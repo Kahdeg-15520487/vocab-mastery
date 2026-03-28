@@ -14,6 +14,7 @@ export interface Word {
   frequency: number
   themes?: string[]
   progress?: WordProgress | null
+  favorited?: boolean
 }
 
 export interface WordProgress {

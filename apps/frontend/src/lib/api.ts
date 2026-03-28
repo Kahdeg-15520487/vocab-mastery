@@ -188,6 +188,22 @@ export const wordsApi = {
   search: (query: string, limit?: number) => request<any>(`/words/search?q=${encodeURIComponent(query)}${limit ? '&limit=' + limit : ''}`),
 
   getDaily: () => request<any>('/words/daily'),
+
+  toggleFavorite: (wordId: string) => request<{ favorited: boolean }>(`/words/${wordId}/favorite`, {
+    method: 'POST',
+  }),
+
+  getFavorites: (params?: { page?: number; limit?: number }) => {
+    const searchParams = new URLSearchParams()
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) searchParams.append(key, String(value))
+      })
+    }
+    return request<any>(`/words/favorites?${searchParams}`)
+  },
+
+  checkFavorite: (wordId: string) => request<{ favorited: boolean }>(`/words/${wordId}/favorite`),
 }
 
 // Themes API

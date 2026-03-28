@@ -5,6 +5,13 @@
 ## Pending
 
 - [ ] **#171** Add forgot password flow (requires email service) #feature #frontend
+- [ ] **#172** Add quiz difficulty options (easy/medium/hard) and configurable question count ##feature ##frontend
+- [ ] **#173** Add export/import user progress data (backup & restore) ##feature ##frontend
+- [ ] **#174** Add word favorites/bookmarks system ##feature ##frontend
+- [ ] **#175** Add study session history page with past sessions list ##feature ##frontend ##backend
+- [ ] **#176** Add spaced repetition schedule preview (upcoming reviews calendar) ##feature ##frontend
+- [ ] **#177** Add transition animations between views (page transitions) ##polish ##frontend
+- [ ] **#178** **[high]** Add word favorites/bookmarks - backend + frontend ##feature ##frontend ##backend
 
 ## Completed
 
@@ -578,8 +585,94 @@
       ],
       "createdAt": 1774687878121,
       "archived": false
+    },
+    {
+      "id": 172,
+      "text": "Add quiz difficulty options (easy/medium/hard) and configurable question count",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "#feature",
+        "#frontend"
+      ],
+      "createdAt": 1774689399141,
+      "archived": false
+    },
+    {
+      "id": 173,
+      "text": "Add export/import user progress data (backup & restore)",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "#feature",
+        "#frontend"
+      ],
+      "createdAt": 1774689406754,
+      "archived": false
+    },
+    {
+      "id": 174,
+      "text": "Add word favorites/bookmarks system",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "#feature",
+        "#frontend"
+      ],
+      "createdAt": 1774689413917,
+      "archived": false
+    },
+    {
+      "id": 175,
+      "text": "Add study session history page with past sessions list",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "#feature",
+        "#frontend",
+        "#backend"
+      ],
+      "createdAt": 1774689418856,
+      "archived": false
+    },
+    {
+      "id": 176,
+      "text": "Add spaced repetition schedule preview (upcoming reviews calendar)",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "#feature",
+        "#frontend"
+      ],
+      "createdAt": 1774689424401,
+      "archived": false
+    },
+    {
+      "id": 177,
+      "text": "Add transition animations between views (page transitions)",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "#polish",
+        "#frontend"
+      ],
+      "createdAt": 1774689427801,
+      "archived": false
+    },
+    {
+      "id": 178,
+      "text": "Add word favorites/bookmarks - backend + frontend",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "#feature",
+        "#frontend",
+        "#backend"
+      ],
+      "createdAt": 1774689434817,
+      "archived": false
     }
   ],
-  "nextId": 172
+  "nextId": 179
 }
 ```

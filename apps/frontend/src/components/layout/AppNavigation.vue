@@ -17,6 +17,7 @@ const navItems = [
 ]
 
 const desktopOnlyItems = [
+  { path: '/favorites', label: 'Favorites', icon: '❤️' },
   { path: '/lists', label: 'Lists', icon: '📋' },
   { path: '/stats', label: 'Stats', icon: '📊' },
 ]

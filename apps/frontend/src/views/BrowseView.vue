@@ -6,6 +6,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import { useSpeech } from '@/composables/useSpeech'
 import LevelBadge from '@/components/learning/LevelBadge.vue'
 import type { Word } from '@/types'
+import { wordsApi } from '@/lib/api'
 
 const wordsStore = useWordsStore()
 const listsStore = useListsStore()
@@ -84,6 +85,15 @@ function formatSynonyms(synonyms: string[]) {
 
 function openWordDetail(word: Word) {
   selectedWord.value = word
+}
+
+async function toggleFavorite(word: Word) {
+  try {
+    const result = await wordsApi.toggleFavorite(word.id)
+    word.favorited = result.favorited
+  } catch (e: any) {
+    console.error('Failed to toggle favorite:', e)
+  }
 }
 
 function closeWordDetail() {
@@ -196,7 +206,14 @@ const visiblePages = computed(() => {
               {{ formatSynonyms(word.synonyms) }}
             </p>
           </div>
-          <div class="ml-4 text-right">
+          <div class="ml-4 text-right flex flex-col items-end gap-2">
+            <button
+              @click.stop="toggleFavorite(word)"
+              class="text-xl transition-transform hover:scale-125"
+              :title="word.favorited ? 'Remove from favorites' : 'Add to favorites'"
+            >
+              {{ word.favorited ? '❤️' : '🤍' }}
+            </button>
             <span 
               v-if="word.progress"
               :class="[
@@ -322,9 +339,18 @@ const visiblePages = computed(() => {
               UK: {{ selectedWord.phoneticUk }}
             </p>
           </div>
-          <button @click="closeWordDetail" class="text-slate-400 hover:text-slate-600 dark:text-slate-400 text-2xl">
-            ×
-          </button>
+          <div class="flex items-center gap-2">
+            <button
+              @click="toggleFavorite(selectedWord)"
+              class="text-2xl transition-transform hover:scale-125"
+              :title="selectedWord.favorited ? 'Remove from favorites' : 'Add to favorites'"
+            >
+              {{ selectedWord.favorited ? '❤️' : '🤍' }}
+            </button>
+            <button @click="closeWordDetail" class="text-slate-400 hover:text-slate-600 dark:text-slate-400 text-2xl">
+              ×
+            </button>
+          </div>
         </div>
 
         <!-- Content -->

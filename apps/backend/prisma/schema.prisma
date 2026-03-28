@@ -66,6 +66,7 @@ model User {
   studyLists       StudyList[]
   sessions         LearningSession[]
   jobs             Job[]
+  favorites        WordFavorite[]
   
   @@index([email])
   @@index([googleId])
@@ -319,6 +320,7 @@ model Word {
   progress      WordProgress[]
   sessionWords  SessionWord[]
   listWords     StudyListWord[]
+  favorites     WordFavorite[]
   createdAt     DateTime      @default(now()) @map("created_at")
   updatedAt     DateTime      @updatedAt @map("updated_at")
 
@@ -467,4 +469,23 @@ model SharedList {
   @@index([sharedWith])
   @@index([sharedBy])
   @@map("shared_lists")
+}
+
+// ============================================
+// WORD FAVORITES
+// ============================================
+
+model WordFavorite {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  wordId    String   @map("word_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  word      Word     @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, wordId])
+  @@index([userId])
+  @@index([wordId])
+  @@map("word_favorites")
 }
