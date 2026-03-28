@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { request } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
+import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
 
 interface QuizOption {
   id: string
@@ -38,6 +39,7 @@ const phase = ref<'setup' | 'playing' | 'results'>('setup')
 const loading = ref(false)
 const quizData = ref<QuizData | null>(null)
 const quizResult = ref<{ xpEarned?: number; leveledUp?: boolean; newAchievements?: string[] } | null>(null)
+const confettiActive = ref(false)
 const currentIndex = ref(0)
 const selectedId = ref<string | null>(null)
 const answered = ref(false)
@@ -175,6 +177,10 @@ async function completeSession() {
       body: '{}',
     })
     quizResult.value = result
+    if (result.leveledUp) {
+      confettiActive.value = true
+      setTimeout(() => { confettiActive.value = false }, 4000)
+    }
   } catch {
     // Non-critical — session still completed locally
   }
@@ -470,5 +476,7 @@ onMounted(() => {
         </div>
       </div>
     </div>
+
+    <ConfettiEffect :active="confettiActive" :duration="4000" />
   </div>
 </template>
