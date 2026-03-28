@@ -233,6 +233,57 @@ export async function progressRoutes(app: FastifyInstance) {
     return calendar;
   });
 
+  // Get upcoming review schedule (next 14 days)
+  app.get('/progress/review-schedule', async (request, _reply) => {
+    const userId = request.user!.userId;
+
+    const now = new Date();
+    const twoWeeks = new Date(now);
+    twoWeeks.setDate(twoWeeks.getDate() + 14);
+
+    // Group words due for review by date
+    const dueWords = await prisma.wordProgress.findMany({
+      where: {
+        userId,
+        status: { not: 'new' },
+        nextReview: { gte: now, lte: twoWeeks },
+      },
+      select: { nextReview: true },
+    });
+
+    // Count overdue words
+    const overdue = await prisma.wordProgress.count({
+      where: {
+        userId,
+        status: { not: 'new' },
+        nextReview: { lt: now },
+      },
+    });
+
+    // Group by day
+    const schedule: Record<string, number> = {};
+    for (const wp of dueWords) {
+      const dateStr = (wp.nextReview as Date).toISOString().split('T')[0];
+      schedule[dateStr] = (schedule[dateStr] || 0) + 1;
+    }
+
+    // Format as array of days
+    const days = [];
+    for (let i = 0; i < 14; i++) {
+      const date = new Date(now);
+      date.setDate(date.getDate() + i);
+      const dateStr = date.toISOString().split('T')[0];
+      days.push({
+        date: dateStr,
+        dayLabel: date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
+        count: i === 0 ? overdue : (schedule[dateStr] || 0),
+        isToday: i === 0,
+      });
+    }
+
+    return { overdue, days };
+  });
+
   // ============================================
   // POST /api/progress/update - Update goal progress
   // ============================================

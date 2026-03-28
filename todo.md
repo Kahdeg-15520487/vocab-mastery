@@ -5,9 +5,9 @@
 ## Pending
 
 - [ ] **#171** Add forgot password flow (requires email service) #feature #frontend
-- [ ] **#174** Add word favorites/bookmarks system ##feature ##frontend
 - [ ] **#176** Add spaced repetition schedule preview (upcoming reviews calendar) ##feature ##frontend
 - [ ] **#177** Add transition animations between views (page transitions) ##polish ##frontend
+- [ ] **#179** Add upcoming review schedule on dashboard/stats page ##feature ##frontend ##backend
 
 ## Completed
 
@@ -613,18 +613,6 @@
       "completedAt": 1774691274007
     },
     {
-      "id": 174,
-      "text": "Add word favorites/bookmarks system",
-      "done": false,
-      "priority": "medium",
-      "tags": [
-        "#feature",
-        "#frontend"
-      ],
-      "createdAt": 1774689413917,
-      "archived": false
-    },
-    {
       "id": 175,
       "text": "Add study session history page with past sessions list",
       "done": true,
@@ -675,8 +663,21 @@
       "createdAt": 1774689434817,
       "archived": false,
       "completedAt": 1774689866304
+    },
+    {
+      "id": 179,
+      "text": "Add upcoming review schedule on dashboard/stats page",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "#feature",
+        "#frontend",
+        "#backend"
+      ],
+      "createdAt": 1774691432351,
+      "archived": false
     }
   ],
-  "nextId": 179
+  "nextId": 180
 }
 ```

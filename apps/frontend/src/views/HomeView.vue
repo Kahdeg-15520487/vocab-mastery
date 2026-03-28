@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useProgressStore } from '@/stores/progress'
@@ -13,16 +13,29 @@ import WordOfDay from '@/components/learning/WordOfDay.vue'
 
 const router = useRouter()
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import { request } from '@/lib/api'
 
 const authStore = useAuthStore()
 const progressStore = useProgressStore()
 const wordsStore = useWordsStore()
+
+// Review schedule
+const reviewSchedule = ref<{ overdue: number; days: Array<{ date: string; dayLabel: string; count: number; isToday: boolean }> } | null>(null)
+
+async function loadReviewSchedule() {
+  try {
+    reviewSchedule.value = await request<any>('/progress/review-schedule')
+  } catch {
+    // Non-critical
+  }
+}
 
 onMounted(async () => {
   await Promise.all([
     progressStore.fetchDashboard(),
     progressStore.fetchCalendar(90),
     wordsStore.fetchThemes(),
+    loadReviewSchedule(),
   ])
 })
 
@@ -122,6 +135,40 @@ function selectTheme(theme: any) {
 
       <!-- Activity Calendar -->
       <CalendarHeatmap :activities="calendar" />
+
+      <!-- Upcoming Review Schedule -->
+      <div v-if="reviewSchedule && (reviewSchedule.overdue > 0 || reviewSchedule.days.some(d => d.count > 0))">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white">📅 Upcoming Reviews</h2>
+          <router-link to="/review" class="text-primary-600 dark:text-primary-400 hover:underline text-sm">
+            Review now →
+          </router-link>
+        </div>
+        <div class="grid grid-cols-7 gap-1">
+          <div
+            v-for="day in reviewSchedule.days"
+            :key="day.date"
+            class="text-center p-2 rounded-lg"
+            :class="day.count > 0 ? 'bg-primary-50 dark:bg-primary-900/20' : 'bg-slate-50 dark:bg-slate-800'"
+          >
+            <div class="text-xs text-slate-500 dark:text-slate-400">
+              {{ day.dayLabel.split(', ')[0] }}
+            </div>
+            <div class="text-xs text-slate-400">
+              {{ day.dayLabel.split(', ')[1] }}
+            </div>
+            <div
+              class="text-sm font-bold mt-1"
+              :class="(day.isToday && day.count > 0) ? 'text-red-600' : day.count > 0 ? 'text-primary-600 dark:text-primary-400' : 'text-slate-300 dark:text-slate-600'"
+            >
+              {{ day.count || '—' }}
+            </div>
+          </div>
+        </div>
+        <div v-if="reviewSchedule.overdue > 0" class="mt-2 text-center text-sm text-red-600 dark:text-red-400">
+          ⚠️ {{ reviewSchedule.overdue }} word{{ reviewSchedule.overdue !== 1 ? 's' : '' }} overdue for review
+        </div>
+      </div>
 
       <!-- Recently Learned Words -->
       <div v-if="dashboard && dashboard.stats.totalWordsLearned > 0">
