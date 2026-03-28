@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { adminApi } from '@/lib/api'
+import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 
 interface LLMProvider {
   id: string
@@ -205,16 +206,23 @@ async function saveProvider() {
   }
 }
 
-async function deleteProvider(provider: LLMProvider) {
-  if (!confirm(`Delete provider "${provider.name}"?`)) return
+// Confirm dialog
+const confirmDialog = ref(false)
+const confirmAction = ref<(() => void) | null>(null)
+const confirmMessage = ref('')
 
-  try {
-    await adminApi.deleteProvider(provider.id)
-    success.value = 'Provider deleted!'
-    await loadProviders()
-  } catch (e: any) {
-    error.value = e.message
+async function deleteProvider(provider: LLMProvider) {
+  confirmMessage.value = `Delete provider "${provider.name}"?`
+  confirmAction.value = async () => {
+    try {
+      await adminApi.deleteProvider(provider.id)
+      success.value = 'Provider deleted!'
+      await loadProviders()
+    } catch (e: any) {
+      error.value = e.message
+    }
   }
+  confirmDialog.value = true
 }
 
 async function activateProvider(provider: LLMProvider) {
@@ -583,5 +591,15 @@ async function testNewProvider() {
         </div>
       </div>
     </div>
+
+    <!-- Confirm Dialog -->
+    <ConfirmDialog
+      v-model="confirmDialog"
+      title="Delete Provider"
+      :message="confirmMessage"
+      variant="danger"
+      confirm-text="Delete"
+      @confirm="confirmAction?.()"
+    />
   </div>
 </template>

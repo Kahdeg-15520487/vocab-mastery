@@ -3,8 +3,14 @@ import { ref, onMounted, computed } from 'vue'
 import UserEditModal from './UserEditModal.vue'
 import { adminApi } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
+import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 
 const toast = useToast()
+
+// Confirm dialog
+const confirmDialog = ref(false)
+const confirmAction = ref<(() => void) | null>(null)
+const confirmMessage = ref('')
 
 interface User {
   id: string
@@ -88,16 +94,17 @@ async function handleUserUpdate(updatedUser: any) {
 }
 
 async function deleteUser(user: User) {
-  if (!confirm(`Delete user "${user.username}"? This cannot be undone.`)) return
-
-  try {
-    await adminApi.deleteUser(user.id)
-    // Remove from list
-    users.value = users.value.filter(u => u.id !== user.id)
-    total.value--
-  } catch (e: any) {
-    toast.error(e.message)
+  confirmMessage.value = `Delete user "${user.username}"? This cannot be undone.`
+  confirmAction.value = async () => {
+    try {
+      await adminApi.deleteUser(user.id)
+      users.value = users.value.filter(u => u.id !== user.id)
+      total.value--
+    } catch (e: any) {
+      toast.error(e.message)
+    }
   }
+  confirmDialog.value = true
 }
 
 function formatDate(date: string | null) {
@@ -290,6 +297,16 @@ onMounted(fetchUsers)
       :user="editingUser"
       @close="closeEditModal"
       @update="handleUserUpdate"
+    />
+
+    <!-- Confirm Dialog -->
+    <ConfirmDialog
+      v-model="confirmDialog"
+      title="Delete User"
+      :message="confirmMessage"
+      variant="danger"
+      confirm-text="Delete User"
+      @confirm="confirmAction?.()"
     />
   </div>
 </template>

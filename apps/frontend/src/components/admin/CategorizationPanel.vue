@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, onUnmounted } from 'vue'
 import { adminApi } from '@/lib/api'
+import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 
 interface CategoryStats {
   themeId: string
@@ -125,36 +126,43 @@ async function previewCategorization() {
   }
 }
 
+// Confirm dialog
+const confirmDialog = ref(false)
+const confirmAction = ref<(() => void) | null>(null)
+const confirmMessage = ref('')
+
 async function startCategorizeJob(limit: number) {
   error.value = null
   success.value = null
   
-  const confirmMsg = limit === 0 
+  confirmMessage.value = limit === 0 
     ? 'Categorize ALL uncategorized words? This will run in the background.'
     : `Categorize up to ${limit} uncategorized words?`
-  
-  if (!confirm(confirmMsg)) return
-  
-  try {
-    const job = await adminApi.createCategorizeJob({ 
-      limit: limit || undefined,
-    })
-    success.value = `Job created! ID: ${job.id}`
-    await loadJobs()
-  } catch (e: any) {
-    error.value = e.message
+  confirmAction.value = async () => {
+    try {
+      const job = await adminApi.createCategorizeJob({ 
+        limit: limit || undefined,
+      })
+      success.value = `Job created! ID: ${job.id}`
+      await loadJobs()
+    } catch (e: any) {
+      error.value = e.message
+    }
   }
+  confirmDialog.value = true
 }
 
 async function cancelJob(jobId: string) {
-  if (!confirm('Cancel this job?')) return
-  
-  try {
-    await adminApi.cancelJob(jobId)
-    await loadJobs()
-  } catch (e: any) {
-    error.value = e.message
+  confirmMessage.value = 'Cancel this job?'
+  confirmAction.value = async () => {
+    try {
+      await adminApi.cancelJob(jobId)
+      await loadJobs()
+    } catch (e: any) {
+      error.value = e.message
+    }
   }
+  confirmDialog.value = true
 }
 
 async function deleteJob(jobId: string) {
@@ -431,5 +439,15 @@ function getThemeIcon(slug: string): string {
         <li>• You can cancel a running job at any time</li>
       </ul>
     </div>
+
+    <!-- Confirm Dialog -->
+    <ConfirmDialog
+      v-model="confirmDialog"
+      title="Confirm Action"
+      :message="confirmMessage"
+      variant="warning"
+      confirm-text="Confirm"
+      @confirm="confirmAction?.()"
+    />
   </div>
 </template>

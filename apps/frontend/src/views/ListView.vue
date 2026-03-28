@@ -5,6 +5,7 @@ import { useListsStore, type ListDetail } from '@/stores/lists'
 import { wordsApi } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
 import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
+import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -17,6 +18,23 @@ const searchQuery = ref('')
 const searchResults = ref<any[]>([])
 const searching = ref(false)
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
+
+// Confirm dialog state
+const confirmDialog = ref(false)
+const confirmAction = ref<(() => void) | null>(null)
+const confirmTitle = ref('')
+const confirmMessage = ref('')
+const confirmVariant = ref<'danger' | 'warning' | 'primary'>('danger')
+const confirmBtnText = ref('Confirm')
+
+function showConfirm(opts: { title?: string; message: string; variant?: 'danger' | 'warning' | 'primary'; confirmText?: string }, action: () => void) {
+  confirmTitle.value = opts.title || ''
+  confirmMessage.value = opts.message
+  confirmVariant.value = opts.variant || 'danger'
+  confirmBtnText.value = opts.confirmText || 'Confirm'
+  confirmAction.value = action
+  confirmDialog.value = true
+}
 
 const list = computed<ListDetail | null>(() => listsStore.currentList)
 
@@ -63,25 +81,31 @@ async function addWord(wordId: string) {
 }
 
 async function removeWord(wordId: string) {
-  if (!confirm('Remove this word from the list?')) return
-  
-  try {
-    await listsStore.removeWordFromList(listId, wordId)
-    await listsStore.fetchList(listId)
-  } catch (e: any) {
-    toast.error(e.message)
-  }
+  showConfirm(
+    { title: 'Remove Word', message: 'Remove this word from the list?', variant: 'warning', confirmText: 'Remove' },
+    async () => {
+      try {
+        await listsStore.removeWordFromList(listId, wordId)
+        await listsStore.fetchList(listId)
+      } catch (e: any) {
+        toast.error(e.message)
+      }
+    }
+  )
 }
 
 async function deleteList() {
-  if (!confirm('Delete this list? This cannot be undone.')) return
-  
-  try {
-    await listsStore.deleteList(listId)
-    router.push('/lists')
-  } catch (e: any) {
-    toast.error(e.message)
-  }
+  showConfirm(
+    { title: 'Delete List', message: 'Delete this list? This cannot be undone.', confirmText: 'Delete List' },
+    async () => {
+      try {
+        await listsStore.deleteList(listId)
+        router.push('/lists')
+      } catch (e: any) {
+        toast.error(e.message)
+      }
+    }
+  )
 }
 
 function goBack() {
@@ -289,5 +313,15 @@ function studyList() {
         Back to Lists
       </button>
     </div>
+
+    <!-- Confirm Dialog -->
+    <ConfirmDialog
+      v-model="confirmDialog"
+      :title="confirmTitle"
+      :message="confirmMessage"
+      :variant="confirmVariant"
+      :confirm-text="confirmBtnText"
+      @confirm="confirmAction?.()"
+    />
   </div>
 </template>
