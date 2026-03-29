@@ -8,8 +8,9 @@
 - [ ] **#218** Improve mobile layout - check bottom nav safe areas and card spacing
 - [ ] **#219** **[high]** Add batch select + mark as known in browse view
 - [ ] **#221** Add weekly study goal progress bar to dashboard
-- [ ] **#222** Add word count badges to level cards in browse filter
 - [ ] **#223** Add browser notification permission request + daily reminder
+- [ ] **#224** **[low]** SRS interval visualization in word detail (future consideration)
+- [ ] **#225** **[high]** Add "Practice Mistakes" mode — practice words with low accuracy
 
 ## Completed
 
@@ -96,6 +97,7 @@
 - [x] **#215** **[high]** Add responsive grid to HomeView - mobile dashboard cards look cramped
 - [x] **#216** Add user search/filter to admin UserTable
 - [x] **#220** Add tab title notification when reviews are due (e.g. "(10) Vocab Master")
+- [x] **#222** Add word count badges to level cards in browse filter
 
 <!-- Raw Data -->
 ```json
@@ -1197,11 +1199,12 @@
     {
       "id": 222,
       "text": "Add word count badges to level cards in browse filter",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [],
       "createdAt": 1774777774933,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774778017912
     },
     {
       "id": 223,
@@ -1211,8 +1214,26 @@
       "tags": [],
       "createdAt": 1774777908292,
       "archived": false
+    },
+    {
+      "id": 224,
+      "text": "SRS interval visualization in word detail (future consideration)",
+      "done": false,
+      "priority": "low",
+      "tags": [],
+      "createdAt": 1774778022770,
+      "archived": false
+    },
+    {
+      "id": 225,
+      "text": "Add \"Practice Mistakes\" mode — practice words with low accuracy",
+      "done": false,
+      "priority": "high",
+      "tags": [],
+      "createdAt": 1774778275982,
+      "archived": false
     }
   ],
-  "nextId": 224
+  "nextId": 226
 }
 ```

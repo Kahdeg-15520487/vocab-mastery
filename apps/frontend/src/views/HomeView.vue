@@ -176,6 +176,9 @@ function selectTheme(theme: any) {
             Keep up the great work on your vocabulary journey!
           </template>
         </p>
+        <p v-if="dashboard && (dashboard.dailyGoal.wordsLearned > 0 || dashboard.dailyGoal.wordsReviewed > 0)" class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          Today: {{ dashboard.dailyGoal.wordsLearned }} learned · {{ dashboard.dailyGoal.wordsReviewed }} reviewed
+        </p>
       </div>
 
       <!-- Today Summary (mobile-compact) -->

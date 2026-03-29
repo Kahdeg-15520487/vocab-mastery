@@ -12,6 +12,7 @@ interface Stats {
   content: {
     totalWords: number
     wordsLearned: number
+    categorized?: number
   }
   activity: {
     totalSessions: number
@@ -83,6 +84,10 @@ onMounted(async () => {
           <div class="bg-slate-50 dark:bg-slate-900 rounded-lg p-4">
             <p class="text-2xl font-bold text-blue-600">{{ stats.activity.totalSessions }}</p>
             <p class="text-sm text-slate-600 dark:text-slate-400">Total Sessions</p>
+          </div>
+          <div v-if="stats.content.categorized !== undefined" class="bg-slate-50 dark:bg-slate-900 rounded-lg p-4">
+            <p class="text-2xl font-bold text-purple-600">{{ stats.content.categorized }}</p>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Categorized</p>
           </div>
         </div>
       </div>

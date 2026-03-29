@@ -78,6 +78,7 @@ export async function adminRoutes(app: FastifyInstance) {
       content: {
         totalWords,
         wordsLearned,
+        categorized: await prisma.wordTheme.count(),
       },
       activity: {
         totalSessions,
