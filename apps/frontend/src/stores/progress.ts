@@ -51,6 +51,8 @@ export interface DashboardData {
     totalXp: number;
     level: number;
     totalWordsInDb: number;
+    favoriteCount: number;
+    totalSessions: number;
   };
   recentAchievements: Achievement[];
   recentProgress: Array<{

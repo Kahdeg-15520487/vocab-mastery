@@ -126,6 +126,12 @@ export async function progressRoutes(app: FastifyInstance) {
     // Total words in database for overall progress
     const totalWordsInDb = await prisma.word.count();
 
+    // Favorite count and total sessions
+    const [favoriteCount, totalSessions] = await Promise.all([
+      prisma.wordFavorite.count({ where: { userId } }),
+      prisma.learningSession.count({ where: { userId, completedAt: { not: null } } }),
+    ]);
+
     return {
       streak: {
         current: streak.currentStreak,
@@ -156,6 +162,8 @@ export async function progressRoutes(app: FastifyInstance) {
         totalXp: userXp?.totalXp ?? 0,
         level: userXp?.level ?? 1,
         totalWordsInDb,
+        favoriteCount,
+        totalSessions,
       },
       recentAchievements: recentAchievements.slice(0, 5),
       recentProgress: recentProgress.map(wp => ({

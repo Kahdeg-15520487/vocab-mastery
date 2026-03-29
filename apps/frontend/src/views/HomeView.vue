@@ -260,6 +260,25 @@ function selectTheme(theme: any) {
               </div>
             </div>
           </div>
+
+          <!-- Quick Stats -->
+          <div v-if="dashboard" class="card">
+            <h3 class="font-semibold text-slate-900 dark:text-white mb-3">Quick Stats</h3>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-slate-600 dark:text-slate-400">❤️ Favorites</span>
+                <span class="font-medium text-slate-900 dark:text-white">{{ dashboard.stats.favoriteCount || 0 }}</span>
+              </div>
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-slate-600 dark:text-slate-400">🎯 Sessions</span>
+                <span class="font-medium text-slate-900 dark:text-white">{{ dashboard.stats.totalSessions || 0 }}</span>
+              </div>
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-slate-600 dark:text-slate-400">📚 Words in DB</span>
+                <span class="font-medium text-slate-900 dark:text-white">{{ dashboard.stats.totalWordsInDb?.toLocaleString() || '?' }}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Middle Column: CEFR Progress -->
