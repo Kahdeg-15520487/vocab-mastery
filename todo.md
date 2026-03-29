@@ -4,10 +4,9 @@
 
 ## Pending
 
-- [ ] **#215** **[high]** Add responsive grid to HomeView - mobile dashboard cards look cramped
-- [ ] **#216** Add user search/filter to admin UserTable
 - [ ] **#217** Add "Recently Viewed Words" widget on dashboard
 - [ ] **#218** Improve mobile layout - check bottom nav safe areas and card spacing
+- [ ] **#219** **[high]** Add batch select + mark as known in browse view
 
 ## Completed
 
@@ -91,6 +90,8 @@
 - [x] **#211** **[high]** Add mobile access to all learning modes — Spelling and Fill Blanks unreachable on mobile
 - [x] **#213** **[high]** Audit app for improvements
 - [x] **#214** **[high]** Add "Mark as known" / "Mark as learning" quick actions in browse word modal
+- [x] **#215** **[high]** Add responsive grid to HomeView - mobile dashboard cards look cramped
+- [x] **#216** Add user search/filter to admin UserTable
 
 <!-- Raw Data -->
 ```json
@@ -1126,20 +1127,22 @@
     {
       "id": 215,
       "text": "Add responsive grid to HomeView - mobile dashboard cards look cramped",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [],
       "createdAt": 1774777119469,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774777489267
     },
     {
       "id": 216,
       "text": "Add user search/filter to admin UserTable",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [],
       "createdAt": 1774777122609,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774777499081
     },
     {
       "id": 217,
@@ -1158,8 +1161,17 @@
       "tags": [],
       "createdAt": 1774777129518,
       "archived": false
+    },
+    {
+      "id": 219,
+      "text": "Add batch select + mark as known in browse view",
+      "done": false,
+      "priority": "high",
+      "tags": [],
+      "createdAt": 1774777674455,
+      "archived": false
     }
   ],
-  "nextId": 219
+  "nextId": 220
 }
 ```

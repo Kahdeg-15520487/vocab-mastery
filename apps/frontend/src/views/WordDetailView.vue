@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { request, wordsApi } from '@/lib/api'
+import { request, wordsApi, progressApi } from '@/lib/api'
 import { useSpeech } from '@/composables/useSpeech'
 import { useToast } from '@/composables/useToast'
 import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
@@ -87,6 +87,32 @@ async function toggleFavorite() {
 function getDefinitions(def: string): string[] {
   if (!def) return []
   return def.split('\n\n').filter(Boolean)
+}
+
+async function markStatus(status: 'learning' | 'reviewing' | 'mastered' | 'new') {
+  if (!word.value) return
+  const oldProgress = word.value.progress
+
+  // Optimistic update
+  word.value = {
+    ...word.value,
+    progress: status === 'new' ? null : { ...oldProgress, status } as any,
+  }
+
+  const labels: Record<string, string> = {
+    mastered: '✅ Marked as known!',
+    learning: '📖 Marked as learning',
+    reviewing: '🔄 Marked as reviewing',
+    new: '🔄 Progress reset',
+  }
+  toast.success(labels[status] || `Status set to ${status}`)
+
+  try {
+    await progressApi.setStatus(word.value.id, status)
+  } catch {
+    word.value = { ...word.value!, progress: oldProgress }
+    toast.error('Failed to update status')
+  }
 }
 </script>
 
@@ -273,6 +299,38 @@ function getDefinitions(def: string): string[] {
         </div>
         <div v-if="word.progress.nextReview" class="mt-3 text-sm text-slate-500 dark:text-slate-400">
           Next review: {{ new Date(word.progress.nextReview).toLocaleDateString() }}
+        </div>
+      </div>
+
+      <!-- Quick Mark Status -->
+      <div class="card mb-6">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">⚡ Quick Mark</h2>
+        <div class="flex gap-2 flex-wrap">
+          <button
+            @click="markStatus('mastered')"
+            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50"
+          >
+            ✅ I Know This
+          </button>
+          <button
+            @click="markStatus('learning')"
+            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50"
+          >
+            📖 Learning
+          </button>
+          <button
+            @click="markStatus('reviewing')"
+            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+          >
+            🔄 Reviewing
+          </button>
+          <button
+            v-if="word.progress"
+            @click="markStatus('new')"
+            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-400"
+          >
+            🔄 Reset Progress
+          </button>
         </div>
       </div>
 

@@ -33,7 +33,7 @@ onUnmounted(() => {
 <template>
   <div class="min-h-screen bg-slate-50 dark:bg-slate-900">
     <AppNavigation />
-    <main class="container mx-auto px-4 py-6 pb-20 md:pb-6">
+    <main class="container mx-auto px-4 py-6 pb-24 md:pb-6">
       <RouterView v-slot="{ Component }">
         <Transition name="page" mode="out-in">
           <component :is="Component" />
