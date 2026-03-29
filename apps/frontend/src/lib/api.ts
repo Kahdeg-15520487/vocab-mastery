@@ -165,6 +165,7 @@ export const wordsApi = {
   getAll: (params?: {
     theme?: string
     level?: string
+    status?: string
     list?: string
     search?: string
     page?: number
@@ -206,7 +207,7 @@ export const wordsApi = {
 
   checkFavorite: (wordId: string) => request<{ favorited: boolean }>(`/words/${wordId}/favorite`),
 
-  getCounts: () => request<{ total: number; levels: Record<string, number>; themes: Record<string, number> }>('/words/counts'),
+  getCounts: () => request<{ total: number; levels: Record<string, number>; themes: Record<string, number>; statusCounts?: Record<string, number> }>('/words/counts'),
 }
 
 // Themes API

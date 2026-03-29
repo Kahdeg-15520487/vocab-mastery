@@ -11,6 +11,7 @@ export async function wordRoutes(app: FastifyInstance) {
     const level = query.level;
     const list = query.list;
     const search = query.search;
+    const status = query.status;
     const page = parseInt(query.page || '1', 10);
     const limit = parseInt(query.limit || '20', 10);
 
@@ -22,12 +23,20 @@ export async function wordRoutes(app: FastifyInstance) {
       where.word = { contains: search, mode: 'insensitive' };
     }
     if (theme) {
-      // Special case: 'none' means uncategorized words (no themes)
       if (theme === 'none') {
         where.themes = { none: {} };
       } else {
         where.themes = { some: { theme: { slug: theme } } };
       }
+    }
+    // Filter by learning status
+    if (status === 'new') {
+      where.progress = { none: { userId } };
+    } else if (status === 'learning' || status === 'reviewing' || status === 'mastered') {
+      where.progress = { some: { userId, status } };
+    } else if (status === 'seen') {
+      // All words the user has interacted with (any status except new/no-progress)
+      where.progress = { some: { userId } };
     }
 
     const [words, total] = await Promise.all([
@@ -211,7 +220,9 @@ export async function wordRoutes(app: FastifyInstance) {
 
   // Get single word - guests get limited fields, authenticated users get full data
   // Word counts per CEFR level and theme (for browse filter badges)
-  app.get('/words/counts', { preHandler: optionalAuth }, async () => {
+  app.get('/words/counts', { preHandler: optionalAuth }, async (request) => {
+    const userId = (request as any).user?.userId;
+
     const [levelCounts, themeCounts, total, unthemedCount] = await Promise.all([
       prisma.word.groupBy({
         by: ['cefrLevel'],
@@ -232,7 +243,6 @@ export async function wordRoutes(app: FastifyInstance) {
       if (row.cefrLevel) levels[row.cefrLevel] = row._count.id;
     }
 
-    // Map themeId to slug
     const dbThemes = await prisma.theme.findMany({ select: { id: true, slug: true } });
     const themeSlugMap = Object.fromEntries(dbThemes.map(t => [t.id, t.slug]));
 
@@ -242,7 +252,19 @@ export async function wordRoutes(app: FastifyInstance) {
       if (slug) themes[slug] = row._count.wordId;
     }
 
-    return { total, levels, themes };
+    // Add status counts for authenticated users
+    let statusCounts: Record<string, number> | undefined;
+    if (userId) {
+      const [newCount, learningCount, reviewingCount, masteredCount] = await Promise.all([
+        prisma.word.count({ where: { progress: { none: { userId } } } }),
+        prisma.word.count({ where: { progress: { some: { userId, status: 'learning' } } } }),
+        prisma.word.count({ where: { progress: { some: { userId, status: 'reviewing' } } } }),
+        prisma.word.count({ where: { progress: { some: { userId, status: 'mastered' } } } }),
+      ]);
+      statusCounts = { new: newCount, learning: learningCount, reviewing: reviewingCount, mastered: masteredCount };
+    }
+
+    return { total, levels, themes, statusCounts };
   });
 
   app.get('/words/:id', { preHandler: optionalAuth }, async (request, reply) => {

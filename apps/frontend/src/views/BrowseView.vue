@@ -21,6 +21,7 @@ const searchInput = ref<HTMLInputElement | null>(null)
 const searchDebounced = ref('')
 const selectedTheme = ref('')
 const selectedLevel = ref('')
+const selectedStatus = ref('')
 const page = ref(1)
 const limit = 50
 const selectedWord = ref<Word | null>(null)
@@ -53,6 +54,7 @@ async function loadWords() {
     search: searchDebounced.value || undefined,
     theme: selectedTheme.value || undefined,
     level: selectedLevel.value || undefined,
+    status: selectedStatus.value || undefined,
     page: page.value,
     limit,
   })
@@ -67,7 +69,7 @@ watch(search, (newValue) => {
 })
 
 // Trigger search when debounced value changes
-watch([searchDebounced, selectedTheme, selectedLevel], () => {
+watch([searchDebounced, selectedTheme, selectedLevel, selectedStatus], () => {
   page.value = 1
   loadWords()
 })
@@ -188,7 +190,7 @@ const visiblePages = computed(() => {
 
     <!-- Filters -->
     <div class="card mb-6">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         <div class="md:col-span-2">
           <input
             ref="searchInput"
@@ -210,6 +212,13 @@ const visiblePages = computed(() => {
           <option v-for="lvl in ['A1','A2','B1','B2','C1','C2']" :key="lvl" :value="lvl">
             {{ lvl }} - {{ { A1:'Beginner', A2:'Elementary', B1:'Intermediate', B2:'Upper-Intermediate', C1:'Advanced', C2:'Proficient' }[lvl] }}{{ wordsStore.wordCounts?.levels[lvl] ? ` (${wordsStore.wordCounts.levels[lvl]})` : '' }}
           </option>
+        </select>
+        <select v-model="selectedStatus" class="input">
+          <option value="">All Status</option>
+          <option value="new">🆕 New{{ wordsStore.wordCounts?.statusCounts?.new ? ` (${wordsStore.wordCounts.statusCounts.new})` : '' }}</option>
+          <option value="learning">📖 Learning{{ wordsStore.wordCounts?.statusCounts?.learning ? ` (${wordsStore.wordCounts.statusCounts.learning})` : '' }}</option>
+          <option value="reviewing">🔄 Reviewing{{ wordsStore.wordCounts?.statusCounts?.reviewing ? ` (${wordsStore.wordCounts.statusCounts.reviewing})` : '' }}</option>
+          <option value="mastered">✅ Mastered{{ wordsStore.wordCounts?.statusCounts?.mastered ? ` (${wordsStore.wordCounts.statusCounts.mastered})` : '' }}</option>
         </select>
       </div>
     </div>

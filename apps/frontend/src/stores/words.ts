@@ -15,7 +15,7 @@ export const useWordsStore = defineStore('words', () => {
     total: 0,
     totalPages: 0,
   })
-  const wordCounts = ref<{ total: number; levels: Record<string, number>; themes: Record<string, number> } | null>(null)
+  const wordCounts = ref<{ total: number; levels: Record<string, number>; themes: Record<string, number>; statusCounts?: Record<string, number> } | null>(null)
 
   // Fetch all themes
   async function fetchThemes() {
@@ -44,6 +44,7 @@ export const useWordsStore = defineStore('words', () => {
   async function fetchWords(params?: {
     theme?: string
     level?: string
+    status?: string
     list?: string
     search?: string
     page?: number
