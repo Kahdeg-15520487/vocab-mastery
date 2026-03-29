@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { useWordsStore } from '@/stores/words'
 import { useListsStore } from '@/stores/lists'
 import { useSpeech } from '@/composables/useSpeech'
+import { useRecentlyViewed } from '@/composables/useRecentlyViewed'
 import LevelBadge from '@/components/learning/LevelBadge.vue'
 import type { Word } from '@/types'
 import { wordsApi, progressApi } from '@/lib/api'
@@ -15,6 +16,7 @@ const toast = useToast()
 const wordsStore = useWordsStore()
 const listsStore = useListsStore()
 const { speak } = useSpeech()
+const { addViewedWord, recentlyViewed, clearRecentlyViewed } = useRecentlyViewed()
 
 const search = ref('')
 const searchInput = ref<HTMLInputElement | null>(null)
@@ -120,6 +122,7 @@ function formatSynonyms(synonyms: string[]) {
 
 function openWordDetail(word: Word) {
   selectedWord.value = word
+  addViewedWord(word.id, word.word, word.cefrLevel)
 }
 
 async function toggleFavorite(word: Word) {
@@ -265,6 +268,24 @@ const visiblePages = computed(() => {
           <option value="reviewing">🔄 Reviewing{{ wordsStore.wordCounts?.statusCounts?.reviewing ? ` (${wordsStore.wordCounts.statusCounts.reviewing})` : '' }}</option>
           <option value="mastered">✅ Mastered{{ wordsStore.wordCounts?.statusCounts?.mastered ? ` (${wordsStore.wordCounts.statusCounts.mastered})` : '' }}</option>
         </select>
+      </div>
+    </div>
+
+    <!-- Recently Viewed -->
+    <div v-if="!searchDebounced && !selectedTheme && !selectedLevel && !selectedStatus && recentlyViewed.length > 0" class="mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Recently Viewed</h2>
+        <button @click="clearRecentlyViewed" class="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">Clear</button>
+      </div>
+      <div class="flex gap-2 overflow-x-auto pb-2">
+        <RouterLink
+          v-for="w in recentlyViewed.slice(0, 10)"
+          :key="w.id"
+          :to="`/words/${w.id}`"
+          class="flex-shrink-0 px-3 py-1.5 rounded-full text-sm bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary-700 dark:hover:text-primary-400 transition-colors"
+        >
+          {{ w.word }}
+        </RouterLink>
       </div>
     </div>
 

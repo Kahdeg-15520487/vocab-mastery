@@ -11,6 +11,8 @@
 - [ ] **#223** Add browser notification permission request + daily reminder
 - [ ] **#224** **[low]** SRS interval visualization in word detail (future consideration)
 - [ ] **#225** **[high]** Add "Practice Mistakes" mode — practice words with low accuracy
+- [ ] **#226** **[low]** Add difficulty estimation relative to user's current level (future feature)
+- [ ] **#227** Add "recently viewed words" tracking via localStorage
 
 ## Completed
 
@@ -1232,8 +1234,26 @@
       "tags": [],
       "createdAt": 1774778275982,
       "archived": false
+    },
+    {
+      "id": 226,
+      "text": "Add difficulty estimation relative to user's current level (future feature)",
+      "done": false,
+      "priority": "low",
+      "tags": [],
+      "createdAt": 1774778471798,
+      "archived": false
+    },
+    {
+      "id": 227,
+      "text": "Add \"recently viewed words\" tracking via localStorage",
+      "done": false,
+      "priority": "medium",
+      "tags": [],
+      "createdAt": 1774778474977,
+      "archived": false
     }
   ],
-  "nextId": 226
+  "nextId": 228
 }
 ```
