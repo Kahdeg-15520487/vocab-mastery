@@ -19,6 +19,8 @@ export async function statsRoutes(app: FastifyInstance) {
       levelDistribution,
       userXpData,
       recentSessions,
+      sessionTypeCounts,
+      totalSessions,
     ] = await Promise.all([
       prisma.userStreak.findUnique({ where: { userId } }),
       prisma.wordProgress.count({ where: { userId, status: { not: 'new' } } }),
@@ -52,6 +54,12 @@ export async function statsRoutes(app: FastifyInstance) {
           totalIncorrect: true,
         },
       }),
+      prisma.learningSession.groupBy({
+        by: ['type'],
+        where: { userId, completedAt: { not: null } },
+        _count: true,
+      }),
+      prisma.learningSession.count({ where: { userId, completedAt: { not: null } } }),
     ]);
 
     const statusMap = {
@@ -70,6 +78,11 @@ export async function statsRoutes(app: FastifyInstance) {
       levelMap[item.cefrLevel] = item._count;
     });
 
+    const sessionTypeMap: Record<string, number> = {};
+    sessionTypeCounts.forEach(item => {
+      sessionTypeMap[item.type] = item._count;
+    });
+
     return {
       user: {
         totalWords: totalWordsLearned,
@@ -79,6 +92,7 @@ export async function statsRoutes(app: FastifyInstance) {
         lastActiveDate: streak?.lastActivityDate?.toISOString() ?? null,
         totalXP: userXpData?.totalXp ?? 0,
         level: userXpData?.level ?? 1,
+        totalSessions,
       },
       words: {
         total: totalWords,
@@ -86,6 +100,7 @@ export async function statsRoutes(app: FastifyInstance) {
         status: statusMap,
         byLevel: levelMap,
       },
+      sessionTypes: sessionTypeMap,
       recentSessions: recentSessions.map(s => ({
         id: s.id,
         type: s.type,

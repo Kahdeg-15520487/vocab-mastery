@@ -212,6 +212,55 @@ const statsXpNeeded = computed(() => {
           </div>
         </div>
       </div>
+
+      <!-- Study Modes -->
+      <div class="card">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Study Modes</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div class="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-700/50">
+            <span class="text-2xl">📚</span>
+            <div>
+              <div class="font-semibold text-slate-900 dark:text-white">{{ stats.sessionTypes?.learn || 0 }}</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">Learn Sessions</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-700/50">
+            <span class="text-2xl">🔄</span>
+            <div>
+              <div class="font-semibold text-slate-900 dark:text-white">{{ stats.sessionTypes?.review || 0 }}</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">Review Sessions</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-700/50">
+            <span class="text-2xl">🧠</span>
+            <div>
+              <div class="font-semibold text-slate-900 dark:text-white">{{ stats.sessionTypes?.quiz || 0 }}</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">Quizzes</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-700/50">
+            <span class="text-2xl">✍️</span>
+            <div>
+              <div class="font-semibold text-slate-900 dark:text-white">{{ stats.sessionTypes?.spelling || 0 }}</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">Spelling</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-700/50">
+            <span class="text-2xl">📝</span>
+            <div>
+              <div class="font-semibold text-slate-900 dark:text-white">{{ stats.sessionTypes?.['fill-blank'] || 0 }}</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">Fill Blanks</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 p-3 rounded-lg bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800">
+            <span class="text-2xl">🎯</span>
+            <div>
+              <div class="font-semibold text-primary-600 dark:text-primary-400">{{ stats.user.totalSessions }}</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">Total Sessions</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

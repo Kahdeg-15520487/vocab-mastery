@@ -67,6 +67,7 @@ export interface UserStats {
   lastActiveDate: string
   totalXP: number
   level: number
+  totalSessions: number
 }
 
 export interface DailyStats {
@@ -85,6 +86,7 @@ export interface StatsResponse {
     status: StatusCounts
     byLevel: Record<string, number>
   }
+  sessionTypes: Record<string, number>
   recentSessions: Array<{
     id: string
     type: string
