@@ -19,9 +19,9 @@ const { speak } = useSpeech()
 const search = ref('')
 const searchInput = ref<HTMLInputElement | null>(null)
 const searchDebounced = ref('')
-const selectedTheme = ref('')
-const selectedLevel = ref('')
-const selectedStatus = ref('')
+const selectedTheme = ref(localStorage.getItem('browse-theme') || '')
+const selectedLevel = ref(localStorage.getItem('browse-level') || '')
+const selectedStatus = ref(localStorage.getItem('browse-status') || '')
 const page = ref(1)
 const limit = 50
 const selectedWord = ref<Word | null>(null)
@@ -34,10 +34,27 @@ const totalPages = computed(() => wordsStore.pagination.totalPages)
 const totalWords = computed(() => wordsStore.pagination.total)
 const currentPage = computed(() => wordsStore.pagination.page)
 
+// Load saved filters from localStorage
 onMounted(async () => {
+  const saved = localStorage.getItem('browse-filters')
+  if (saved) {
+    try {
+      const f = JSON.parse(saved)
+      if (f.theme) selectedTheme.value = f.theme
+      if (f.level) selectedLevel.value = f.level
+      if (f.status) selectedStatus.value = f.status
+    } catch { /* ignore */ }
+  }
+
   await Promise.all([
     wordsStore.fetchThemes(),
-    wordsStore.fetchWords({ page: page.value, limit }),
+    wordsStore.fetchWords({
+      page: page.value,
+      limit,
+      theme: selectedTheme.value || undefined,
+      level: selectedLevel.value || undefined,
+      status: selectedStatus.value || undefined,
+    }),
     listsStore.fetchLists(),
     wordsStore.fetchCounts(),
   ])
@@ -68,9 +85,13 @@ watch(search, (newValue) => {
   }, 300)
 })
 
-// Trigger search when debounced value changes
+// Trigger search when debounced value or filters change
 watch([searchDebounced, selectedTheme, selectedLevel, selectedStatus], () => {
   page.value = 1
+  // Save filter state to localStorage
+  localStorage.setItem('browse-theme', selectedTheme.value)
+  localStorage.setItem('browse-level', selectedLevel.value)
+  localStorage.setItem('browse-status', selectedStatus.value)
   loadWords()
 })
 
