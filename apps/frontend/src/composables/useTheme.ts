@@ -22,6 +22,12 @@ function applyTheme(t: Theme) {
   } else {
     document.documentElement.classList.remove('dark')
   }
+
+  // Update theme-color meta tag for mobile browsers
+  const meta = document.querySelector('meta[name="theme-color"]')
+  if (meta) {
+    meta.setAttribute('content', dark ? '#1e293b' : '#6366f1')
+  }
 }
 
 // Listen for system theme changes
