@@ -2,6 +2,9 @@
 import { ref } from 'vue'
 import { request } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
+import { useTheme } from '@/composables/useTheme'
+
+const { isDark, toggleTheme } = useTheme()
 
 const toast = useToast()
 
@@ -41,7 +44,14 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center px-4">
+  <div class="min-h-screen flex items-center justify-center px-4 relative">
+    <button
+      @click="toggleTheme"
+      class="absolute top-4 right-4 text-2xl p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+      :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+    >
+      {{ isDark ? '☀️' : '🌙' }}
+    </button>
     <div class="w-full max-w-md">
       <div class="text-center mb-8">
         <div class="text-5xl mb-3">📚</div>

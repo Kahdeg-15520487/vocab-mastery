@@ -7,9 +7,9 @@
 - [ ] **#217** Add "Recently Viewed Words" widget on dashboard
 - [ ] **#218** Improve mobile layout - check bottom nav safe areas and card spacing
 - [ ] **#219** **[high]** Add batch select + mark as known in browse view
-- [ ] **#220** Add tab title notification when reviews are due (e.g. "(10) Vocab Master")
 - [ ] **#221** Add weekly study goal progress bar to dashboard
 - [ ] **#222** Add word count badges to level cards in browse filter
+- [ ] **#223** Add browser notification permission request + daily reminder
 
 ## Completed
 
@@ -95,6 +95,7 @@
 - [x] **#214** **[high]** Add "Mark as known" / "Mark as learning" quick actions in browse word modal
 - [x] **#215** **[high]** Add responsive grid to HomeView - mobile dashboard cards look cramped
 - [x] **#216** Add user search/filter to admin UserTable
+- [x] **#220** Add tab title notification when reviews are due (e.g. "(10) Vocab Master")
 
 <!-- Raw Data -->
 ```json
@@ -1177,11 +1178,12 @@
     {
       "id": 220,
       "text": "Add tab title notification when reviews are due (e.g. \"(10) Vocab Master\")",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [],
       "createdAt": 1774777764174,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774777878030
     },
     {
       "id": 221,
@@ -1200,8 +1202,17 @@
       "tags": [],
       "createdAt": 1774777774933,
       "archived": false
+    },
+    {
+      "id": 223,
+      "text": "Add browser notification permission request + daily reminder",
+      "done": false,
+      "priority": "medium",
+      "tags": [],
+      "createdAt": 1774777908292,
+      "archived": false
     }
   ],
-  "nextId": 223
+  "nextId": 224
 }
 ```

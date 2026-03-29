@@ -3,6 +3,9 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { request } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
+import { useTheme } from '@/composables/useTheme'
+
+const { isDark, toggleTheme } = useTheme()
 
 const route = useRoute()
 const toast = useToast()
@@ -60,7 +63,14 @@ async function handleReset() {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center px-4">
+  <div class="min-h-screen flex items-center justify-center px-4 relative">
+    <button
+      @click="toggleTheme"
+      class="absolute top-4 right-4 text-2xl p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+      :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+    >
+      {{ isDark ? '☀️' : '🌙' }}
+    </button>
     <div class="w-full max-w-md">
       <!-- Success State -->
       <div v-if="success" class="card">
