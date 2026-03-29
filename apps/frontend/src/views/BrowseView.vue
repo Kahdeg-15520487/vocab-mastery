@@ -30,6 +30,9 @@ const selectedWord = ref<Word | null>(null)
 const showListPicker = ref(false)
 const addingToList = ref(false)
 const addedToList = ref<string | null>(null)
+const batchMode = ref(false)
+const selectedWordIds = ref<Set<string>>(new Set())
+const batchProcessing = ref(false)
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
 const totalPages = computed(() => wordsStore.pagination.totalPages)
@@ -146,6 +149,51 @@ function closeWordDetail() {
   addedToList.value = null
 }
 
+// Batch selection
+function toggleBatchMode() {
+  batchMode.value = !batchMode.value
+  if (!batchMode.value) {
+    selectedWordIds.value.clear()
+  }
+}
+
+function toggleWordSelection(word: Word) {
+  if (selectedWordIds.value.has(word.id)) {
+    selectedWordIds.value.delete(word.id)
+  } else {
+    selectedWordIds.value.add(word.id)
+  }
+}
+
+function selectAll() {
+  for (const w of wordsStore.words) {
+    selectedWordIds.value.add(w.id)
+  }
+}
+
+function selectNone() {
+  selectedWordIds.value.clear()
+}
+
+async function batchMarkStatus(status: 'mastered' | 'learning' | 'reviewing' | 'new') {
+  if (selectedWordIds.value.size === 0) return
+  batchProcessing.value = true
+  const count = selectedWordIds.value.size
+
+  try {
+    await Promise.all(
+      Array.from(selectedWordIds.value).map(id => progressApi.setStatus(id, status))
+    )
+    toast.success(`Marked ${count} word${count !== 1 ? 's' : ''} as ${status}`)
+    selectedWordIds.value.clear()
+    batchMode.value = false
+  } catch (e: any) {
+    toast.error('Failed to update some words')
+  } finally {
+    batchProcessing.value = false
+  }
+}
+
 // Keyboard navigation in modal
 function handleModalKeydown(e: KeyboardEvent) {
   if (!selectedWord.value) return
@@ -234,7 +282,16 @@ const visiblePages = computed(() => {
 
 <template>
   <div>
-    <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-6">Browse Vocabulary</h1>
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Browse Vocabulary</h1>
+      <button
+        @click="toggleBatchMode"
+        class="text-sm px-3 py-1.5 rounded-lg transition-colors"
+        :class="batchMode ? 'bg-primary-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'"
+      >
+        {{ batchMode ? '✕ Cancel Select' : '☑ Select' }}
+      </button>
+    </div>
 
     <!-- Filters -->
     <div class="card mb-6">
@@ -289,6 +346,30 @@ const visiblePages = computed(() => {
       </div>
     </div>
 
+    <!-- Batch Action Bar -->
+    <div v-if="batchMode" class="card bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 mb-4">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div class="flex items-center gap-3">
+          <span class="text-sm font-medium text-primary-700 dark:text-primary-300">
+            {{ selectedWordIds.size }} selected
+          </span>
+          <button @click="selectAll" class="text-xs text-primary-600 dark:text-primary-400 hover:underline">Select All</button>
+          <button @click="selectNone" class="text-xs text-primary-600 dark:text-primary-400 hover:underline">Deselect</button>
+        </div>
+        <div class="flex items-center gap-2">
+          <button @click="batchMarkStatus('mastered')" :disabled="batchProcessing || selectedWordIds.size === 0" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            ✅ I Know These
+          </button>
+          <button @click="batchMarkStatus('learning')" :disabled="batchProcessing || selectedWordIds.size === 0" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            📖 Learning
+          </button>
+          <button @click="toggleBatchMode" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Error State -->
     <div v-if="wordsStore.error" class="card bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 mb-6">
       <p class="text-red-700 dark:text-red-400">Error loading words: {{ wordsStore.error }}</p>
@@ -299,9 +380,19 @@ const visiblePages = computed(() => {
       <div
         v-for="word in wordsStore.words"
         :key="word.id"
-        class="card hover:shadow-md transition-shadow cursor-pointer"
-        @click="openWordDetail(word)"
+        class="card hover:shadow-md transition-shadow cursor-pointer relative"
+        :class="{ 'ring-2 ring-primary-500 bg-primary-50/50 dark:bg-primary-900/20': batchMode && selectedWordIds.has(word.id) }"
+        @click="batchMode ? toggleWordSelection(word) : openWordDetail(word)"
       >
+        <!-- Batch checkbox -->
+        <div v-if="batchMode" class="absolute top-3 right-3 z-10">
+          <div
+            class="w-5 h-5 rounded border-2 flex items-center justify-center transition-colors"
+            :class="selectedWordIds.has(word.id) ? 'bg-primary-600 border-primary-600' : 'border-slate-300 dark:border-slate-600'"
+          >
+            <span v-if="selectedWordIds.has(word.id)" class="text-white text-xs">✓</span>
+          </div>
+        </div>
         <div class="flex items-start justify-between">
           <div class="flex-1">
             <div class="flex items-center gap-3 mb-1">
