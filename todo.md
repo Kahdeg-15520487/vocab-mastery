@@ -6,7 +6,6 @@
 
 - [ ] **#217** Add "Recently Viewed Words" widget on dashboard
 - [ ] **#218** Improve mobile layout - check bottom nav safe areas and card spacing
-- [ ] **#219** **[high]** Add batch select + mark as known in browse view
 - [ ] **#221** Add weekly study goal progress bar to dashboard
 - [ ] **#223** Add browser notification permission request + daily reminder
 - [ ] **#224** **[low]** SRS interval visualization in word detail (future consideration)
@@ -97,6 +96,7 @@
 - [x] **#214** **[high]** Add "Mark as known" / "Mark as learning" quick actions in browse word modal
 - [x] **#215** **[high]** Add responsive grid to HomeView - mobile dashboard cards look cramped
 - [x] **#216** Add user search/filter to admin UserTable
+- [x] **#219** **[high]** Add batch select + mark as known in browse view
 - [x] **#220** Add tab title notification when reviews are due (e.g. "(10) Vocab Master")
 - [x] **#222** Add word count badges to level cards in browse filter
 - [x] **#227** Add "recently viewed words" tracking via localStorage
@@ -1173,11 +1173,12 @@
     {
       "id": 219,
       "text": "Add batch select + mark as known in browse view",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [],
       "createdAt": 1774777674455,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774779230788
     },
     {
       "id": 220,

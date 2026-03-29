@@ -183,37 +183,43 @@ export async function sessionRoutes(app: FastifyInstance) {
       listId?: string;
       levelRange?: [string, string];
       questionCount?: number;
+      wordIds?: string[];
     };
-    const { themeId, listId, levelRange, questionCount = 10 } = body;
+    const { themeId, listId, levelRange, questionCount = 10, wordIds } = body;
 
     // Build query to get words
     const where: any = {};
 
-    if (themeId) {
-      where.themes = { some: { themeId } };
-    }
-
-    if (listId) {
-      const list = await prisma.studyList.findUnique({ where: { id: listId } });
-      if (!list) {
-        return reply.status(404).send({ error: 'List not found' });
+    // If specific word IDs provided (e.g. for "practice mistakes")
+    if (wordIds && wordIds.length > 0) {
+      where.id = { in: wordIds };
+    } else {
+      if (themeId) {
+        where.themes = { some: { themeId } };
       }
-      if (list.userId !== userId) {
-        const shared = await prisma.studyList.findUnique({
-          where: { id: listId },
-        });
-        if (!shared) {
-          return reply.status(403).send({ error: 'Access denied' });
+
+      if (listId) {
+        const list = await prisma.studyList.findUnique({ where: { id: listId } });
+        if (!list) {
+          return reply.status(404).send({ error: 'List not found' });
         }
+        if (list.userId !== userId) {
+          const shared = await prisma.studyList.findUnique({
+            where: { id: listId },
+          });
+          if (!shared) {
+            return reply.status(403).send({ error: 'Access denied' });
+          }
+        }
+        where.studyListWords = { some: { listId } };
       }
-      where.studyListWords = { some: { listId } };
-    }
 
-    if (levelRange) {
-      const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-      const startIdx = levels.indexOf(levelRange[0]);
-      const endIdx = levels.indexOf(levelRange[1]);
-      where.cefrLevel = { in: levels.slice(startIdx, endIdx + 1) };
+      if (levelRange) {
+        const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+        const startIdx = levels.indexOf(levelRange[0]);
+        const endIdx = levels.indexOf(levelRange[1]);
+        where.cefrLevel = { in: levels.slice(startIdx, endIdx + 1) };
+      }
     }
 
     // Get quiz words (prefer words user has some progress with)

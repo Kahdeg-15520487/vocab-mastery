@@ -132,6 +132,29 @@ async function startQuiz() {
   }
 }
 
+async function practiceMistakes() {
+  if (missedQuestions.value.length === 0) return
+  loading.value = true
+  try {
+    const wordIds = missedQuestions.value.map(m => m.question.id)
+    const data = await request<QuizData>('/sessions/quiz', {
+      method: 'POST',
+      body: JSON.stringify({ wordIds, questionCount: wordIds.length }),
+    })
+    quizData.value = data
+    score.value = 0
+    currentIndex.value = 0
+    quizResult.value = null
+    missedQuestions.value = []
+    startTime.value = Date.now()
+    phase.value = 'playing'
+  } catch (e: any) {
+    toast.error(e.message || 'Failed to start practice')
+  } finally {
+    loading.value = false
+  }
+}
+
 async function selectOption(option: QuizOption) {
   if (answered.value) return
 
@@ -448,7 +471,10 @@ onMounted(() => {
         <span class="text-lg font-bold text-primary-600 dark:text-primary-400">+{{ quizResult.xpEarned }} XP</span>
       </div>
 
-      <div class="flex gap-4 justify-center">
+      <div class="flex gap-4 justify-center flex-wrap">
+        <button v-if="missedQuestions.length > 0" @click="practiceMistakes" class="btn btn-primary">
+          🔁 Practice Mistakes ({{ missedQuestions.length }})
+        </button>
         <button @click="startQuiz" class="btn btn-primary">
           🔄 Try Again
         </button>
