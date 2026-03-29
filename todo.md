@@ -4,7 +4,6 @@
 
 ## Pending
 
-- [ ] **#217** Add "Recently Viewed Words" widget on dashboard
 - [ ] **#221** Add weekly study goal progress bar to dashboard
 - [ ] **#223** Add browser notification permission request + daily reminder
 - [ ] **#224** **[low]** SRS interval visualization in word detail (future consideration)
@@ -94,6 +93,7 @@
 - [x] **#214** **[high]** Add "Mark as known" / "Mark as learning" quick actions in browse word modal
 - [x] **#215** **[high]** Add responsive grid to HomeView - mobile dashboard cards look cramped
 - [x] **#216** Add user search/filter to admin UserTable
+- [x] **#217** Add "Recently Viewed Words" widget on dashboard
 - [x] **#218** Improve mobile layout - check bottom nav safe areas and card spacing
 - [x] **#219** **[high]** Add batch select + mark as known in browse view
 - [x] **#220** Add tab title notification when reviews are due (e.g. "(10) Vocab Master")
@@ -1155,11 +1155,12 @@
     {
       "id": 217,
       "text": "Add \"Recently Viewed Words\" widget on dashboard",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [],
       "createdAt": 1774777126248,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774779530419
     },
     {
       "id": 218,

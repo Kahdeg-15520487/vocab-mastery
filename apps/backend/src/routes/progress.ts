@@ -132,6 +132,18 @@ export async function progressRoutes(app: FastifyInstance) {
       prisma.learningSession.count({ where: { userId, completedAt: { not: null } } }),
     ]);
 
+    // Compute weekly progress (last 7 days)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setUTCDate(sevenDaysAgo.getUTCDate() - 6); // including today = 7 days
+    const weekStart = new Date(Date.UTC(sevenDaysAgo.getUTCFullYear(), sevenDaysAgo.getUTCMonth(), sevenDaysAgo.getUTCDate()));
+    const weeklyGoals = dailyGoals.filter(g => g.date >= weekStart);
+    const weeklyProgress = {
+      wordsLearned: weeklyGoals.reduce((sum, g) => sum + g.wordsLearned, 0),
+      wordsReviewed: weeklyGoals.reduce((sum, g) => sum + g.wordsReviewed, 0),
+      daysActive: weeklyGoals.filter(g => g.wordsLearned > 0 || g.wordsReviewed > 0).length,
+      totalDays: 7,
+    };
+
     return {
       streak: {
         current: streak.currentStreak,
@@ -179,6 +191,7 @@ export async function progressRoutes(app: FastifyInstance) {
         wordsLearned: g.wordsLearned,
         wordsReviewed: g.wordsReviewed,
       })),
+      weeklyProgress,
     };
   });
 

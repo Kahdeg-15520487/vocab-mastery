@@ -281,6 +281,25 @@ function selectTheme(theme: any) {
             :completed="dashboard.dailyGoal.completed"
           />
 
+          <!-- Weekly Progress -->
+          <div v-if="dashboard?.weeklyProgress" class="card">
+            <h3 class="font-semibold text-slate-900 dark:text-white mb-3">📊 This Week</h3>
+            <div class="grid grid-cols-3 gap-3 text-center">
+              <div>
+                <div class="text-xl font-bold text-green-600 dark:text-green-400">{{ dashboard.weeklyProgress.wordsLearned }}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">Learned</div>
+              </div>
+              <div>
+                <div class="text-xl font-bold text-blue-600 dark:text-blue-400">{{ dashboard.weeklyProgress.wordsReviewed }}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">Reviewed</div>
+              </div>
+              <div>
+                <div class="text-xl font-bold text-orange-500">{{ dashboard.weeklyProgress.daysActive }}<span class="text-sm text-slate-400">/7</span></div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">Days Active</div>
+              </div>
+            </div>
+          </div>
+
           <!-- XP & Level -->
           <div v-if="dashboard" class="card">
             <div class="flex items-center justify-between mb-3">

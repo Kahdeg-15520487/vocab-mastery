@@ -69,6 +69,12 @@ export interface DashboardData {
     wordsLearned: number;
     wordsReviewed: number;
   }>;
+  weeklyProgress: {
+    wordsLearned: number;
+    wordsReviewed: number;
+    daysActive: number;
+    totalDays: number;
+  };
 }
 
 export const useProgressStore = defineStore('progress', () => {
