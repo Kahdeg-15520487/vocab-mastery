@@ -9,7 +9,6 @@
 - [ ] **#221** Add weekly study goal progress bar to dashboard
 - [ ] **#223** Add browser notification permission request + daily reminder
 - [ ] **#224** **[low]** SRS interval visualization in word detail (future consideration)
-- [ ] **#225** **[high]** Add "Practice Mistakes" mode — practice words with low accuracy
 - [ ] **#226** **[low]** Add difficulty estimation relative to user's current level (future feature)
 
 ## Completed
@@ -99,6 +98,7 @@
 - [x] **#219** **[high]** Add batch select + mark as known in browse view
 - [x] **#220** Add tab title notification when reviews are due (e.g. "(10) Vocab Master")
 - [x] **#222** Add word count badges to level cards in browse filter
+- [x] **#225** **[high]** Add "Practice Mistakes" mode — practice words with low accuracy
 - [x] **#227** Add "recently viewed words" tracking via localStorage
 
 <!-- Raw Data -->
@@ -1230,11 +1230,12 @@
     {
       "id": 225,
       "text": "Add \"Practice Mistakes\" mode — practice words with low accuracy",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [],
       "createdAt": 1774778275982,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774779369339
     },
     {
       "id": 226,

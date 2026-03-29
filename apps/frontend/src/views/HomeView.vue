@@ -198,44 +198,44 @@ function selectTheme(theme: any) {
       </div>
 
       <!-- Quick Actions -->
-      <div class="grid grid-cols-3 gap-3">
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <router-link to="/learn" class="card hover:shadow-md transition-shadow text-center group">
-          <div class="text-4xl mb-2">📚</div>
-          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Learn</div>
-          <div class="text-sm text-slate-500 dark:text-slate-400">Learn new words</div>
+          <div class="text-3xl sm:text-4xl mb-1 sm:mb-2">📚</div>
+          <div class="font-semibold text-sm sm:text-base text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">Learn</div>
+          <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 hidden sm:block">Learn new words</div>
         </router-link>
         <router-link to="/review" class="card hover:shadow-md transition-shadow text-center group relative">
-          <div class="text-4xl mb-2">🔄</div>
-          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Review</div>
-          <div class="text-sm text-slate-500 dark:text-slate-400">
+          <div class="text-3xl sm:text-4xl mb-1 sm:mb-2">🔄</div>
+          <div class="font-semibold text-sm sm:text-base text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">Review</div>
+          <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 hidden sm:block">
             {{ dashboard && dashboard.stats.wordsDueForReview > 0 ? `${dashboard.stats.wordsDueForReview} due` : 'Review due words' }}
           </div>
           <span
             v-if="dashboard && dashboard.stats.wordsDueForReview > 0"
-            class="absolute top-2 right-2 inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-danger-500 rounded-full"
+            class="absolute top-2 right-2 inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 text-xs font-bold text-white bg-danger-500 rounded-full"
           >
             {{ dashboard.stats.wordsDueForReview > 99 ? '99+' : dashboard.stats.wordsDueForReview }}
           </span>
         </router-link>
         <router-link to="/quiz" class="card hover:shadow-md transition-shadow text-center group">
-          <div class="text-4xl mb-2">🧠</div>
-          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Quiz</div>
-          <div class="text-sm text-slate-500 dark:text-slate-400">Test your knowledge</div>
+          <div class="text-3xl sm:text-4xl mb-1 sm:mb-2">🧠</div>
+          <div class="font-semibold text-sm sm:text-base text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">Quiz</div>
+          <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 hidden sm:block">Test your knowledge</div>
         </router-link>
         <router-link to="/spelling" class="card hover:shadow-md transition-shadow text-center group">
-          <div class="text-4xl mb-2">✍️</div>
-          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Spelling</div>
-          <div class="text-sm text-slate-500 dark:text-slate-400">Type the word</div>
+          <div class="text-3xl sm:text-4xl mb-1 sm:mb-2">✍️</div>
+          <div class="font-semibold text-sm sm:text-base text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">Spelling</div>
+          <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 hidden sm:block">Type the word</div>
         </router-link>
         <router-link to="/fill-blank" class="card hover:shadow-md transition-shadow text-center group">
-          <div class="text-4xl mb-2">📝</div>
-          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Fill Blanks</div>
-          <div class="text-sm text-slate-500 dark:text-slate-400">Context practice</div>
+          <div class="text-3xl sm:text-4xl mb-1 sm:mb-2">📝</div>
+          <div class="font-semibold text-sm sm:text-base text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">Fill Blanks</div>
+          <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 hidden sm:block">Context practice</div>
         </router-link>
         <router-link to="/browse" class="card hover:shadow-md transition-shadow text-center group">
-          <div class="text-4xl mb-2">📖</div>
-          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Browse</div>
-          <div class="text-sm text-slate-500 dark:text-slate-400">Explore all words</div>
+          <div class="text-3xl sm:text-4xl mb-1 sm:mb-2">📖</div>
+          <div class="font-semibold text-sm sm:text-base text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">Browse</div>
+          <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 hidden sm:block">Explore all words</div>
         </router-link>
       </div>
 
