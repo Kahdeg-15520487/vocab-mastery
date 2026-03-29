@@ -178,6 +178,64 @@ function selectTheme(theme: any) {
         </p>
       </div>
 
+      <!-- Today Summary (mobile-compact) -->
+      <div v-if="dashboard" class="grid grid-cols-3 gap-2 text-center">
+        <div class="card py-2 px-1">
+          <div class="text-lg font-bold text-orange-500">{{ dashboard.streak.current }}</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">🔥 Streak</div>
+        </div>
+        <div class="card py-2 px-1">
+          <div class="text-lg font-bold text-primary-600 dark:text-primary-400">{{ dashboard.stats.totalXp }}</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">⭐ XP</div>
+        </div>
+        <div class="card py-2 px-1">
+          <div class="text-lg font-bold text-green-600 dark:text-green-400">{{ dashboard.stats.totalWordsLearned }}</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">📖 Learned</div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="grid grid-cols-3 gap-3">
+        <router-link to="/learn" class="card hover:shadow-md transition-shadow text-center group">
+          <div class="text-4xl mb-2">📚</div>
+          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Learn</div>
+          <div class="text-sm text-slate-500 dark:text-slate-400">Learn new words</div>
+        </router-link>
+        <router-link to="/review" class="card hover:shadow-md transition-shadow text-center group relative">
+          <div class="text-4xl mb-2">🔄</div>
+          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Review</div>
+          <div class="text-sm text-slate-500 dark:text-slate-400">
+            {{ dashboard && dashboard.stats.wordsDueForReview > 0 ? `${dashboard.stats.wordsDueForReview} due` : 'Review due words' }}
+          </div>
+          <span
+            v-if="dashboard && dashboard.stats.wordsDueForReview > 0"
+            class="absolute top-2 right-2 inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-danger-500 rounded-full"
+          >
+            {{ dashboard.stats.wordsDueForReview > 99 ? '99+' : dashboard.stats.wordsDueForReview }}
+          </span>
+        </router-link>
+        <router-link to="/quiz" class="card hover:shadow-md transition-shadow text-center group">
+          <div class="text-4xl mb-2">🧠</div>
+          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Quiz</div>
+          <div class="text-sm text-slate-500 dark:text-slate-400">Test your knowledge</div>
+        </router-link>
+        <router-link to="/spelling" class="card hover:shadow-md transition-shadow text-center group">
+          <div class="text-4xl mb-2">✍️</div>
+          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Spelling</div>
+          <div class="text-sm text-slate-500 dark:text-slate-400">Type the word</div>
+        </router-link>
+        <router-link to="/fill-blank" class="card hover:shadow-md transition-shadow text-center group">
+          <div class="text-4xl mb-2">📝</div>
+          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Fill Blanks</div>
+          <div class="text-sm text-slate-500 dark:text-slate-400">Context practice</div>
+        </router-link>
+        <router-link to="/browse" class="card hover:shadow-md transition-shadow text-center group">
+          <div class="text-4xl mb-2">📖</div>
+          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Browse</div>
+          <div class="text-sm text-slate-500 dark:text-slate-400">Explore all words</div>
+        </router-link>
+      </div>
+
       <!-- Dashboard Grid -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Left Column: Streak & Goals -->
@@ -292,48 +350,6 @@ function selectTheme(theme: any) {
 
       <!-- Word of the Day -->
       <WordOfDay />
-
-      <!-- Quick Actions -->
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <router-link to="/learn" class="card hover:shadow-md transition-shadow text-center group">
-          <div class="text-4xl mb-2">📚</div>
-          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Learn</div>
-          <div class="text-sm text-slate-500 dark:text-slate-400">Learn new words</div>
-        </router-link>
-        <router-link to="/review" class="card hover:shadow-md transition-shadow text-center group relative">
-          <div class="text-4xl mb-2">🔄</div>
-          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Review</div>
-          <div class="text-sm text-slate-500 dark:text-slate-400">
-            {{ dashboard && dashboard.stats.wordsDueForReview > 0 ? `${dashboard.stats.wordsDueForReview} due` : 'Review due words' }}
-          </div>
-          <span
-            v-if="dashboard && dashboard.stats.wordsDueForReview > 0"
-            class="absolute top-2 right-2 inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-danger-500 rounded-full"
-          >
-            {{ dashboard.stats.wordsDueForReview > 99 ? '99+' : dashboard.stats.wordsDueForReview }}
-          </span>
-        </router-link>
-        <router-link to="/quiz" class="card hover:shadow-md transition-shadow text-center group">
-          <div class="text-4xl mb-2">🧠</div>
-          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Quiz</div>
-          <div class="text-sm text-slate-500 dark:text-slate-400">Test your knowledge</div>
-        </router-link>
-        <router-link to="/spelling" class="card hover:shadow-md transition-shadow text-center group">
-          <div class="text-4xl mb-2">✍️</div>
-          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Spelling</div>
-          <div class="text-sm text-slate-500 dark:text-slate-400">Type the word</div>
-        </router-link>
-        <router-link to="/fill-blank" class="card hover:shadow-md transition-shadow text-center group">
-          <div class="text-4xl mb-2">📝</div>
-          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Fill Blanks</div>
-          <div class="text-sm text-slate-500 dark:text-slate-400">Context practice</div>
-        </router-link>
-        <router-link to="/browse" class="card hover:shadow-md transition-shadow text-center group">
-          <div class="text-4xl mb-2">📖</div>
-          <div class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:text-primary-400">Browse</div>
-          <div class="text-sm text-slate-500 dark:text-slate-400">Explore all words</div>
-        </router-link>
-      </div>
 
       <!-- Activity Calendar -->
       <CalendarHeatmap :activities="calendar" />

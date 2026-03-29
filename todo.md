@@ -4,7 +4,6 @@
 
 ## Pending
 
-- [ ] **#214** **[high]** Add "Mark as known" / "Mark as learning" quick actions in browse word modal
 - [ ] **#215** **[high]** Add responsive grid to HomeView - mobile dashboard cards look cramped
 - [ ] **#216** Add user search/filter to admin UserTable
 - [ ] **#217** Add "Recently Viewed Words" widget on dashboard
@@ -91,6 +90,7 @@
 - [x] **#210** **[low]** Add breadcrumb navigation for nested pages (word detail, list view, etc.)
 - [x] **#211** **[high]** Add mobile access to all learning modes — Spelling and Fill Blanks unreachable on mobile
 - [x] **#213** **[high]** Audit app for improvements
+- [x] **#214** **[high]** Add "Mark as known" / "Mark as learning" quick actions in browse word modal
 
 <!-- Raw Data -->
 ```json
@@ -1116,11 +1116,12 @@
     {
       "id": 214,
       "text": "Add \"Mark as known\" / \"Mark as learning\" quick actions in browse word modal",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [],
       "createdAt": 1774777116391,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774777334641
     },
     {
       "id": 215,
