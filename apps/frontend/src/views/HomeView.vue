@@ -11,8 +11,10 @@ import LevelProgress from '@/components/progress/LevelProgress.vue'
 import CalendarHeatmap from '@/components/progress/CalendarHeatmap.vue'
 import ThemeCard from '@/components/learning/ThemeCard.vue'
 import WordOfDay from '@/components/learning/WordOfDay.vue'
+import { useRecentlyViewed } from '@/composables/useRecentlyViewed'
 
 const router = useRouter()
+const { recentlyViewed } = useRecentlyViewed()
 
 const authStore = useAuthStore()
 const progressStore = useProgressStore()
@@ -237,6 +239,27 @@ function selectTheme(theme: any) {
           <div class="font-semibold text-sm sm:text-base text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">Browse</div>
           <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 hidden sm:block">Explore all words</div>
         </router-link>
+      </div>
+
+      <!-- Recently Viewed Words -->
+      <div v-if="recentlyViewed.length > 0" class="mt-2">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white">🕐 Recently Viewed</h2>
+          <router-link to="/browse" class="text-primary-600 dark:text-primary-400 hover:underline text-sm">
+            Browse all →
+          </router-link>
+        </div>
+        <div class="flex gap-2 overflow-x-auto pb-2">
+          <RouterLink
+            v-for="w in recentlyViewed.slice(0, 12)"
+            :key="w.id"
+            :to="`/words/${w.id}`"
+            class="flex-shrink-0 px-3 py-2 rounded-xl text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-700 hover:shadow-sm transition-all"
+          >
+            <span class="font-medium text-slate-900 dark:text-white">{{ w.word }}</span>
+            <span class="ml-1.5 text-xs text-slate-400">{{ w.cefrLevel }}</span>
+          </RouterLink>
+        </div>
       </div>
 
       <!-- Dashboard Grid -->
