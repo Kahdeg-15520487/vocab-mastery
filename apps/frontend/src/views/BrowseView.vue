@@ -6,7 +6,7 @@ import { useListsStore } from '@/stores/lists'
 import { useSpeech } from '@/composables/useSpeech'
 import LevelBadge from '@/components/learning/LevelBadge.vue'
 import type { Word } from '@/types'
-import { wordsApi } from '@/lib/api'
+import { wordsApi, progressApi } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
 
 const route = useRoute()
@@ -181,6 +181,30 @@ async function addWordToList(listId: string) {
     console.error('Failed to add word to list:', e.message)
   } finally {
     addingToList.value = false
+  }
+}
+
+async function markWordStatus(status: 'learning' | 'reviewing' | 'mastered' | 'new') {
+  if (!selectedWord.value) return
+  const word = selectedWord.value
+  const oldProgress = word.progress
+
+  // Optimistic update
+  word.progress = status === 'new' ? null : { ...oldProgress, status } as any
+
+  const labels: Record<string, string> = {
+    mastered: '✅ Marked as known!',
+    learning: '📖 Marked as learning',
+    reviewing: '🔄 Marked as reviewing',
+    new: '🔄 Progress reset',
+  }
+  toast.success(labels[status] || `Status set to ${status}`)
+
+  try {
+    await progressApi.setStatus(word.id, status)
+  } catch (e: any) {
+    word.progress = oldProgress // rollback
+    toast.error('Failed to update status')
   }
 }
 
@@ -554,6 +578,38 @@ const visiblePages = computed(() => {
             <span v-else class="badge badge-primary">
               Oxford 5000
             </span>
+          </div>
+
+          <!-- Quick Status Actions -->
+          <div class="border-t border-slate-200 dark:border-slate-700 pt-4">
+            <h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-2">Quick Mark</h3>
+            <div class="flex gap-2 flex-wrap">
+              <button
+                @click="markWordStatus('mastered')"
+                class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50"
+              >
+                ✅ I Know This
+              </button>
+              <button
+                @click="markWordStatus('learning')"
+                class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50"
+              >
+                📖 Learning
+              </button>
+              <button
+                @click="markWordStatus('reviewing')"
+                class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+              >
+                🔄 Reviewing
+              </button>
+              <button
+                v-if="selectedWord.progress?.status"
+                @click="markWordStatus('new')"
+                class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-400"
+              >
+                🔄 Reset
+              </button>
+            </div>
           </div>
 
           <!-- Add to Study List -->

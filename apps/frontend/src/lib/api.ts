@@ -236,6 +236,12 @@ export const progressApi = {
       body: JSON.stringify({ response, responseTime }),
     }),
 
+  setStatus: (wordId: string, status: 'learning' | 'reviewing' | 'mastered' | 'new') =>
+    request<any>(`/progress/${wordId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    }),
+
   batchUpdate: (updates: Array<{ wordId: string; response: 'easy' | 'medium' | 'hard' | 'forgot' }>) =>
     request<any>('/progress/batch', {
       method: 'POST',

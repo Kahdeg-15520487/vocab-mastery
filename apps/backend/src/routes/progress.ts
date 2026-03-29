@@ -565,6 +565,81 @@ export async function progressRoutes(app: FastifyInstance) {
   });
 
   // ============================================
+  // PUT /api/progress/:wordId/status - Quick status set (browse)
+  // ============================================
+  app.put('/progress/:wordId/status', async (request, reply) => {
+    const userId = request.user!.userId;
+    const { wordId } = request.params as { wordId: string };
+    const { status } = request.body as { status: 'learning' | 'reviewing' | 'mastered' | 'new' };
+
+    if (!['learning', 'reviewing', 'mastered', 'new'].includes(status)) {
+      return reply.status(400).send({ error: 'Invalid status. Must be: learning, reviewing, mastered, or new' });
+    }
+
+    const word = await prisma.word.findUnique({ where: { id: wordId } });
+    if (!word) {
+      return reply.status(404).send({ error: 'Word not found' });
+    }
+
+    const existingProgress = await prisma.wordProgress.findUnique({
+      where: { userId_wordId: { userId, wordId } },
+    });
+
+    const now = new Date();
+
+    if (existingProgress) {
+      // Update existing progress
+      const wasNew = existingProgress.status === 'new';
+      const updated = await prisma.wordProgress.update({
+        where: { id: existingProgress.id },
+        data: {
+          status,
+          lastReview: status !== 'new' ? now : existingProgress.lastReview,
+          nextReview: status === 'mastered'
+            ? new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) // 30 days
+            : status === 'reviewing'
+            ? new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000) // 7 days
+            : status === 'learning'
+            ? new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000) // 1 day
+            : existingProgress.nextReview,
+        },
+      });
+
+      // Track daily goal if transitioning from new
+      if (wasNew && status !== 'new') {
+        await updateDailyProgress(userId, 1, 0);
+      }
+
+      return { success: true, status: updated.status };
+    } else {
+      // Create new progress entry
+      const progress = await prisma.wordProgress.create({
+        data: {
+          userId,
+          wordId,
+          status,
+          lastReview: status !== 'new' ? now : null,
+          nextReview: status === 'mastered'
+            ? new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+            : status === 'reviewing'
+            ? new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+            : status === 'learning'
+            ? new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000)
+            : new Date(now.getTime() + 24 * 60 * 60 * 1000),
+          totalReviews: status !== 'new' ? 1 : 0,
+          correctReviews: status === 'mastered' ? 1 : 0,
+        },
+      });
+
+      if (status !== 'new') {
+        await updateDailyProgress(userId, 1, 0);
+      }
+
+      return { success: true, status: progress.status };
+    }
+  });
+
+  // ============================================
   // POST /api/progress/batch - Batch update
   // ============================================
   app.post('/progress/batch', async (request, _reply) => {
