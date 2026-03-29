@@ -12,7 +12,6 @@
 - [ ] **#224** **[low]** SRS interval visualization in word detail (future consideration)
 - [ ] **#225** **[high]** Add "Practice Mistakes" mode — practice words with low accuracy
 - [ ] **#226** **[low]** Add difficulty estimation relative to user's current level (future feature)
-- [ ] **#227** Add "recently viewed words" tracking via localStorage
 
 ## Completed
 
@@ -100,6 +99,7 @@
 - [x] **#216** Add user search/filter to admin UserTable
 - [x] **#220** Add tab title notification when reviews are due (e.g. "(10) Vocab Master")
 - [x] **#222** Add word count badges to level cards in browse filter
+- [x] **#227** Add "recently viewed words" tracking via localStorage
 
 <!-- Raw Data -->
 ```json
@@ -1247,11 +1247,12 @@
     {
       "id": 227,
       "text": "Add \"recently viewed words\" tracking via localStorage",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [],
       "createdAt": 1774778474977,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774778651981
     }
   ],
   "nextId": 228

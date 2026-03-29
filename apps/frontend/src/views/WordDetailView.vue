@@ -4,12 +4,14 @@ import { useRoute, useRouter } from 'vue-router'
 import { request, wordsApi, progressApi } from '@/lib/api'
 import { useSpeech } from '@/composables/useSpeech'
 import { useToast } from '@/composables/useToast'
+import { useRecentlyViewed } from '@/composables/useRecentlyViewed'
 import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
 
 const route = useRoute()
 const router = useRouter()
 const { speak } = useSpeech()
 const toast = useToast()
+const { addViewedWord } = useRecentlyViewed()
 
 interface WordDetail {
   id: string
@@ -60,6 +62,7 @@ onMounted(async () => {
   try {
     const data = await request<WordDetail>(`/words/${route.params.id}`)
     word.value = data
+    addViewedWord(data.id, data.word, data.cefrLevel)
     document.title = `${data.word} · Vocab Master`
   } catch (e: any) {
     error.value = e.message || 'Word not found'
