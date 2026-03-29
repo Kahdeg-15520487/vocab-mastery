@@ -12,9 +12,11 @@ import CalendarHeatmap from '@/components/progress/CalendarHeatmap.vue'
 import ThemeCard from '@/components/learning/ThemeCard.vue'
 import WordOfDay from '@/components/learning/WordOfDay.vue'
 import { useRecentlyViewed } from '@/composables/useRecentlyViewed'
+import { useNotifications } from '@/composables/useNotifications'
 
 const router = useRouter()
 const { recentlyViewed } = useRecentlyViewed()
+const notifications = useNotifications()
 
 const authStore = useAuthStore()
 const progressStore = useProgressStore()
@@ -38,6 +40,11 @@ onMounted(async () => {
     wordsStore.fetchThemes(),
     loadReviewSchedule(),
   ])
+
+  // Start notification reminder check
+  if (notifications.supported && notifications.permission.value === 'granted') {
+    notifications.startReminderCheck(() => progressStore.dashboard?.stats.wordsDueForReview ?? 0)
+  }
 })
 
 const themes = computed(() => wordsStore.themes)

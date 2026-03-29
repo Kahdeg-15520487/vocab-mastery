@@ -3,10 +3,12 @@ import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { request } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
+import { useNotifications } from '@/composables/useNotifications'
 import UserAvatar from '@/components/ui/UserAvatar.vue'
 
 const authStore = useAuthStore()
 const toast = useToast()
+const notifications = useNotifications()
 
 // Password change
 const currentPassword = ref('')
@@ -264,6 +266,40 @@ async function handleImport(event: Event) {
           <span v-else>Save Goals</span>
         </button>
       </form>
+    </div>
+
+    <!-- Notification Settings -->
+    <div v-if="notifications.supported" class="card">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">🔔 Notifications</h2>
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-slate-900 dark:text-white">Daily Reminder</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Get reminded to practice every day</p>
+          </div>
+          <button
+            @click="notifications.permission.value === 'granted' ? notifications.permission = { value: 'denied' } as any : notifications.requestPermission()"
+            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            :class="notifications.permission.value === 'granted'
+              ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+              : notifications.permission.value === 'denied'
+                ? 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
+                : 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300 hover:bg-primary-200'"
+            :disabled="notifications.permission.value === 'denied'"
+          >
+            {{ notifications.permission.value === 'granted' ? '✅ Enabled' : notifications.permission.value === 'denied' ? '🚫 Blocked' : 'Enable' }}
+          </button>
+        </div>
+        <div v-if="notifications.permission.value === 'granted'" class="flex items-center justify-between">
+          <label class="text-sm font-medium text-slate-900 dark:text-white">Reminder Time</label>
+          <input
+            type="time"
+            :value="notifications.reminderTime.value"
+            @change="notifications.setReminderTime(($event.target as HTMLInputElement).value)"
+            class="input w-auto"
+          />
+        </div>
+      </div>
     </div>
 
     <!-- Change Password -->

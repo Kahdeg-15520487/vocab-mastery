@@ -4,7 +4,6 @@
 
 ## Pending
 
-- [ ] **#221** Add weekly study goal progress bar to dashboard
 - [ ] **#223** Add browser notification permission request + daily reminder
 - [ ] **#224** **[low]** SRS interval visualization in word detail (future consideration)
 - [ ] **#226** **[low]** Add difficulty estimation relative to user's current level (future feature)
@@ -97,6 +96,7 @@
 - [x] **#218** Improve mobile layout - check bottom nav safe areas and card spacing
 - [x] **#219** **[high]** Add batch select + mark as known in browse view
 - [x] **#220** Add tab title notification when reviews are due (e.g. "(10) Vocab Master")
+- [x] **#221** Add weekly study goal progress bar to dashboard
 - [x] **#222** Add word count badges to level cards in browse filter
 - [x] **#225** **[high]** Add "Practice Mistakes" mode — practice words with low accuracy
 - [x] **#227** Add "recently viewed words" tracking via localStorage
@@ -1195,11 +1195,12 @@
     {
       "id": 221,
       "text": "Add weekly study goal progress bar to dashboard",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [],
       "createdAt": 1774777770642,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774779661480
     },
     {
       "id": 222,
