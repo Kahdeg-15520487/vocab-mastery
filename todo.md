@@ -7,6 +7,9 @@
 - [ ] **#217** Add "Recently Viewed Words" widget on dashboard
 - [ ] **#218** Improve mobile layout - check bottom nav safe areas and card spacing
 - [ ] **#219** **[high]** Add batch select + mark as known in browse view
+- [ ] **#220** Add tab title notification when reviews are due (e.g. "(10) Vocab Master")
+- [ ] **#221** Add weekly study goal progress bar to dashboard
+- [ ] **#222** Add word count badges to level cards in browse filter
 
 ## Completed
 
@@ -1170,8 +1173,35 @@
       "tags": [],
       "createdAt": 1774777674455,
       "archived": false
+    },
+    {
+      "id": 220,
+      "text": "Add tab title notification when reviews are due (e.g. \"(10) Vocab Master\")",
+      "done": false,
+      "priority": "medium",
+      "tags": [],
+      "createdAt": 1774777764174,
+      "archived": false
+    },
+    {
+      "id": 221,
+      "text": "Add weekly study goal progress bar to dashboard",
+      "done": false,
+      "priority": "medium",
+      "tags": [],
+      "createdAt": 1774777770642,
+      "archived": false
+    },
+    {
+      "id": 222,
+      "text": "Add word count badges to level cards in browse filter",
+      "done": false,
+      "priority": "medium",
+      "tags": [],
+      "createdAt": 1774777774933,
+      "archived": false
     }
   ],
-  "nextId": 220
+  "nextId": 223
 }
 ```

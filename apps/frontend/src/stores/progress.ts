@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { request } from '@/lib/api';
+import { setReviewDueCount } from '@/composables/usePageTitle';
 
 export interface StreakInfo {
   current: number;
@@ -94,6 +95,8 @@ export const useProgressStore = defineStore('progress', () => {
 
     try {
       dashboard.value = await request<DashboardData>('/progress/dashboard');
+      // Update tab title with review due count
+      setReviewDueCount(dashboard.value?.stats?.wordsDueForReview ?? 0);
     } catch (e: any) {
       error.value = e.message;
     } finally {
