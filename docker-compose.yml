@@ -19,7 +19,7 @@ services:
     ports:
       - "7101:7101"
     environment:
-      - DATABASE_URL=postgresql://vocab_user:vocab_pass@postgres:5432/vocab_master
+      - DATABASE_URL=postgresql://vocab_user:vocab_pass@postgres:5432/vocab_master?connection_limit=20&pool_timeout=10
       - NODE_ENV=production
       - PORT=7101
       - JWT_SECRET=change-this-to-a-secure-random-string-in-production
