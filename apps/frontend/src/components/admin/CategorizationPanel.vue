@@ -190,6 +190,31 @@ function formatDate(date: string | null): string {
   return new Date(date).toLocaleString()
 }
 
+function formatDuration(startedAt: string | null, completedAt: string | null): string {
+  if (!startedAt || !completedAt) return ''
+  const ms = new Date(completedAt).getTime() - new Date(startedAt).getTime()
+  if (ms < 1000) return `${ms}ms`
+  const seconds = Math.floor(ms / 1000)
+  if (seconds < 60) return `${seconds}s`
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
+  if (minutes < 60) return `${minutes}m ${remainingSeconds}s`
+  const hours = Math.floor(minutes / 60)
+  const remainingMinutes = minutes % 60
+  return `${hours}h ${remainingMinutes}m`
+}
+
+function getRunningDuration(startedAt: string | null): string {
+  if (!startedAt) return ''
+  const ms = Date.now() - new Date(startedAt).getTime()
+  if (ms < 1000) return `${ms}ms`
+  const seconds = Math.floor(ms / 1000)
+  if (seconds < 60) return `${seconds}s`
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
+  return `${minutes}m ${remainingSeconds}s`
+}
+
 function getThemeIcon(slug: string): string {
   const icons: Record<string, string> = {
     technology: '💻',
@@ -396,6 +421,9 @@ function getThemeIcon(slug: string): string {
             </div>
             <div class="flex items-center gap-2">
               <span class="text-xs text-slate-500 dark:text-slate-400">{{ formatDate(job.createdAt) }}</span>
+              <span v-if="job.status === 'COMPLETED' || job.status === 'FAILED' || job.status === 'CANCELLED'" class="text-xs text-slate-400 dark:text-slate-500">
+                · ⏱ {{ formatDuration(job.startedAt, job.completedAt) }}
+              </span>
               <button 
                 v-if="job.status !== 'RUNNING' && job.status !== 'PENDING'"
                 @click="deleteJob(job.id)"
@@ -408,6 +436,12 @@ function getThemeIcon(slug: string): string {
           
           <div class="text-sm text-slate-600 dark:text-slate-400">
             {{ job.processedItems }} / {{ job.totalItems }} words ({{ job.progress }}%)
+            <span v-if="job.status === 'COMPLETED' || job.status === 'FAILED' || job.status === 'CANCELLED'" class="text-slate-400 dark:text-slate-500 ml-1">
+              · {{ formatDuration(job.startedAt, job.completedAt) }}
+            </span>
+            <span v-else-if="job.status === 'RUNNING'" class="text-blue-500 ml-1">
+              · {{ getRunningDuration(job.startedAt) }} elapsed
+            </span>
           </div>
           
           <div v-if="job.status === 'COMPLETED' && job.result" class="mt-2 text-sm">
