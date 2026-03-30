@@ -255,13 +255,22 @@ export async function wordRoutes(app: FastifyInstance) {
     // Add status counts for authenticated users
     let statusCounts: Record<string, number> | undefined;
     if (userId) {
-      const [newCount, learningCount, reviewingCount, masteredCount] = await Promise.all([
-        prisma.word.count({ where: { progress: { none: { userId } } } }),
-        prisma.word.count({ where: { progress: { some: { userId, status: 'learning' } } } }),
-        prisma.word.count({ where: { progress: { some: { userId, status: 'reviewing' } } } }),
-        prisma.word.count({ where: { progress: { some: { userId, status: 'mastered' } } } }),
-      ]);
-      statusCounts = { new: newCount, learning: learningCount, reviewing: reviewingCount, mastered: masteredCount };
+      const progressByStatus = await prisma.wordProgress.groupBy({
+        by: ['status'],
+        where: { userId },
+        _count: { status: true },
+      });
+      const statusMap: Record<string, number> = {};
+      for (const row of progressByStatus) {
+        statusMap[row.status] = row._count.status;
+      }
+      const learned = (statusMap['learning'] || 0) + (statusMap['reviewing'] || 0) + (statusMap['mastered'] || 0);
+      statusCounts = {
+        new: total - learned,
+        learning: statusMap['learning'] || 0,
+        reviewing: statusMap['reviewing'] || 0,
+        mastered: statusMap['mastered'] || 0,
+      };
     }
 
     return { total, levels, themes, statusCounts };

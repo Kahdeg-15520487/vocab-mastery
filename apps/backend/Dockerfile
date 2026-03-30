@@ -24,8 +24,8 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Install PostgreSQL client for entrypoint health check
-RUN apk add --no-cache postgresql-client
+# Install PostgreSQL client for entrypoint health check + OpenSSL for Prisma
+RUN apk add --no-cache postgresql-client openssl
 
 # Copy package files for production install
 COPY package*.json ./
