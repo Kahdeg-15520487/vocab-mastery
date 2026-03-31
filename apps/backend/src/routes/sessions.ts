@@ -269,10 +269,11 @@ export async function sessionRoutes(app: FastifyInstance) {
     const body = request.body as {
       themeId?: string;
       listId?: string;
+      sprintId?: string;
       levelRange?: [string, string];
       questionCount?: number;
     };
-    const { themeId, listId, levelRange, questionCount = 10 } = body;
+    const { themeId, listId, sprintId, levelRange, questionCount = 10 } = body;
 
     // Build query to get words
     const where: any = {};
@@ -295,6 +296,14 @@ export async function sessionRoutes(app: FastifyInstance) {
         }
       }
       where.studyListWords = { some: { listId } };
+    }
+
+    if (sprintId) {
+      const sprintWords = await prisma.sprintWord.findMany({
+        where: { sprintId },
+        select: { wordId: true },
+      });
+      where.id = { in: sprintWords.map(sw => sw.wordId) };
     }
 
     if (levelRange) {
@@ -516,10 +525,11 @@ export async function sessionRoutes(app: FastifyInstance) {
     const body = request.body as {
       themeId?: string;
       listId?: string;
+      sprintId?: string;
       levelRange?: [string, string];
       wordCount?: number;
     };
-    const { themeId, listId, levelRange, wordCount = 15 } = body;
+    const { themeId, listId, sprintId, levelRange, wordCount = 15 } = body;
 
     const where: any = {};
 
@@ -537,6 +547,14 @@ export async function sessionRoutes(app: FastifyInstance) {
         if (!shared) return reply.status(403).send({ error: 'Access denied' });
       }
       where.studyListWords = { some: { listId } };
+    }
+
+    if (sprintId) {
+      const sprintWords = await prisma.sprintWord.findMany({
+        where: { sprintId },
+        select: { wordId: true },
+      });
+      where.id = { in: sprintWords.map(sw => sw.wordId) };
     }
 
     if (levelRange) {
@@ -694,10 +712,11 @@ export async function sessionRoutes(app: FastifyInstance) {
     const body = request.body as {
       themeId?: string;
       listId?: string;
+      sprintId?: string;
       levelRange?: [string, string];
       wordCount?: number;
     };
-    const { themeId, listId, levelRange, wordCount = 15 } = body;
+    const { themeId, listId, sprintId, levelRange, wordCount = 15 } = body;
 
     const where: any = {};
     if (themeId) where.themes = { some: { themeId } };
@@ -711,6 +730,13 @@ export async function sessionRoutes(app: FastifyInstance) {
         if (!shared) return reply.status(403).send({ error: 'Access denied' });
       }
       where.studyListWords = { some: { listId } };
+    }
+    if (sprintId) {
+      const sprintWords = await prisma.sprintWord.findMany({
+        where: { sprintId },
+        select: { wordId: true },
+      });
+      where.id = { in: sprintWords.map(sw => sw.wordId) };
     }
     if (levelRange) {
       const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
