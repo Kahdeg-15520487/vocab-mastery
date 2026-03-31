@@ -159,7 +159,10 @@ async function callLLM(
       };
       
       const apiKey = config.apiKey || process.env.OPENAI_API_KEY;
+      console.log(`[LLM] Known provider: ${config.provider}, model: ${config.model}`);
       const response = await completeSimple(model, context, { apiKey });
+      
+      console.log(`[LLM] Response stopReason: ${response.stopReason}, content types: [${response.content.map(c => c.type).join(', ')}]`);
       
       return response.content
         .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
@@ -208,14 +211,19 @@ async function callLLM(
   const apiKey = config.apiKey || process.env.OPENAI_API_KEY;
   
   try {
+    console.log(`[LLM] Calling provider: ${config.provider}, model: ${config.model}, baseUrl: ${config.baseUrl || 'default'}`);
+    
     const response = await completeSimple(customModel as any, context, {
       apiKey,
       reasoning: 'medium',
     });
     
+    console.log(`[LLM] Response stopReason: ${response.stopReason}, errorMessage: ${response.errorMessage}`);
+    console.log(`[LLM] Response content types: [${response.content.map(c => c.type).join(', ')}]`);
+    
     if (response.stopReason === 'error') {
-      console.error('LLM error:', response.errorMessage);
-      console.error('Content:', JSON.stringify(response.content).slice(0, 500));
+      console.error('[LLM] Error response:', response.errorMessage);
+      console.error('[LLM] Content:', JSON.stringify(response.content).slice(0, 500));
     }
     
     const textContent = response.content
@@ -225,9 +233,23 @@ async function callLLM(
       .trim();
     
     if (!textContent) {
-      const contentTypes = response.content.map(c => c.type).join(', ');
-      console.error(`LLM returned empty text. Content types: [${contentTypes}]`);
-      console.error(`Stop reason: ${response.stopReason}`);
+      // Log full content for debugging
+      console.error(`[LLM] Empty text response. Full content:`, JSON.stringify(response.content).slice(0, 1000));
+      console.error(`[LLM] Stop reason: ${response.stopReason}`);
+      
+      // Fallback: try to extract text from thinking blocks (reasoning models may only produce thinking)
+      const thinkingContent = response.content
+        .filter((c): c is { type: 'thinking'; thinking: string } => c.type === 'thinking')
+        .map(c => c.thinking)
+        .join('\n')
+        .trim();
+      
+      if (thinkingContent) {
+        console.log(`[LLM] Found thinking content (${thinkingContent.length} chars), using as fallback`);
+        return thinkingContent;
+      }
+    } else {
+      console.log(`[LLM] Got text response (${textContent.length} chars): ${textContent.slice(0, 200)}`);
     }
     
     return textContent;
@@ -246,6 +268,7 @@ export async function categorizeWord(
   partOfSpeech?: string[]
 ): Promise<string> {
   try {
+    console.log(`[categorizeWord] Categorizing: "${word}"`);
     const config = await getLLMConfig();
     
     let prompt = `Categorize this English word:\n\nWord: "${word}"`;
