@@ -10,7 +10,7 @@ import { sessionRoutes } from './routes/sessions.js';
 import { statsRoutes } from './routes/stats.js';
 import { dataRoutes } from './routes/data.js';
 import { authRoutes } from './routes/auth.js';
-import { adminRoutes } from './routes/admin.js';
+import { adminRoutes, jobReportRoutes } from './routes/admin.js';
 import { oauthRoutes } from './routes/oauth.js';
 import { listsRoutes } from './routes/lists.js';
 import { sprintRoutes } from './routes/sprints.js';
@@ -138,6 +138,7 @@ async function start() {
     
     // Admin routes (requires admin role)
     instance.register(adminRoutes);
+    instance.register(jobReportRoutes);
     
     // Other routes (will add auth middleware later)
     instance.register(wordRoutes);

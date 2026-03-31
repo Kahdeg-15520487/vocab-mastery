@@ -849,8 +849,10 @@ export async function adminRoutes(app: FastifyInstance) {
     stopJobRunner();
     return { message: 'Job runner stopped' };
   });
+}
 
-  // GET /api/admin/jobs/:id/report - HTML report page
+// Public report endpoint — no auth required (read-only HTML page)
+export async function jobReportRoutes(app: FastifyInstance) {
   app.get('/admin/jobs/:id/report', async (request, reply) => {
     const params = request.params as { id: string };
     const job = await getJob(params.id);
