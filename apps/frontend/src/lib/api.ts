@@ -301,6 +301,17 @@ export const writingApi = {
     request<{ writings: any[] }>(`/writing/${sprintId}/writings`),
 }
 
+export const readingApi = {
+  analyze: (text: string, sprintId?: string) =>
+    request<any>('/reading/analyze', {
+      method: 'POST',
+      body: JSON.stringify({ text, sprintId }),
+    }),
+
+  suggestions: () =>
+    request<any>('/reading/suggestions'),
+}
+
 // Stats API
 export const statsApi = {
   get: () => request<any>('/stats'),
