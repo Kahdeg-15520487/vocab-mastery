@@ -252,6 +252,11 @@ function selectTheme(theme: any) {
           <div class="font-semibold text-sm sm:text-base text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">Browse</div>
           <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 hidden sm:block">Explore all words</div>
         </router-link>
+        <router-link to="/sprints" class="card hover:shadow-md transition-shadow text-center group">
+          <div class="text-3xl sm:text-4xl mb-1 sm:mb-2">🏃</div>
+          <div class="font-semibold text-sm sm:text-base text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">Sprints</div>
+          <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 hidden sm:block">Focused learning</div>
+        </router-link>
       </div>
 
       <!-- Recently Viewed Words -->
