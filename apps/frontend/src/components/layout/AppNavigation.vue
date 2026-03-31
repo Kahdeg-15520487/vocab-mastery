@@ -33,6 +33,8 @@ const collectionItems = [
   { path: '/favorites', label: 'Favorites', icon: '❤️' },
   { path: '/lists', label: 'Lists', icon: '📋' },
   { path: '/sprints', label: 'Sprints', icon: '🏃' },
+  { path: '/writing', label: 'Writing', icon: '✍️' },
+  { path: '/reading', label: 'Reading', icon: '📚' },
 ]
 
 const showPracticeMenu = ref(false)
