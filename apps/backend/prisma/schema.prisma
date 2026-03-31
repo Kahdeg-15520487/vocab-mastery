@@ -34,6 +34,7 @@ enum SprintStatus {
   PLANNED
   ACTIVE
   COMPLETED
+  ABANDONED
 }
 
 enum SprintPhase {

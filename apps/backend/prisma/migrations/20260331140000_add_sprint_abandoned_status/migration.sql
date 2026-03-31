@@ -1,0 +1,1 @@
+ALTER TYPE "SprintStatus" ADD VALUE 'ABANDONED';
