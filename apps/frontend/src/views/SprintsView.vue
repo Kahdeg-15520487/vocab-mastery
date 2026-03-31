@@ -88,6 +88,13 @@
         <!-- Actions -->
         <div class="mt-4 flex gap-3">
           <button
+            v-if="currentSprint?.status === 'ACTIVE'"
+            @click="$router.push(`/learn?sprintId=${currentSprint.id}`)"
+            class="px-4 py-2 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100"
+          >
+            📖 Study Sprint Words
+          </button>
+          <button
             v-if="currentSprint.status === 'PLANNED'"
             @click="handleStart"
             class="px-4 py-2 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100"

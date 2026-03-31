@@ -22,6 +22,7 @@ const toast = useToast()
 
 const theme = computed(() => route.params.theme as string | undefined)
 const listId = computed(() => (route.query.list as string) || undefined)
+const sprintId = computed(() => (route.query.sprintId as string) || undefined)
 const sessionComplete = ref(false)
 const sessionResult = ref<any>(null)
 
@@ -64,8 +65,8 @@ onMounted(async () => {
     // Ignore — proceed to setup
   }
 
-  // Auto-start if coming from a list query param
-  if (route.query.auto === 'true' || route.query.list) {
+  // Auto-start if coming from a list or sprint query param
+  if (route.query.auto === 'true' || route.query.list || route.query.sprintId) {
     await startNewSession()
   }
   // Otherwise show setup screen (phase is already 'setup')
@@ -150,6 +151,7 @@ function startNewSession() {
     type: 'learn',
     themeId,
     listId: listId.value,
+    sprintId: sprintId.value,
     wordCount: wordCount.value,
     levelRange,
   })

@@ -39,6 +39,7 @@ export const useSessionStore = defineStore('session', () => {
     type: 'learn' | 'review' | 'quiz'
     themeId?: string
     listId?: string
+    sprintId?: string
     levelRange?: [string, string]
     wordCount?: number
   }) {

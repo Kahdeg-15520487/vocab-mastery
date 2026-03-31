@@ -85,10 +85,11 @@ export async function sessionRoutes(app: FastifyInstance) {
       type: 'learn' | 'review' | 'quiz';
       themeId?: string;
       listId?: string;
+      sprintId?: string;
       levelRange?: [string, string];
       wordCount?: number;
     };
-    const { type, themeId, listId, levelRange, wordCount = 20 } = body;
+    const { type, themeId, listId, sprintId, levelRange, wordCount = 20 } = body;
 
     // Build query to get words for session
     const where: any = {};
@@ -115,6 +116,19 @@ export async function sessionRoutes(app: FastifyInstance) {
         }
       }
       where.studyListWords = { some: { listId } };
+    }
+
+    if (sprintId) {
+      // Get word IDs from sprint
+      const sprintWords = await prisma.sprintWord.findMany({
+        where: { sprintId },
+        select: { wordId: true },
+      });
+      const sprintWordIds = sprintWords.map(sw => sw.wordId);
+      if (sprintWordIds.length === 0) {
+        return reply.status(400).send({ error: 'Sprint has no words' });
+      }
+      where.id = { in: sprintWordIds };
     }
 
     if (levelRange) {
@@ -231,7 +245,8 @@ export async function sessionRoutes(app: FastifyInstance) {
         word: sw.word.word,
         phoneticUs: sw.word.phoneticUs,
         phoneticUk: sw.word.phoneticUk,
-        audioUs: sw.word.audioUs,        audioUk: sw.word.audioUk,
+        audioUs: sw.word.audioUs,
+        audioUk: sw.word.audioUk,
         partOfSpeech: sw.word.partOfSpeech as string[],
         definition: sw.word.definition,
         examples: sw.word.examples as string[],
@@ -408,7 +423,9 @@ export async function sessionRoutes(app: FastifyInstance) {
         id: word.id,
         word: word.word,
         phoneticUs: word.phoneticUs,
-        phoneticUk: word.phoneticUk,        audioUs: word.audioUs,        audioUk: word.audioUk,
+        phoneticUk: word.phoneticUk,
+        audioUs: word.audioUs,
+        audioUk: word.audioUk,
         partOfSpeech: word.partOfSpeech as string[],
         definition: safeDefinition,
         examples: safeExamples,
@@ -576,7 +593,9 @@ export async function sessionRoutes(app: FastifyInstance) {
       // DO NOT send word text — that's what the user needs to type
       definition: word.definition,
       phoneticUs: word.phoneticUs,
-      phoneticUk: word.phoneticUk,      audioUs: word.audioUs,      audioUk: word.audioUk,
+      phoneticUk: word.phoneticUk,
+      audioUs: word.audioUs,
+      audioUk: word.audioUk,
       partOfSpeech: word.partOfSpeech as string[],
       examples: (word.examples as string[] || []).map(ex => {
         // Mask the word in examples
@@ -921,7 +940,9 @@ export async function sessionRoutes(app: FastifyInstance) {
           id: word.id,
           word: word.word,
           phoneticUs: word.phoneticUs,
-          phoneticUk: word.phoneticUk,          audioUs: word.audioUs,          audioUk: word.audioUk,
+          phoneticUk: word.phoneticUk,
+          audioUs: word.audioUs,
+          audioUk: word.audioUk,
           partOfSpeech: word.partOfSpeech as string[],
           definition: safeDefinition,
           examples: safeExamples,
@@ -948,7 +969,8 @@ export async function sessionRoutes(app: FastifyInstance) {
           index,
           id: word.id,
           word: word.word,
-          audioUs: word.audioUs,          audioUk: word.audioUk,
+          audioUs: word.audioUs,
+          audioUk: word.audioUk,
           phoneticUs: word.phoneticUs,
           phoneticUk: word.phoneticUk,
           partOfSpeech: word.partOfSpeech as string[],
