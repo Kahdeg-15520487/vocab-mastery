@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Session, SessionWord } from '@/types'
-import { sessionsApi, progressApi } from '@/lib/api'
+import { sessionsApi } from '@/lib/api'
 
 export const useSessionStore = defineStore('session', () => {
   const session = ref<Session | null>(null)
@@ -70,11 +70,8 @@ export const useSessionStore = defineStore('session', () => {
     responses.value.set(wordId, { response, responseTime })
 
     try {
-      // Send to API
+      // Single API call: records session answer + updates SM-2 progress + achievements
       await sessionsApi.respond(session.value.sessionId, wordId, response, responseTime)
-      
-      // Update progress on backend
-      await progressApi.update(wordId, response, responseTime)
     } catch (e: any) {
       error.value = e.message
     }

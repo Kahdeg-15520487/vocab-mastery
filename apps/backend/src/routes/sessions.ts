@@ -2,9 +2,60 @@ import { FastifyInstance } from 'fastify';
 import { Prisma } from '@prisma/client';
 import prisma from '../lib/prisma.js';
 import { authenticate } from '../middleware/auth.js';
-import { calculateNextReview, responseToQuality } from '../lib/spaced-repetition.js';
+import { calculateNextReview, responseToQuality, createInitialProgress } from '../lib/spaced-repetition.js';
 import type { WordStatus } from '../lib/spaced-repetition.js';
 import { checkAchievements } from '../lib/achievements.js';
+
+// Import daily progress helper from progress routes (shared logic)
+async function updateDailyProgress(userId: string, wordsLearned: number, wordsReviewed: number) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const dailyGoal = await prisma.dailyGoal.upsert({
+    where: { userId_date: { userId, date: today } },
+    create: {
+      userId,
+      date: today,
+      wordsLearned,
+      wordsReviewed,
+      wordsToLearn: 10,
+      wordsToReview: 20,
+    },
+    update: {
+      wordsLearned: { increment: wordsLearned },
+      wordsReviewed: { increment: wordsReviewed },
+    },
+  });
+
+  // Update streak
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  let streak = await prisma.userStreak.findUnique({ where: { userId } });
+  if (!streak) {
+    streak = await prisma.userStreak.create({
+      data: { userId, currentStreak: 0, longestStreak: 0, lastActivityDate: today },
+    });
+  }
+
+  const lastActive = streak.lastActivityDate ? new Date(streak.lastActivityDate) : null;
+  if (lastActive) lastActive.setHours(0, 0, 0, 0);
+  const todayStr = today.toISOString().slice(0, 10);
+  const lastStr = lastActive ? lastActive.toISOString().slice(0, 10) : '';
+
+  if (lastStr !== todayStr) {
+    const yesterdayStr = yesterday.toISOString().slice(0, 10);
+    const newStreak = lastStr === yesterdayStr ? streak.currentStreak + 1 : 1;
+    await prisma.userStreak.update({
+      where: { userId },
+      data: {
+        currentStreak: newStreak,
+        longestStreak: Math.max(newStreak, streak.longestStreak),
+        lastActivityDate: today,
+      },
+    });
+  }
+}
 
 export async function sessionRoutes(app: FastifyInstance) {
   // All session routes require authentication
@@ -867,7 +918,10 @@ export async function sessionRoutes(app: FastifyInstance) {
       },
     });
 
-    return { success: true };
+    // Update SM-2 spaced repetition progress (combined with session respond)
+    const progressResult = await updateWordProgressFull(userId, wordId, response);
+
+    return { success: true, ...progressResult };
   });
 
   // Complete a session (only own sessions)
@@ -1009,6 +1063,120 @@ async function updateWordProgress(userId: string, wordId: string, isCorrect: boo
       },
     });
   }
+}
+
+// Full SM-2 progress update with daily goals and achievements
+// Used by Learn tab respond endpoint (combines session respond + progress into 1 call)
+async function updateWordProgressFull(
+  userId: string,
+  wordId: string,
+  response: 'easy' | 'medium' | 'hard' | 'forgot',
+): Promise<{ progress?: any; achievementsUnlocked?: string[] }> {
+  const quality = responseToQuality(response);
+  const isCorrect = response !== 'forgot';
+
+  // Get or create progress
+  let existingProgress = await prisma.wordProgress.findUnique({
+    where: { userId_wordId: { userId, wordId } },
+  });
+
+  if (!existingProgress) {
+    const initial = createInitialProgress(wordId);
+    existingProgress = await prisma.wordProgress.create({
+      data: {
+        userId,
+        wordId,
+        status: initial.status,
+        interval: initial.interval,
+        easeFactor: initial.easeFactor,
+        repetitions: initial.repetitions,
+        nextReview: initial.nextReview,
+        lastReview: initial.lastReview,
+        totalReviews: initial.totalReviews,
+        correctReviews: initial.correctReviews,
+      },
+    });
+  }
+
+  const wasNew = existingProgress.status === 'new';
+  const wasNotMastered = existingProgress.status !== 'mastered';
+
+  const updated = calculateNextReview(
+    {
+      wordId: existingProgress.wordId,
+      status: existingProgress.status as any,
+      interval: existingProgress.interval,
+      easeFactor: existingProgress.easeFactor,
+      repetitions: existingProgress.repetitions,
+      nextReview: existingProgress.nextReview,
+      lastReview: existingProgress.lastReview,
+      totalReviews: existingProgress.totalReviews,
+      correctReviews: existingProgress.correctReviews,
+    },
+    quality,
+  );
+
+  const progress = await prisma.wordProgress.update({
+    where: { id: existingProgress.id },
+    data: {
+      status: updated.status,
+      interval: updated.interval,
+      easeFactor: updated.easeFactor,
+      repetitions: updated.repetitions,
+      nextReview: updated.nextReview,
+      lastReview: updated.lastReview,
+      totalReviews: updated.totalReviews,
+      correctReviews: updated.correctReviews,
+    },
+  });
+
+  // Update daily goal and streak
+  const dailyLearned = wasNew && updated.status !== 'new' ? 1 : 0;
+  const dailyReviewed = !wasNew ? 1 : 0;
+  await updateDailyProgress(userId, dailyLearned, dailyReviewed);
+
+  // Check achievements
+  const unlockedAchievements: string[] = [];
+
+  if (wasNew && updated.status !== 'new') {
+    const totalLearned = await prisma.wordProgress.count({
+      where: { userId, status: { not: 'new' } },
+    });
+    const newUnlocked = await checkAchievements({
+      userId,
+      type: 'words_learned',
+      value: totalLearned,
+    });
+    unlockedAchievements.push(...newUnlocked);
+  }
+
+  if (wasNotMastered && updated.status === 'mastered') {
+    const totalMastered = await prisma.wordProgress.count({
+      where: { userId, status: 'mastered' },
+    });
+    const newUnlocked = await checkAchievements({
+      userId,
+      type: 'words_mastered',
+      value: totalMastered,
+    });
+    unlockedAchievements.push(...newUnlocked);
+  }
+
+  const reviewUnlocked = await checkAchievements({
+    userId,
+    type: 'total_reviews',
+    value: updated.totalReviews,
+  });
+  unlockedAchievements.push(...reviewUnlocked);
+
+  return {
+    progress: {
+      status: progress.status,
+      interval: progress.interval,
+      nextReview: progress.nextReview,
+    },
+    achievementsUnlocked: unlockedAchievements,
+  };
 }
 
 async function awardXp(userId: string, xp: number): Promise<boolean> {
