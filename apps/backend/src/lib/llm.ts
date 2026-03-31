@@ -329,7 +329,15 @@ JSON:`;
 
     const responseText = await callLLM(BATCH_SYSTEM_PROMPT, prompt, config, { disableReasoning: true });
     
+    console.log(`[categorizeWordsBatch] Raw LLM response (${responseText.length} chars): ${responseText.slice(0, 500)}`);
+    
     const categories = parseCategoriesJson(responseText, words.map(w => w.word));
+    
+    console.log(`[categorizeWordsBatch] Parsed ${Object.keys(categories).length} categories for ${words.length} words`);
+    
+    // Log sample of results
+    const sampleResults = words.slice(0, 5).map(w => `${w.word} → ${categories[w.word.toLowerCase()] || 'general'}`);
+    console.log(`[categorizeWordsBatch] Sample: ${sampleResults.join(', ')}`);
     
     if (options?.onProgress) {
       options.onProgress(words.length, words.length);
