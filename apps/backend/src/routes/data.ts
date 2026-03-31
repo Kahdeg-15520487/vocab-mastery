@@ -281,6 +281,21 @@ export async function dataRoutes(app: FastifyInstance) {
       });
     }
 
+    // Deduplicate words within the import (keep first occurrence)
+    const uniqueWordMap = new Map<string, typeof parsedWords[0]>();
+    for (const w of parsedWords) {
+      if (!uniqueWordMap.has(w.word)) {
+        uniqueWordMap.set(w.word, w);
+      }
+    }
+    const uniqueParsedWords = Array.from(uniqueWordMap.values());
+    
+    if (uniqueParsedWords.length === 0) {
+      return reply.status(400).send({
+        error: 'No valid words found in the file. Make sure it\'s a valid Oxford word list format.',
+      });
+    }
+
     // If not merge mode, clear existing words for this list only
     if (!merge) {
       await prisma.wordTheme.deleteMany({
@@ -303,15 +318,15 @@ export async function dataRoutes(app: FastifyInstance) {
 
     // Get existing words in batch
     const existingWords = await prisma.word.findMany({
-      where: { word: { in: parsedWords.map(w => w.word) } },
+      where: { word: { in: uniqueParsedWords.map(w => w.word) } },
       select: { word: true, cefrLevel: true, oxfordList: true },
     });
     const existingMap = new Map(existingWords.map(w => [w.word, w]));
 
     // Process in batches using transaction
     const batchSize = 500;
-    for (let i = 0; i < parsedWords.length; i += batchSize) {
-      const batch = parsedWords.slice(i, batchSize);
+    for (let i = 0; i < uniqueParsedWords.length; i += batchSize) {
+      const batch = uniqueParsedWords.slice(i, batchSize);
       
       const toCreate: ParsedOxfordWord[] = [];
       const toUpdate: ParsedOxfordWord[] = [];
@@ -374,17 +389,17 @@ export async function dataRoutes(app: FastifyInstance) {
     return {
       success: true,
       list,
-      totalParsed: parsedWords.length,
+      totalParsed: uniqueParsedWords.length,
       created,
       updated,
       skipped,
       stats: {
-        A1: parsedWords.filter(w => w.cefrLevel === 'A1').length,
-        A2: parsedWords.filter(w => w.cefrLevel === 'A2').length,
-        B1: parsedWords.filter(w => w.cefrLevel === 'B1').length,
-        B2: parsedWords.filter(w => w.cefrLevel === 'B2').length,
-        C1: parsedWords.filter(w => w.cefrLevel === 'C1').length,
-        C2: parsedWords.filter(w => w.cefrLevel === 'C2').length,
+        A1: uniqueParsedWords.filter(w => w.cefrLevel === 'A1').length,
+        A2: uniqueParsedWords.filter(w => w.cefrLevel === 'A2').length,
+        B1: uniqueParsedWords.filter(w => w.cefrLevel === 'B1').length,
+        B2: uniqueParsedWords.filter(w => w.cefrLevel === 'B2').length,
+        C1: uniqueParsedWords.filter(w => w.cefrLevel === 'C1').length,
+        C2: uniqueParsedWords.filter(w => w.cefrLevel === 'C2').length,
       },
     };
   });
