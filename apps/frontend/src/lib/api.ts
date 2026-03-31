@@ -344,6 +344,7 @@ export const adminApi = {
   deleteUser: (userId: string) =>
     request<any>(`/admin/users/${userId}`, {
       method: 'DELETE',
+      headers: { 'Content-Type': '' } as any,
     }),
 
   getConfig: () => request<any>('/admin/config'),
@@ -421,6 +422,7 @@ export const adminApi = {
   deleteProvider: (id: string) =>
     request<any>(`/admin/llm/providers/${id}`, {
       method: 'DELETE',
+      headers: { 'Content-Type': '' } as any,
     }),
 
   activateProvider: (id: string) =>
@@ -477,11 +479,13 @@ export const adminApi = {
   cancelJob: (id: string) =>
     request<any>(`/admin/jobs/${id}/cancel`, {
       method: 'PUT',
+      body: JSON.stringify({}),
     }),
 
   deleteJob: (id: string) =>
     request<any>(`/admin/jobs/${id}`, {
       method: 'DELETE',
+      headers: { 'Content-Type': '' } as any,
     }),
 }
 
@@ -530,16 +534,19 @@ export const sprintApi = {
   start: (id: string) =>
     request<{ sprint: any }>(`/sprints/${id}/start`, {
       method: 'POST',
+      body: JSON.stringify({}),
     }),
 
   abandon: (id: string) =>
     request<{ sprint: any }>(`/sprints/${id}/abandon`, {
       method: 'POST',
+      body: JSON.stringify({}),
     }),
 
   complete: (id: string) =>
     request<{ sprint: any }>(`/sprints/${id}/complete`, {
       method: 'POST',
+      body: JSON.stringify({}),
     }),
 
   getWords: (id: string) =>
