@@ -102,6 +102,13 @@
             ▶ Start Sprint
           </button>
           <button
+            v-if="currentSprint?.status === 'ACTIVE'"
+            @click="$router.push(`/writing?sprintId=${currentSprint.id}`)"
+            class="px-4 py-2 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100"
+          >
+            ✍️ Writing Practice
+          </button>
+          <button
             v-if="currentSprint.status === 'ACTIVE'"
             @click="handleAbandon"
             class="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30"

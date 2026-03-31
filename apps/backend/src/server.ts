@@ -14,6 +14,7 @@ import { adminRoutes } from './routes/admin.js';
 import { oauthRoutes } from './routes/oauth.js';
 import { listsRoutes } from './routes/lists.js';
 import { sprintRoutes } from './routes/sprints.js';
+import { writingRoutes } from './routes/writing.js';
 import prisma from './lib/prisma.js';
 import { startJobRunner, stopJobRunner } from './lib/jobs.js';
 import path from 'path';
@@ -145,6 +146,7 @@ async function start() {
     instance.register(statsRoutes);
     instance.register(listsRoutes);
     instance.register(sprintRoutes, { prefix: '/sprints' });
+    instance.register(writingRoutes, { prefix: '/writing' });
   }, { prefix: '/api' });
 
   // Graceful shutdown

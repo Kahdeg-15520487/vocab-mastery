@@ -281,6 +281,26 @@ export const sessionsApi = {
     }),
 }
 
+export const writingApi = {
+  getPrompts: (sprintId: string) =>
+    request<{ prompts: any[] }>(`/writing/${sprintId}/prompts`),
+
+  submitSentence: (sprintId: string, wordId: string, text: string) =>
+    request<{ writing: any; valid: boolean; targetWord: string; inflections: string[] }>(`/writing/${sprintId}/sentence`, {
+      method: 'POST',
+      body: JSON.stringify({ wordId, text }),
+    }),
+
+  submitLongForm: (sprintId: string, text: string) =>
+    request<{ writing: any; wordCount: number; sprintWordsUsed: number; sprintWordsTotal: number; coverage: number; usedWords: string[] }>(`/writing/${sprintId}/long-form`, {
+      method: 'POST',
+      body: JSON.stringify({ text }),
+    }),
+
+  getWritings: (sprintId: string) =>
+    request<{ writings: any[] }>(`/writing/${sprintId}/writings`),
+}
+
 // Stats API
 export const statsApi = {
   get: () => request<any>('/stats'),
