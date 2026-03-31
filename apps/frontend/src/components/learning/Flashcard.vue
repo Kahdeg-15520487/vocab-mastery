@@ -35,7 +35,8 @@ function pronounce() {
 
 function respond(response: 'easy' | 'medium' | 'hard' | 'forgot') {
   emit('response', response)
-  isFlipped.value = false
+  // Don't reset isFlipped here - the Transition component will handle
+  // unmounting this component and mounting a fresh one with the next word
 }
 </script>
 

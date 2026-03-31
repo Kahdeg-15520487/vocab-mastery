@@ -217,15 +217,13 @@ function startNewSession() {
         />
       </div>
 
-      <!-- Flashcard with transition -->
-      <Transition name="card" mode="out-in">
+      <!-- Flashcard (key forces re-mount on word change) -->
         <Flashcard
           :key="sessionStore.currentWord?.id"
           :word="sessionStore.currentWord"
           @response="handleResponse"
           @flip="handleCardFlip"
         />
-      </Transition>
     </div>
 
     <!-- Loading -->
