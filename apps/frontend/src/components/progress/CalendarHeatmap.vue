@@ -70,7 +70,7 @@ function formatDate(dateStr: string): string {
   <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6">
     <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">Activity</h3>
     
-    <div class="overflow-x-auto">
+    <div class="pb-8">
       <div class="inline-flex gap-1">
         <!-- Day labels -->
         <div class="flex flex-col gap-1 mr-2 text-xs text-slate-400">
@@ -103,7 +103,7 @@ function formatDate(dateStr: string): string {
               <!-- Tooltip -->
               <div
                 v-if="day.date"
-                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10"
+                class="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-slate-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10"
               >
                 <div class="font-medium">{{ formatDate(day.date) }}</div>
                 <div v-if="day.completed" class="text-green-400">✓ Goal completed</div>
