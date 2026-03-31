@@ -47,9 +47,9 @@ export async function createSystemLists(userId: string): Promise<void> {
  * Get subscription tier limits
  */
 export const TIER_LIMITS = {
-  FREE: { maxLists: 3, maxWordsPerList: 50 },
-  EXPLORER: { maxLists: 10, maxWordsPerList: 200 },
-  WORDSMITH: { maxLists: 50, maxWordsPerList: 1000 },
+  FREE: { maxLists: 3, maxWordsPerList: 50, maxLlmCallsPerMonth: 0, canShareLists: false },
+  EXPLORER: { maxLists: 10, maxWordsPerList: 200, maxLlmCallsPerMonth: 10, canShareLists: true },
+  WORDSMITH: { maxLists: 50, maxWordsPerList: 1000, maxLlmCallsPerMonth: -1, canShareLists: true },
 } as const;
 
 export type TierLimits = typeof TIER_LIMITS[keyof typeof TIER_LIMITS];

@@ -86,6 +86,7 @@
 - [x] **#205** Frontend: Resume SpellingView from active session
 - [x] **#206** Frontend: Resume LearnView/ReviewView from active session
 - [x] **#207** Frontend: Single-tab practice warning popup
+- [x] **#213** **[high]** Add difficulty selection (Mixed/Easy/Medium/Hard) to all practice tabs #done
 
 <!-- Raw Data -->
 ```json
@@ -1117,8 +1118,20 @@
       ],
       "createdAt": 1774942233180,
       "archived": false
+    },
+    {
+      "id": 213,
+      "text": "Add difficulty selection (Mixed/Easy/Medium/Hard) to all practice tabs",
+      "done": true,
+      "priority": "high",
+      "tags": [
+        "done"
+      ],
+      "createdAt": 1774943495344,
+      "archived": false,
+      "completedAt": 1774943519676
     }
   ],
-  "nextId": 213
+  "nextId": 214
 }
 ```

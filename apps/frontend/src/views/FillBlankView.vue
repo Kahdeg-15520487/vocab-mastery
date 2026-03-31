@@ -52,14 +52,15 @@ const leveledUp = ref(false)
 
 const currentQuestion = computed(() => questions.value[currentIndex.value] || null)
 
-// Split sentence around the ____ blank
+// Split sentence around the ____ blank (backend uses variable number of underscores)
 const sentenceParts = computed(() => {
   if (!currentQuestion.value) return { before: '', after: '' }
-  const idx = currentQuestion.value.sentence.indexOf('____')
-  if (idx === -1) return { before: currentQuestion.value.sentence, after: '' }
+  const match = currentQuestion.value.sentence.match(/_{4,}/)
+  if (!match) return { before: currentQuestion.value.sentence, after: '' }
+  const idx = match.index!
   return {
     before: currentQuestion.value.sentence.slice(0, idx),
-    after: currentQuestion.value.sentence.slice(idx + 4),
+    after: currentQuestion.value.sentence.slice(idx + match[0].length),
   }
 })
 
