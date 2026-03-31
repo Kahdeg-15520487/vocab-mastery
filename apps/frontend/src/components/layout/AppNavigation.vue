@@ -32,6 +32,7 @@ const statsItems = [
 const collectionItems = [
   { path: '/favorites', label: 'Favorites', icon: '❤️' },
   { path: '/lists', label: 'Lists', icon: '📋' },
+  { path: '/sprints', label: 'Sprints', icon: '🏃' },
 ]
 
 const showPracticeMenu = ref(false)

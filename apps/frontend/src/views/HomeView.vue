@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useProgressStore } from '@/stores/progress'
 import { useWordsStore } from '@/stores/words'
+import { useSprintStore } from '@/stores/sprint'
 import { request } from '@/lib/api'
 import StreakDisplay from '@/components/progress/StreakDisplay.vue'
 import DailyGoals from '@/components/progress/DailyGoals.vue'
@@ -21,6 +22,7 @@ const notifications = useNotifications()
 const authStore = useAuthStore()
 const progressStore = useProgressStore()
 const wordsStore = useWordsStore()
+const sprintStore = useSprintStore()
 
 // Review schedule
 const reviewSchedule = ref<{ overdue: number; days: Array<{ date: string; dayLabel: string; count: number; isToday: boolean }> } | null>(null)
@@ -39,6 +41,7 @@ onMounted(async () => {
     progressStore.fetchCalendar(90),
     wordsStore.fetchThemes(),
     loadReviewSchedule(),
+    sprintStore.fetchCurrent(),
   ])
 
   // Start notification reminder check
@@ -51,6 +54,9 @@ const themes = computed(() => wordsStore.themes)
 const dashboard = computed(() => progressStore.dashboard)
 const calendar = computed(() => progressStore.calendar)
 const loading = computed(() => progressStore.loading)
+
+const sprintData = computed(() => sprintStore.currentSprint)
+const sprintStats = computed(() => sprintStore.sprintStats)
 
 const recentProgress = computed(() => {
   return dashboard.value?.recentProgress || []
@@ -304,6 +310,25 @@ function selectTheme(theme: any) {
                 <div class="text-xl font-bold text-orange-500">{{ dashboard.weeklyProgress.daysActive }}<span class="text-sm text-slate-400">/7</span></div>
                 <div class="text-xs text-slate-500 dark:text-slate-400">Days Active</div>
               </div>
+            </div>
+          </div>
+
+          <!-- Sprint Progress -->
+          <div v-if="sprintData" class="card border-l-4 border-indigo-500">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-semibold text-slate-900 dark:text-white">🏃 Sprint #{{ sprintData.number }}</h3>
+              <router-link to="/sprints" class="text-xs text-primary-600 dark:text-primary-400 hover:underline">View →</router-link>
+            </div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-slate-600 dark:text-slate-400">{{ sprintStats?.wordsLearned ?? 0 }} / {{ sprintData.wordTarget }} words</span>
+              <span class="font-medium text-indigo-600 dark:text-indigo-400">{{ sprintStats?.progress ?? 0 }}%</span>
+            </div>
+            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+              <div class="bg-indigo-500 h-2 rounded-full transition-all duration-500" :style="{ width: Math.max(2, sprintStats?.progress ?? 0) + '%' }"></div>
+            </div>
+            <div class="flex justify-between text-xs text-slate-500 mt-1.5">
+              <span>{{ sprintStats?.daysRemaining ?? 0 }} days left</span>
+              <span>{{ sprintStats?.dailyPace ?? 0 }} words/day</span>
             </div>
           </div>
 

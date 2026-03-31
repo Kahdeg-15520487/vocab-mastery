@@ -476,3 +476,48 @@ export const dataApi = {
       body: JSON.stringify(data),
     }),
 }
+
+// Sprint API
+export const sprintApi = {
+  getCurrent: () =>
+    request<{ sprint: any; stats: any }>('/sprints/current'),
+
+  list: () =>
+    request<{ sprints: any[] }>('/sprints'),
+
+  get: (id: string) =>
+    request<{ sprint: any; stats: any }>(`/sprints/${id}`),
+
+  create: (options?: { wordTarget?: number; durationDays?: number; cefrLevel?: string; themeId?: string }) =>
+    request<{ sprint: any }>('/sprints', {
+      method: 'POST',
+      body: JSON.stringify(options || {}),
+    }),
+
+  start: (id: string) =>
+    request<{ sprint: any }>(`/sprints/${id}/start`, {
+      method: 'POST',
+    }),
+
+  abandon: (id: string) =>
+    request<{ sprint: any }>(`/sprints/${id}/abandon`, {
+      method: 'POST',
+    }),
+
+  getWords: (id: string) =>
+    request<{ words: any[] }>(`/sprints/${id}/words`),
+
+  getMilestones: () =>
+    request<{ milestones: any[] }>('/sprints/milestones/all'),
+
+  getDashboard: () =>
+    request<{
+      currentSprint: any
+      sprintStats: any
+      milestones: any[]
+      totalSprints: number
+      totalWordsLearned: number
+      yearTarget: number
+      yearProgress: number
+    }>('/sprints/overview/dashboard'),
+}
