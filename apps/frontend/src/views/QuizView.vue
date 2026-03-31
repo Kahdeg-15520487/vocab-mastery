@@ -379,15 +379,6 @@ onMounted(() => {
           ❌ Incorrect — the answer was <strong>{{ question.options.find(o => o.id === correctId)?.word }}</strong>
         </div>
 
-        <!-- Show full info after answering -->
-        <div class="text-sm bg-slate-50 dark:bg-slate-800 rounded-lg p-3 space-y-1">
-          <div class="font-semibold text-slate-900 dark:text-white">{{ question.word }}</div>
-          <div class="text-slate-600 dark:text-slate-400">{{ question.definition }}</div>
-          <div v-if="question.examples?.length" class="pt-1">
-            <div v-for="ex in question.examples.slice(0, 2)" :key="ex" class="text-slate-500 dark:text-slate-400 italic">"{{ ex }}"</div>
-          </div>
-        </div>
-
         <button @click="nextQuestion" class="btn btn-primary">
           {{ currentIndex < quizData!.questionCount - 1 ? 'Next Question →' : 'See Results' }}
         </button>
