@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Session, SessionWord } from '@/types'
-import { sessionsApi } from '@/lib/api'
+import { sessionsApi, request } from '@/lib/api'
 
 export const useSessionStore = defineStore('session', () => {
   const session = ref<Session | null>(null)
@@ -11,6 +11,7 @@ export const useSessionStore = defineStore('session', () => {
   const error = ref<string | null>(null)
   const sessionStartTime = ref<number>(0)
   const wordStartTime = ref<number>(0)
+  const resumedFromServer = ref(false) // flag: did we resume an existing session?
 
   const currentWord = computed<SessionWord | null>(() => {
     if (!session.value || currentIndex.value >= session.value.words.length) {
@@ -44,6 +45,7 @@ export const useSessionStore = defineStore('session', () => {
     try {
       loading.value = true
       error.value = null
+      resumedFromServer.value = false
       const data_response = await sessionsApi.create(data)
       session.value = data_response
       currentIndex.value = 0
@@ -54,6 +56,61 @@ export const useSessionStore = defineStore('session', () => {
     } catch (e: any) {
       error.value = e.message
       return null
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Resume an existing active session from server
+  async function resumeSession(): Promise<boolean> {
+    try {
+      loading.value = true
+      const data = await request<any>('/sessions/active')
+
+      if (!data.active || !data.words || data.type !== 'learn') {
+        return false
+      }
+
+      // Rebuild Session format from active session data
+      session.value = {
+        sessionId: data.sessionId,
+        type: data.type,
+        totalWords: data.totalWords,
+        words: data.words.map((w: any, index: number) => ({
+          index,
+          sessionWordId: `${data.sessionId}-${w.id}`,
+          id: w.id,
+          word: w.word,
+          phoneticUs: w.phoneticUs,
+          phoneticUk: w.phoneticUk,
+          partOfSpeech: w.partOfSpeech,
+          definition: w.definition,
+          examples: w.examples,
+          synonyms: w.synonyms,
+          antonyms: w.antonyms,
+          oxfordList: w.oxfordList,
+          cefrLevel: w.cefrLevel,
+          themes: w.themes,
+        })),
+      }
+
+      // Restore responses from answered words
+      responses.value = new Map()
+      const answeredWords = data.words.filter((w: any) => w.answered && w.response)
+      for (const w of answeredWords) {
+        responses.value.set(w.id, { response: w.response, responseTime: 0 })
+      }
+
+      // Skip to first unanswered
+      const firstUnanswered = data.words.findIndex((w: any) => !w.answered)
+      currentIndex.value = firstUnanswered >= 0 ? firstUnanswered : data.totalWords
+
+      resumedFromServer.value = true
+      sessionStartTime.value = Date.now()
+      wordStartTime.value = Date.now()
+      return true
+    } catch {
+      return false
     } finally {
       loading.value = false
     }
@@ -144,7 +201,9 @@ export const useSessionStore = defineStore('session', () => {
     responseBreakdown,
     loading,
     error,
+    resumedFromServer,
     startSession,
+    resumeSession,
     submitResponse,
     completeSession,
     reset,

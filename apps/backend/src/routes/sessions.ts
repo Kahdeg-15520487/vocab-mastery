@@ -61,9 +61,26 @@ export async function sessionRoutes(app: FastifyInstance) {
   // All session routes require authentication
   app.addHook('preHandler', authenticate);
 
+  // Helper: auto-abandon any existing incomplete session for this user
+  async function abandonExistingSession(userId: string) {
+    const existing = await prisma.learningSession.findFirst({
+      where: { userId, completedAt: null },
+    });
+    if (existing) {
+      await prisma.learningSession.update({
+        where: { id: existing.id },
+        data: { completedAt: new Date() },
+      });
+    }
+  }
+
   // Start a new learning session
   app.post('/sessions', async (request, reply) => {
     const userId = request.user!.userId;
+
+    // Auto-abandon any existing incomplete session
+    await abandonExistingSession(userId);
+
     const body = request.body as {
       type: 'learn' | 'review' | 'quiz';
       themeId?: string;
@@ -229,6 +246,10 @@ export async function sessionRoutes(app: FastifyInstance) {
   // Generate quiz questions
   app.post('/sessions/quiz', async (request, reply) => {
     const userId = request.user!.userId;
+
+    // Auto-abandon any existing incomplete session
+    await abandonExistingSession(userId);
+
     const body = request.body as {
       themeId?: string;
       listId?: string;
@@ -469,6 +490,10 @@ export async function sessionRoutes(app: FastifyInstance) {
   // Start spelling practice session
   app.post('/sessions/spelling', async (request, reply) => {
     const userId = request.user!.userId;
+
+    // Auto-abandon any existing incomplete session
+    await abandonExistingSession(userId);
+
     const body = request.body as {
       themeId?: string;
       listId?: string;
@@ -640,6 +665,10 @@ export async function sessionRoutes(app: FastifyInstance) {
 
   app.post('/sessions/fill-blank', async (request, reply) => {
     const userId = request.user!.userId;
+
+    // Auto-abandon any existing incomplete session
+    await abandonExistingSession(userId);
+
     const body = request.body as {
       themeId?: string;
       listId?: string;
@@ -791,6 +820,185 @@ export async function sessionRoutes(app: FastifyInstance) {
   });
 
   // Get session history (paginated list)
+  // Get active (incomplete) session for current user
+  app.get('/sessions/active', async (request, reply) => {
+    const userId = request.user!.userId;
+
+    const session = await prisma.learningSession.findFirst({
+      where: { userId, completedAt: null },
+      include: {
+        sessionWords: {
+          include: {
+            word: {
+              include: {
+                themes: { include: { theme: true } },
+              },
+            },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
+      },
+      orderBy: { startedAt: 'desc' },
+    });
+
+    if (!session) {
+      return { active: false };
+    }
+
+    const answeredIds = new Set(
+      session.sessionWords.filter(sw => sw.response).map(sw => sw.wordId)
+    );
+
+    // Build response based on session type
+    const base = {
+      active: true,
+      sessionId: session.id,
+      type: session.type,
+      totalCorrect: session.totalCorrect,
+      totalIncorrect: session.totalIncorrect,
+      totalWords: session.sessionWords.length,
+      answeredCount: answeredIds.size,
+    };
+
+    if (session.type === 'quiz') {
+      // Rebuild quiz questions with options
+      const quizWords = session.sessionWords.map(sw => sw.word);
+      const allWordIds = new Set(quizWords.map(w => w.id));
+
+      // Get wrong answer pool
+      const wrongPool = await prisma.$queryRaw<Array<{ id: string; word: string; definition: string }>>`
+        SELECT id, word, definition FROM words
+        WHERE id NOT IN (${Prisma.join([...allWordIds])})
+        ORDER BY RANDOM()
+        LIMIT 100
+      `;
+
+      function sanitizeDefinition(word: string, definition: string): string {
+        let sanitized = definition;
+        const w = word.toLowerCase().replace(/[^a-z]/g, '');
+        const patterns: string[] = [w, w + 's', w + 'es', w + 'ed', w + 'ing', w + 'er', w + 'ly'];
+        if (w.endsWith('y')) { const b = w.slice(0, -1); patterns.push(b + 'ies', b + 'ied'); }
+        if (w.endsWith('e')) { const b = w.slice(0, -1); patterns.push(b + 'ing', b + 'ed'); }
+        patterns.sort((a, b) => b.length - a.length);
+        for (const v of patterns) {
+          if (v.length >= 2) {
+            const escaped = v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            sanitized = sanitized.replace(new RegExp(`\\b${escaped}\\b`, 'gi'), '____');
+          }
+        }
+        return sanitized;
+      }
+
+      const questions = quizWords.map((word, index) => {
+        const shuffled = [...wrongPool].sort(() => Math.random() - 0.5);
+        const wrongAnswers = shuffled.slice(0, 3).map(w => ({
+          id: w.id, word: w.word, definition: w.definition,
+        }));
+        const options = [
+          { id: word.id, word: word.word, definition: word.definition, correct: true },
+          ...wrongAnswers.map(w => ({ ...w, correct: false })),
+        ].sort(() => Math.random() - 0.5);
+
+        const safeDefinition = sanitizeDefinition(word.word, word.definition || '');
+        const safeExamples = (word.examples as string[] || []).filter(ex => {
+          const exLower = ex.toLowerCase();
+          const wLower = word.word.toLowerCase();
+          return !exLower.includes(wLower);
+        });
+
+        // Find the user's selected answer if already answered
+        const sessionWord = session.sessionWords.find(sw => sw.wordId === word.id);
+        let selectedId: string | null = null;
+        if (sessionWord?.response) {
+          selectedId = sessionWord.response === 'easy' ? word.id : null;
+        }
+
+        return {
+          index,
+          id: word.id,
+          word: word.word,
+          phoneticUs: word.phoneticUs,
+          partOfSpeech: word.partOfSpeech as string[],
+          definition: safeDefinition,
+          examples: safeExamples,
+          cefrLevel: word.cefrLevel,
+          options,
+          answered: answeredIds.has(word.id),
+          correct: sessionWord?.response === 'easy',
+        };
+      });
+
+      return { ...base, questions };
+    }
+
+    if (session.type === 'learn') {
+      // Could be spelling or fill-blank (both stored as type 'learn') or actual learn
+      // Check by the first session word to determine which view this came from
+      // We'll return generic data and let the frontend figure it out
+      const words = session.sessionWords.map((sw, index) => {
+        const word = sw.word;
+        const examples = (word.examples as string[] || []);
+        const escapedWord = word.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+        return {
+          index,
+          id: word.id,
+          word: word.word,
+          phoneticUs: word.phoneticUs,
+          phoneticUk: word.phoneticUk,
+          partOfSpeech: word.partOfSpeech as string[],
+          definition: word.definition,
+          examples,
+          synonyms: word.synonyms as string[] || [],
+          antonyms: word.antonyms as string[] || [],
+          oxfordList: word.oxfordList,
+          cefrLevel: word.cefrLevel,
+          themes: word.themes.map(t => t.theme.slug),
+          // Fill-blank specific
+          sentence: examples.length > 0
+            ? examples[Math.floor(Math.random() * examples.length)].replace(
+                new RegExp(`\\b${escapedWord}\\b`, 'gi'), '________'
+              )
+            : null,
+          // Spelling specific
+          letterCount: word.word.length,
+          firstLetter: word.word[0],
+          maskedExamples: examples.map(ex =>
+            ex.replace(new RegExp(`\\b${escapedWord}\\b`, 'gi'), '____')
+          ),
+          // Session state
+          answered: answeredIds.has(word.id),
+          response: sw.response,
+        };
+      });
+
+      return { ...base, words };
+    }
+
+    // Generic fallback
+    return base;
+  });
+
+  // Abandon (auto-complete with zero stats) the active incomplete session
+  app.post('/sessions/abandon-active', async (request, reply) => {
+    const userId = request.user!.userId;
+
+    const session = await prisma.learningSession.findFirst({
+      where: { userId, completedAt: null },
+    });
+
+    if (!session) {
+      return { abandoned: false };
+    }
+
+    await prisma.learningSession.update({
+      where: { id: session.id },
+      data: { completedAt: new Date() },
+    });
+
+    return { abandoned: true, sessionId: session.id };
+  });
+
   app.get('/sessions', async (request, _reply) => {
     const userId = request.user!.userId;
     const query = request.query as Record<string, string | undefined>;

@@ -2,11 +2,14 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useSessionStore } from '@/stores/session'
 import { useToast } from '@/composables/useToast'
+import { request } from '@/lib/api'
 import Flashcard from '@/components/learning/Flashcard.vue'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
 
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
+import ResumePrompt from '@/components/ui/ResumePrompt.vue'
+import SingleTabWarning from '@/components/ui/SingleTabWarning.vue'
 
 const sessionStore = useSessionStore()
 const toast = useToast()
@@ -16,11 +19,30 @@ const sessionResult = ref<any>(null)
 const cardFlipped = ref(false)
 const confettiActive = ref(false)
 
+// Resume state
+const showResumePrompt = ref(false)
+const showTabWarning = ref(false)
+const resumeData = ref<{ answeredCount: number; totalWords: number } | null>(null)
+
 function handleCardFlip(flipped: boolean) {
   cardFlipped.value = flipped
 }
 
 onMounted(async () => {
+  // Check for active session
+  try {
+    const data = await request<any>('/sessions/active')
+    if (data.active && data.type === 'learn') {
+      resumeData.value = {
+        answeredCount: data.answeredCount || 0,
+        totalWords: data.totalWords || 0,
+      }
+      showResumePrompt.value = true
+      return
+    }
+  } catch { /* ignore */ }
+
+  // No active session — start new review
   await sessionStore.startSession({
     type: 'review',
     wordCount: 20,
@@ -87,10 +109,46 @@ function startNewSession() {
     wordCount: 20,
   })
 }
+
+async function resumeActiveSession() {
+  showResumePrompt.value = false
+  const ok = await sessionStore.resumeSession()
+  if (ok) {
+    showTabWarning.value = true
+    window.addEventListener('keydown', handleKeydown)
+  } else {
+    await startNewSession()
+  }
+}
+
+async function restartActiveSession() {
+  showResumePrompt.value = false
+  try {
+    await request('/sessions/abandon-active', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    })
+  } catch { /* ignore */ }
+  await startNewSession()
+}
 </script>
 
 <template>
   <div class="max-w-2xl mx-auto">
+    <!-- Single Tab Warning -->
+    <SingleTabWarning v-if="showTabWarning" @dismiss="showTabWarning = false" />
+
+    <!-- Resume Prompt -->
+    <div v-if="showResumePrompt && resumeData" class="max-w-lg mx-auto mt-6">
+      <ResumePrompt
+        :answered-count="resumeData.answeredCount"
+        :total-words="resumeData.totalWords"
+        @resume="resumeActiveSession"
+        @restart="restartActiveSession"
+      />
+    </div>
+
+    <template v-else>
     <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-6">Review Session</h1>
     
     <!-- Session Complete -->
@@ -196,6 +254,7 @@ function startNewSession() {
     </div>
 
     <ConfettiEffect :active="confettiActive" :duration="4000" />
+    </template>
   </div>
 </template>
 

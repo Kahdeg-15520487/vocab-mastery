@@ -3,8 +3,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { request } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
+import { useActiveSession } from '@/composables/useActiveSession'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
 import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
+import ResumePrompt from '@/components/ui/ResumePrompt.vue'
+import SingleTabWarning from '@/components/ui/SingleTabWarning.vue'
 
 interface QuizOption {
   id: string
@@ -33,9 +36,10 @@ interface QuizData {
 
 const route = useRoute()
 const toast = useToast()
+const { activeSession, checkActiveSession, abandonActiveSession, showSingleTabWarning, showTabWarning, dismissTabWarning } = useActiveSession()
 
 // State
-const phase = ref<'setup' | 'playing' | 'results'>('setup')
+const phase = ref<'setup' | 'resume' | 'playing' | 'results'>('setup')
 const loading = ref(false)
 const quizData = ref<QuizData | null>(null)
 const quizResult = ref<{ xpEarned?: number; leveledUp?: boolean; newAchievements?: string[] } | null>(null)
@@ -199,19 +203,78 @@ function optionClass(option: QuizOption): string {
   return 'border-slate-200 dark:border-slate-600 opacity-50'
 }
 
-// Auto-start if coming from a list (has query params)
-onMounted(() => {
+// Check for active session on mount, or auto-start from query params
+onMounted(async () => {
   if (route.query.auto === 'true') {
     startQuiz()
+    return
+  }
+
+  const active = await checkActiveSession()
+  if (active && active.type === 'quiz' && active.questions) {
+    // Show resume prompt
+    phase.value = 'resume'
   }
 })
+
+function resumeFromActive() {
+  const active = activeSession.value
+  if (!active || !active.questions) return
+
+  quizData.value = {
+    sessionId: active.sessionId!,
+    questionCount: active.totalWords!,
+    questions: active.questions,
+  }
+  score.value = active.totalCorrect ?? 0
+  missedQuestions.value = []
+
+  // Find the first unanswered question
+  const firstUnanswered = active.questions.findIndex((q: any) => !q.answered)
+  if (firstUnanswered >= 0) {
+    currentIndex.value = firstUnanswered
+  } else {
+    // All answered — go to results
+    currentIndex.value = active.questions.length - 1
+  }
+
+  selectedId.value = null
+  answered.value = false
+  isCorrect.value = false
+  correctId.value = null
+  startTime.value = Date.now()
+  phase.value = 'playing'
+  showSingleTabWarning()
+}
+
+function resumeFromPrompt() {
+  resumeFromActive()
+}
+
+async function restartFromPrompt() {
+  await abandonActiveSession()
+  phase.value = 'setup'
+}
 </script>
 
 <template>
   <div class="max-w-2xl mx-auto">
 
+    <!-- Single Tab Warning -->
+    <SingleTabWarning v-if="showTabWarning" @dismiss="dismissTabWarning" />
+
+    <!-- ==================== RESUME PHASE ==================== -->
+    <div v-if="phase === 'resume'">
+      <ResumePrompt
+        :answered-count="activeSession?.answeredCount ?? 0"
+        :total-words="activeSession?.totalWords ?? 0"
+        @resume="resumeFromPrompt"
+        @restart="restartFromPrompt"
+      />
+    </div>
+
     <!-- ==================== SETUP PHASE ==================== -->
-    <div v-if="phase === 'setup'" class="space-y-8">
+    <div v-else-if="phase === 'setup'" class="space-y-8">
       <div class="text-center">
         <div class="text-6xl mb-4">🧠</div>
         <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Quiz Mode</h1>

@@ -3,13 +3,16 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { request } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
 import { useSpeech } from '@/composables/useSpeech'
+import { useActiveSession } from '@/composables/useActiveSession'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
 import LevelBadge from '@/components/learning/LevelBadge.vue'
-// SkeletonLoader not used in this view
 import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
+import ResumePrompt from '@/components/ui/ResumePrompt.vue'
+import SingleTabWarning from '@/components/ui/SingleTabWarning.vue'
 
 const toast = useToast()
 const { speak } = useSpeech()
+const { activeSession, checkActiveSession, abandonActiveSession, showSingleTabWarning, showTabWarning, dismissTabWarning } = useActiveSession()
 
 interface SpellingQuestion {
   index: number
@@ -31,8 +34,8 @@ interface SpellingResult {
   word: string
 }
 
-// Phase: setup | playing | results
-const phase = ref<'setup' | 'playing' | 'results'>('setup')
+// Phase: setup | resume | playing | results
+const phase = ref<'setup' | 'resume' | 'playing' | 'results'>('setup')
 
 // Setup options
 const wordCount = ref(10)
@@ -66,8 +69,53 @@ function onKeyDown(e: KeyboardEvent) {
   }
 }
 
-onMounted(() => window.addEventListener('keydown', onKeyDown))
+onMounted(async () => {
+  window.addEventListener('keydown', onKeyDown)
+
+  const active = await checkActiveSession()
+  if (active && active.words) {
+    // Check if this looks like a spelling session (has maskedExamples, letterCount)
+    const hasSpelling = active.words.some((w: any) => w.letterCount)
+    if (hasSpelling) {
+      phase.value = 'resume'
+    }
+  }
+})
 onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
+
+function resumeFromActive() {
+  const active = activeSession.value
+  if (!active || !active.words) return
+
+  sessionId.value = active.sessionId!
+  questions.value = active.words.map((w: any, index: number) => ({
+    index,
+    id: w.id,
+    definition: w.definition,
+    phoneticUs: w.phoneticUs,
+    partOfSpeech: w.partOfSpeech || [],
+    examples: w.maskedExamples || [],
+    synonyms: w.synonyms || [],
+    cefrLevel: w.cefrLevel,
+    letterCount: w.letterCount || w.word?.length || 0,
+    firstLetter: w.firstLetter || w.word?.[0] || '',
+  }))
+
+  // Skip to first unanswered
+  const firstUnanswered = active.words.findIndex((w: any) => !w.answered)
+  currentIndex.value = firstUnanswered >= 0 ? firstUnanswered : active.words.length - 1
+  currentResult.value = null
+  results.value = new Map()
+
+  phase.value = 'playing'
+  showSingleTabWarning()
+  nextTick(() => answerInput.value?.focus())
+}
+
+async function restartFromPrompt() {
+  await abandonActiveSession()
+  phase.value = 'setup'
+}
 
 const currentQuestion = computed(() => questions.value[currentIndex.value] || null)
 const progress = computed(() => ({
@@ -205,8 +253,21 @@ const missedWords = computed(() =>
 
 <template>
   <div>
+    <!-- Single Tab Warning -->
+    <SingleTabWarning v-if="showTabWarning" @dismiss="dismissTabWarning" />
+
+    <!-- ==================== RESUME PHASE ==================== -->
+    <div v-if="phase === 'resume'">
+      <ResumePrompt
+        :answered-count="activeSession?.answeredCount ?? 0"
+        :total-words="activeSession?.totalWords ?? 0"
+        @resume="resumeFromActive"
+        @restart="restartFromPrompt"
+      />
+    </div>
+
     <!-- ==================== SETUP PHASE ==================== -->
-    <div v-if="phase === 'setup'" class="max-w-lg mx-auto">
+    <div v-else-if="phase === 'setup'" class="max-w-lg mx-auto">
       <div class="text-center mb-8">
         <div class="text-6xl mb-4">✍️</div>
         <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Spelling Practice</h1>

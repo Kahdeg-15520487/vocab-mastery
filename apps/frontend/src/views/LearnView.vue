@@ -4,10 +4,13 @@ import { useRoute, useRouter } from 'vue-router'
 import { useSessionStore } from '@/stores/session'
 import { useWordsStore } from '@/stores/words'
 import { useToast } from '@/composables/useToast'
+import { request } from '@/lib/api'
 import Flashcard from '@/components/learning/Flashcard.vue'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
 import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import ResumePrompt from '@/components/ui/ResumePrompt.vue'
+import SingleTabWarning from '@/components/ui/SingleTabWarning.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -24,6 +27,11 @@ const sessionResult = ref<any>(null)
 const cardFlipped = ref(false)
 const confettiActive = ref(false)
 
+// Resume state
+const showResumePrompt = ref(false)
+const showTabWarning = ref(false)
+const resumeData = ref<{ answeredCount: number; totalWords: number } | null>(null)
+
 function handleCardFlip(flipped: boolean) {
   cardFlipped.value = flipped
 }
@@ -31,24 +39,24 @@ function handleCardFlip(flipped: boolean) {
 onMounted(async () => {
   // Load themes first
   await wordsStore.fetchThemes()
-  
-  // Find theme ID if theme slug is provided
-  let themeId: string | undefined
-  if (theme.value) {
-    const found = wordsStore.themes.find(t => t.slug === theme.value)
-    themeId = found?.id
+
+  // Check for active session
+  try {
+    const data = await request<any>('/sessions/active')
+    if (data.active && data.type === 'learn') {
+      resumeData.value = {
+        answeredCount: data.answeredCount || 0,
+        totalWords: data.totalWords || 0,
+      }
+      showResumePrompt.value = true
+      return
+    }
+  } catch {
+    // Ignore — proceed to normal start
   }
 
-  // Start session
-  await sessionStore.startSession({
-    type: 'learn',
-    themeId,
-    listId: listId.value,
-    wordCount: 10,
-  })
-
-  // Add keyboard shortcuts
-  window.addEventListener('keydown', handleKeydown)
+  // No active session — start new
+  await startNewSession()
 })
 
 onUnmounted(() => {
@@ -132,10 +140,47 @@ function startNewSession() {
     wordCount: 10,
   })
 }
+
+async function resumeActiveSession() {
+  showResumePrompt.value = false
+  const ok = await sessionStore.resumeSession()
+  if (ok) {
+    showTabWarning.value = true
+    window.addEventListener('keydown', handleKeydown)
+  } else {
+    // Resume failed — start fresh
+    await startNewSession()
+  }
+}
+
+async function restartActiveSession() {
+  showResumePrompt.value = false
+  // Abandon the old session
+  try {
+    await request('/sessions/abandon-active', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    })
+  } catch { /* ignore */ }
+  await startNewSession()
+}
 </script>
 
 <template>
   <div class="max-w-2xl mx-auto">
+    <!-- Single Tab Warning -->
+    <SingleTabWarning v-if="showTabWarning" @dismiss="showTabWarning = false" />
+
+    <!-- Resume Prompt -->
+    <div v-if="showResumePrompt && resumeData" class="max-w-lg mx-auto">
+      <ResumePrompt
+        :answered-count="resumeData.answeredCount"
+        :total-words="resumeData.totalWords"
+        @resume="resumeActiveSession"
+        @restart="restartActiveSession"
+      />
+    </div>
+
     <!-- Session Complete -->
     <div v-if="sessionComplete" class="text-center py-8">
       <div class="text-6xl mb-4">
