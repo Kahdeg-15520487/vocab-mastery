@@ -4,8 +4,10 @@ import { request } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
 import { useSpeech } from '@/composables/useSpeech'
 import { useActiveSession } from '@/composables/useActiveSession'
+import { getLevelRange } from '@/lib/difficulty'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
 import LevelBadge from '@/components/learning/LevelBadge.vue'
+import DifficultySelector from '@/components/learning/DifficultySelector.vue'
 import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
 import ResumePrompt from '@/components/ui/ResumePrompt.vue'
 import SingleTabWarning from '@/components/ui/SingleTabWarning.vue'
@@ -40,6 +42,7 @@ const phase = ref<'setup' | 'resume' | 'playing' | 'results'>('setup')
 // Setup options
 const wordCount = ref(10)
 const wordCountOptions = [5, 10, 15, 20]
+const difficulty = ref<'mixed' | 'easy' | 'medium' | 'hard'>('mixed')
 
 // Game state
 const questions = ref<SpellingQuestion[]>([])
@@ -154,9 +157,13 @@ async function startPractice() {
   currentResult.value = null
 
   try {
+    const body: any = { wordCount: wordCount.value }
+    const levelRange = getLevelRange(difficulty.value)
+    if (levelRange) body.levelRange = levelRange
+
     const data = await request<{ sessionId: string; questionCount: number; questions: SpellingQuestion[] }>('/sessions/spelling', {
       method: 'POST',
-      body: JSON.stringify({ wordCount: wordCount.value }),
+      body: JSON.stringify(body),
     })
     sessionId.value = data.sessionId
     questions.value = data.questions
@@ -277,6 +284,9 @@ const missedWords = computed(() =>
       </div>
 
       <div class="card space-y-6">
+        <!-- Difficulty -->
+        <DifficultySelector v-model="difficulty" />
+
         <!-- Word Count -->
         <div>
           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">

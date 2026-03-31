@@ -5,8 +5,10 @@ import { useSessionStore } from '@/stores/session'
 import { useWordsStore } from '@/stores/words'
 import { useToast } from '@/composables/useToast'
 import { request } from '@/lib/api'
+import { getLevelRange } from '@/lib/difficulty'
 import Flashcard from '@/components/learning/Flashcard.vue'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
+import DifficultySelector from '@/components/learning/DifficultySelector.vue'
 import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import ResumePrompt from '@/components/ui/ResumePrompt.vue'
@@ -23,12 +25,19 @@ const listId = computed(() => (route.query.list as string) || undefined)
 const sessionComplete = ref(false)
 const sessionResult = ref<any>(null)
 
+// Phase: setup | resume | playing | results
+const phase = ref<'setup' | 'resume' | 'playing'>('setup')
+
+// Settings
+const wordCount = ref(10)
+const wordCountOptions = [5, 10, 15, 20]
+const difficulty = ref<'mixed' | 'easy' | 'medium' | 'hard'>('mixed')
+
 // Track if card is flipped (for keyboard shortcuts)
 const cardFlipped = ref(false)
 const confettiActive = ref(false)
 
 // Resume state
-const showResumePrompt = ref(false)
 const showTabWarning = ref(false)
 const resumeData = ref<{ answeredCount: number; totalWords: number } | null>(null)
 
@@ -48,15 +57,18 @@ onMounted(async () => {
         answeredCount: data.answeredCount || 0,
         totalWords: data.totalWords || 0,
       }
-      showResumePrompt.value = true
+      phase.value = 'resume'
       return
     }
   } catch {
-    // Ignore — proceed to normal start
+    // Ignore — proceed to setup
   }
 
-  // No active session — start new
-  await startNewSession()
+  // Auto-start if coming from a list query param
+  if (route.query.auto === 'true' || route.query.list) {
+    await startNewSession()
+  }
+  // Otherwise show setup screen (phase is already 'setup')
 })
 
 onUnmounted(() => {
@@ -126,43 +138,45 @@ function startNewSession() {
   sessionComplete.value = false
   sessionResult.value = null
   
-  // Restart
   let themeId: string | undefined
   if (theme.value) {
     const found = wordsStore.themes.find(t => t.slug === theme.value)
     themeId = found?.id
   }
+
+  const levelRange = getLevelRange(difficulty.value)
   
   sessionStore.startSession({
     type: 'learn',
     themeId,
     listId: listId.value,
-    wordCount: 10,
+    wordCount: wordCount.value,
+    levelRange,
   })
+
+  phase.value = 'playing'
+  window.addEventListener('keydown', handleKeydown)
 }
 
 async function resumeActiveSession() {
-  showResumePrompt.value = false
+  phase.value = 'playing'
   const ok = await sessionStore.resumeSession()
   if (ok) {
     showTabWarning.value = true
     window.addEventListener('keydown', handleKeydown)
   } else {
-    // Resume failed — start fresh
     await startNewSession()
   }
 }
 
 async function restartActiveSession() {
-  showResumePrompt.value = false
-  // Abandon the old session
   try {
     await request('/sessions/abandon-active', {
       method: 'POST',
       body: JSON.stringify({}),
     })
   } catch { /* ignore */ }
-  await startNewSession()
+  phase.value = 'setup'
 }
 </script>
 
@@ -172,7 +186,7 @@ async function restartActiveSession() {
     <SingleTabWarning v-if="showTabWarning" @dismiss="showTabWarning = false" />
 
     <!-- Resume Prompt -->
-    <div v-if="showResumePrompt && resumeData" class="max-w-lg mx-auto">
+    <div v-if="phase === 'resume' && resumeData" class="max-w-lg mx-auto">
       <ResumePrompt
         :answered-count="resumeData.answeredCount"
         :total-words="resumeData.totalWords"
@@ -180,6 +194,57 @@ async function restartActiveSession() {
         @restart="restartActiveSession"
       />
     </div>
+
+    <!-- ==================== SETUP PHASE ==================== -->
+    <div v-else-if="phase === 'setup'" class="max-w-lg mx-auto">
+      <div class="text-center mb-8">
+        <div class="text-6xl mb-4">📚</div>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Learn New Words</h1>
+        <p class="text-slate-600 dark:text-slate-400">
+          Flashcard-based learning with spaced repetition. Rate how well you know each word.
+        </p>
+      </div>
+
+      <div class="card space-y-6">
+        <!-- Difficulty -->
+        <DifficultySelector v-model="difficulty" />
+
+        <!-- Word Count -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            Number of words
+          </label>
+          <div class="grid grid-cols-4 gap-2">
+            <button
+              v-for="count in wordCountOptions"
+              :key="count"
+              @click="wordCount = count"
+              class="py-2 rounded-lg text-sm font-medium transition-colors"
+              :class="wordCount === count
+                ? 'bg-primary-600 text-white'
+                : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'"
+            >
+              {{ count }}
+            </button>
+          </div>
+        </div>
+
+        <button
+          @click="startNewSession"
+          :disabled="sessionStore.loading"
+          class="btn btn-primary w-full text-lg py-3"
+        >
+          {{ sessionStore.loading ? 'Loading...' : '📚 Start Learning' }}
+        </button>
+      </div>
+
+      <div v-if="sessionStore.error" class="mt-4 text-center text-red-600 dark:text-red-400">
+        {{ sessionStore.error }}
+      </div>
+    </div>
+
+    <!-- ==================== PLAYING / RESULTS ==================== -->
+    <template v-else-if="phase === 'playing'">
 
     <!-- Session Complete -->
     <div v-if="sessionComplete" class="text-center py-8">
@@ -297,10 +362,12 @@ async function restartActiveSession() {
     <div v-else class="text-center py-12">
       <div class="text-4xl mb-4">📚</div>
       <p class="text-slate-600 dark:text-slate-400 mb-4">Starting learning session...</p>
-      <button @click="startNewSession" class="btn btn-primary">
+      <button @click="phase = 'setup'" class="btn btn-primary">
         Start Learning
       </button>
     </div>
+
+    </template>
 
     <ConfettiEffect :active="confettiActive" :duration="4000" />
   </div>

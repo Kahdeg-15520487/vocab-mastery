@@ -4,7 +4,9 @@ import { useRoute } from 'vue-router'
 import { request } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
 import { useActiveSession } from '@/composables/useActiveSession'
+import { getLevelRange } from '@/lib/difficulty'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
+import DifficultySelector from '@/components/learning/DifficultySelector.vue'
 import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
 import ResumePrompt from '@/components/ui/ResumePrompt.vue'
 import SingleTabWarning from '@/components/ui/SingleTabWarning.vue'
@@ -58,13 +60,6 @@ const questionCount = ref(10)
 const difficulty = ref<'mixed' | 'easy' | 'medium' | 'hard'>('mixed')
 const questionMode = ref<'word-to-def' | 'def-to-word'>('word-to-def')
 
-const difficultyOptions = [
-  { value: 'mixed', label: 'Mixed', icon: '🎲', desc: 'All CEFR levels' },
-  { value: 'easy', label: 'Easy', icon: '🟢', desc: 'A1–A2 words' },
-  { value: 'medium', label: 'Medium', icon: '🟡', desc: 'B1–B2 words' },
-  { value: 'hard', label: 'Hard', icon: '🔴', desc: 'C1–C2 words' },
-] as const
-
 const countOptions = [5, 10, 15, 20]
 
 const question = computed(() => {
@@ -92,15 +87,6 @@ const resultMessage = computed(() => {
   if (acc >= 50) return 'Good effort!'
   return 'Keep practicing!'
 })
-
-function getLevelRange(diff: string): [string, string] | undefined {
-  switch (diff) {
-    case 'easy': return ['A1', 'A2']
-    case 'medium': return ['B1', 'B2']
-    case 'hard': return ['C1', 'C2']
-    default: return undefined
-  }
-}
 
 async function startQuiz() {
   loading.value = true
@@ -282,24 +268,7 @@ async function restartFromPrompt() {
       </div>
 
       <!-- Difficulty -->
-      <div>
-        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Difficulty</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <button
-            v-for="opt in difficultyOptions"
-            :key="opt.value"
-            @click="difficulty = opt.value"
-            class="p-4 rounded-xl border-2 transition-all text-center"
-            :class="difficulty === opt.value
-              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-              : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500'"
-          >
-            <div class="text-2xl mb-1">{{ opt.icon }}</div>
-            <div class="font-medium text-slate-900 dark:text-white text-sm">{{ opt.label }}</div>
-            <div class="text-xs text-slate-500 dark:text-slate-400">{{ opt.desc }}</div>
-          </button>
-        </div>
-      </div>
+      <DifficultySelector v-model="difficulty" />
 
       <!-- Question Count -->
       <div>
@@ -474,8 +443,7 @@ async function restartFromPrompt() {
 
       <!-- Difficulty & Mode info -->
       <div class="text-sm text-slate-500 dark:text-slate-400">
-        {{ difficultyOptions.find(d => d.value === difficulty)?.icon }}
-        {{ difficultyOptions.find(d => d.value === difficulty)?.label }} ·
+        {{ { mixed: '🎲 Mixed', easy: '🟢 Easy', medium: '🟡 Medium', hard: '🔴 Hard' }[difficulty] }} ·
         {{ quizData.questionCount }} questions
       </div>
 

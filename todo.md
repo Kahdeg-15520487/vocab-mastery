@@ -4,11 +4,11 @@
 
 ## Pending
 
-- [ ] **#203** Frontend: Resume QuizView from active session
-- [ ] **#204** Frontend: Resume FillBlankView from active session
-- [ ] **#205** Frontend: Resume SpellingView from active session
-- [ ] **#206** Frontend: Resume LearnView/ReviewView from active session
-- [ ] **#207** Frontend: Single-tab practice warning popup
+- [ ] **#208** **[high]** Add subscription tier enforcement middleware (limit lists, words/list, LLM calls per tier) #backend #subscriptions
+- [ ] **#209** **[high]** Google OAuth: backend callback route + frontend OAuthCallback.vue integration #auth #oauth
+- [ ] **#210** **[high]** LLM word list generation: admin config → user-facing "Generate List" button in ListsView #llm #lists
+- [ ] **#211** Favorites view: wire up word favorites (heart icon on browse/word detail → favorites list) #frontend
+- [ ] **#212** LeaderboardView: implement with real data from stats API #frontend #gamification
 
 ## Completed
 
@@ -81,6 +81,11 @@
 - [x] **#200** Backend: GET /sessions/active - return user's incomplete session with full state
 - [x] **#201** Backend: Auto-cleanup incomplete sessions when creating new ones
 - [x] **#202** Frontend: Active session composable - resume incomplete session on mount
+- [x] **#203** Frontend: Resume QuizView from active session
+- [x] **#204** Frontend: Resume FillBlankView from active session
+- [x] **#205** Frontend: Resume SpellingView from active session
+- [x] **#206** Frontend: Resume LearnView/ReviewView from active session
+- [x] **#207** Frontend: Single-tab practice warning popup
 
 <!-- Raw Data -->
 ```json
@@ -1007,49 +1012,113 @@
     {
       "id": 203,
       "text": "Frontend: Resume QuizView from active session",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [],
       "createdAt": 1774940097587,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774941653961
     },
     {
       "id": 204,
       "text": "Frontend: Resume FillBlankView from active session",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [],
       "createdAt": 1774940097587,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774941653962
     },
     {
       "id": 205,
       "text": "Frontend: Resume SpellingView from active session",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [],
       "createdAt": 1774940097588,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774941653962
     },
     {
       "id": 206,
       "text": "Frontend: Resume LearnView/ReviewView from active session",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [],
       "createdAt": 1774940097588,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774941653963
     },
     {
       "id": 207,
       "text": "Frontend: Single-tab practice warning popup",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [],
       "createdAt": 1774940097588,
+      "archived": false,
+      "completedAt": 1774941653963
+    },
+    {
+      "id": 208,
+      "text": "Add subscription tier enforcement middleware (limit lists, words/list, LLM calls per tier)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "backend",
+        "subscriptions"
+      ],
+      "createdAt": 1774942162907,
+      "archived": false
+    },
+    {
+      "id": 209,
+      "text": "Google OAuth: backend callback route + frontend OAuthCallback.vue integration",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "auth",
+        "oauth"
+      ],
+      "createdAt": 1774942168648,
+      "archived": false
+    },
+    {
+      "id": 210,
+      "text": "LLM word list generation: admin config → user-facing \"Generate List\" button in ListsView",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "llm",
+        "lists"
+      ],
+      "createdAt": 1774942214409,
+      "archived": false
+    },
+    {
+      "id": 211,
+      "text": "Favorites view: wire up word favorites (heart icon on browse/word detail → favorites list)",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "frontend"
+      ],
+      "createdAt": 1774942223471,
+      "archived": false
+    },
+    {
+      "id": 212,
+      "text": "LeaderboardView: implement with real data from stats API",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "frontend",
+        "gamification"
+      ],
+      "createdAt": 1774942233180,
       "archived": false
     }
   ],
-  "nextId": 208
+  "nextId": 213
 }
 ```
