@@ -164,6 +164,7 @@ async function completeSession() {
   try {
     const result = await request<any>(`/sessions/${sessionId.value}/complete`, {
       method: 'POST',
+      body: JSON.stringify({}),
     })
     xpEarned.value = result.xpEarned || 0
     leveledUp.value = result.leveledUp || false

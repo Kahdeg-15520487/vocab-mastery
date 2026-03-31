@@ -174,7 +174,7 @@ async function completeSession() {
   try {
     const result = await request<{ xpEarned?: number; leveledUp?: boolean; newAchievements?: string[] }>(`/sessions/${quizData.value!.sessionId}/complete`, {
       method: 'POST',
-      body: '{}',
+      body: JSON.stringify({}),
     })
     quizResult.value = result
     if (result.leveledUp) {

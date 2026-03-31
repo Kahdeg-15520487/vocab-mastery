@@ -266,6 +266,7 @@ export const sessionsApi = {
   complete: (id: string) =>
     request<any>(`/sessions/${id}/complete`, {
       method: 'POST',
+      body: JSON.stringify({}),
     }),
 }
 
