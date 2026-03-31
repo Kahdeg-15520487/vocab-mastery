@@ -109,6 +109,13 @@
             ✍️ Writing Practice
           </button>
           <button
+            v-if="currentSprint?.status === 'ACTIVE' && sprintProgress >= 100"
+            @click="handleComplete"
+            class="px-4 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600"
+          >
+            ✓ Complete Sprint
+          </button>
+          <button
             v-if="currentSprint.status === 'ACTIVE'"
             @click="handleAbandon"
             class="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30"
@@ -333,6 +340,19 @@ async function handleAbandon() {
     store.fetchSprints()
   } catch (e: any) {
     toast.error(e.message || 'Failed to abandon sprint')
+  }
+}
+
+async function handleComplete() {
+  if (!currentSprint.value) return
+  if (!confirm('Complete this sprint and start the next one?')) return
+  try {
+    await store.completeSprint(currentSprint.value.id)
+    toast.success('🎉 Sprint completed! Creating next sprint...')
+    await store.fetchDashboard()
+    await store.fetchSprints()
+  } catch (e: any) {
+    toast.error(e.message || 'Failed to complete sprint')
   }
 }
 

@@ -114,6 +114,20 @@ export async function sprintRoutes(app: FastifyInstance) {
     return { sprint: updated }
   })
 
+  // Complete a sprint manually
+  app.post('/:id/complete', async (request) => {
+    const userId = (request.user as any).userId
+    const { id } = request.params as { id: string }
+
+    await advanceSprintPhase(userId, id)
+    const updated = await prisma.sprint.findFirst({
+      where: { id, userId, status: 'COMPLETED' },
+    })
+    if (!updated) throw { statusCode: 400, message: 'Cannot complete this sprint' }
+
+    return { sprint: updated }
+  })
+
   // Get sprint words
   app.get('/:id/words', async (request) => {
     const userId = (request.user as any).userId

@@ -104,6 +104,20 @@ export const useSprintStore = defineStore('sprint', () => {
     }
   }
 
+  async function completeSprint(id: string) {
+    try {
+      loading.value = true
+      error.value = null
+      await sprintApi.complete(id)
+      currentSprint.value = null
+      sprintStats.value = null
+    } catch (e: any) {
+      error.value = e.message
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     currentSprint,
     sprintStats,
@@ -122,5 +136,6 @@ export const useSprintStore = defineStore('sprint', () => {
     createSprint,
     startSprint,
     abandonSprint,
+    completeSprint,
   }
 })

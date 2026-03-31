@@ -537,6 +537,11 @@ export const sprintApi = {
       method: 'POST',
     }),
 
+  complete: (id: string) =>
+    request<{ sprint: any }>(`/sprints/${id}/complete`, {
+      method: 'POST',
+    }),
+
   getWords: (id: string) =>
     request<{ words: any[] }>(`/sprints/${id}/words`),
 
