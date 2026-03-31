@@ -1,0 +1,2954 @@
+{
+  "Animals": {
+    "topics": [
+      {
+        "topic": "Animals",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/animals",
+        "subtopics": [
+          {
+            "name": "Animal behaviour",
+            "sublist": "animal_behaviour_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/animals?sublist=animal_behaviour_t"
+          },
+          {
+            "name": "Animal homes",
+            "sublist": "animal_homes_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/animals?sublist=animal_homes_t"
+          },
+          {
+            "name": "Animals in general",
+            "sublist": "animals_in_general_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/animals?sublist=animals_in_general_t"
+          },
+          {
+            "name": "Dogs",
+            "sublist": "dogs_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/animals?sublist=dogs_t"
+          },
+          {
+            "name": "Farm animals",
+            "sublist": "farm_animals_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/animals?sublist=farm_animals_t"
+          },
+          {
+            "name": "Groups of animals",
+            "sublist": "groups_of_animals_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/animals?sublist=groups_of_animals_t"
+          },
+          {
+            "name": "Parts of animals",
+            "sublist": "parts_of_animals_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/animals?sublist=parts_of_animals_t"
+          },
+          {
+            "name": "Pets",
+            "sublist": "pets_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/animals?sublist=pets_t"
+          },
+          {
+            "name": "Reptiles and amphibians",
+            "sublist": "amphibians_and_reptiles_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/animals?sublist=amphibians_and_reptiles_t"
+          },
+          {
+            "name": "Wild mammals",
+            "sublist": "wild_mammals_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/animals?sublist=wild_mammals_t"
+          },
+          {
+            "name": "Working animals",
+            "sublist": "working_animals_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/animals?sublist=working_animals_t"
+          }
+        ]
+      },
+      {
+        "topic": "Birds",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/birds",
+        "subtopics": [
+          {
+            "name": "Bird behaviour",
+            "sublist": "bird_behaviour_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/birds?sublist=bird_behaviour_t"
+          },
+          {
+            "name": "Bird homes",
+            "sublist": "bird_homes_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/birds?sublist=bird_homes_t"
+          },
+          {
+            "name": "Birds",
+            "sublist": "birds_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/birds?sublist=birds_t"
+          },
+          {
+            "name": "Parts of birds",
+            "sublist": "parts_of_birds_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/birds?sublist=parts_of_birds_t"
+          }
+        ]
+      },
+      {
+        "topic": "Fish and shellfish",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/fish-and-shellfish",
+        "subtopics": [
+          {
+            "name": "Fish",
+            "sublist": "fish_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/fish-and-shellfish?sublist=fish_t"
+          },
+          {
+            "name": "Other sea creatures",
+            "sublist": "other_sea_creatures_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/fish-and-shellfish?sublist=other_sea_creatures_t"
+          },
+          {
+            "name": "Parts of fish",
+            "sublist": "parts_of_fish_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/fish-and-shellfish?sublist=parts_of_fish_t"
+          },
+          {
+            "name": "Shellfish",
+            "sublist": "shellfish_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/fish-and-shellfish?sublist=shellfish_t"
+          }
+        ]
+      },
+      {
+        "topic": "Insects, worms, etc.",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/insects-worms-etc",
+        "subtopics": [
+          {
+            "name": "Insect behaviour",
+            "sublist": "insect_behaviour_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/insects-worms-etc?sublist=insect_behaviour_t"
+          },
+          {
+            "name": "Insect forms",
+            "sublist": "insect_forms_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/insects-worms-etc?sublist=insect_forms_t"
+          },
+          {
+            "name": "Insect homes",
+            "sublist": "insect_homes_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/insects-worms-etc?sublist=insect_homes_t"
+          },
+          {
+            "name": "Insects",
+            "sublist": "insects_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/insects-worms-etc?sublist=insects_t"
+          },
+          {
+            "name": "Other invertebrates",
+            "sublist": "other_invertebrates_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/insects-worms-etc?sublist=other_invertebrates_t"
+          },
+          {
+            "name": "Parts of insects",
+            "sublist": "parts_of_insects_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/insects-worms-etc?sublist=parts_of_insects_t"
+          },
+          {
+            "name": "Spiders, etc.",
+            "sublist": "spiders_etc_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/insects-worms-etc?sublist=spiders_etc_t"
+          },
+          {
+            "name": "Worms",
+            "sublist": "worms_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/insects-worms-etc?sublist=worms_t"
+          }
+        ]
+      }
+    ],
+    "words": []
+  },
+  "Appearance": {
+    "topics": [
+      {
+        "topic": "Appearance",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/appearance",
+        "subtopics": [
+          {
+            "name": "Attractiveness",
+            "sublist": "attractiveness_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/appearance?sublist=attractiveness_t"
+          },
+          {
+            "name": "Beauty products",
+            "sublist": "beauty_products_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/appearance?sublist=beauty_products_t"
+          },
+          {
+            "name": "Body shape",
+            "sublist": "body_shape_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/appearance?sublist=body_shape_t"
+          },
+          {
+            "name": "Describing hair",
+            "sublist": "describing_hair_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/appearance?sublist=describing_hair_t"
+          },
+          {
+            "name": "Facial expressions",
+            "sublist": "facial_expressions_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/appearance?sublist=facial_expressions_t"
+          },
+          {
+            "name": "Facial hair",
+            "sublist": "facial_hair_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/appearance?sublist=facial_hair_t"
+          },
+          {
+            "name": "Posture and movement",
+            "sublist": "posture_and_movement_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/appearance?sublist=posture_and_movement_t"
+          },
+          {
+            "name": "Skin",
+            "sublist": "skin_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/appearance?sublist=skin_t"
+          },
+          {
+            "name": "Styling hair",
+            "sublist": "styling_hair_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/appearance?sublist=styling_hair_t"
+          }
+        ]
+      },
+      {
+        "topic": "Body",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/body",
+        "subtopics": [
+          {
+            "name": "Face",
+            "sublist": "face_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/body?sublist=face_t"
+          },
+          {
+            "name": "Hands and feet",
+            "sublist": "hands_and_feet_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/body?sublist=hands_and_feet_t"
+          },
+          {
+            "name": "Inside the body",
+            "sublist": "inside_the_body_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/body?sublist=inside_the_body_t"
+          },
+          {
+            "name": "Mouth and teeth",
+            "sublist": "mouth_and_teeth_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/body?sublist=mouth_and_teeth_t"
+          },
+          {
+            "name": "Parts of the body",
+            "sublist": "parts_of_the_body_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/body?sublist=parts_of_the_body_t"
+          },
+          {
+            "name": "Skeleton and muscles",
+            "sublist": "skeleton_and_muscles_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/body?sublist=skeleton_and_muscles_t"
+          }
+        ]
+      },
+      {
+        "topic": "Clothes and Fashion",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/clothes-and-fashion",
+        "subtopics": [
+          {
+            "name": "Accessories",
+            "sublist": "accessories_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/clothes-and-fashion?sublist=accessories_t"
+          },
+          {
+            "name": "Describing clothes",
+            "sublist": "describing_clothes_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/clothes-and-fashion?sublist=describing_clothes_t"
+          },
+          {
+            "name": "Footwear",
+            "sublist": "footwear_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/clothes-and-fashion?sublist=footwear_t"
+          },
+          {
+            "name": "Hats",
+            "sublist": "hats_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/clothes-and-fashion?sublist=hats_t"
+          },
+          {
+            "name": "Items of clothing",
+            "sublist": "items_of_clothing_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/clothes-and-fashion?sublist=items_of_clothing_t"
+          },
+          {
+            "name": "Jewellery",
+            "sublist": "jewellery_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/clothes-and-fashion?sublist=jewellery_t"
+          },
+          {
+            "name": "Parts of clothing",
+            "sublist": "parts_of_clothing_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/clothes-and-fashion?sublist=parts_of_clothing_t"
+          },
+          {
+            "name": "The fashion world",
+            "sublist": "the_fashion_world_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/clothes-and-fashion?sublist=the_fashion_world_t"
+          },
+          {
+            "name": "Wearing clothes",
+            "sublist": "wearing_clothes_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/clothes-and-fashion?sublist=wearing_clothes_t"
+          }
+        ]
+      },
+      {
+        "topic": "Colours and Shapes",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/colours-and-shapes",
+        "subtopics": [
+          {
+            "name": "Colours",
+            "sublist": "colours_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/colours-and-shapes?sublist=colours_t"
+          },
+          {
+            "name": "Shapes",
+            "sublist": "shapes_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/colours-and-shapes?sublist=shapes_t"
+          }
+        ]
+      }
+    ],
+    "words": []
+  },
+  "Communication": {
+    "topics": [
+      {
+        "topic": "Language",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/language",
+        "subtopics": [
+          {
+            "name": "Features of language",
+            "sublist": "linguistic_devices_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/language?sublist=linguistic_devices_t"
+          },
+          {
+            "name": "Grammar",
+            "sublist": "grammar_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/language?sublist=grammar_t"
+          },
+          {
+            "name": "Language skills",
+            "sublist": "language_skills_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/language?sublist=language_skills_t"
+          },
+          {
+            "name": "Languages",
+            "sublist": "languages_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/language?sublist=languages_t"
+          },
+          {
+            "name": "Phonetics",
+            "sublist": "phonetics_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/language?sublist=phonetics_t"
+          },
+          {
+            "name": "Punctuation",
+            "sublist": "punctuation_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/language?sublist=punctuation_t"
+          }
+        ]
+      },
+      {
+        "topic": "Phones, email and the internet",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/phones-email-and-the-internet",
+        "subtopics": [
+          {
+            "name": "Communication devices",
+            "sublist": "communication_devices_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/phones-email-and-the-internet?sublist=communication_devices_t"
+          },
+          {
+            "name": "Email",
+            "sublist": "email_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/phones-email-and-the-internet?sublist=email_t"
+          },
+          {
+            "name": "Making calls",
+            "sublist": "making_calls_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/phones-email-and-the-internet?sublist=making_calls_t"
+          },
+          {
+            "name": "Phone services",
+            "sublist": "phone_services_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/phones-email-and-the-internet?sublist=phone_services_t"
+          },
+          {
+            "name": "Social media",
+            "sublist": "social_networking_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/phones-email-and-the-internet?sublist=social_networking_t"
+          },
+          {
+            "name": "Text messages",
+            "sublist": "text_messages_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/phones-email-and-the-internet?sublist=text_messages_t"
+          },
+          {
+            "name": "Using the internet",
+            "sublist": "using_the_internet_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/phones-email-and-the-internet?sublist=using_the_internet_t"
+          },
+          {
+            "name": "Websites",
+            "sublist": "websites_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/phones-email-and-the-internet?sublist=websites_t"
+          }
+        ]
+      }
+    ],
+    "words": []
+  },
+  "Culture": {
+    "topics": [
+      {
+        "topic": "Art",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/art",
+        "subtopics": [
+          {
+            "name": "Art equipment",
+            "sublist": "art_equipment_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/art?sublist=art_equipment_t"
+          },
+          {
+            "name": "Artwork and techniques",
+            "sublist": "artwork_and_techniques_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/art?sublist=artwork_and_techniques_t"
+          },
+          {
+            "name": "Describing art",
+            "sublist": "describing_art_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/art?sublist=describing_art_t"
+          },
+          {
+            "name": "Styles of art",
+            "sublist": "styles_of_art_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/art?sublist=styles_of_art_t"
+          },
+          {
+            "name": "The art world",
+            "sublist": "the_art_world_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/art?sublist=the_art_world_t"
+          }
+        ]
+      },
+      {
+        "topic": "Film and theatre",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/film-and-theatre",
+        "subtopics": [
+          {
+            "name": "Elements of a play or film",
+            "sublist": "elements_of_a_play_or_film_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/film-and-theatre?sublist=elements_of_a_play_or_film_t"
+          },
+          {
+            "name": "Film reviews and promotion",
+            "sublist": "film_reviews_and_promotion_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/film-and-theatre?sublist=film_reviews_and_promotion_t"
+          },
+          {
+            "name": "Film-making equipment",
+            "sublist": "film_making_equipment_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/film-and-theatre?sublist=film_making_equipment_t"
+          },
+          {
+            "name": "In the theatre",
+            "sublist": "in_the_theatre_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/film-and-theatre?sublist=in_the_theatre_t"
+          },
+          {
+            "name": "Making films",
+            "sublist": "making_films_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/film-and-theatre?sublist=making_films_t"
+          },
+          {
+            "name": "People in film and theatre",
+            "sublist": "people_in_film_and_theatre_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/film-and-theatre?sublist=people_in_film_and_theatre_t"
+          },
+          {
+            "name": "Producing a play",
+            "sublist": "producing_a_play_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/film-and-theatre?sublist=producing_a_play_t"
+          },
+          {
+            "name": "Showing films",
+            "sublist": "showing_films_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/film-and-theatre?sublist=showing_films_t"
+          },
+          {
+            "name": "Types of film",
+            "sublist": "types_of_film_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/film-and-theatre?sublist=types_of_film_t"
+          },
+          {
+            "name": "Types of play",
+            "sublist": "types_of_play_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/film-and-theatre?sublist=types_of_play_t"
+          }
+        ]
+      },
+      {
+        "topic": "Literature and writing",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/literature-and-writing",
+        "subtopics": [
+          {
+            "name": "Characters in a story",
+            "sublist": "characters_in_a_story_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/literature-and-writing?sublist=characters_in_a_story_t"
+          },
+          {
+            "name": "Describing a story",
+            "sublist": "describing_a_story_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/literature-and-writing?sublist=describing_a_story_t"
+          },
+          {
+            "name": "Elements of a story",
+            "sublist": "elements_of_a_story_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/literature-and-writing?sublist=elements_of_a_story_t"
+          },
+          {
+            "name": "Parts of a book",
+            "sublist": "parts_of_a_book_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/literature-and-writing?sublist=parts_of_a_book_t"
+          },
+          {
+            "name": "People in publishing",
+            "sublist": "people_in_publishing_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/literature-and-writing?sublist=people_in_publishing_t"
+          },
+          {
+            "name": "Poetry",
+            "sublist": "poetry_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/literature-and-writing?sublist=poetry_t"
+          },
+          {
+            "name": "Types of story",
+            "sublist": "types_of_story_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/literature-and-writing?sublist=types_of_story_t"
+          },
+          {
+            "name": "Types of text",
+            "sublist": "types_of_text_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/literature-and-writing?sublist=types_of_text_t"
+          },
+          {
+            "name": "Writing and publishing",
+            "sublist": "writing_and_publishing_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/literature-and-writing?sublist=writing_and_publishing_t"
+          }
+        ]
+      },
+      {
+        "topic": "Music",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/music",
+        "subtopics": [
+          {
+            "name": "Describing music",
+            "sublist": "describing_music_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/music?sublist=describing_music_t"
+          },
+          {
+            "name": "Listening to music",
+            "sublist": "listening_to_music_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/music?sublist=listening_to_music_t"
+          },
+          {
+            "name": "Live music",
+            "sublist": "live_music_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/music?sublist=live_music_t"
+          },
+          {
+            "name": "Musical instruments",
+            "sublist": "musical_instruments_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/music?sublist=musical_instruments_t"
+          },
+          {
+            "name": "People in the music world",
+            "sublist": "people_in_the_music_world_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/music?sublist=people_in_the_music_world_t"
+          },
+          {
+            "name": "Pieces of music",
+            "sublist": "pieces_of_music_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/music?sublist=pieces_of_music_t"
+          },
+          {
+            "name": "Producing music",
+            "sublist": "producing_music_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/music?sublist=producing_music_t"
+          },
+          {
+            "name": "Reading music",
+            "sublist": "reading_music_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/music?sublist=reading_music_t"
+          },
+          {
+            "name": "Styles of music",
+            "sublist": "styles_of_music_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/music?sublist=styles_of_music_t"
+          }
+        ]
+      },
+      {
+        "topic": "TV, radio and news",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/tv-radio-and-news",
+        "subtopics": [
+          {
+            "name": "Broadcasting",
+            "sublist": "broadcasting_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/tv-radio-and-news?sublist=broadcasting_t"
+          },
+          {
+            "name": "Celebrity news",
+            "sublist": "celebrity_news_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/tv-radio-and-news?sublist=celebrity_news_t"
+          },
+          {
+            "name": "Journalism",
+            "sublist": "journalism_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/tv-radio-and-news?sublist=journalism_t"
+          },
+          {
+            "name": "Media people",
+            "sublist": "media_people_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/tv-radio-and-news?sublist=media_people_t"
+          },
+          {
+            "name": "TV and radio shows",
+            "sublist": "tv_and_radio_shows_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/tv-radio-and-news?sublist=tv_and_radio_shows_t"
+          },
+          {
+            "name": "The press",
+            "sublist": "the_press_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/tv-radio-and-news?sublist=the_press_t"
+          },
+          {
+            "name": "Watching TV/Listening to the radio",
+            "sublist": "watching_tv_listening_to_the_radio_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/tv-radio-and-news?sublist=watching_tv_listening_to_the_radio_t"
+          }
+        ]
+      }
+    ],
+    "words": []
+  },
+  "Food and drink": {
+    "topics": [
+      {
+        "topic": "Cooking and eating",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/cooking-and-eating",
+        "subtopics": [
+          {
+            "name": "At the dining table",
+            "sublist": "at_the_dining_table_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/cooking-and-eating?sublist=at_the_dining_table_t"
+          },
+          {
+            "name": "Diet",
+            "sublist": "diet_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/cooking-and-eating?sublist=diet_t"
+          },
+          {
+            "name": "Eating out",
+            "sublist": "eating_out_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/cooking-and-eating?sublist=eating_out_t"
+          },
+          {
+            "name": "Kitchen equipment",
+            "sublist": "kitchen_equipment_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/cooking-and-eating?sublist=kitchen_equipment_t"
+          },
+          {
+            "name": "Meals",
+            "sublist": "meals_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/cooking-and-eating?sublist=meals_t"
+          },
+          {
+            "name": "Preparing food",
+            "sublist": "preparing_food_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/cooking-and-eating?sublist=preparing_food_t"
+          },
+          {
+            "name": "Restaurant people",
+            "sublist": "restaurant_people_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/cooking-and-eating?sublist=restaurant_people_t"
+          },
+          {
+            "name": "Taste and texture of food",
+            "sublist": "taste_and_texture_of_food_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/cooking-and-eating?sublist=taste_and_texture_of_food_t"
+          },
+          {
+            "name": "Types of restaurant",
+            "sublist": "types_of_restaurant_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/cooking-and-eating?sublist=types_of_restaurant_t"
+          }
+        ]
+      },
+      {
+        "topic": "Drinks",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/drinks",
+        "subtopics": [
+          {
+            "name": "Alcoholic drinks",
+            "sublist": "alcoholic_drinks_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/drinks?sublist=alcoholic_drinks_t"
+          },
+          {
+            "name": "Drinking",
+            "sublist": "drinking_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/drinks?sublist=drinking_t"
+          },
+          {
+            "name": "Non-alcoholic drinks",
+            "sublist": "non_alcoholic_drinks_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/drinks?sublist=non_alcoholic_drinks_t"
+          },
+          {
+            "name": "Preparing drinks",
+            "sublist": "preparing_drinks_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/drinks?sublist=preparing_drinks_t"
+          }
+        ]
+      },
+      {
+        "topic": "Food",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/food",
+        "subtopics": [
+          {
+            "name": "Carbohydrates",
+            "sublist": "carbohydrates_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/food?sublist=carbohydrates_t"
+          },
+          {
+            "name": "Dairy and fats",
+            "sublist": "dairy_and_fats_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/food?sublist=dairy_and_fats_t"
+          },
+          {
+            "name": "Fruit and nuts",
+            "sublist": "fruit_and_nuts_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/food?sublist=fruit_and_nuts_t"
+          },
+          {
+            "name": "Herbs and spices",
+            "sublist": "herbs_and_spices_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/food?sublist=herbs_and_spices_t"
+          },
+          {
+            "name": "Meat, fish and seafood",
+            "sublist": "meat_fish_and_seafood_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/food?sublist=meat_fish_and_seafood_t"
+          },
+          {
+            "name": "Sauces",
+            "sublist": "sauces_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/food?sublist=sauces_t"
+          },
+          {
+            "name": "Savoury dishes",
+            "sublist": "savoury_dishes_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/food?sublist=savoury_dishes_t"
+          },
+          {
+            "name": "Sweets and desserts",
+            "sublist": "sweets_and_desserts_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/food?sublist=sweets_and_desserts_t"
+          },
+          {
+            "name": "Vegetables",
+            "sublist": "vegetables_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/food?sublist=vegetables_t"
+          }
+        ]
+      }
+    ],
+    "words": []
+  },
+  "Functions": {
+    "topics": [
+      {
+        "topic": "Discussion and agreement",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/discussion-and-agreement",
+        "subtopics": [
+          {
+            "name": "Agreement",
+            "sublist": "agreement_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/discussion-and-agreement?sublist=agreement_t"
+          },
+          {
+            "name": "Discussion",
+            "sublist": "discussion_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/discussion-and-agreement?sublist=discussion_t"
+          },
+          {
+            "name": "Ending an agreement",
+            "sublist": "ending_an_agreement_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/discussion-and-agreement?sublist=ending_an_agreement_t"
+          },
+          {
+            "name": "Mediation",
+            "sublist": "mediation_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/discussion-and-agreement?sublist=mediation_t"
+          },
+          {
+            "name": "Persuasion",
+            "sublist": "persuasion_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/discussion-and-agreement?sublist=persuasion_t"
+          },
+          {
+            "name": "Working together",
+            "sublist": "working_together_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/discussion-and-agreement?sublist=working_together_t"
+          }
+        ]
+      },
+      {
+        "topic": "Doubt, guessing and certainty",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/doubt-guessing-and-certainty",
+        "subtopics": [
+          {
+            "name": "Certainty",
+            "sublist": "certainty_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/doubt-guessing-and-certainty?sublist=certainty_t"
+          },
+          {
+            "name": "Doubt",
+            "sublist": "doubt_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/doubt-guessing-and-certainty?sublist=doubt_t"
+          },
+          {
+            "name": "Guessing",
+            "sublist": "guessing_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/doubt-guessing-and-certainty?sublist=guessing_t"
+          },
+          {
+            "name": "Possibility",
+            "sublist": "possibility_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/doubt-guessing-and-certainty?sublist=possibility_t"
+          },
+          {
+            "name": "Probability",
+            "sublist": "probability_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/doubt-guessing-and-certainty?sublist=probability_t"
+          }
+        ]
+      },
+      {
+        "topic": "Opinion and argument",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/opinion-and-argument",
+        "subtopics": [
+          {
+            "name": "Expressing agreement",
+            "sublist": "expressing_agreement_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/opinion-and-argument?sublist=expressing_agreement_t"
+          },
+          {
+            "name": "Expressing an opinion",
+            "sublist": "expressing_an_opinion_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/opinion-and-argument?sublist=expressing_an_opinion_t"
+          },
+          {
+            "name": "Expressing disagreement",
+            "sublist": "expressing_disagreement_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/opinion-and-argument?sublist=expressing_disagreement_t"
+          },
+          {
+            "name": "Forming an opinion",
+            "sublist": "forming_an_opinion_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/opinion-and-argument?sublist=forming_an_opinion_t"
+          },
+          {
+            "name": "Having a disagreement",
+            "sublist": "having_a_disagreement_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/opinion-and-argument?sublist=having_a_disagreement_t"
+          },
+          {
+            "name": "Making an argument",
+            "sublist": "making_an_argument_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/opinion-and-argument?sublist=making_an_argument_t"
+          },
+          {
+            "name": "Matching",
+            "sublist": "matching_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/opinion-and-argument?sublist=matching_t"
+          },
+          {
+            "name": "Not matching",
+            "sublist": "not_matching_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/opinion-and-argument?sublist=not_matching_t"
+          }
+        ]
+      },
+      {
+        "topic": "Permission and obligation",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/permission-and-obligation",
+        "subtopics": [
+          {
+            "name": "Allowed",
+            "sublist": "allowed_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/permission-and-obligation?sublist=allowed_t"
+          },
+          {
+            "name": "Must",
+            "sublist": "must_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/permission-and-obligation?sublist=must_t"
+          },
+          {
+            "name": "Not allowed",
+            "sublist": "not_allowed_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/permission-and-obligation?sublist=not_allowed_t"
+          },
+          {
+            "name": "Rules",
+            "sublist": "rules_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/permission-and-obligation?sublist=rules_t"
+          }
+        ]
+      },
+      {
+        "topic": "Preferences and decisions",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/preferences-and-decisions",
+        "subtopics": [
+          {
+            "name": "Decide",
+            "sublist": "decision_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/preferences-and-decisions?sublist=decision_t"
+          },
+          {
+            "name": "Dislike",
+            "sublist": "dislike_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/preferences-and-decisions?sublist=dislike_t"
+          },
+          {
+            "name": "Like",
+            "sublist": "like_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/preferences-and-decisions?sublist=like_t"
+          },
+          {
+            "name": "Prefer",
+            "sublist": "prefer_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/preferences-and-decisions?sublist=prefer_t"
+          }
+        ]
+      },
+      {
+        "topic": "Suggestions and advice",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/suggestions-and-advice",
+        "subtopics": [
+          {
+            "name": "Advice",
+            "sublist": "advice_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/suggestions-and-advice?sublist=advice_t"
+          },
+          {
+            "name": "Suggestion",
+            "sublist": "suggestion_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/suggestions-and-advice?sublist=suggestion_t"
+          }
+        ]
+      }
+    ],
+    "words": []
+  },
+  "Health": {
+    "topics": [
+      {
+        "topic": "Disability",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/disability",
+        "subtopics": [
+          {
+            "name": "Living with disability",
+            "sublist": "living_with_disability_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/disability?sublist=living_with_disability_t"
+          },
+          {
+            "name": "Types of disability",
+            "sublist": "types_of_disability_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/disability?sublist=types_of_disability_t"
+          }
+        ]
+      },
+      {
+        "topic": "Health and Fitness",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/health-and-fitness",
+        "subtopics": [
+          {
+            "name": "Exercise",
+            "sublist": "exercise_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/health-and-fitness?sublist=exercise_t"
+          },
+          {
+            "name": "Good health",
+            "sublist": "good_health_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/health-and-fitness?sublist=good_health_t"
+          }
+        ]
+      },
+      {
+        "topic": "Health problems",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/health-problems",
+        "subtopics": [
+          {
+            "name": "Addiction",
+            "sublist": "addiction_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/health-problems?sublist=addiction_t"
+          },
+          {
+            "name": "Being ill",
+            "sublist": "being_ill_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/health-problems?sublist=being_ill_t"
+          },
+          {
+            "name": "Injuries",
+            "sublist": "injuries_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/health-problems?sublist=injuries_t"
+          },
+          {
+            "name": "Poor health",
+            "sublist": "poor_health_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/health-problems?sublist=poor_health_t"
+          },
+          {
+            "name": "Recovering from illness",
+            "sublist": "recovering_from_illness_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/health-problems?sublist=recovering_from_illness_t"
+          },
+          {
+            "name": "Types of illness",
+            "sublist": "types_of_illness_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/health-problems?sublist=types_of_illness_t"
+          }
+        ]
+      },
+      {
+        "topic": "Healthcare",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/healthcare",
+        "subtopics": [
+          {
+            "name": "Complementary medicine",
+            "sublist": "complementary_medicine_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/healthcare?sublist=complementary_medicine_t"
+          },
+          {
+            "name": "Healthcare",
+            "sublist": "health_care_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/healthcare?sublist=health_care_t"
+          },
+          {
+            "name": "Hospitals",
+            "sublist": "hospitals_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/healthcare?sublist=hospitals_t"
+          },
+          {
+            "name": "Medical equipment",
+            "sublist": "medical_equipment_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/healthcare?sublist=medical_equipment_t"
+          },
+          {
+            "name": "Medical examinations",
+            "sublist": "medical_examinations_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/healthcare?sublist=medical_examinations_t"
+          },
+          {
+            "name": "Medical staff",
+            "sublist": "medical_staff_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/healthcare?sublist=medical_staff_t"
+          },
+          {
+            "name": "Operations",
+            "sublist": "operations_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/healthcare?sublist=operations_t"
+          }
+        ]
+      },
+      {
+        "topic": "Mental health",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/mental-health",
+        "subtopics": [
+          {
+            "name": "Mental health care",
+            "sublist": "mental_health_care_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/mental-health?sublist=mental_health_care_t"
+          },
+          {
+            "name": "Mental health problems",
+            "sublist": "mental_and_emotional_problems_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/mental-health?sublist=mental_and_emotional_problems_t"
+          }
+        ]
+      }
+    ],
+    "words": []
+  },
+  "Homes and buildings": {
+    "topics": [
+      {
+        "topic": "Buildings",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/buildings",
+        "subtopics": [
+          {
+            "name": "Architectural features",
+            "sublist": "architectural_features_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/buildings?sublist=architectural_features_t"
+          },
+          {
+            "name": "Architectural styles",
+            "sublist": "architectural_styles_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/buildings?sublist=architectural_styles_t"
+          },
+          {
+            "name": "Building location",
+            "sublist": "building_location_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/buildings?sublist=building_location_t"
+          },
+          {
+            "name": "Construction",
+            "sublist": "construction_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/buildings?sublist=construction_t"
+          },
+          {
+            "name": "Describing buildings",
+            "sublist": "describing_buildings_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/buildings?sublist=describing_buildings_t"
+          },
+          {
+            "name": "Historic buildings",
+            "sublist": "historic_buildings_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/buildings?sublist=historic_buildings_t"
+          },
+          {
+            "name": "Parts of a building",
+            "sublist": "parts_of_a_building_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/buildings?sublist=parts_of_a_building_t"
+          },
+          {
+            "name": "Public buildings",
+            "sublist": "public_buildings_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/buildings?sublist=public_buildings_t"
+          },
+          {
+            "name": "Religious buildings",
+            "sublist": "religious_buildings_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/buildings?sublist=religious_buildings_t"
+          },
+          {
+            "name": "Types of building",
+            "sublist": "types_of_building_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/buildings?sublist=types_of_building_t"
+          }
+        ]
+      },
+      {
+        "topic": "Gardens",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/gardens",
+        "subtopics": [
+          {
+            "name": "Gardening",
+            "sublist": "gardening_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/gardens?sublist=gardening_t"
+          },
+          {
+            "name": "In the garden",
+            "sublist": "in_the_garden_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/gardens?sublist=in_the_garden_t"
+          }
+        ]
+      },
+      {
+        "topic": "Houses and homes",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/houses-and-homes",
+        "subtopics": [
+          {
+            "name": "Buying a home",
+            "sublist": "buying_a_home_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/houses-and-homes?sublist=buying_a_home_t"
+          },
+          {
+            "name": "Furniture",
+            "sublist": "furniture_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/houses-and-homes?sublist=furniture_t"
+          },
+          {
+            "name": "House equipment",
+            "sublist": "house_equipment_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/houses-and-homes?sublist=house_equipment_t"
+          },
+          {
+            "name": "Housework",
+            "sublist": "housework_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/houses-and-homes?sublist=housework_t"
+          },
+          {
+            "name": "Interior décor",
+            "sublist": "interior_decor_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/houses-and-homes?sublist=interior_decor_t"
+          },
+          {
+            "name": "Parts of a house",
+            "sublist": "parts_of_a_house_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/houses-and-homes?sublist=parts_of_a_house_t"
+          },
+          {
+            "name": "Renting a home",
+            "sublist": "renting_a_home_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/houses-and-homes?sublist=renting_a_home_t"
+          },
+          {
+            "name": "Rooms in a house",
+            "sublist": "rooms_in_a_house_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/houses-and-homes?sublist=rooms_in_a_house_t"
+          },
+          {
+            "name": "Types of house",
+            "sublist": "types_of_house_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/houses-and-homes?sublist=types_of_house_t"
+          }
+        ]
+      }
+    ],
+    "words": []
+  },
+  "Leisure": {
+    "topics": [
+      {
+        "topic": "Games and toys",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/games-and-toys",
+        "subtopics": [
+          {
+            "name": "Ball games",
+            "sublist": "ball_games_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/games-and-toys?sublist=ball_games_t"
+          },
+          {
+            "name": "Board games",
+            "sublist": "board_games_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/games-and-toys?sublist=board_games_t"
+          },
+          {
+            "name": "Card games",
+            "sublist": "card_games_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/games-and-toys?sublist=card_games_t"
+          },
+          {
+            "name": "Children's games",
+            "sublist": "childrens_games_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/games-and-toys?sublist=childrens_games_t"
+          },
+          {
+            "name": "Computer games",
+            "sublist": "computer_games_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/games-and-toys?sublist=computer_games_t"
+          },
+          {
+            "name": "Games in general",
+            "sublist": "games_in_general_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/games-and-toys?sublist=games_in_general_t"
+          },
+          {
+            "name": "Indoor games",
+            "sublist": "indoor_games_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/games-and-toys?sublist=indoor_games_t"
+          },
+          {
+            "name": "Toys",
+            "sublist": "toys_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/games-and-toys?sublist=toys_t"
+          }
+        ]
+      },
+      {
+        "topic": "Hobbies",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/hobbies",
+        "subtopics": [
+          {
+            "name": "Activities and interests",
+            "sublist": "activities_and_interests_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/hobbies?sublist=activities_and_interests_t"
+          },
+          {
+            "name": "Crafts and skills",
+            "sublist": "crafts_and_skills_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/hobbies?sublist=crafts_and_skills_t"
+          }
+        ]
+      },
+      {
+        "topic": "Shopping",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/shopping",
+        "subtopics": [
+          {
+            "name": "Departments in stores",
+            "sublist": "departments_in_stores_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/shopping?sublist=departments_in_stores_t"
+          },
+          {
+            "name": "Online shopping",
+            "sublist": "online_shopping_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/shopping?sublist=online_shopping_t"
+          },
+          {
+            "name": "Paying for shopping",
+            "sublist": "paying_for_shopping_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/shopping?sublist=paying_for_shopping_t"
+          },
+          {
+            "name": "Shopping in stores",
+            "sublist": "shopping_in_stores_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/shopping?sublist=shopping_in_stores_t"
+          },
+          {
+            "name": "Types of store",
+            "sublist": "types_of_store_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/shopping?sublist=types_of_store_t"
+          }
+        ]
+      }
+    ],
+    "words": []
+  },
+  "Notions": {
+    "topics": [
+      {
+        "topic": "Change, cause and effect",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/change-cause-and-effect",
+        "subtopics": [
+          {
+            "name": "Cause and effect",
+            "sublist": "cause_and_effect_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/change-cause-and-effect?sublist=cause_and_effect_t"
+          },
+          {
+            "name": "Change",
+            "sublist": "change_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/change-cause-and-effect?sublist=change_t"
+          }
+        ]
+      },
+      {
+        "topic": "Danger",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/danger",
+        "subtopics": [
+          {
+            "name": "Dangerous people/things",
+            "sublist": "dangerous_people_things_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/danger?sublist=dangerous_people_things_t"
+          },
+          {
+            "name": "Involving danger",
+            "sublist": "involving_danger_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/danger?sublist=involving_danger_t"
+          },
+          {
+            "name": "Preventing danger",
+            "sublist": "preventing_danger_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/danger?sublist=preventing_danger_t"
+          }
+        ]
+      },
+      {
+        "topic": "Difficulty and failure",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/difficulty-and-failure",
+        "subtopics": [
+          {
+            "name": "Accepting failure",
+            "sublist": "accepting_failure_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/difficulty-and-failure?sublist=accepting_failure_t"
+          },
+          {
+            "name": "Causing difficulty",
+            "sublist": "causing_difficulty_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/difficulty-and-failure?sublist=causing_difficulty_t"
+          },
+          {
+            "name": "Causing failure",
+            "sublist": "causing_failure_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/difficulty-and-failure?sublist=causing_failure_t"
+          },
+          {
+            "name": "Involving difficulty",
+            "sublist": "involving_difficulty_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/difficulty-and-failure?sublist=involving_difficulty_t"
+          },
+          {
+            "name": "Likely to fail",
+            "sublist": "likely_to_fail_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/difficulty-and-failure?sublist=likely_to_fail_t"
+          },
+          {
+            "name": "Resulting in failure",
+            "sublist": "resulting_in_failure_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/difficulty-and-failure?sublist=resulting_in_failure_t"
+          },
+          {
+            "name": "Unsuccessful people/things",
+            "sublist": "unsuccessful_people_things_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/difficulty-and-failure?sublist=unsuccessful_people_things_t"
+          }
+        ]
+      },
+      {
+        "topic": "Success",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/success",
+        "subtopics": [
+          {
+            "name": "Achieving success",
+            "sublist": "achieving_success_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/success?sublist=achieving_success_t"
+          },
+          {
+            "name": "Acknowledging success",
+            "sublist": "acknowledging_success_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/success?sublist=acknowledging_success_t"
+          },
+          {
+            "name": "Ambition",
+            "sublist": "ambition_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/success?sublist=ambition_t"
+          },
+          {
+            "name": "Predicting success",
+            "sublist": "predicting_success_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/success?sublist=predicting_success_t"
+          },
+          {
+            "name": "Successful people",
+            "sublist": "successful_people_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/success?sublist=successful_people_t"
+          },
+          {
+            "name": "Successful things",
+            "sublist": "successful_things_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/success?sublist=successful_things_t"
+          }
+        ]
+      }
+    ],
+    "words": []
+  },
+  "People": {
+    "topics": [
+      {
+        "topic": "Education",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/education",
+        "subtopics": [
+          {
+            "name": "Access to education",
+            "sublist": "access_to_education_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/education?sublist=access_to_education_t"
+          },
+          {
+            "name": "Degrees",
+            "sublist": "degrees_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/education?sublist=degrees_t"
+          },
+          {
+            "name": "Exams and assessment",
+            "sublist": "exams_and_assessment_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/education?sublist=exams_and_assessment_t"
+          },
+          {
+            "name": "In school",
+            "sublist": "in_school_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/education?sublist=in_school_t"
+          },
+          {
+            "name": "People in schools",
+            "sublist": "people_in_schools_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/education?sublist=people_in_schools_t"
+          },
+          {
+            "name": "School life",
+            "sublist": "school_life_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/education?sublist=school_life_t"
+          },
+          {
+            "name": "Subjects and courses",
+            "sublist": "subjects_and_courses_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/education?sublist=subjects_and_courses_t"
+          },
+          {
+            "name": "Teaching and learning",
+            "sublist": "teaching_and_learning_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/education?sublist=teaching_and_learning_t"
+          },
+          {
+            "name": "Types of school",
+            "sublist": "types_of_school_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/education?sublist=types_of_school_t"
+          },
+          {
+            "name": "Universities and colleges",
+            "sublist": "universities_and_colleges_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/education?sublist=universities_and_colleges_t"
+          },
+          {
+            "name": "University people",
+            "sublist": "university_people_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/education?sublist=university_people_t"
+          }
+        ]
+      },
+      {
+        "topic": "Family and relationships",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/family-and-relationships",
+        "subtopics": [
+          {
+            "name": "Family background",
+            "sublist": "family_background_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/family-and-relationships?sublist=family_background_t"
+          },
+          {
+            "name": "Friends",
+            "sublist": "friends_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/family-and-relationships?sublist=friends_t"
+          },
+          {
+            "name": "Names",
+            "sublist": "names_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/family-and-relationships?sublist=names_t"
+          },
+          {
+            "name": "Relationships ending",
+            "sublist": "relationships_ending_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/family-and-relationships?sublist=relationships_ending_t"
+          },
+          {
+            "name": "Relatives",
+            "sublist": "relatives_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/family-and-relationships?sublist=relatives_t"
+          },
+          {
+            "name": "Romance",
+            "sublist": "romance_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/family-and-relationships?sublist=romance_t"
+          }
+        ]
+      },
+      {
+        "topic": "Feelings",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings",
+        "subtopics": [
+          {
+            "name": "Anger",
+            "sublist": "anger_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings?sublist=anger_t"
+          },
+          {
+            "name": "Boredom",
+            "sublist": "boredom_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings?sublist=boredom_t"
+          },
+          {
+            "name": "Disappointment",
+            "sublist": "disappointment_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings?sublist=disappointment_t"
+          },
+          {
+            "name": "Disgust",
+            "sublist": "disgust_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings?sublist=disgust_t"
+          },
+          {
+            "name": "Embarrassment",
+            "sublist": "embarrassment_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings?sublist=embarrassment_t"
+          },
+          {
+            "name": "Excitement",
+            "sublist": "excitement_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings?sublist=excitement_t"
+          },
+          {
+            "name": "Fear",
+            "sublist": "fear_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings?sublist=fear_t"
+          },
+          {
+            "name": "Feelings in general",
+            "sublist": "feelings_in_general_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings?sublist=feelings_in_general_t"
+          },
+          {
+            "name": "Happiness",
+            "sublist": "happiness_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings?sublist=happiness_t"
+          },
+          {
+            "name": "Hate",
+            "sublist": "hate_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings?sublist=hate_t"
+          },
+          {
+            "name": "Hunger",
+            "sublist": "hunger_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings?sublist=hunger_t"
+          },
+          {
+            "name": "Loneliness",
+            "sublist": "loneliness_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings?sublist=loneliness_t"
+          },
+          {
+            "name": "Love",
+            "sublist": "love_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings?sublist=love_t"
+          },
+          {
+            "name": "Nervous",
+            "sublist": "nervous_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings?sublist=nervous_t"
+          },
+          {
+            "name": "Showing interest",
+            "sublist": "showing_interest_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings?sublist=showing_interest_t"
+          },
+          {
+            "name": "Surprise",
+            "sublist": "surprise_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings?sublist=surprise_t"
+          },
+          {
+            "name": "Thirst",
+            "sublist": "thirst_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings?sublist=thirst_t"
+          },
+          {
+            "name": "Tiredness",
+            "sublist": "tiredness_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings?sublist=tiredness_t"
+          },
+          {
+            "name": "Unhappiness",
+            "sublist": "unhappiness_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings?sublist=unhappiness_t"
+          },
+          {
+            "name": "Worry",
+            "sublist": "worry_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/feelings?sublist=worry_t"
+          }
+        ]
+      },
+      {
+        "topic": "Life stages",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/life-stages",
+        "subtopics": [
+          {
+            "name": "Adults",
+            "sublist": "adults_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/life-stages?sublist=adults_t"
+          },
+          {
+            "name": "Babies",
+            "sublist": "babies_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/life-stages?sublist=babies_t"
+          },
+          {
+            "name": "Birth",
+            "sublist": "birth_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/life-stages?sublist=birth_t"
+          },
+          {
+            "name": "Death",
+            "sublist": "death_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/life-stages?sublist=death_t"
+          },
+          {
+            "name": "Marriage",
+            "sublist": "marriage_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/life-stages?sublist=marriage_t"
+          },
+          {
+            "name": "Old age",
+            "sublist": "old_age_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/life-stages?sublist=old_age_t"
+          },
+          {
+            "name": "Pregnancy",
+            "sublist": "pregnancy_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/life-stages?sublist=pregnancy_t"
+          },
+          {
+            "name": "Raising children",
+            "sublist": "raising_children_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/life-stages?sublist=raising_children_t"
+          },
+          {
+            "name": "Youth",
+            "sublist": "youth_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/life-stages?sublist=youth_t"
+          }
+        ]
+      },
+      {
+        "topic": "Personal qualities",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/personal-qualities",
+        "subtopics": [
+          {
+            "name": "Annoying",
+            "sublist": "annoying_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/personal-qualities?sublist=annoying_t"
+          },
+          {
+            "name": "Brave",
+            "sublist": "brave_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/personal-qualities?sublist=brave_t"
+          },
+          {
+            "name": "Clever",
+            "sublist": "clever_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/personal-qualities?sublist=clever_t"
+          },
+          {
+            "name": "Confident",
+            "sublist": "confident_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/personal-qualities?sublist=confident_t"
+          },
+          {
+            "name": "Cowardly",
+            "sublist": "cowardly_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/personal-qualities?sublist=cowardly_t"
+          },
+          {
+            "name": "Dishonest",
+            "sublist": "dishonest_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/personal-qualities?sublist=dishonest_t"
+          },
+          {
+            "name": "Energetic",
+            "sublist": "energetic_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/personal-qualities?sublist=energetic_t"
+          },
+          {
+            "name": "Friendly",
+            "sublist": "friendly_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/personal-qualities?sublist=friendly_t"
+          },
+          {
+            "name": "Honest",
+            "sublist": "honest_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/personal-qualities?sublist=honest_t"
+          },
+          {
+            "name": "Immoral",
+            "sublist": "immoral_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/personal-qualities?sublist=immoral_t"
+          },
+          {
+            "name": "Kind",
+            "sublist": "kind_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/personal-qualities?sublist=kind_t"
+          },
+          {
+            "name": "Lazy",
+            "sublist": "lazy_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/personal-qualities?sublist=lazy_t"
+          },
+          {
+            "name": "Moral",
+            "sublist": "moral_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/personal-qualities?sublist=moral_t"
+          },
+          {
+            "name": "Proud",
+            "sublist": "proud_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/personal-qualities?sublist=proud_t"
+          },
+          {
+            "name": "Selfish",
+            "sublist": "selfish_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/personal-qualities?sublist=selfish_t"
+          },
+          {
+            "name": "Shy",
+            "sublist": "shy_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/personal-qualities?sublist=shy_t"
+          },
+          {
+            "name": "Skills and qualities",
+            "sublist": "skills_and_qualities_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/personal-qualities?sublist=skills_and_qualities_t"
+          },
+          {
+            "name": "Unpleasant",
+            "sublist": "unpleasant_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/personal-qualities?sublist=unpleasant_t"
+          }
+        ]
+      }
+    ],
+    "words": []
+  },
+  "Politics and society": {
+    "topics": [
+      {
+        "topic": "Crime and punishment",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/crime-and-punishment",
+        "subtopics": [
+          {
+            "name": "Committing crime",
+            "sublist": "committing_crime_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/crime-and-punishment?sublist=committing_crime_t"
+          },
+          {
+            "name": "Criminals",
+            "sublist": "criminals_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/crime-and-punishment?sublist=criminals_t"
+          },
+          {
+            "name": "Prison",
+            "sublist": "prison_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/crime-and-punishment?sublist=prison_t"
+          },
+          {
+            "name": "Punishment",
+            "sublist": "punishment_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/crime-and-punishment?sublist=punishment_t"
+          },
+          {
+            "name": "Solving crime",
+            "sublist": "solving_crime_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/crime-and-punishment?sublist=solving_crime_t"
+          },
+          {
+            "name": "Types of crime",
+            "sublist": "types_of_crime_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/crime-and-punishment?sublist=types_of_crime_t"
+          }
+        ]
+      },
+      {
+        "topic": "Law and justice",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/law-and-justice",
+        "subtopics": [
+          {
+            "name": "Justice",
+            "sublist": "justice_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/law-and-justice?sublist=justice_t"
+          },
+          {
+            "name": "Legal documents",
+            "sublist": "legal_documents_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/law-and-justice?sublist=legal_documents_t"
+          },
+          {
+            "name": "Legal processes",
+            "sublist": "legal_processes_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/law-and-justice?sublist=legal_processes_t"
+          },
+          {
+            "name": "People in law",
+            "sublist": "people_in_law_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/law-and-justice?sublist=people_in_law_t"
+          },
+          {
+            "name": "The law",
+            "sublist": "the_law_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/law-and-justice?sublist=the_law_t"
+          },
+          {
+            "name": "The police",
+            "sublist": "the_police_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/law-and-justice?sublist=the_police_t"
+          }
+        ]
+      },
+      {
+        "topic": "People in society",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/people-in-society",
+        "subtopics": [
+          {
+            "name": "Belonging to society",
+            "sublist": "belonging_to_society_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/people-in-society?sublist=belonging_to_society_t"
+          },
+          {
+            "name": "Gender and sexuality",
+            "sublist": "gender_and_sexuality_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/people-in-society?sublist=gender_and_sexuality_t"
+          },
+          {
+            "name": "Race",
+            "sublist": "race_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/people-in-society?sublist=race_t"
+          },
+          {
+            "name": "Rank and status",
+            "sublist": "rank_and_status_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/people-in-society?sublist=rank_and_status_t"
+          }
+        ]
+      },
+      {
+        "topic": "Politics",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/politics",
+        "subtopics": [
+          {
+            "name": "Elections",
+            "sublist": "elections_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/politics?sublist=elections_t"
+          },
+          {
+            "name": "Government",
+            "sublist": "government_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/politics?sublist=government_t"
+          },
+          {
+            "name": "International relations",
+            "sublist": "international_relations_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/politics?sublist=international_relations_t"
+          },
+          {
+            "name": "Parliament",
+            "sublist": "parliament_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/politics?sublist=parliament_t"
+          },
+          {
+            "name": "Political views and systems",
+            "sublist": "political_views_and_systems_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/politics?sublist=political_views_and_systems_t"
+          },
+          {
+            "name": "Politicians",
+            "sublist": "politicians_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/politics?sublist=politicians_t"
+          }
+        ]
+      },
+      {
+        "topic": "Religion and festivals",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/religion-and-festivals",
+        "subtopics": [
+          {
+            "name": "Beliefs",
+            "sublist": "types_of_belief_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/religion-and-festivals?sublist=types_of_belief_t"
+          },
+          {
+            "name": "Divine beings",
+            "sublist": "divine_beings_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/religion-and-festivals?sublist=divine_beings_t"
+          },
+          {
+            "name": "Holidays and celebrations",
+            "sublist": "holidays_and_celebrations_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/religion-and-festivals?sublist=holidays_and_celebrations_t"
+          },
+          {
+            "name": "Religious ceremonies",
+            "sublist": "religious_ceremonies_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/religion-and-festivals?sublist=religious_ceremonies_t"
+          },
+          {
+            "name": "Religious holidays and festivals",
+            "sublist": "religious_holidays_and_festivals_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/religion-and-festivals?sublist=religious_holidays_and_festivals_t"
+          },
+          {
+            "name": "Religious items",
+            "sublist": "religious_items_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/religion-and-festivals?sublist=religious_items_t"
+          },
+          {
+            "name": "Religious people",
+            "sublist": "religious_people_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/religion-and-festivals?sublist=religious_people_t"
+          },
+          {
+            "name": "Religious places",
+            "sublist": "religious_places_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/religion-and-festivals?sublist=religious_places_t"
+          },
+          {
+            "name": "Religious practices",
+            "sublist": "religious_practices_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/religion-and-festivals?sublist=religious_practices_t"
+          },
+          {
+            "name": "Religious texts",
+            "sublist": "religious_texts_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/religion-and-festivals?sublist=religious_texts_t"
+          }
+        ]
+      },
+      {
+        "topic": "Social issues",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/social-issues",
+        "subtopics": [
+          {
+            "name": "Drugs",
+            "sublist": "drugs_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/social-issues?sublist=drugs_t"
+          },
+          {
+            "name": "Helping others",
+            "sublist": "helping_others_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/social-issues?sublist=helping_others_t"
+          },
+          {
+            "name": "Migration",
+            "sublist": "immigration_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/social-issues?sublist=immigration_t"
+          },
+          {
+            "name": "Poverty and famine",
+            "sublist": "poverty_and_famine_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/social-issues?sublist=poverty_and_famine_t"
+          },
+          {
+            "name": "Protest",
+            "sublist": "protest_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/social-issues?sublist=protest_t"
+          },
+          {
+            "name": "Social justice",
+            "sublist": "social_justice_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/social-issues?sublist=social_justice_t"
+          },
+          {
+            "name": "Unemployment",
+            "sublist": "unemployment_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/social-issues?sublist=unemployment_t"
+          }
+        ]
+      },
+      {
+        "topic": "War and conflict",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/war-and-conflict",
+        "subtopics": [
+          {
+            "name": "Peacekeeping",
+            "sublist": "peacekeeping_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/war-and-conflict?sublist=peacekeeping_t"
+          },
+          {
+            "name": "Terrorism",
+            "sublist": "terrorism_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/war-and-conflict?sublist=terrorism_t"
+          },
+          {
+            "name": "The air force",
+            "sublist": "the_air_force_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/war-and-conflict?sublist=the_air_force_t"
+          },
+          {
+            "name": "The armed forces",
+            "sublist": "the_armed_forces_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/war-and-conflict?sublist=the_armed_forces_t"
+          },
+          {
+            "name": "The army",
+            "sublist": "the_army_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/war-and-conflict?sublist=the_army_t"
+          },
+          {
+            "name": "The navy",
+            "sublist": "the_navy_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/war-and-conflict?sublist=the_navy_t"
+          },
+          {
+            "name": "War",
+            "sublist": "war_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/war-and-conflict?sublist=war_t"
+          },
+          {
+            "name": "Weapons",
+            "sublist": "weapons_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/war-and-conflict?sublist=weapons_t"
+          }
+        ]
+      }
+    ],
+    "words": []
+  },
+  "Science and technology": {
+    "topics": [
+      {
+        "topic": "Biology",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/biology",
+        "subtopics": [
+          {
+            "name": "Biology",
+            "sublist": "biology_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/biology?sublist=biology_t"
+          },
+          {
+            "name": "Genetics",
+            "sublist": "genetics_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/biology?sublist=genetics_t"
+          }
+        ]
+      },
+      {
+        "topic": "Computers",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/computers",
+        "subtopics": [
+          {
+            "name": "Computer hardware",
+            "sublist": "computer_hardware_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/computers?sublist=computer_hardware_t"
+          },
+          {
+            "name": "Computer problems",
+            "sublist": "computer_problems_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/computers?sublist=computer_problems_t"
+          },
+          {
+            "name": "Computer programming",
+            "sublist": "computer_programming_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/computers?sublist=computer_programming_t"
+          },
+          {
+            "name": "Computer software",
+            "sublist": "computer_software_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/computers?sublist=computer_software_t"
+          },
+          {
+            "name": "Using a computer",
+            "sublist": "using_a_computer_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/computers?sublist=using_a_computer_t"
+          }
+        ]
+      },
+      {
+        "topic": "Engineering",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/engineering",
+        "subtopics": [
+          {
+            "name": "Branches of engineering",
+            "sublist": "branches_of_engineering_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/engineering?sublist=branches_of_engineering_t"
+          },
+          {
+            "name": "Electronics",
+            "sublist": "electronics_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/engineering?sublist=electronics_t"
+          },
+          {
+            "name": "How machines work",
+            "sublist": "how_machines_work_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/engineering?sublist=how_machines_work_t"
+          },
+          {
+            "name": "Machines and devices",
+            "sublist": "machines_and_devices_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/engineering?sublist=machines_and_devices_t"
+          }
+        ]
+      },
+      {
+        "topic": "Maths and measurement",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/maths-and-measurement",
+        "subtopics": [
+          {
+            "name": "Mathematical terminology",
+            "sublist": "mathematical_terminology_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/maths-and-measurement?sublist=mathematical_terminology_t"
+          },
+          {
+            "name": "Measurements",
+            "sublist": "measurements_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/maths-and-measurement?sublist=measurements_t"
+          },
+          {
+            "name": "Numbers",
+            "sublist": "numbers_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/maths-and-measurement?sublist=numbers_t"
+          },
+          {
+            "name": "Types of mathematics",
+            "sublist": "types_of_mathematics_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/maths-and-measurement?sublist=types_of_mathematics_t"
+          }
+        ]
+      },
+      {
+        "topic": "Physics and chemistry",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/physics-and-chemistry",
+        "subtopics": [
+          {
+            "name": "Chemistry and chemicals",
+            "sublist": "chemistry_and_chemicals_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/physics-and-chemistry?sublist=chemistry_and_chemicals_t"
+          },
+          {
+            "name": "Energy and physical forces",
+            "sublist": "energy_and_physical_forces_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/physics-and-chemistry?sublist=energy_and_physical_forces_t"
+          },
+          {
+            "name": "Materials and properties",
+            "sublist": "materials_and_properties_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/physics-and-chemistry?sublist=materials_and_properties_t"
+          },
+          {
+            "name": "Molecules and matter",
+            "sublist": "molecules_and_matter_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/physics-and-chemistry?sublist=molecules_and_matter_t"
+          }
+        ]
+      },
+      {
+        "topic": "Scientific research",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/scientific-research",
+        "subtopics": [
+          {
+            "name": "Branches of science",
+            "sublist": "branches_of_science_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/scientific-research?sublist=branches_of_science_t"
+          },
+          {
+            "name": "Data",
+            "sublist": "data_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/scientific-research?sublist=data_t"
+          },
+          {
+            "name": "Experiments",
+            "sublist": "experiments_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/scientific-research?sublist=experiments_t"
+          },
+          {
+            "name": "Results",
+            "sublist": "results_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/scientific-research?sublist=results_t"
+          },
+          {
+            "name": "Scientific equipment",
+            "sublist": "scientific_equipment_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/scientific-research?sublist=scientific_equipment_t"
+          },
+          {
+            "name": "Study",
+            "sublist": "study_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/scientific-research?sublist=study_t"
+          }
+        ]
+      }
+    ],
+    "words": []
+  },
+  "Sport": {
+    "topics": [
+      {
+        "topic": "Sports: ball and racket sports",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-ball-and-racket-sports",
+        "subtopics": [
+          {
+            "name": "American football",
+            "sublist": "american_football_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-ball-and-racket-sports?sublist=american_football_t"
+          },
+          {
+            "name": "Ball sports in general",
+            "sublist": "ball_sports_in_general_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-ball-and-racket-sports?sublist=ball_sports_in_general_t"
+          },
+          {
+            "name": "Baseball",
+            "sublist": "baseball_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-ball-and-racket-sports?sublist=baseball_t"
+          },
+          {
+            "name": "Basketball",
+            "sublist": "basketball_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-ball-and-racket-sports?sublist=basketball_t"
+          },
+          {
+            "name": "Cricket",
+            "sublist": "cricket_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-ball-and-racket-sports?sublist=cricket_t"
+          },
+          {
+            "name": "Football",
+            "sublist": "football_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-ball-and-racket-sports?sublist=football_t"
+          },
+          {
+            "name": "Golf",
+            "sublist": "golf_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-ball-and-racket-sports?sublist=golf_t"
+          },
+          {
+            "name": "Other ball sports",
+            "sublist": "other_ball_sports_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-ball-and-racket-sports?sublist=other_ball_sports_t"
+          },
+          {
+            "name": "Rugby",
+            "sublist": "rugby_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-ball-and-racket-sports?sublist=rugby_t"
+          },
+          {
+            "name": "Tennis",
+            "sublist": "tennis_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-ball-and-racket-sports?sublist=tennis_t"
+          }
+        ]
+      },
+      {
+        "topic": "Sports: other sports",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-other-sports",
+        "subtopics": [
+          {
+            "name": "Athletics",
+            "sublist": "athletics_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-other-sports?sublist=athletics_t"
+          },
+          {
+            "name": "Combat sports",
+            "sublist": "combat_sports_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-other-sports?sublist=combat_sports_t"
+          },
+          {
+            "name": "Cycling",
+            "sublist": "cycling_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-other-sports?sublist=cycling_t"
+          },
+          {
+            "name": "Equine sports",
+            "sublist": "equine_sports_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-other-sports?sublist=equine_sports_t"
+          },
+          {
+            "name": "Extreme sports",
+            "sublist": "extreme_sports_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-other-sports?sublist=extreme_sports_t"
+          },
+          {
+            "name": "Other sports",
+            "sublist": "other_sports_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-other-sports?sublist=other_sports_t"
+          },
+          {
+            "name": "Pool and snooker",
+            "sublist": "pool_and_snooker_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-other-sports?sublist=pool_and_snooker_t"
+          },
+          {
+            "name": "Sports in general",
+            "sublist": "sports_in_general_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-other-sports?sublist=sports_in_general_t"
+          },
+          {
+            "name": "Winter sports",
+            "sublist": "winter_sports_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-other-sports?sublist=winter_sports_t"
+          }
+        ]
+      },
+      {
+        "topic": "Sports: water sports",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-water-sports",
+        "subtopics": [
+          {
+            "name": "Boating",
+            "sublist": "boating_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-water-sports?sublist=boating_t"
+          },
+          {
+            "name": "Diving",
+            "sublist": "diving_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-water-sports?sublist=diving_t"
+          },
+          {
+            "name": "Swimming",
+            "sublist": "swimming_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-water-sports?sublist=swimming_t"
+          },
+          {
+            "name": "Water sports",
+            "sublist": "water_sports_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/sports-water-sports?sublist=water_sports_t"
+          }
+        ]
+      }
+    ],
+    "words": []
+  },
+  "The natural world": {
+    "topics": [
+      {
+        "topic": "Farming",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/farming",
+        "subtopics": [
+          {
+            "name": "Animal farming",
+            "sublist": "animal_farming_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/farming?sublist=animal_farming_t"
+          },
+          {
+            "name": "Farm people",
+            "sublist": "farm_people_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/farming?sublist=farm_people_t"
+          },
+          {
+            "name": "Growing crops",
+            "sublist": "growing_crops_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/farming?sublist=growing_crops_t"
+          },
+          {
+            "name": "On the farm",
+            "sublist": "on_the_farm_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/farming?sublist=on_the_farm_t"
+          }
+        ]
+      },
+      {
+        "topic": "Geography",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/geography",
+        "subtopics": [
+          {
+            "name": "Coastlines and the sea",
+            "sublist": "coastlines_and_the_sea_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/geography?sublist=coastlines_and_the_sea_t"
+          },
+          {
+            "name": "Countries and continents",
+            "sublist": "countries_and_continents_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/geography?sublist=countries_and_continents_t"
+          },
+          {
+            "name": "Describing geographic regions",
+            "sublist": "describing_geographic_regions_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/geography?sublist=describing_geographic_regions_t"
+          },
+          {
+            "name": "Mountains and valleys",
+            "sublist": "mountains_and_valleys_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/geography?sublist=mountains_and_valleys_t"
+          },
+          {
+            "name": "Other geographic features",
+            "sublist": "other_geographic_features_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/geography?sublist=other_geographic_features_t"
+          },
+          {
+            "name": "Rivers and lakes",
+            "sublist": "rivers_and_lakes_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/geography?sublist=rivers_and_lakes_t"
+          }
+        ]
+      },
+      {
+        "topic": "Plants and trees",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/plants-and-trees",
+        "subtopics": [
+          {
+            "name": "Plants",
+            "sublist": "plants_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/plants-and-trees?sublist=plants_t"
+          },
+          {
+            "name": "Trees",
+            "sublist": "trees_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/plants-and-trees?sublist=trees_t"
+          }
+        ]
+      },
+      {
+        "topic": "The environment",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/the-environment",
+        "subtopics": [
+          {
+            "name": "Climate change",
+            "sublist": "climate_change_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/the-environment?sublist=climate_change_t"
+          },
+          {
+            "name": "Conservation",
+            "sublist": "conservation_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/the-environment?sublist=conservation_t"
+          },
+          {
+            "name": "Natural disasters",
+            "sublist": "natural_disasters_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/the-environment?sublist=natural_disasters_t"
+          },
+          {
+            "name": "The power industry",
+            "sublist": "the_power_industry_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/the-environment?sublist=the_power_industry_t"
+          },
+          {
+            "name": "Waste and pollution",
+            "sublist": "waste_and_pollution_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/the-environment?sublist=waste_and_pollution_t"
+          }
+        ]
+      },
+      {
+        "topic": "Weather",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/weather",
+        "subtopics": [
+          {
+            "name": "Describing weather",
+            "sublist": "describing_weather_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/weather?sublist=describing_weather_t"
+          },
+          {
+            "name": "Rain",
+            "sublist": "rain_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/weather?sublist=rain_t"
+          },
+          {
+            "name": "Sky",
+            "sublist": "sky_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/weather?sublist=sky_t"
+          },
+          {
+            "name": "Snow and ice",
+            "sublist": "snow_and_ice_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/weather?sublist=snow_and_ice_t"
+          },
+          {
+            "name": "Temperature",
+            "sublist": "temperature_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/weather?sublist=temperature_t"
+          },
+          {
+            "name": "The atmosphere",
+            "sublist": "the_atmosphere_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/weather?sublist=the_atmosphere_t"
+          },
+          {
+            "name": "Wind",
+            "sublist": "wind_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/weather?sublist=wind_t"
+          }
+        ]
+      }
+    ],
+    "words": []
+  },
+  "Time and space": {
+    "topics": [
+      {
+        "topic": "History",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/history",
+        "subtopics": [
+          {
+            "name": "Events in history",
+            "sublist": "events_in_history_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/history?sublist=events_in_history_t"
+          },
+          {
+            "name": "Historical records",
+            "sublist": "historical_records_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/history?sublist=historical_records_t"
+          },
+          {
+            "name": "Objects in history",
+            "sublist": "objects_in_history_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/history?sublist=objects_in_history_t"
+          },
+          {
+            "name": "People in history",
+            "sublist": "people_in_history_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/history?sublist=people_in_history_t"
+          },
+          {
+            "name": "Periods in history",
+            "sublist": "periods_in_history_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/history?sublist=periods_in_history_t"
+          },
+          {
+            "name": "Studying history",
+            "sublist": "studying_history_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/history?sublist=studying_history_t"
+          }
+        ]
+      },
+      {
+        "topic": "Space",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/space",
+        "subtopics": [
+          {
+            "name": "Space travel",
+            "sublist": "space_travel_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/space?sublist=space_travel_t"
+          },
+          {
+            "name": "The Earth and the atmosphere",
+            "sublist": "the_earth_and_the_atmosphere_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/space?sublist=the_earth_and_the_atmosphere_t"
+          },
+          {
+            "name": "The sun and the moon",
+            "sublist": "the_sun_and_the_moon_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/space?sublist=the_sun_and_the_moon_t"
+          },
+          {
+            "name": "The universe",
+            "sublist": "the_universe_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/space?sublist=the_universe_t"
+          }
+        ]
+      },
+      {
+        "topic": "Time",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/time",
+        "subtopics": [
+          {
+            "name": "Dates",
+            "sublist": "dates_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/time?sublist=dates_t"
+          },
+          {
+            "name": "Days",
+            "sublist": "days_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/time?sublist=days_t"
+          },
+          {
+            "name": "Months",
+            "sublist": "months_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/time?sublist=months_t"
+          },
+          {
+            "name": "Time expressions",
+            "sublist": "time_expressions_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/time?sublist=time_expressions_t"
+          },
+          {
+            "name": "Time periods",
+            "sublist": "time_periods_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/time?sublist=time_periods_t"
+          },
+          {
+            "name": "Time zones",
+            "sublist": "time_zones_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/time?sublist=time_zones_t"
+          },
+          {
+            "name": "Times of day",
+            "sublist": "times_of_day_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/time?sublist=times_of_day_t"
+          },
+          {
+            "name": "Times of year",
+            "sublist": "times_of_year_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/time?sublist=times_of_year_t"
+          }
+        ]
+      }
+    ],
+    "words": []
+  },
+  "Travel": {
+    "topics": [
+      {
+        "topic": "Holidays",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/holidays",
+        "subtopics": [
+          {
+            "name": "Camping",
+            "sublist": "camping_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/holidays?sublist=camping_t"
+          },
+          {
+            "name": "Holiday accommodation",
+            "sublist": "holiday_accommodation_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/holidays?sublist=holiday_accommodation_t"
+          },
+          {
+            "name": "Holidays in general",
+            "sublist": "holidays_in_general_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/holidays?sublist=holidays_in_general_t"
+          },
+          {
+            "name": "Staying in a hotel",
+            "sublist": "staying_in_a_hotel_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/holidays?sublist=staying_in_a_hotel_t"
+          },
+          {
+            "name": "The tourist industry",
+            "sublist": "the_tourist_industry_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/holidays?sublist=the_tourist_industry_t"
+          },
+          {
+            "name": "Types of holiday/vacation",
+            "sublist": "types_of_holiday_vacation_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/holidays?sublist=types_of_holiday_vacation_t"
+          }
+        ]
+      },
+      {
+        "topic": "Transport by air",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-air",
+        "subtopics": [
+          {
+            "name": "Aircraft",
+            "sublist": "aircraft_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-air?sublist=aircraft_t"
+          },
+          {
+            "name": "Airports",
+            "sublist": "airports_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-air?sublist=airports_t"
+          },
+          {
+            "name": "Parts of a plane",
+            "sublist": "parts_of_a_plane_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-air?sublist=parts_of_a_plane_t"
+          },
+          {
+            "name": "People in air travel",
+            "sublist": "people_in_air_travel_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-air?sublist=people_in_air_travel_t"
+          },
+          {
+            "name": "Plane travel",
+            "sublist": "plane_travel_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-air?sublist=plane_travel_t"
+          }
+        ]
+      },
+      {
+        "topic": "Transport by bus and train",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-bus-and-train",
+        "subtopics": [
+          {
+            "name": "Railway tracks and stations",
+            "sublist": "railway_tracks_and_stations_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-bus-and-train?sublist=railway_tracks_and_stations_t"
+          },
+          {
+            "name": "Train and bus travel",
+            "sublist": "train_and_bus_travel_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-bus-and-train?sublist=train_and_bus_travel_t"
+          },
+          {
+            "name": "Trains",
+            "sublist": "trains_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-bus-and-train?sublist=trains_t"
+          }
+        ]
+      },
+      {
+        "topic": "Transport by car or lorry",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-car-or-lorry",
+        "subtopics": [
+          {
+            "name": "Controlling traffic",
+            "sublist": "controlling_traffic_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-car-or-lorry?sublist=controlling_traffic_t"
+          },
+          {
+            "name": "Driving",
+            "sublist": "driving_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-car-or-lorry?sublist=driving_t"
+          },
+          {
+            "name": "Motoring problems and accidents",
+            "sublist": "motoring_problems_and_accidents_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-car-or-lorry?sublist=motoring_problems_and_accidents_t"
+          },
+          {
+            "name": "On the road",
+            "sublist": "on_the_road_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-car-or-lorry?sublist=on_the_road_t"
+          },
+          {
+            "name": "Parts of a car",
+            "sublist": "parts_of_a_car_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-car-or-lorry?sublist=parts_of_a_car_t"
+          },
+          {
+            "name": "People in motoring",
+            "sublist": "people_in_motoring_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-car-or-lorry?sublist=people_in_motoring_t"
+          },
+          {
+            "name": "The car industry",
+            "sublist": "the_car_industry_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-car-or-lorry?sublist=the_car_industry_t"
+          },
+          {
+            "name": "Types of road",
+            "sublist": "types_of_road_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-car-or-lorry?sublist=types_of_road_t"
+          },
+          {
+            "name": "Types of vehicle",
+            "sublist": "types_of_vehicle_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-car-or-lorry?sublist=types_of_vehicle_t"
+          }
+        ]
+      },
+      {
+        "topic": "Transport by water",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-water",
+        "subtopics": [
+          {
+            "name": "Parts of boats",
+            "sublist": "parts_of_boats_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-water?sublist=parts_of_boats_t"
+          },
+          {
+            "name": "People in sea travel",
+            "sublist": "people_in_sea_travel_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-water?sublist=people_in_sea_travel_t"
+          },
+          {
+            "name": "Travelling by boat",
+            "sublist": "travelling_by_boat_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-water?sublist=travelling_by_boat_t"
+          },
+          {
+            "name": "Types of boat",
+            "sublist": "types_of_boat_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/transport-by-water?sublist=types_of_boat_t"
+          }
+        ]
+      }
+    ],
+    "words": []
+  },
+  "Work and business": {
+    "topics": [
+      {
+        "topic": "Business",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/business",
+        "subtopics": [
+          {
+            "name": "Business deals",
+            "sublist": "business_deals_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/business?sublist=business_deals_t"
+          },
+          {
+            "name": "Business people",
+            "sublist": "business_people_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/business?sublist=business_people_t"
+          },
+          {
+            "name": "Manufacturing",
+            "sublist": "manufacturing_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/business?sublist=manufacturing_t"
+          },
+          {
+            "name": "Marketing",
+            "sublist": "marketing_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/business?sublist=marketing_t"
+          },
+          {
+            "name": "Running a business",
+            "sublist": "running_a_business_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/business?sublist=running_a_business_t"
+          }
+        ]
+      },
+      {
+        "topic": "Jobs",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/jobs",
+        "subtopics": [
+          {
+            "name": "Describing jobs",
+            "sublist": "describing_jobs_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/jobs?sublist=describing_jobs_t"
+          },
+          {
+            "name": "Job titles",
+            "sublist": "job_titles_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/jobs?sublist=job_titles_t"
+          },
+          {
+            "name": "Jobs and professions",
+            "sublist": "jobs_and_professions_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/jobs?sublist=jobs_and_professions_t"
+          }
+        ]
+      },
+      {
+        "topic": "Money",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/money",
+        "subtopics": [
+          {
+            "name": "Banking",
+            "sublist": "banking_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/money?sublist=banking_t"
+          },
+          {
+            "name": "Buying and selling",
+            "sublist": "buying_and_selling_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/money?sublist=buying_and_selling_t"
+          },
+          {
+            "name": "Economic trends",
+            "sublist": "economic_trends_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/money?sublist=economic_trends_t"
+          },
+          {
+            "name": "Finance",
+            "sublist": "finance_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/money?sublist=finance_t"
+          },
+          {
+            "name": "Gambling",
+            "sublist": "gambling_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/money?sublist=gambling_t"
+          },
+          {
+            "name": "Payments",
+            "sublist": "payments_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/money?sublist=payments_t"
+          },
+          {
+            "name": "The economy",
+            "sublist": "the_economy_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/money?sublist=the_economy_t"
+          },
+          {
+            "name": "Value",
+            "sublist": "value_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/money?sublist=value_t"
+          }
+        ]
+      },
+      {
+        "topic": "Working life",
+        "href": "https://www.oxfordlearnersdictionaries.com/topic/working-life",
+        "subtopics": [
+          {
+            "name": "Business meetings",
+            "sublist": "business_meetings_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/working-life?sublist=business_meetings_t"
+          },
+          {
+            "name": "Describing work",
+            "sublist": "describing_work_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/working-life?sublist=describing_work_t"
+          },
+          {
+            "name": "Job interviews",
+            "sublist": "job_interviews_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/working-life?sublist=job_interviews_t"
+          },
+          {
+            "name": "Office life",
+            "sublist": "office_life_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/working-life?sublist=office_life_t"
+          },
+          {
+            "name": "Pay and conditions at work",
+            "sublist": "pay_and_conditions_at_work_t",
+            "href": "https://www.oxfordlearnersdictionaries.com/topic/working-life?sublist=pay_and_conditions_at_work_t"
+          }
+        ]
+      }
+    ],
+    "words": []
+  }
+}
