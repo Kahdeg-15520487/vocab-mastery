@@ -143,7 +143,7 @@ export async function dataRoutes(app: FastifyInstance) {
     // Process in batches
     const batchSize = 100;
     for (let i = 0; i < validWords.length; i += batchSize) {
-      const batch = validWords.slice(i, batchSize);
+      const batch = validWords.slice(i, i + batchSize);
 
       for (const wordData of batch) {
         try {
@@ -385,7 +385,7 @@ export async function dataRoutes(app: FastifyInstance) {
     // Process in batches
     const batchSize = 500;
     for (let i = 0; i < uniqueWords.length; i += batchSize) {
-      const batch = uniqueWords.slice(i, batchSize);
+      const batch = uniqueWords.slice(i, i + batchSize);
       
       const toCreate: ParsedOxfordJsonWord[] = [];
       const toUpdate: ParsedOxfordJsonWord[] = [];
@@ -532,7 +532,7 @@ export async function dataRoutes(app: FastifyInstance) {
     // Process in batches using transaction
     const batchSize = 500;
     for (let i = 0; i < uniqueParsedWords.length; i += batchSize) {
-      const batch = uniqueParsedWords.slice(i, batchSize);
+      const batch = uniqueParsedWords.slice(i, i + batchSize);
       
       const toCreate: ParsedOxfordWord[] = [];
       const toUpdate: ParsedOxfordWord[] = [];
