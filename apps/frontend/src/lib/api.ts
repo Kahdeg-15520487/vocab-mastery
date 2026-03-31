@@ -457,4 +457,10 @@ export const dataApi = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  importOxfordJson: (data: { words: Record<string, any>; list?: string; merge?: boolean }) =>
+    request<any>('/data/import-oxford-json', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 }

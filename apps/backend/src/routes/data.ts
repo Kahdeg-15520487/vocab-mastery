@@ -260,6 +260,212 @@ export async function dataRoutes(app: FastifyInstance) {
     };
   });
 
+  // Import Oxford JSON format (from datas/oxford-5000-vocabulary-audio-definition)
+  app.post('/data/import-oxford-json', async (request, reply) => {
+    const body = request.body as { 
+      words: Record<string, OxfordJsonWord>; 
+      list?: '3000' | '5000';
+      merge?: boolean;
+    };
+    
+    if (!body.words || typeof body.words !== 'object') {
+      return reply.status(400).send({
+        error: 'Invalid format. Expected { words: { "0": { word, type, cefr, ... }, ... } }',
+      });
+    }
+
+    const wordEntries = Object.values(body.words);
+    const list = body.list || '3000';
+    const merge = body.merge !== false;
+
+    if (wordEntries.length === 0) {
+      return reply.status(400).send({
+        error: 'No words found in the import data',
+      });
+    }
+
+    if (wordEntries.length > 50000) {
+      return reply.status(400).send({
+        error: `Too many words. Maximum 50,000 per import. Got ${wordEntries.length}`,
+      });
+    }
+
+    // Parse and validate words
+    const validWords: ParsedOxfordJsonWord[] = [];
+    const validationErrors: string[] = [];
+    
+    for (let i = 0; i < wordEntries.length; i++) {
+      const w = wordEntries[i];
+      if (!w.word || typeof w.word !== 'string') {
+        validationErrors.push(`Entry ${i}: missing or invalid 'word' field`);
+        continue;
+      }
+      
+      const word = w.word.trim().toLowerCase();
+      if (word.length === 0 || word.length > 100) {
+        validationErrors.push(`Entry ${i}: word must be 1-100 characters`);
+        continue;
+      }
+
+      // Parse CEFR level (convert to uppercase)
+      const cefrLevel = (w.cefr || 'a1').toUpperCase();
+      if (!['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(cefrLevel)) {
+        validationErrors.push(`Entry ${i}: invalid CEFR level '${w.cefr}'`);
+        continue;
+      }
+
+      // Parse part of speech
+      const partOfSpeech = parsePartOfSpeech(w.type);
+      
+      // Parse example (may contain multiple sentences)
+      const examples: string[] = [];
+      if (w.example) {
+        // Split by common delimiters and clean up
+        const exampleText = w.example.replace(/\s+/g, ' ').trim();
+        if (exampleText) {
+          examples.push(exampleText);
+        }
+      }
+
+      validWords.push({
+        word,
+        cefrLevel,
+        partOfSpeech,
+        definition: w.definition || '',
+        examples,
+        phoneticBr: w.phon_br || '',
+        phoneticNam: w.phon_n_am || '',
+        oxfordList: list,
+      });
+    }
+
+    if (validWords.length === 0) {
+      return reply.status(400).send({
+        error: 'No valid words found',
+        validationErrors: validationErrors.slice(0, 10),
+      });
+    }
+
+    // Deduplicate words within the import (keep first occurrence)
+    const uniqueWordMap = new Map<string, ParsedOxfordJsonWord>();
+    for (const w of validWords) {
+      if (!uniqueWordMap.has(w.word)) {
+        uniqueWordMap.set(w.word, w);
+      }
+    }
+    const uniqueWords = Array.from(uniqueWordMap.values());
+
+    // If not merge mode, clear existing words for this list only
+    if (!merge) {
+      await prisma.wordTheme.deleteMany({
+        where: { word: { oxfordList: list } },
+      });
+      await prisma.wordProgress.deleteMany({
+        where: { word: { oxfordList: list } },
+      });
+      await prisma.sessionWord.deleteMany({
+        where: { word: { oxfordList: list } },
+      });
+      await prisma.word.deleteMany({
+        where: { oxfordList: list },
+      });
+    }
+
+    let created = 0;
+    let updated = 0;
+    let skipped = 0;
+
+    // Get existing words in batch
+    const existingWords = await prisma.word.findMany({
+      where: { word: { in: uniqueWords.map(w => w.word) } },
+      select: { word: true, id: true },
+    });
+    const existingMap = new Map(existingWords.map(w => [w.word, w]));
+
+    // Process in batches
+    const batchSize = 500;
+    for (let i = 0; i < uniqueWords.length; i += batchSize) {
+      const batch = uniqueWords.slice(i, batchSize);
+      
+      const toCreate: ParsedOxfordJsonWord[] = [];
+      const toUpdate: ParsedOxfordJsonWord[] = [];
+      
+      for (const wordData of batch) {
+        const existing = existingMap.get(wordData.word);
+        if (existing) {
+          toUpdate.push(wordData);
+        } else {
+          toCreate.push(wordData);
+        }
+      }
+
+      // Batch create new words
+      if (toCreate.length > 0) {
+        await prisma.$transaction(
+          toCreate.map((w) =>
+            prisma.word.create({
+              data: {
+                word: w.word,
+                phoneticUs: w.phoneticNam,
+                phoneticUk: w.phoneticBr,
+                partOfSpeech: w.partOfSpeech,
+                definition: w.definition,
+                examples: w.examples,
+                synonyms: [],
+                antonyms: [],
+                oxfordList: w.oxfordList,
+                cefrLevel: w.cefrLevel,
+                frequency: 0,
+              },
+            })
+          )
+        );
+        created += toCreate.length;
+      }
+
+      // Batch update existing words
+      if (toUpdate.length > 0) {
+        await prisma.$transaction(
+          toUpdate.map((w) =>
+            prisma.word.update({
+              where: { word: w.word },
+              data: {
+                phoneticUs: w.phoneticNam,
+                phoneticUk: w.phoneticBr,
+                partOfSpeech: w.partOfSpeech,
+                definition: w.definition,
+                examples: w.examples,
+                cefrLevel: w.cefrLevel,
+                oxfordList: w.oxfordList,
+              },
+            })
+          )
+        );
+        updated += toUpdate.length;
+      }
+    }
+
+    return {
+      success: true,
+      list,
+      totalParsed: wordEntries.length,
+      validWords: validWords.length,
+      uniqueWords: uniqueWords.length,
+      created,
+      updated,
+      skipped,
+      validationErrors: validationErrors.slice(0, 10),
+      stats: {
+        A1: uniqueWords.filter(w => w.cefrLevel === 'A1').length,
+        A2: uniqueWords.filter(w => w.cefrLevel === 'A2').length,
+        B1: uniqueWords.filter(w => w.cefrLevel === 'B1').length,
+        B2: uniqueWords.filter(w => w.cefrLevel === 'B2').length,
+        C1: uniqueWords.filter(w => w.cefrLevel === 'C1').length,
+        C2: uniqueWords.filter(w => w.cefrLevel === 'C2').length,
+      },
+    };
+  });
+
   // Import Oxford word list (text file content)
   app.post('/data/import-oxford', async (request, reply) => {
     const body = request.body as { content?: string; list?: '3000' | '5000'; merge?: boolean };
@@ -504,4 +710,80 @@ function parseOxfordContent(content: string, oxfordList: '3000' | '5000'): Parse
   }
 
   return words;
+}
+
+// Oxford JSON format from datas/oxford-5000-vocabulary-audio-definition
+interface OxfordJsonWord {
+  word: string;
+  type: string; // e.g., "indefinite article", "verb", "noun"
+  cefr: string; // e.g., "a1", "b2"
+  phon_br?: string; // British phonetic
+  phon_n_am?: string; // American phonetic
+  definition?: string;
+  example?: string;
+  uk?: string; // UK audio file
+  us?: string; // US audio file
+}
+
+interface ParsedOxfordJsonWord {
+  word: string;
+  cefrLevel: string;
+  partOfSpeech: string[];
+  definition: string;
+  examples: string[];
+  phoneticBr: string;
+  phoneticNam: string;
+  oxfordList: string;
+}
+
+// Parse part of speech from Oxford JSON type field
+function parsePartOfSpeech(type: string): string[] {
+  const parts: string[] = [];
+  const typeLower = type.toLowerCase().trim();
+  
+  // Direct mappings
+  const typeMap: Record<string, string> = {
+    'noun': 'noun',
+    'verb': 'verb',
+    'adjective': 'adjective',
+    'adverb': 'adverb',
+    'preposition': 'preposition',
+    'conjunction': 'conjunction',
+    'pronoun': 'pronoun',
+    'determiner': 'determiner',
+    'interjection': 'interjection',
+    'exclamation': 'exclamation',
+    'abbreviation': 'abbreviation',
+    'modal verb': 'modal verb',
+    'phrasal verb': 'phrasal verb',
+    'indefinite article': 'article',
+    'definite article': 'article',
+    'ordinal number': 'number',
+    'cardinal number': 'number',
+    'symbol': 'symbol',
+    'prefix': 'prefix',
+    'suffix': 'suffix',
+    'plural noun': 'plural noun',
+    'singular noun': 'singular noun',
+  };
+
+  // Check for exact match first
+  if (typeMap[typeLower]) {
+    return [typeMap[typeLower]];
+  }
+
+  // Check for compound types (e.g., "noun, adjective")
+  for (const [key, value] of Object.entries(typeMap)) {
+    if (typeLower.includes(key) && !parts.includes(value)) {
+      parts.push(value);
+    }
+  }
+
+  // Handle special cases
+  if (typeLower.includes('adjective') && typeLower.includes('adverb')) {
+    if (!parts.includes('adjective')) parts.push('adjective');
+    if (!parts.includes('adverb')) parts.push('adverb');
+  }
+
+  return parts.length > 0 ? parts : ['noun']; // Default to noun
 }
