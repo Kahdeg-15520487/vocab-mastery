@@ -14,7 +14,6 @@ const navItems = [
   { path: '/', label: 'Home', icon: '🏠' },
   { path: '/learn', label: 'Learn', icon: '📚' },
   { path: '/review', label: 'Review', icon: '🔄' },
-  { path: '/browse', label: 'Browse', icon: '📖' },
 ]
 
 const practiceItems = [
@@ -38,6 +37,7 @@ const collectionItems = [
 const showPracticeMenu = ref(false)
 const showStatsMenu = ref(false)
 const showMoreMenu = ref(false)
+const showMobilePracticeMenu = ref(false)
 
 const isActive = (path: string) => {
   if (path === '/') return route.path === '/'
@@ -319,8 +319,6 @@ function openSearch() {
           { path: '/', label: 'Home', icon: '🏠' },
           { path: '/learn', label: 'Learn', icon: '📚' },
           { path: '/review', label: 'Review', icon: '🔄' },
-          { path: '/browse', label: 'Browse', icon: '📖' },
-          { path: '/stats', label: 'Stats', icon: '📊' },
         ]"
         :key="item.path"
         :to="item.path"
@@ -334,6 +332,55 @@ function openSearch() {
         <span class="text-xl">{{ item.icon }}</span>
         <span class="text-xs mt-1">{{ item.label }}</span>
       </RouterLink>
+
+      <!-- Practice button (opens sheet) -->
+      <button
+        @click="showMobilePracticeMenu = !showMobilePracticeMenu"
+        :class="[
+          'flex flex-col items-center py-2 px-4 rounded-lg transition-colors',
+          isGroupActive(practiceItems)
+            ? 'text-primary-600 dark:text-primary-400'
+            : 'text-slate-500 dark:text-slate-400'
+        ]"
+      >
+        <span class="text-xl">🧠</span>
+        <span class="text-xs mt-1">Practice</span>
+      </button>
+
+      <RouterLink
+        to="/stats"
+        :class="[
+          'flex flex-col items-center py-2 px-4 rounded-lg transition-colors',
+          isActive('/stats')
+            ? 'text-primary-600 dark:text-primary-400'
+            : 'text-slate-500 dark:text-slate-400'
+        ]"
+      >
+        <span class="text-xl">📊</span>
+        <span class="text-xs mt-1">Stats</span>
+      </RouterLink>
     </div>
+
+    <!-- Mobile Practice Sheet -->
+    <div
+      v-if="showMobilePracticeMenu"
+      class="absolute bottom-full left-0 right-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 shadow-lg"
+    >
+      <RouterLink
+        v-for="item in practiceItems"
+        :key="item.path"
+        :to="item.path"
+        @click="showMobilePracticeMenu = false"
+        class="flex items-center gap-3 px-6 py-3 text-sm text-slate-700 dark:text-slate-300 active:bg-slate-50 dark:active:bg-slate-700"
+      >
+        <span class="text-lg">{{ item.icon }}</span>
+        {{ item.label }}
+      </RouterLink>
+    </div>
+    <div
+      v-if="showMobilePracticeMenu"
+      class="fixed inset-0 -z-10"
+      @click="showMobilePracticeMenu = false"
+    ></div>
   </nav>
 </template>
