@@ -4,11 +4,7 @@
 
 ## Pending
 
-- [ ] **#208** **[high]** Add subscription tier enforcement middleware (limit lists, words/list, LLM calls per tier) #backend #subscriptions
-- [ ] **#209** **[high]** Google OAuth: backend callback route + frontend OAuthCallback.vue integration #auth #oauth
 - [ ] **#210** **[high]** LLM word list generation: admin config → user-facing "Generate List" button in ListsView #llm #lists
-- [ ] **#211** Favorites view: wire up word favorites (heart icon on browse/word detail → favorites list) #frontend
-- [ ] **#212** LeaderboardView: implement with real data from stats API #frontend #gamification
 
 ## Completed
 
@@ -86,6 +82,10 @@
 - [x] **#205** Frontend: Resume SpellingView from active session
 - [x] **#206** Frontend: Resume LearnView/ReviewView from active session
 - [x] **#207** Frontend: Single-tab practice warning popup
+- [x] **#208** **[high]** Add subscription tier enforcement middleware (limit lists, words/list, LLM calls per tier) #backend #subscriptions
+- [x] **#209** **[high]** Google OAuth: backend callback route + frontend OAuthCallback.vue integration #auth #oauth
+- [x] **#211** Favorites view: wire up word favorites (heart icon on browse/word detail → favorites list) #frontend
+- [x] **#212** LeaderboardView: implement with real data from stats API #frontend #gamification
 - [x] **#213** **[high]** Add difficulty selection (Mixed/Easy/Medium/Hard) to all practice tabs #done
 
 <!-- Raw Data -->
@@ -1063,26 +1063,28 @@
     {
       "id": 208,
       "text": "Add subscription tier enforcement middleware (limit lists, words/list, LLM calls per tier)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "backend",
         "subscriptions"
       ],
       "createdAt": 1774942162907,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774945815198
     },
     {
       "id": 209,
       "text": "Google OAuth: backend callback route + frontend OAuthCallback.vue integration",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "auth",
         "oauth"
       ],
       "createdAt": 1774942168648,
-      "archived": false
+      "archived": false,
+      "completedAt": 1774946126069
     },
     {
       "id": 210,
@@ -1094,30 +1096,35 @@
         "lists"
       ],
       "createdAt": 1774942214409,
+      "notes": "Starting: need to check admin LLM config, then build user-facing Generate List feature",
       "archived": false
     },
     {
       "id": 211,
       "text": "Favorites view: wire up word favorites (heart icon on browse/word detail → favorites list)",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "frontend"
       ],
       "createdAt": 1774942223471,
-      "archived": false
+      "notes": "Starting: need to check what exists for favorites (heart icon, favorites list, API endpoints)",
+      "archived": false,
+      "completedAt": 1774945904779
     },
     {
       "id": 212,
       "text": "LeaderboardView: implement with real data from stats API",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "frontend",
         "gamification"
       ],
       "createdAt": 1774942233180,
-      "archived": false
+      "notes": "Starting: need to check what backend stats endpoints exist and current LeaderboardView state",
+      "archived": false,
+      "completedAt": 1774946083601
     },
     {
       "id": 213,

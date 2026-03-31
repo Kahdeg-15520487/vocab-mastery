@@ -3,10 +3,12 @@ import { ref, onMounted } from 'vue'
 import { useListsStore } from '@/stores/lists'
 import ListCard from '@/components/lists/ListCard.vue'
 import CreateListModal from '@/components/lists/CreateListModal.vue'
+import GenerateListModal from '@/components/lists/GenerateListModal.vue'
 import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
 
 const listsStore = useListsStore()
 const showCreateModal = ref(false)
+const showGenerateModal = ref(false)
 
 // Fetch lists on mount
 onMounted(() => {
@@ -24,9 +26,15 @@ onMounted(() => {
       </div>
       <button
         @click="showCreateModal = true"
-        class="btn btn-primary"
+        class="btn btn-secondary"
       >
         + New List
+      </button>
+      <button
+        @click="showGenerateModal = true"
+        class="btn btn-primary"
+      >
+        🤖 Generate
       </button>
     </div>
 
@@ -86,6 +94,12 @@ onMounted(() => {
     <CreateListModal
       v-if="showCreateModal"
       @close="showCreateModal = false"
+    />
+
+    <!-- Generate Modal -->
+    <GenerateListModal
+      v-if="showGenerateModal"
+      @close="showGenerateModal = false"
     />
   </div>
 </template>
