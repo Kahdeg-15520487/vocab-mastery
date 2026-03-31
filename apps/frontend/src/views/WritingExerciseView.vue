@@ -36,8 +36,10 @@
       <LoadingSpinner />
     </div>
 
+    <!-- Loaded -->
+    <template v-else>
     <!-- Sentence Mode -->
-    <template v-else-if="mode === 'sentence'">
+    <template v-if="mode === 'sentence'">
       <div class="card space-y-4">
         <div class="flex items-center justify-between">
           <span class="text-sm text-slate-500 dark:text-slate-400">
@@ -149,7 +151,7 @@
     </template>
 
     <!-- Long-form Mode -->
-    <template v-else-if="mode === 'long-form'">
+    <template v-if="mode === 'long-form'">
       <div class="card space-y-4">
         <div class="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/30 dark:to-indigo-900/30 rounded-lg">
           <h2 class="font-semibold text-slate-900 dark:text-white mb-2">📖 Long-form Writing Challenge</h2>
@@ -210,6 +212,7 @@
           </button>
         </div>
       </div>
+    </template>
     </template>
   </div>
 </template>
