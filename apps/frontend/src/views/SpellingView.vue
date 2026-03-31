@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { request } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
 import { useSpeech } from '@/composables/useSpeech'
@@ -48,27 +48,119 @@ const difficulty = ref<'mixed' | 'easy' | 'medium' | 'hard'>('mixed')
 const questions = ref<SpellingQuestion[]>([])
 const sessionId = ref('')
 const currentIndex = ref(0)
-const answer = ref('')
+const letterInputs = ref<string[]>([])  // one char per box
+const activeBox = ref(0)
+const boxRefs = ref<HTMLInputElement[]>([])
 const currentResult = ref<SpellingResult | null>(null)
 const loading = ref(false)
 const error = ref('')
-const answerInput = ref<HTMLInputElement | null>(null)
 const confettiActive = ref(false)
+const hintsUsed = ref(0)
 
 // Results
 const results = ref<Map<string, { correct: boolean; close: boolean; answer: string; correctAnswer: string }>>(new Map())
 const xpEarned = ref(0)
 const leveledUp = ref(false)
 
-// Keyboard shortcut
-function onKeyDown(e: KeyboardEvent) {
-  if (phase.value !== 'playing') return
+const currentQuestion = computed(() => questions.value[currentIndex.value] || null)
+
+// Computed answer from letter boxes
+const answer = computed(() => letterInputs.value.join('').trim())
+
+// Initialize letter boxes when question changes
+watch(currentQuestion, (q) => {
+  if (q) {
+    letterInputs.value = Array(q.letterCount).fill('')
+    activeBox.value = 0
+    hintsUsed.value = 0
+    currentResult.value = null
+  }
+}, { immediate: true })
+
+const progress = computed(() => ({
+  current: currentIndex.value + 1,
+  total: questions.value.length,
+}))
+const correctCount = computed(() => [...results.value.values()].filter(r => r.correct).length)
+
+// --- Letter box interactions ---
+
+function focusBox(index: number) {
+  const max = currentQuestion.value?.letterCount ?? 0
+  if (index < 0 || index >= max) return
+  activeBox.value = index
+  boxRefs.value[index]?.focus()
+}
+
+function onBoxInput(e: Event, index: number) {
+  const input = e.target as HTMLInputElement
+  const val = input.value
+  const max = currentQuestion.value?.letterCount ?? 0
+
+  if (val.length > 0) {
+    // Take only the last typed character
+    const char = val.slice(-1)
+    letterInputs.value[index] = char
+    input.value = char
+
+    // Move to next box
+    if (index < max - 1) {
+      focusBox(index + 1)
+    }
+  }
+
+  // Auto-check when all boxes filled
+  if (letterInputs.value.every(l => l !== '')) {
+    nextTick(() => checkAnswer())
+  }
+}
+
+function onBoxKeydown(e: KeyboardEvent, index: number) {
+  const max = currentQuestion.value?.letterCount ?? 0
+
+  if (e.key === 'Backspace') {
+    if (letterInputs.value[index] === '' && index > 0) {
+      // Move back and clear previous
+      letterInputs.value[index - 1] = ''
+      focusBox(index - 1)
+    } else {
+      letterInputs.value[index] = ''
+    }
+    e.preventDefault()
+    return
+  }
+
+  if (e.key === 'ArrowLeft' && index > 0) {
+    focusBox(index - 1)
+    e.preventDefault()
+    return
+  }
+  if (e.key === 'ArrowRight' && index < max - 1) {
+    focusBox(index + 1)
+    e.preventDefault()
+    return
+  }
+
   if (e.key === 'Enter') {
     if (currentResult.value) {
       nextWord()
-    } else if (answer.value.trim()) {
+    } else if (answer.value) {
       checkAnswer()
     }
+    e.preventDefault()
+    return
+  }
+
+  // Ignore non-letter keys
+  if (e.key.length !== 1) return
+}
+
+// Global keydown for Enter when focus outside boxes
+function onKeyDown(e: KeyboardEvent) {
+  if (phase.value !== 'playing') return
+  if (e.key === 'Enter' && !(e.target as HTMLElement)?.classList?.contains('blank-box')) {
+    if (currentResult.value) nextWord()
+    else if (answer.value) checkAnswer()
   }
 }
 
@@ -77,7 +169,6 @@ onMounted(async () => {
 
   const active = await checkActiveSession()
   if (active && active.words) {
-    // Check if this looks like a spelling session (has maskedExamples, letterCount)
     const hasSpelling = active.words.some((w: any) => w.letterCount)
     if (hasSpelling) {
       phase.value = 'resume'
@@ -104,7 +195,6 @@ function resumeFromActive() {
     firstLetter: w.firstLetter || w.word?.[0] || '',
   }))
 
-  // Skip to first unanswered
   const firstUnanswered = active.words.findIndex((w: any) => !w.answered)
   currentIndex.value = firstUnanswered >= 0 ? firstUnanswered : active.words.length - 1
   currentResult.value = null
@@ -112,7 +202,7 @@ function resumeFromActive() {
 
   phase.value = 'playing'
   showSingleTabWarning()
-  nextTick(() => answerInput.value?.focus())
+  nextTick(() => focusBox(0))
 }
 
 async function restartFromPrompt() {
@@ -120,40 +210,11 @@ async function restartFromPrompt() {
   phase.value = 'setup'
 }
 
-const currentQuestion = computed(() => questions.value[currentIndex.value] || null)
-const progress = computed(() => ({
-  current: currentIndex.value + 1,
-  total: questions.value.length,
-}))
-const correctCount = computed(() => [...results.value.values()].filter(r => r.correct).length)
-
-// Letter hint boxes
-const letterBoxes = computed(() => {
-  if (!currentQuestion.value) return []
-  const count = currentQuestion.value.letterCount
-  const answered = answer.value.toLowerCase()
-  const correctWord = currentResult.value?.correctAnswer?.toLowerCase() || ''
-  return Array.from({ length: count }, (_, i) => {
-    if (currentResult.value) {
-      // After answering: show correct letters in green, wrong in red
-      if (i < answered.length) {
-        return answered[i] === correctWord[i] ? 'correct' : 'wrong'
-      }
-      return 'missing'
-    }
-    if (i < answered.length) {
-      return answered[i] === correctWord[i] ? 'filled-correct' : 'filled'
-    }
-    return 'empty'
-  })
-})
-
 async function startPractice() {
   loading.value = true
   error.value = ''
   results.value = new Map()
   currentIndex.value = 0
-  answer.value = ''
   currentResult.value = null
 
   try {
@@ -169,7 +230,7 @@ async function startPractice() {
     questions.value = data.questions
     phase.value = 'playing'
     await nextTick()
-    answerInput.value?.focus()
+    focusBox(0)
   } catch (e: any) {
     error.value = e.message
   } finally {
@@ -178,7 +239,7 @@ async function startPractice() {
 }
 
 async function checkAnswer() {
-  if (!currentQuestion.value || !answer.value.trim() || currentResult.value) return
+  if (!currentQuestion.value || !answer.value || currentResult.value) return
   loading.value = true
 
   try {
@@ -186,14 +247,14 @@ async function checkAnswer() {
       method: 'POST',
       body: JSON.stringify({
         wordId: currentQuestion.value.id,
-        answer: answer.value.trim(),
+        answer: answer.value,
       }),
     })
     currentResult.value = result
     results.value.set(currentQuestion.value.id, {
       correct: result.correct,
       close: result.close,
-      answer: answer.value.trim(),
+      answer: answer.value,
       correctAnswer: result.correctAnswer,
     })
   } catch (e: any) {
@@ -209,10 +270,8 @@ async function nextWord() {
     return
   }
   currentIndex.value++
-  answer.value = ''
-  currentResult.value = null
   await nextTick()
-  answerInput.value?.focus()
+  focusBox(0)
 }
 
 async function completeSession() {
@@ -244,10 +303,15 @@ function retry() {
 
 function showHint() {
   if (!currentQuestion.value || currentResult.value) return
-  // Add next correct letter
-  if (answer.value.length === 0) {
-    answer.value = currentQuestion.value.firstLetter
-    answerInput.value?.focus()
+  const revealIndex = letterInputs.value.findIndex(l => l === '')
+  if (revealIndex === -1) return
+
+  // Only reveal the first letter as a hint
+  if (revealIndex === 0) {
+    letterInputs.value[0] = currentQuestion.value.firstLetter
+    if (currentQuestion.value.letterCount > 1) {
+      focusBox(1)
+    }
   }
 }
 
@@ -328,12 +392,22 @@ const missedWords = computed(() =>
 
       <!-- Question Card -->
       <div v-if="currentQuestion" class="card">
-        <!-- Level + Letter Count -->
+        <!-- Level + Letter Count + Hint -->
         <div class="flex items-center justify-between mb-4">
           <LevelBadge :level="currentQuestion.cefrLevel" />
-          <span class="text-sm text-slate-500 dark:text-slate-400">
-            {{ currentQuestion.letterCount }} letters
-          </span>
+          <div class="flex items-center gap-3">
+            <span class="text-sm text-slate-500 dark:text-slate-400">
+              {{ currentQuestion.letterCount }} letters
+            </span>
+            <button
+              v-if="!currentResult"
+              @click="showHint"
+              class="btn btn-secondary text-xs py-1 px-3"
+              title="Reveal first letter"
+            >
+              💡 Hint
+            </button>
+          </div>
         </div>
 
         <!-- Definition -->
@@ -347,7 +421,7 @@ const missedWords = computed(() =>
           <span
             v-for="pos in currentQuestion.partOfSpeech"
             :key="pos"
-            class="text-xs px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+            class="text-xs px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:bg-blue-300"
           >
             {{ pos }}
           </span>
@@ -381,52 +455,47 @@ const missedWords = computed(() =>
           </div>
         </div>
 
-        <!-- Letter Hint Boxes -->
-        <div class="flex justify-center gap-1 mb-4 flex-wrap">
-          <div
-            v-for="(state, i) in letterBoxes"
+        <!-- Inline Letter Boxes -->
+        <div class="flex justify-center gap-1 mb-2 flex-wrap">
+          <input
+            v-for="(_, i) in letterInputs"
             :key="i"
-            class="w-8 h-10 flex items-center justify-center text-lg font-bold rounded border-2 transition-colors"
-            :class="{
-              'border-slate-300 dark:border-slate-600': state === 'empty',
-              'border-primary-300 bg-primary-50/50 dark:bg-primary-900/10 text-primary-600 dark:text-primary-400': state === 'filled',
-              'border-primary-400 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300': state === 'filled-correct',
-              'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300': state === 'correct',
-              'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300': state === 'wrong',
-              'border-slate-400 bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500': state === 'missing',
-            }"
-          >
-            <template v-if="currentResult">
-              {{ currentResult.correctAnswer[i] || '' }}
-            </template>
-            <template v-else>
-              {{ i < answer.length ? answer[i] : '' }}
-            </template>
-          </div>
+            :ref="el => { if (el) boxRefs[i] = el as HTMLInputElement }"
+            :value="letterInputs[i]"
+            :disabled="!!currentResult"
+            maxlength="1"
+            autocapitalize="off"
+            autocomplete="off"
+            spellcheck="false"
+            class="blank-box w-9 h-11 text-center text-lg font-mono font-bold rounded border-2 uppercase outline-none transition-all"
+            :class="[
+              activeBox === i && !currentResult
+                ? 'border-primary-500 ring-2 ring-primary-200 dark:ring-primary-800 bg-white dark:bg-slate-800 text-slate-900 dark:text-white'
+                : currentResult?.correct
+                  ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
+                  : currentResult
+                    ? i < letterInputs.length && letterInputs[i]?.toLowerCase() === currentResult.correctAnswer[i]?.toLowerCase()
+                      ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
+                      : 'border-red-400 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
+                    : letterInputs[i]
+                      ? 'border-slate-300 dark:border-slate-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white'
+                      : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-400'
+            ]"
+            @focus="activeBox = i"
+            @input="onBoxInput($event, i)"
+            @keydown="onBoxKeydown($event, i)"
+          />
         </div>
 
-        <!-- Input -->
-        <div class="flex gap-2">
-          <input
-            ref="answerInput"
-            v-model="answer"
-            :disabled="!!currentResult"
-            :placeholder="currentResult ? '' : `Type the word (${currentQuestion.firstLetter}...)`"
-            class="input flex-1"
-            :class="currentResult ? (currentResult.correct ? 'border-green-500' : 'border-red-500') : ''"
-            @keyup.enter="currentResult ? nextWord() : checkAnswer()"
-            autocomplete="off"
-            autocapitalize="off"
-            spellcheck="false"
-          />
+        <!-- Correct answer shown below boxes when wrong -->
+        <div v-if="currentResult && !currentResult.correct" class="text-center mt-2 mb-2">
+          <span class="text-sm text-slate-500 dark:text-slate-400">Correct answer: </span>
+          <span class="font-bold text-slate-900 dark:text-white tracking-wider">{{ currentResult.correctAnswer }}</span>
           <button
-            v-if="!currentResult"
-            @click="showHint"
-            class="btn btn-secondary text-sm"
-            title="Reveal first letter"
-          >
-            💡 Hint
-          </button>
+            @click="speak(currentResult.correctAnswer)"
+            class="ml-2 text-lg hover:scale-110 transition-transform"
+            title="Listen"
+          >🔊</button>
         </div>
 
         <!-- Result Feedback -->
@@ -439,15 +508,6 @@ const missedWords = computed(() =>
             <div class="text-3xl mb-1">{{ currentResult.close ? '😅' : '❌' }}</div>
             <p class="font-semibold text-lg">
               {{ currentResult.close ? 'Close!' : 'Incorrect' }}
-            </p>
-            <p class="text-slate-600 dark:text-slate-400 mt-1">
-              The correct spelling is:
-              <span class="font-bold text-slate-900 dark:text-white">{{ currentResult.correctAnswer }}</span>
-              <button
-                @click="speak(currentResult.correctAnswer)"
-                class="ml-2 text-lg hover:scale-110 transition-transform"
-                title="Listen"
-              >🔊</button>
             </p>
           </div>
 

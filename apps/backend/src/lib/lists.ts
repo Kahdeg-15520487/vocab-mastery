@@ -55,15 +55,29 @@ export const TIER_LIMITS = {
 export type TierLimits = typeof TIER_LIMITS[keyof typeof TIER_LIMITS];
 
 /**
- * Check if user can create a new list
+ * Get user's subscription tier
  */
-export async function canCreateList(userId: string): Promise<{ allowed: boolean; reason?: string }> {
+export async function getUserTier(userId: string): Promise<string> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { subscriptionTier: true },
   });
+  return user?.subscriptionTier || 'FREE';
+}
 
-  const tier = user?.subscriptionTier || 'FREE';
+/**
+ * Get tier limits for a user
+ */
+export async function getUserLimits(userId: string): Promise<TierLimits> {
+  const tier = await getUserTier(userId);
+  return TIER_LIMITS[tier as keyof typeof TIER_LIMITS];
+}
+
+/**
+ * Check if user can create a new list
+ */
+export async function canCreateList(userId: string): Promise<{ allowed: boolean; reason?: string }> {
+  const tier = await getUserTier(userId);
   const limits = TIER_LIMITS[tier as keyof typeof TIER_LIMITS];
 
   const currentCount = await prisma.studyList.count({
@@ -84,12 +98,7 @@ export async function canCreateList(userId: string): Promise<{ allowed: boolean;
  * Check if user can add word to list
  */
 export async function canAddWordToList(userId: string, listId: string): Promise<{ allowed: boolean; reason?: string }> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { subscriptionTier: true },
-  });
-
-  const tier = user?.subscriptionTier || 'FREE';
+  const tier = await getUserTier(userId);
   const limits = TIER_LIMITS[tier as keyof typeof TIER_LIMITS];
 
   const currentCount = await prisma.studyListWord.count({
@@ -104,4 +113,72 @@ export async function canAddWordToList(userId: string, listId: string): Promise<
   }
 
   return { allowed: true };
+}
+
+/**
+ * Check if user can share lists
+ */
+export async function canShareList(userId: string): Promise<{ allowed: boolean; reason?: string }> {
+  const tier = await getUserTier(userId);
+  const limits = TIER_LIMITS[tier as keyof typeof TIER_LIMITS];
+
+  if (!limits.canShareLists) {
+    return {
+      allowed: false,
+      reason: `List sharing is not available on the ${tier} tier. Upgrade to share lists.`,
+    };
+  }
+
+  return { allowed: true };
+}
+
+/**
+ * Track an LLM API call for the current month
+ * Uses a SystemConfig key per user per month for lightweight counting
+ */
+export async function trackLlmCall(userId: string): Promise<void> {
+  const now = new Date();
+  const monthKey = `llm_usage_${userId}_${now.getFullYear()}_${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+  await prisma.systemConfig.upsert({
+    where: { key: monthKey },
+    create: { key: monthKey, value: '1' },
+    update: { value: String(Number(await prisma.systemConfig.findUnique({ where: { key: monthKey } }).then(r => r?.value || '0')) + 1) },
+  });
+}
+
+/**
+ * Check if user can make an LLM call this month
+ */
+export async function canUseLlm(userId: string): Promise<{ allowed: boolean; reason?: string; remaining?: number }> {
+  const tier = await getUserTier(userId);
+  const limits = TIER_LIMITS[tier as keyof typeof TIER_LIMITS];
+
+  // -1 means unlimited
+  if (limits.maxLlmCallsPerMonth === -1) {
+    return { allowed: true, remaining: Infinity };
+  }
+
+  if (limits.maxLlmCallsPerMonth === 0) {
+    return {
+      allowed: false,
+      reason: `LLM word list generation is not available on the ${tier} tier. Upgrade to use this feature.`,
+      remaining: 0,
+    };
+  }
+
+  const now = new Date();
+  const monthKey = `llm_usage_${userId}_${now.getFullYear()}_${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const record = await prisma.systemConfig.findUnique({ where: { key: monthKey } });
+  const used = Number(record?.value || 0);
+
+  if (used >= limits.maxLlmCallsPerMonth) {
+    return {
+      allowed: false,
+      reason: `Monthly LLM limit reached (${limits.maxLlmCallsPerMonth} calls for ${tier} tier). Upgrade for more.`,
+      remaining: 0,
+    };
+  }
+
+  return { allowed: true, remaining: limits.maxLlmCallsPerMonth - used };
 }

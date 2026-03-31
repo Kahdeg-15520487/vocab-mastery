@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import prisma from '../lib/prisma.js';
 import { authenticate } from '../middleware/auth.js';
-import { TIER_LIMITS } from '../lib/lists.js';
+import { TIER_LIMITS, canShareList } from '../lib/lists.js';
 
 export async function listsRoutes(app: FastifyInstance) {
   // All list routes require authentication
@@ -439,6 +439,12 @@ export async function listsRoutes(app: FastifyInstance) {
 
     if (list.userId !== userId) {
       return reply.status(403).send({ error: 'Access denied' });
+    }
+
+    // Check tier allows sharing
+    const shareCheck = await canShareList(userId);
+    if (!shareCheck.allowed) {
+      return reply.status(403).send({ error: shareCheck.reason });
     }
 
     // Find user to share with
