@@ -45,6 +45,20 @@ export default defineConfig({
                 maxAgeSeconds: 60 * 60 // 1 hour
               }
             }
+          },
+          {
+            urlPattern: /\/audio\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'audio-cache',
+              expiration: {
+                maxEntries: 10000,
+                maxAgeSeconds: 365 * 24 * 60 * 60 // 1 year
+              },
+              cacheableResponse: {
+                statuses: [200]
+              }
+            }
           }
         ]
       }
@@ -59,6 +73,10 @@ export default defineConfig({
     port: 7100,
     proxy: {
       '/api': {
+        target: 'http://localhost:7101',
+        changeOrigin: true
+      },
+      '/audio': {
         target: 'http://localhost:7101',
         changeOrigin: true
       }

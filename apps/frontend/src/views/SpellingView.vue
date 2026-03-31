@@ -10,7 +10,7 @@ import LevelBadge from '@/components/learning/LevelBadge.vue'
 import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
 
 const toast = useToast()
-const { speak } = useSpeech()
+const { playAudio } = useSpeech()
 
 interface SpellingQuestion {
   index: number
@@ -398,7 +398,7 @@ const missedWords = computed(() =>
               The correct spelling is:
               <span class="font-bold text-slate-900 dark:text-white">{{ currentResult.correctAnswer }}</span>
               <button
-                @click="speak(currentResult.correctAnswer)"
+                @click="playAudio(currentResult.correctAnswer, null, 'us')"
                 class="ml-2 text-lg hover:scale-110 transition-transform"
                 title="Listen"
               >🔊</button>

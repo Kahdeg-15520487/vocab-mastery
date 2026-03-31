@@ -30,6 +30,17 @@ enum ProgressStatus {
   MASTERED
 }
 
+enum SprintStatus {
+  PLANNED
+  ACTIVE
+  COMPLETED
+}
+
+enum SprintPhase {
+  ACQUISITION
+  APPLICATION
+}
+
 // ============================================
 // USER & AUTH
 // ============================================
@@ -73,6 +84,8 @@ model User {
   jobs             Job[]
   favorites        WordFavorite[]
   passwordResets   PasswordReset[]
+  sprints          Sprint[]
+  milestones       Milestone[]
   
   @@index([email])
   @@index([googleId])
@@ -322,11 +335,14 @@ model Word {
   oxfordList    String        @map("oxford_list")
   cefrLevel     String        @map("cefr_level")
   frequency     Int
+  audioUs       String?       @map("audio_us")
+  audioUk       String?       @map("audio_uk")
   themes        WordTheme[]
   progress      WordProgress[]
   sessionWords  SessionWord[]
   listWords     StudyListWord[]
   favorites     WordFavorite[]
+  sprintWords   SprintWord[]
   createdAt     DateTime      @default(now()) @map("created_at")
   updatedAt     DateTime      @updatedAt @map("updated_at")
 
@@ -509,4 +525,83 @@ model PasswordReset {
   @@index([token])
   @@index([userId])
   @@map("password_resets")
+}
+
+// ============================================
+// SPRINTS
+// ============================================
+
+model Sprint {
+  id              String       @id @default(cuid())
+  userId          String       @map("user_id")
+  number          Int
+  status          SprintStatus @default(PLANNED)
+  startDate       DateTime     @map("start_date")
+  endDate         DateTime     @map("end_date")
+  wordTarget      Int          @default(265) @map("word_target")
+  reviewTarget    Float        @default(0.85) @map("review_target")
+  isReviewSprint  Boolean      @default(false) @map("is_review_sprint")
+  phase           SprintPhase  @default(ACQUISITION)
+  retentionRate   Float?       @map("retention_rate")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  words           SprintWord[]
+  writings        SprintWriting[]
+
+  @@unique([userId, number])
+  @@index([userId])
+  @@index([status])
+  @@map("sprints")
+}
+
+model SprintWord {
+  id          String   @id @default(cuid())
+  sprintId    String   @map("sprint_id")
+  wordId      String   @map("word_id")
+  sentences   Json?
+  quizzed     Boolean  @default(false)
+  quizCorrect Boolean  @default(false) @map("quiz_correct")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  sprint      Sprint   @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+  word        Word     @relation(fields: [wordId], references: [id], onDelete: Cascade)
+
+  @@unique([sprintId, wordId])
+  @@index([sprintId])
+  @@index([wordId])
+  @@map("sprint_words")
+}
+
+model SprintWriting {
+  id              String   @id @default(cuid())
+  sprintId        String   @map("sprint_id")
+  type            String   // "sentence" | "long_form"
+  text            String
+  wordCount       Int      @default(0) @map("word_count")
+  sprintWordsUsed Int      @default(0) @map("sprint_words_used")
+  feedback        Json?
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  sprint          Sprint   @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+
+  @@index([sprintId])
+  @@map("sprint_writings")
+}
+
+model Milestone {
+  id          String    @id @default(cuid())
+  userId      String    @map("user_id")
+  name        String
+  wordTarget  Int       @map("word_target")
+  deadline    DateTime
+  focusArea   String?   @map("focus_area")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([deadline])
+  @@map("milestones")
 }

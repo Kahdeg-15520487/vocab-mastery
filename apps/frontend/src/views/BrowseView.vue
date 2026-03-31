@@ -15,7 +15,7 @@ const toast = useToast()
 
 const wordsStore = useWordsStore()
 const listsStore = useListsStore()
-const { speak } = useSpeech()
+const { playAudio } = useSpeech()
 const { addViewedWord, recentlyViewed, clearRecentlyViewed } = useRecentlyViewed()
 
 const search = ref('')
@@ -409,7 +409,7 @@ const visiblePages = computed(() => {
             <p class="text-slate-500 dark:text-slate-400 text-sm mb-2 flex items-center gap-2">
               {{ word.phoneticUs }}
               <button
-                @click.stop="speak(word.word)"
+                @click.stop="playAudio(word.word, word.audioUs || null, 'us')"
                 class="text-primary-500 hover:text-primary-700 transition-colors"
                 title="Pronounce"
               >
@@ -566,7 +566,7 @@ const visiblePages = computed(() => {
               <p class="text-slate-500 dark:text-slate-400 flex items-center gap-2">
                 {{ selectedWord.phoneticUs }}
                 <button
-                  @click="speak(selectedWord.word)"
+                  @click="playAudio(selectedWord.word, selectedWord.audioUs || null, 'us')"
                   class="text-primary-500 hover:text-primary-700 transition-colors"
                   title="Pronounce"
                 >

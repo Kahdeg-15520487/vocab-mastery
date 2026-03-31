@@ -72,6 +72,8 @@ export async function wordRoutes(app: FastifyInstance) {
       oxfordList: word.oxfordList,
       cefrLevel: word.cefrLevel,
       frequency: word.frequency,
+      audioUs: word.audioUs,
+      audioUk: word.audioUk,
       themes: word.themes.map(t => t.theme.slug),
       progress: word.progress?.[0] ? {
         status: word.progress[0].status,
@@ -137,6 +139,8 @@ export async function wordRoutes(app: FastifyInstance) {
       synonyms: (w.synonyms as string[])?.slice(0, 5) || [],
       cefrLevel: w.cefrLevel,
       oxfordList: w.oxfordList,
+      audioUs: w.audioUs,
+      audioUk: w.audioUk,
       themes: w.themes.map(t => ({ id: t.theme.id, name: t.theme.name, slug: t.theme.slug })),
       progress: request.user && w.progress?.[0] ? {
         status: w.progress[0].status,
@@ -186,6 +190,8 @@ export async function wordRoutes(app: FastifyInstance) {
       antonyms: word.antonyms as string[],
       oxfordList: word.oxfordList,
       cefrLevel: word.cefrLevel,
+      audioUs: word.audioUs,
+      audioUk: word.audioUk,
       themes: word.themes.map(t => t.theme.slug),
       progress: word.progress[0],
     }));
@@ -306,6 +312,8 @@ export async function wordRoutes(app: FastifyInstance) {
         cefrLevel: word.cefrLevel,
         oxfordList: word.oxfordList,
         definition: word.definition,
+        audioUs: word.audioUs,
+        audioUk: word.audioUk,
         // NO examples, synonyms, antonyms, themes for guests
       };
     }
@@ -324,6 +332,8 @@ export async function wordRoutes(app: FastifyInstance) {
       oxfordList: word.oxfordList,
       cefrLevel: word.cefrLevel,
       frequency: word.frequency,
+      audioUs: word.audioUs,
+      audioUk: word.audioUk,
       themes: word.themes.map(t => ({ id: t.theme.id, name: t.theme.name, slug: t.theme.slug })),
       progress: word.progress?.[0] || null,
       favorited: request.user ? (word.favorites as any[])?.length > 0 : false,

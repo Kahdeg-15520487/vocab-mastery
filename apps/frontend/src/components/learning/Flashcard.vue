@@ -13,7 +13,7 @@ const emit = defineEmits<{
   (e: 'flip', flipped: boolean): void
 }>()
 
-const { speak, isSpeaking } = useSpeech()
+const { playAudio, isSpeaking } = useSpeech()
 const isFlipped = ref(false)
 
 const level = computed(() => props.word.cefrLevel)
@@ -30,7 +30,7 @@ function flipCard() {
 }
 
 function pronounce() {
-  speak(props.word.word)
+  playAudio(props.word.word, props.word.audioUs || null, 'us')
 }
 
 function respond(response: 'easy' | 'medium' | 'hard' | 'forgot') {

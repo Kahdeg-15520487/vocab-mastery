@@ -9,7 +9,7 @@ import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
 
 const route = useRoute()
 const router = useRouter()
-const { speak } = useSpeech()
+const { playAudio } = useSpeech()
 const toast = useToast()
 const { addViewedWord } = useRecentlyViewed()
 
@@ -26,6 +26,8 @@ interface WordDetail {
   oxfordList: string
   cefrLevel: string
   frequency: number
+  audioUs?: string | null
+  audioUk?: string | null
   favorited: boolean
   themes: Array<{ id: string; name: string; slug: string }>
   progress: {
@@ -176,14 +178,14 @@ async function markStatus(status: 'learning' | 'reviewing' | 'mastered' | 'new')
           <div v-if="word.phoneticUs || word.phoneticUk" class="flex items-center gap-4 mt-3">
             <button
               v-if="word.phoneticUs"
-              @click="speak(word.word, 'en-US')"
+              @click="playAudio(word.word, word.audioUs || null, 'us')"
               class="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400"
             >
               🔊 US {{ word.phoneticUs }}
             </button>
             <button
               v-if="word.phoneticUk"
-              @click="speak(word.word, 'en-GB')"
+              @click="playAudio(word.word, word.audioUk || null, 'uk')"
               class="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400"
             >
               🔊 UK {{ word.phoneticUk }}

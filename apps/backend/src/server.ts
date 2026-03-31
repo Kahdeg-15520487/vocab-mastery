@@ -15,6 +15,8 @@ import { oauthRoutes } from './routes/oauth.js';
 import { listsRoutes } from './routes/lists.js';
 import prisma from './lib/prisma.js';
 import { startJobRunner, stopJobRunner } from './lib/jobs.js';
+import path from 'path';
+import fs from 'fs';
 
 const PORT = Number(process.env.PORT) || 7101;
 const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
@@ -50,6 +52,38 @@ async function start() {
 
   // Health check (public)
   app.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }));
+
+  // Audio files — serve MP3s from dictionary/audio directory
+  const AUDIO_BASE = path.resolve(process.env.AUDIO_DIR || path.join(process.cwd(), '..', '..', 'dictionary', 'audio'));
+
+  app.get('/audio/:accent/:filename', async (request, reply) => {
+    const { accent, filename } = request.params as { accent: string; filename: string };
+
+    // Validate accent
+    if (accent !== 'us' && accent !== 'uk') {
+      return reply.status(400).send({ error: 'Invalid accent. Use "us" or "uk".' });
+    }
+
+    // Sanitize filename — prevent directory traversal
+    const sanitized = filename.replace(/[^a-zA-Z0-9_\-.]/g, '');
+    if (!sanitized.endsWith('.mp3')) {
+      return reply.status(400).send({ error: 'Only MP3 files are served.' });
+    }
+
+    const subDir = accent === 'us' ? 'us_audio_split_24m' : 'uk_audio_split_24m';
+    const filePath = path.join(AUDIO_BASE, subDir, sanitized);
+
+    // Check file exists
+    if (!fs.existsSync(filePath)) {
+      return reply.status(404).send({ error: 'Audio file not found.' });
+    }
+
+    // Stream the file
+    const stream = fs.createReadStream(filePath);
+    reply.header('Content-Type', 'audio/mpeg');
+    reply.header('Cache-Control', 'public, max-age=31536000');
+    return reply.send(stream);
+  });
 
   // Global error handler
   app.setErrorHandler((error, _request, reply) => {

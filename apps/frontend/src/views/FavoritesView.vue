@@ -13,6 +13,8 @@ interface FavoriteWord {
   definition: string
   cefrLevel: string
   partOfSpeech: string[]
+  audioUs?: string | null
+  audioUk?: string | null
 }
 
 interface Favorite {
@@ -21,7 +23,7 @@ interface Favorite {
   word: FavoriteWord
 }
 
-const { speak } = useSpeech()
+const { playAudio } = useSpeech()
 const toast = useToast()
 const loading = ref(true)
 const favorites = ref<Favorite[]>([])
@@ -111,7 +113,7 @@ onMounted(() => {
             <p class="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-2">
               {{ fav.word.phoneticUs }}
               <button
-                @click.stop="speak(fav.word.word)"
+                @click.stop="playAudio(fav.word.word, fav.word.audioUs || null, 'us')"
                 class="text-primary-500 hover:text-primary-700 transition-colors"
                 title="Pronounce"
               >🔊</button>
@@ -157,7 +159,7 @@ onMounted(() => {
             </div>
             <p class="text-slate-500 dark:text-slate-400 flex items-center gap-2">
               {{ selectedWord.phoneticUs }}
-              <button @click="speak(selectedWord.word)" class="text-primary-500 hover:text-primary-700">🔊</button>
+              <button @click="playAudio(selectedWord.word, selectedWord.audioUs || null, 'us')" class="text-primary-500 hover:text-primary-700">🔊</button>
             </p>
           </div>
           <button @click="selectedWord = null" class="text-2xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">×</button>
