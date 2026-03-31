@@ -27,13 +27,17 @@ export async function themeRoutes(app: FastifyInstance) {
   // Get theme by slug with words
   app.get('/themes/:slug', { preHandler: optionalAuth }, async (request, reply) => {
     const { slug } = request.params as { slug: string };
-    const { page = 1, limit = 20 } = request.query as { page?: number; limit?: number };
+    const { page = 1, limit = 20, topic, subtopic } = request.query as { page?: number; limit?: number; topic?: string; subtopic?: string };
     const userId = request.user?.userId;
 
     const theme = await prisma.theme.findUnique({
       where: { slug },
       include: {
         words: {
+          where: {
+            ...(topic ? { topic } : {}),
+            ...(subtopic ? { subtopic } : {}),
+          },
           include: {
             word: {
               include: {
@@ -70,6 +74,8 @@ export async function themeRoutes(app: FastifyInstance) {
       cefrLevel: wt.word.cefrLevel,
       frequency: wt.word.frequency,
       progress: wt.word.progress?.[0] || null,
+      topic: wt.topic,
+      subtopic: wt.subtopic,
     }));
 
     return {
@@ -150,5 +156,35 @@ export async function themeRoutes(app: FastifyInstance) {
         ? Math.round(((statusCounts.mastered + statusCounts.reviewing) / totalWords) * 100)
         : 0,
     };
+  });
+
+  // GET /themes/:slug/topics — topics and subtopics for a theme
+  app.get('/themes/:slug/topics', async (request, reply) => {
+    const { slug } = request.params as { slug: string };
+    const theme = await prisma.theme.findUnique({ where: { slug } });
+    if (!theme) return reply.status(404).send({ error: 'Theme not found' });
+
+    // Get all unique topic → subtopic combos with counts
+    const wordThemes = await prisma.wordTheme.findMany({
+      where: { themeId: theme.id, topic: { not: null } },
+      select: { topic: true, subtopic: true },
+    });
+
+    // Build hierarchy
+    const topics = new Map<string, Map<string, number>>();
+    for (const wt of wordThemes) {
+      if (!wt.topic) continue;
+      if (!topics.has(wt.topic)) topics.set(wt.topic, new Map());
+      const subs = topics.get(wt.topic)!;
+      subs.set(wt.subtopic || 'General', (subs.get(wt.subtopic || 'General') || 0) + 1);
+    }
+
+    const result = [...topics.entries()].map(([topic, subs]) => ({
+      name: topic,
+      subtopics: [...subs.entries()].map(([name, count]) => ({ name, count })),
+      totalCount: [...subs.values()].reduce((a, b) => a + b, 0),
+    }));
+
+    return { topics: result };
   });
 }

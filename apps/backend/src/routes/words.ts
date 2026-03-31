@@ -74,7 +74,7 @@ export async function wordRoutes(app: FastifyInstance) {
       frequency: word.frequency,
       audioUs: word.audioUs,
       audioUk: word.audioUk,
-      themes: word.themes.map(t => t.theme.slug),
+      themes: word.themes.map(t => ({ slug: t.theme.slug, name: t.theme.name, topic: t.topic, subtopic: t.subtopic })),
       progress: word.progress?.[0] ? {
         status: word.progress[0].status,
         interval: word.progress[0].interval,
@@ -141,7 +141,7 @@ export async function wordRoutes(app: FastifyInstance) {
       oxfordList: w.oxfordList,
       audioUs: w.audioUs,
       audioUk: w.audioUk,
-      themes: w.themes.map(t => ({ id: t.theme.id, name: t.theme.name, slug: t.theme.slug })),
+      themes: w.themes.map(t => ({ id: t.theme.id, name: t.theme.name, slug: t.theme.slug, topic: t.topic, subtopic: t.subtopic })),
       progress: request.user && w.progress?.[0] ? {
         status: w.progress[0].status,
         interval: w.progress[0].interval,
@@ -192,7 +192,7 @@ export async function wordRoutes(app: FastifyInstance) {
       cefrLevel: word.cefrLevel,
       audioUs: word.audioUs,
       audioUk: word.audioUk,
-      themes: word.themes.map(t => t.theme.slug),
+      themes: word.themes.map(t => ({ slug: t.theme.slug, name: t.theme.name, topic: t.topic, subtopic: t.subtopic })),
       progress: word.progress[0],
     }));
   });
@@ -334,7 +334,7 @@ export async function wordRoutes(app: FastifyInstance) {
       frequency: word.frequency,
       audioUs: word.audioUs,
       audioUk: word.audioUk,
-      themes: word.themes.map(t => ({ id: t.theme.id, name: t.theme.name, slug: t.theme.slug })),
+      themes: word.themes.map(t => ({ id: t.theme.id, name: t.theme.name, slug: t.theme.slug, topic: t.topic, subtopic: t.subtopic })),
       progress: word.progress?.[0] || null,
       favorited: request.user ? (word.favorites as any[])?.length > 0 : false,
     };

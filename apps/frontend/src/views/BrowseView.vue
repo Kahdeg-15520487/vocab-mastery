@@ -398,8 +398,6 @@ const visiblePages = computed(() => {
             <div class="flex items-center gap-3 mb-1">
               <h3 class="text-lg font-semibold text-slate-900 dark:text-white">{{ word.word }}</h3>
               <LevelBadge :level="word.cefrLevel" />
-              <span v-if="word.oxfordList === '3000'" class="badge badge-secondary">Oxford 3000</span>
-              <span v-else class="badge badge-primary">Oxford 5000</span>
             </div>
             <div class="flex items-center gap-2 mb-1">
               <span v-if="word.partOfSpeech?.length" class="text-xs text-slate-400 dark:text-slate-500">
@@ -670,26 +668,17 @@ const visiblePages = computed(() => {
 
           <!-- Themes -->
           <div v-if="selectedWord.themes?.length">
-            <h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-2">Themes</h3>
+            <h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-2">Topics</h3>
             <div class="flex flex-wrap gap-2">
-              <span 
+              <router-link 
                 v-for="theme in selectedWord.themes" 
-                :key="theme"
-                class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded text-sm"
+                :key="typeof theme === 'string' ? theme : theme.slug"
+                :to="`/browse?theme=${typeof theme === 'string' ? theme : theme.slug}`"
+                class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded text-sm hover:bg-blue-100 dark:hover:bg-blue-900"
               >
-                {{ theme }}
-              </span>
+                {{ typeof theme === 'string' ? theme : (theme.subtopic || theme.name) }}
+              </router-link>
             </div>
-          </div>
-
-          <!-- Word Lists -->
-          <div class="flex gap-2 text-sm text-slate-500 dark:text-slate-400">
-            <span v-if="selectedWord.oxfordList === '3000'" class="badge badge-secondary">
-              Oxford 3000
-            </span>
-            <span v-else class="badge badge-primary">
-              Oxford 5000
-            </span>
           </div>
 
           <!-- Quick Status Actions -->

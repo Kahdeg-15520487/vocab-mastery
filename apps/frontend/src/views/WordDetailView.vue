@@ -23,13 +23,12 @@ interface WordDetail {
   examples: string[]
   synonyms: string[]
   antonyms: string[]
-  oxfordList: string
   cefrLevel: string
   frequency: number
   audioUs?: string | null
   audioUk?: string | null
   favorited: boolean
-  themes: Array<{ id: string; name: string; slug: string }>
+  themes: Array<{ slug: string; name: string; topic?: string | null; subtopic?: string | null }>
   progress: {
     status: string
     interval: number
@@ -167,9 +166,6 @@ async function markStatus(status: 'learning' | 'reviewing' | 'mastered' | 'new')
             <span v-if="word.cefrLevel" class="text-sm font-medium px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400">
               {{ word.cefrLevel }}
             </span>
-            <span v-if="word.oxfordList" class="text-sm text-slate-500 dark:text-slate-400">
-              Oxford {{ word.oxfordList }}
-            </span>
             <span v-for="pos in (word.partOfSpeech || [])" :key="pos" class="text-sm text-slate-500 dark:text-slate-400 italic">
               {{ pos }}
             </span>
@@ -266,15 +262,15 @@ async function markStatus(status: 'learning' | 'reviewing' | 'mastered' | 'new')
 
       <!-- Themes -->
       <div v-if="word.themes?.length" class="card mb-6">
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">🏷️ Themes</h2>
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">🏷️ Topics</h2>
         <div class="flex flex-wrap gap-2">
           <router-link
             v-for="theme in word.themes"
-            :key="theme.id"
-            :to="`/browse?theme=${theme.slug}`"
+            :key="typeof theme === 'string' ? theme : theme.slug"
+            :to="`/browse?theme=${typeof theme === 'string' ? theme : theme.slug}`"
             class="px-3 py-1 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 rounded-full text-sm hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
           >
-            {{ theme.name }}
+            {{ typeof theme === 'string' ? theme : (theme.subtopic || theme.name) }}
           </router-link>
         </div>
       </div>

@@ -14,7 +14,7 @@ export interface Word {
   frequency: number
   audioUs?: string | null
   audioUk?: string | null
-  themes?: string[]
+  themes?: string[] | Array<{ slug: string; name: string; topic?: string | null; subtopic?: string | null }>
   progress?: WordProgress | null
   favorited?: boolean
 }
