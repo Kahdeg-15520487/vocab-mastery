@@ -1,7 +1,9 @@
 import { FastifyInstance } from 'fastify';
 import prisma from '../lib/prisma.js';
 import { authenticate } from '../middleware/auth.js';
-import { TIER_LIMITS } from '../lib/lists.js';
+import { TIER_LIMITS, canShareList, canCreateList, canUseLlm, trackLlmCall, getUserTier } from '../lib/lists.js';
+import { getLLMConfig } from '../lib/llm.js';
+import { getModel, completeSimple, type Context } from '@mariozechner/pi-ai';
 
 export async function listsRoutes(app: FastifyInstance) {
   // All list routes require authentication
@@ -441,6 +443,12 @@ export async function listsRoutes(app: FastifyInstance) {
       return reply.status(403).send({ error: 'Access denied' });
     }
 
+    // Check tier allows sharing
+    const shareCheck = await canShareList(userId);
+    if (!shareCheck.allowed) {
+      return reply.status(403).send({ error: shareCheck.reason });
+    }
+
     // Find user to share with
     const targetUser = await prisma.user.findFirst({
       where: {
@@ -523,5 +531,237 @@ export async function listsRoutes(app: FastifyInstance) {
     });
 
     return { success: true };
+  });
+
+  // ============================================
+  // POST /api/lists/generate - Generate a word list using LLM
+  // ============================================
+  app.post('/lists/generate', async (request, reply) => {
+    const userId = request.user!.userId;
+    const body = request.body as {
+      topic?: string;
+      cefrLevel?: string;
+      wordCount?: number;
+      name?: string;
+    };
+
+    // Validate inputs
+    const topic = body?.topic?.trim();
+    const cefrLevel = body?.cefrLevel || 'B1';
+    const requestedCount = Math.min(Math.max(body?.wordCount || 20, 5), 50);
+    const listName = body?.name?.trim() || `Generated: ${topic || cefrLevel}`;
+
+    if (!topic && cefrLevel === 'B1') {
+      return reply.status(400).send({ error: 'Provide a topic or CEFR level' });
+    }
+
+    // Check tier allows LLM usage
+    const llmCheck = await canUseLlm(userId);
+    if (!llmCheck.allowed) {
+      return reply.status(403).send({ error: llmCheck.reason });
+    }
+
+    // Check user can create a list
+    const listCheck = await canCreateList(userId);
+    if (!listCheck.allowed) {
+      return reply.status(403).send({ error: listCheck.reason });
+    }
+
+    try {
+      const config = await getLLMConfig();
+
+      // Build prompt for word generation
+      const levelDesc = cefrLevel ? `at CEFR level ${cefrLevel}` : 'at intermediate level (B1-B2)';
+      const topicDesc = topic ? `about "${topic}"` : 'useful vocabulary';
+
+      const systemPrompt = `You are an English vocabulary expert. Generate vocabulary word lists for English learners.
+You must return ONLY a valid JSON array of objects with this exact format:
+[{"word": "example", "reason": "Brief reason why this word fits"}]
+No markdown, no code blocks, no explanation. Just the JSON array.`;
+
+      const userPrompt = `Generate a list of ${requestedCount} English vocabulary words ${levelDesc} ${topicDesc}.
+
+Requirements:
+- Words should be appropriate for the specified level
+- Include a mix of nouns, verbs, adjectives
+- Each word should be commonly used and practical
+- Avoid overly obscure or archaic words
+- Sort by usefulness/frequency (most useful first)
+
+Return ONLY a JSON array of objects with "word" and "reason" fields.`;
+
+      // Call LLM
+      const piAiProviders = ['openai', 'anthropic', 'google', 'groq', 'openrouter', 'mistral', 'cerebras', 'xai'];
+      let responseText = '';
+
+      if (piAiProviders.includes(config.provider.toLowerCase())) {
+        const model = getModel(config.provider.toLowerCase() as any, config.model as any);
+        if (model) {
+          const context: Context = {
+            systemPrompt,
+            messages: [{ role: 'user', content: userPrompt, timestamp: Date.now() }],
+          };
+          const apiKey = config.apiKey || process.env.OPENAI_API_KEY;
+          const response = await completeSimple(model, context, { apiKey });
+          responseText = response.content
+            .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
+            .map(c => c.text)
+            .join('')
+            .trim();
+        }
+      }
+
+      // Fallback for custom providers
+      if (!responseText) {
+        let baseUrl = config.baseUrl;
+        if (baseUrl && !baseUrl.endsWith('/v1') && !baseUrl.endsWith('/v1/')) {
+          baseUrl = baseUrl.replace(/\/$/, '') + '/v1';
+        }
+        const customModel = {
+          id: config.model,
+          name: `${config.provider}/${config.model}`,
+          api: 'openai-completions' as const,
+          provider: config.provider.toLowerCase(),
+          ...(baseUrl ? { baseUrl } : {}),
+          reasoning: false,
+          input: ['text'] as const,
+          cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+          contextWindow: 128000,
+          maxTokens: config.maxTokens,
+          compat: {
+            supportsDeveloperRole: false,
+            supportsStore: false,
+            supportsReasoningEffort: false,
+            maxTokensField: 'max_tokens' as const,
+          },
+        };
+        const context: Context = {
+          systemPrompt,
+          messages: [{ role: 'user', content: userPrompt, timestamp: Date.now() }],
+        };
+        const apiKey = config.apiKey || process.env.OPENAI_API_KEY;
+        const response = await completeSimple(customModel as any, context, { apiKey });
+        responseText = response.content
+          .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
+          .map(c => c.text)
+          .join('')
+          .trim();
+      }
+
+      // Parse response
+      const jsonMatch = responseText.match(/\[[\s\S]*\]/);
+      if (!jsonMatch) {
+        return reply.status(500).send({ error: 'LLM returned invalid format' });
+      }
+
+      let suggestions: Array<{ word: string; reason: string }>;
+      try {
+        suggestions = JSON.parse(jsonMatch[0]);
+      } catch {
+        return reply.status(500).send({ error: 'Failed to parse LLM response' });
+      }
+
+      if (!Array.isArray(suggestions) || suggestions.length === 0) {
+        return reply.status(500).send({ error: 'LLM returned empty list' });
+      }
+
+      // Track LLM call
+      await trackLlmCall(userId);
+
+      // Match suggestions against our database
+      const words = suggestions.map(s => s.word.toLowerCase().trim());
+      const existingWords = await prisma.word.findMany({
+        where: { word: { in: words } },
+        select: { id: true, word: true, definition: true, cefrLevel: true, partOfSpeech: true, phoneticUs: true },
+      });
+
+      const wordMap = new Map(existingWords.map(w => [w.word.toLowerCase(), w]));
+
+      // Build result with match status
+      const results = suggestions.slice(0, requestedCount).map(s => {
+        const normalizedWord = s.word.toLowerCase().trim();
+        const dbWord = wordMap.get(normalizedWord);
+        return {
+          word: s.word,
+          reason: s.reason,
+          inDatabase: !!dbWord,
+          wordData: dbWord || null,
+        };
+      });
+
+      const inDbCount = results.filter(r => r.inDatabase).length;
+
+      return {
+        suggestions: results,
+        totalSuggested: results.length,
+        inDatabase: inDbCount,
+        notInDatabase: results.length - inDbCount,
+      };
+    } catch (error: any) {
+      console.error('LLM generation failed:', error);
+      return reply.status(500).send({ error: 'Failed to generate word list. Please try again.' });
+    }
+  });
+
+  // ============================================
+  // POST /api/lists/generate/create - Create list from generated suggestions
+  // ============================================
+  app.post('/lists/generate/create', async (request, reply) => {
+    const userId = request.user!.userId;
+    const body = request.body as {
+      name: string;
+      description?: string;
+      wordIds: string[];
+    };
+
+    if (!body?.name?.trim() || !body?.wordIds?.length) {
+      return reply.status(400).send({ error: 'Name and word IDs required' });
+    }
+
+    // Check can create
+    const listCheck = await canCreateList(userId);
+    if (!listCheck.allowed) {
+      return reply.status(403).send({ error: listCheck.reason });
+    }
+
+    // Check tier word limit
+    const tier = await getUserTier(userId);
+    const limits = TIER_LIMITS[tier as keyof typeof TIER_LIMITS];
+    if (body.wordIds.length > limits.maxWordsPerList) {
+      return reply.status(400).send({ error: `Too many words. Limit is ${limits.maxWordsPerList} per list for ${tier} tier.` });
+    }
+
+    // Verify all words exist
+    const existingCount = await prisma.word.count({
+      where: { id: { in: body.wordIds } },
+    });
+    if (existingCount !== body.wordIds.length) {
+      return reply.status(400).send({ error: 'Some words not found in database' });
+    }
+
+    // Create list with words
+    const list = await prisma.studyList.create({
+      data: {
+        userId,
+        name: body.name.trim(),
+        description: body.description || `Generated list with ${body.wordIds.length} words`,
+        isSystem: false,
+      },
+    });
+
+    // Add words to list
+    await prisma.studyListWord.createMany({
+      data: body.wordIds.map(wordId => ({
+        listId: list.id,
+        wordId,
+      })),
+      skipDuplicates: true,
+    });
+
+    return {
+      id: list.id,
+      name: list.name,
+      wordCount: body.wordIds.length,
+    };
   });
 }

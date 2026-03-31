@@ -2,30 +2,56 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useSessionStore } from '@/stores/session'
 import { useToast } from '@/composables/useToast'
+import { request } from '@/lib/api'
+import { getLevelRange } from '@/lib/difficulty'
 import Flashcard from '@/components/learning/Flashcard.vue'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
-
+import DifficultySelector from '@/components/learning/DifficultySelector.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
+import ResumePrompt from '@/components/ui/ResumePrompt.vue'
+import SingleTabWarning from '@/components/ui/SingleTabWarning.vue'
 
 const sessionStore = useSessionStore()
 const toast = useToast()
+
+// Phase: setup | resume | playing
+const phase = ref<'setup' | 'resume' | 'playing'>('setup')
 
 const sessionComplete = ref(false)
 const sessionResult = ref<any>(null)
 const cardFlipped = ref(false)
 const confettiActive = ref(false)
 
+// Settings
+const wordCount = ref(20)
+const wordCountOptions = [10, 15, 20, 30]
+const difficulty = ref<'mixed' | 'easy' | 'medium' | 'hard'>('mixed')
+
+// Resume state
+const showTabWarning = ref(false)
+const resumeData = ref<{ answeredCount: number; totalWords: number } | null>(null)
+
 function handleCardFlip(flipped: boolean) {
   cardFlipped.value = flipped
 }
 
 onMounted(async () => {
-  await sessionStore.startSession({
-    type: 'review',
-    wordCount: 20,
-  })
-  window.addEventListener('keydown', handleKeydown)
+  // Check for active session
+  try {
+    const data = await request<any>('/sessions/active')
+    if (data.active && data.type === 'learn') {
+      resumeData.value = {
+        answeredCount: data.answeredCount || 0,
+        totalWords: data.totalWords || 0,
+      }
+      phase.value = 'resume'
+      return
+    }
+  } catch { /* ignore */ }
+
+  // No active session — show setup
+  phase.value = 'setup'
 })
 
 onUnmounted(() => {
@@ -81,18 +107,107 @@ function startNewSession() {
   sessionStore.reset()
   sessionComplete.value = false
   sessionResult.value = null
-  
+
+  const levelRange = getLevelRange(difficulty.value)
+
   sessionStore.startSession({
     type: 'review',
-    wordCount: 20,
+    wordCount: wordCount.value,
+    levelRange,
   })
+
+  phase.value = 'playing'
+  window.addEventListener('keydown', handleKeydown)
+}
+
+async function resumeActiveSession() {
+  phase.value = 'playing'
+  const ok = await sessionStore.resumeSession()
+  if (ok) {
+    showTabWarning.value = true
+    window.addEventListener('keydown', handleKeydown)
+  } else {
+    await startNewSession()
+  }
+}
+
+async function restartActiveSession() {
+  try {
+    await request('/sessions/abandon-active', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    })
+  } catch { /* ignore */ }
+  phase.value = 'setup'
 }
 </script>
 
 <template>
   <div class="max-w-2xl mx-auto">
-    <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-6">Review Session</h1>
-    
+    <!-- Single Tab Warning -->
+    <SingleTabWarning v-if="showTabWarning" @dismiss="showTabWarning = false" />
+
+    <!-- Resume Prompt -->
+    <div v-if="phase === 'resume' && resumeData" class="max-w-lg mx-auto mt-6">
+      <ResumePrompt
+        :answered-count="resumeData.answeredCount"
+        :total-words="resumeData.totalWords"
+        @resume="resumeActiveSession"
+        @restart="restartActiveSession"
+      />
+    </div>
+
+    <!-- ==================== SETUP PHASE ==================== -->
+    <div v-else-if="phase === 'setup'" class="max-w-lg mx-auto">
+      <div class="text-center mb-8">
+        <div class="text-6xl mb-4">🔄</div>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Review Session</h1>
+        <p class="text-slate-600 dark:text-slate-400">
+          Review words that are due for practice using spaced repetition.
+        </p>
+      </div>
+
+      <div class="card space-y-6">
+        <!-- Difficulty -->
+        <DifficultySelector v-model="difficulty" />
+
+        <!-- Word Count -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            Number of words
+          </label>
+          <div class="grid grid-cols-4 gap-2">
+            <button
+              v-for="count in wordCountOptions"
+              :key="count"
+              @click="wordCount = count"
+              class="py-2 rounded-lg text-sm font-medium transition-colors"
+              :class="wordCount === count
+                ? 'bg-primary-600 text-white'
+                : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'"
+            >
+              {{ count }}
+            </button>
+          </div>
+        </div>
+
+        <button
+          @click="startNewSession"
+          :disabled="sessionStore.loading"
+          class="btn btn-primary w-full text-lg py-3"
+        >
+          {{ sessionStore.loading ? 'Loading...' : '🔄 Start Review' }}
+        </button>
+      </div>
+
+      <div v-if="sessionStore.error" class="mt-4 text-center text-red-600 dark:text-red-400">
+        {{ sessionStore.error }}
+      </div>
+    </div>
+
+    <!-- ==================== PLAYING ==================== -->
+    <template v-else-if="phase === 'playing'">
+
     <!-- Session Complete -->
     <div v-if="sessionComplete" class="text-center py-8">
       <div class="text-6xl mb-4">
@@ -194,6 +309,8 @@ function startNewSession() {
         Learn New Words
       </router-link>
     </div>
+
+    </template>
 
     <ConfettiEffect :active="confettiActive" :duration="4000" />
   </div>

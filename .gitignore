@@ -56,3 +56,6 @@ oxford_5000.txt
 # Exported data
 words-export.json
 **/words-export.json
+
+# Temporary - user data files
+datas/

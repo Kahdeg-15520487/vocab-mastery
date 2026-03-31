@@ -8,6 +8,7 @@ import {
   JwtPayload,
 } from '../lib/jwt.js';
 import { authenticate } from '../middleware/auth.js';
+import { TIER_LIMITS, canUseLlm, getUserLimits } from '../lib/lists.js';
 import { createSystemLists } from '../lib/lists.js';
 
 export async function authRoutes(app: FastifyInstance) {
@@ -561,5 +562,40 @@ export async function authRoutes(app: FastifyInstance) {
     ]);
 
     return { success: true, message: 'Password has been reset. Please log in with your new password.' };
+  });
+
+  // GET /api/auth/limits - Get current user's tier limits and usage
+  app.get('/auth/limits', { preHandler: authenticate }, async (request, reply) => {
+    const userId = request.user!.userId;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { subscriptionTier: true },
+    });
+
+    if (!user) return reply.status(404).send({ error: 'User not found' });
+
+    const tier = user.subscriptionTier || 'FREE';
+    const limits = TIER_LIMITS[tier as keyof typeof TIER_LIMITS];
+
+    // Get LLM usage for this month
+    const llmStatus = await canUseLlm(userId);
+
+    // Get list counts
+    const listCount = await prisma.studyList.count({
+      where: { userId, isSystem: false },
+    });
+
+    return {
+      tier,
+      limits,
+      usage: {
+        lists: listCount,
+        llmCallsThisMonth: limits.maxLlmCallsPerMonth === -1
+          ? null
+          : limits.maxLlmCallsPerMonth - (llmStatus.remaining ?? 0),
+        llmRemaining: llmStatus.remaining ?? 0,
+      },
+    };
   });
 }

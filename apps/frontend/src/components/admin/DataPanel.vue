@@ -45,6 +45,25 @@ const oxfordResult = ref<{
   stats: Record<string, number>
 } | null>(null)
 
+// Oxford JSON import state
+const oxfordJsonImporting = ref(false)
+const oxfordJsonFile = ref<File | null>(null)
+const oxfordJsonFileInput = ref<HTMLInputElement | null>(null)
+const oxfordJsonList = ref<'3000' | '5000'>('3000')
+const oxfordJsonMergeMode = ref(true)
+const oxfordJsonResult = ref<{
+  success: boolean
+  list: string
+  totalParsed: number
+  validWords: number
+  uniqueWords: number
+  created: number
+  updated: number
+  skipped: number
+  stats: Record<string, number>
+  validationErrors?: string[]
+} | null>(null)
+
 async function fetchStats() {
   loading.value = true
   error.value = null
@@ -175,6 +194,49 @@ async function handleOxfordImport(list: '3000' | '5000') {
     error.value = (e as Error).message
   } finally {
     oxfordImporting.value = null
+  }
+}
+
+// Oxford JSON import handlers
+function handleOxfordJsonFileSelect(event: Event) {
+  const target = event.target as HTMLInputElement
+  if (target.files && target.files.length > 0) {
+    oxfordJsonFile.value = target.files[0]
+    oxfordJsonResult.value = null
+  }
+}
+
+async function handleOxfordJsonImport() {
+  if (!oxfordJsonFile.value) return
+
+  oxfordJsonImporting.value = true
+  error.value = null
+  oxfordJsonResult.value = null
+
+  try {
+    const content = await oxfordJsonFile.value.text()
+    const data = JSON.parse(content)
+
+    // The JSON format is { "0": { word, type, cefr, ... }, "1": { ... }, ... }
+    // We pass it directly to the API
+    oxfordJsonResult.value = await dataApi.importOxfordJson({
+      words: data,
+      list: oxfordJsonList.value,
+      merge: oxfordJsonMergeMode.value,
+    })
+
+    // Refresh stats
+    await fetchStats()
+
+    // Clear file input
+    oxfordJsonFile.value = null
+    if (oxfordJsonFileInput.value) {
+      oxfordJsonFileInput.value.value = ''
+    }
+  } catch (e: unknown) {
+    error.value = (e as Error).message
+  } finally {
+    oxfordJsonImporting.value = false
   }
 }
 
@@ -453,6 +515,114 @@ onMounted(fetchStats)
           ...<br>
           A2<br>
           ...
+        </code>
+      </div>
+    </div>
+
+    <!-- Oxford JSON Import (with definitions) -->
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2">Oxford JSON Import (with Definitions)</h2>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+        Import Oxford word lists from JSON files that include definitions, phonetics, and examples. 
+        This format is compatible with the <code class="bg-slate-100 dark:bg-slate-700 px-1 rounded">oxford-5000-vocabulary-audio-definition</code> dataset.
+      </p>
+
+      <div class="space-y-4">
+        <!-- List Selection -->
+        <div class="flex items-center gap-4">
+          <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Word List:</label>
+          <div class="flex gap-4">
+            <label class="flex items-center gap-2">
+              <input type="radio" v-model="oxfordJsonList" value="3000" class="text-indigo-600" />
+              <span class="text-sm text-slate-700 dark:text-slate-300">Oxford 3000</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="radio" v-model="oxfordJsonList" value="5000" class="text-indigo-600" />
+              <span class="text-sm text-slate-700 dark:text-slate-300">Oxford 5000</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- File Input -->
+        <label class="block">
+          <input
+            ref="oxfordJsonFileInput"
+            type="file"
+            accept=".json"
+            @change="handleOxfordJsonFileSelect"
+            class="block w-full text-sm text-slate-500 dark:text-slate-400
+              file:mr-4 file:py-2 file:px-4
+              file:rounded-md file:border-0
+              file:text-sm file:font-medium
+              file:bg-green-50 file:text-green-700
+              hover:file:bg-green-100"
+          />
+        </label>
+
+        <!-- Merge Mode -->
+        <div class="flex items-center gap-2">
+          <input
+            id="oxfordJsonMergeMode"
+            type="checkbox"
+            v-model="oxfordJsonMergeMode"
+            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-600 rounded"
+          />
+          <label for="oxfordJsonMergeMode" class="text-sm text-slate-700 dark:text-slate-300">
+            Merge mode (update existing words with definitions)
+          </label>
+        </div>
+        <p v-if="!oxfordJsonMergeMode" class="text-sm text-red-600">
+          ⚠️ Warning: Without merge mode, existing words from the selected list will be deleted before import.
+        </p>
+
+        <!-- Import Button -->
+        <button
+          @click="handleOxfordJsonImport"
+          :disabled="!oxfordJsonFile || oxfordJsonImporting"
+          class="btn btn-primary"
+        >
+          {{ oxfordJsonImporting ? 'Importing...' : '📤 Import Oxford JSON' }}
+        </button>
+      </div>
+
+      <!-- Oxford JSON Import Result -->
+      <div v-if="oxfordJsonResult" class="mt-4 p-4 rounded-lg" :class="oxfordJsonResult.success ? 'bg-green-50' : 'bg-red-50'">
+        <h3 class="font-medium mb-2" :class="oxfordJsonResult.success ? 'text-green-800' : 'text-red-800'">
+          Oxford {{ oxfordJsonResult.list }} JSON Import {{ oxfordJsonResult.success ? 'Successful' : 'Failed' }}
+        </h3>
+        <div class="text-sm space-y-1" :class="oxfordJsonResult.success ? 'text-green-700' : 'text-red-700'">
+          <p>Total entries parsed: {{ oxfordJsonResult.totalParsed }}</p>
+          <p>Valid words: {{ oxfordJsonResult.validWords }}</p>
+          <p>Unique words: {{ oxfordJsonResult.uniqueWords }}</p>
+          <p>Created: {{ oxfordJsonResult.created }}</p>
+          <p>Updated: {{ oxfordJsonResult.updated }}</p>
+          <p v-if="oxfordJsonResult.skipped > 0">Skipped: {{ oxfordJsonResult.skipped }}</p>
+        </div>
+        <div v-if="oxfordJsonResult.stats" class="mt-2 text-sm" :class="oxfordJsonResult.success ? 'text-green-700' : 'text-red-700'">
+          <p class="font-medium">By CEFR Level:</p>
+          <div class="flex flex-wrap gap-2 mt-1">
+            <span v-for="(count, level) in oxfordJsonResult.stats" :key="level" class="px-2 py-1 bg-green-100 rounded">
+              {{ level }}: {{ count }}
+            </span>
+          </div>
+        </div>
+        <div v-if="oxfordJsonResult.validationErrors?.length" class="mt-2 text-sm text-red-600">
+          <p class="font-medium">Validation Errors:</p>
+          <ul class="list-disc list-inside">
+            <li v-for="(err, i) in oxfordJsonResult.validationErrors" :key="i">{{ err }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Format Info -->
+      <div class="mt-4 text-sm text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 rounded-lg p-3">
+        <p class="font-medium text-slate-600 dark:text-slate-400 mb-1">Expected JSON format:</p>
+        <code class="text-xs block bg-slate-100 dark:bg-slate-700 p-2 rounded overflow-x-auto">
+{<br>
+&nbsp;&nbsp;"0": { "word": "a", "type": "indefinite article", "cefr": "a1", "phon_br": "/ə/", "definition": "...", "example": "..." },<br>
+&nbsp;&nbsp;"1": { "word": "abandon", "type": "verb", "cefr": "b2", ... },<br>
+&nbsp;&nbsp;...<br>
+}
         </code>
       </div>
     </div>

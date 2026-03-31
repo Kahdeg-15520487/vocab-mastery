@@ -142,7 +142,8 @@ export function clearLLMConfigCache() {
 async function callLLM(
   systemPrompt: string, 
   userPrompt: string, 
-  config: Awaited<ReturnType<typeof getLLMConfig>>
+  config: Awaited<ReturnType<typeof getLLMConfig>>,
+  options?: { disableReasoning?: boolean }
 ): Promise<string> {
   const piAiProviders = ['openai', 'anthropic', 'google', 'groq', 'openrouter', 'mistral', 'cerebras', 'xai'];
   
@@ -159,7 +160,10 @@ async function callLLM(
       };
       
       const apiKey = config.apiKey || process.env.OPENAI_API_KEY;
+      console.log(`[LLM] Known provider: ${config.provider}, model: ${config.model}`);
       const response = await completeSimple(model, context, { apiKey });
+      
+      console.log(`[LLM] Response stopReason: ${response.stopReason}, content types: [${response.content.map(c => c.type).join(', ')}]`);
       
       return response.content
         .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
@@ -185,7 +189,7 @@ async function callLLM(
     api: 'openai-completions' as const,
     provider: config.provider.toLowerCase(),
     ...(baseUrl ? { baseUrl } : {}),
-    reasoning: true,
+    reasoning: options?.disableReasoning ? false : true,
     input: ['text'] as const,
     cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
     contextWindow: 128000,
@@ -208,14 +212,19 @@ async function callLLM(
   const apiKey = config.apiKey || process.env.OPENAI_API_KEY;
   
   try {
+    console.log(`[LLM] Calling provider: ${config.provider}, model: ${config.model}, baseUrl: ${config.baseUrl || 'default'}`);
+    
     const response = await completeSimple(customModel as any, context, {
       apiKey,
-      reasoning: 'medium',
+      ...(options?.disableReasoning ? {} : { reasoning: 'medium' }),
     });
     
+    console.log(`[LLM] Response stopReason: ${response.stopReason}, errorMessage: ${response.errorMessage}`);
+    console.log(`[LLM] Response content types: [${response.content.map(c => c.type).join(', ')}]`);
+    
     if (response.stopReason === 'error') {
-      console.error('LLM error:', response.errorMessage);
-      console.error('Content:', JSON.stringify(response.content).slice(0, 500));
+      console.error('[LLM] Error response:', response.errorMessage);
+      console.error('[LLM] Content:', JSON.stringify(response.content).slice(0, 500));
     }
     
     const textContent = response.content
@@ -225,9 +234,22 @@ async function callLLM(
       .trim();
     
     if (!textContent) {
-      const contentTypes = response.content.map(c => c.type).join(', ');
-      console.error(`LLM returned empty text. Content types: [${contentTypes}]`);
-      console.error(`Stop reason: ${response.stopReason}`);
+      // Log full content for debugging
+      console.error(`[LLM] Empty text response. Full content:`, JSON.stringify(response.content).slice(0, 1000));
+      console.error(`[LLM] Stop reason: ${response.stopReason}`);
+      
+      // Fallback: try to extract text from thinking blocks (reasoning models may only produce thinking)
+      const thinkingContent = response.content
+        .filter((c): c is { type: 'thinking'; thinking: string } => c.type === 'thinking')
+        .map(c => c.thinking)
+        .join('\n')
+        .trim();
+      
+      if (thinkingContent) {
+        console.log(`[LLM] Found thinking content (${thinkingContent.length} chars) but skipReason=length, model ran out of tokens before producing output`);
+      }
+    } else {
+      console.log(`[LLM] Got text response (${textContent.length} chars): ${textContent.slice(0, 200)}`);
     }
     
     return textContent;
@@ -246,19 +268,20 @@ export async function categorizeWord(
   partOfSpeech?: string[]
 ): Promise<string> {
   try {
+    console.log(`[categorizeWord] Categorizing: "${word}"`);
     const config = await getLLMConfig();
     
-    let prompt = `Categorize this English word:\n\nWord: "${word}"`;
+    let prompt = `Categorize this English word into ONE of these categories: ${themeSlugs.join(', ')}.\n\nWord: "${word}"`;
     if (partOfSpeech?.length) {
       prompt += `\nPart of speech: ${partOfSpeech.join(', ')}`;
     }
     if (definition) {
       prompt += `\nDefinition: ${definition.slice(0, 500)}`;
     }
-    prompt += `\n\nReturn ONLY the category slug (one of: ${themeSlugs.join(', ')}). No explanation.`;
+    prompt += `\n\nRespond with ONLY the category slug. No thinking, no explanation, just one word.`;
     
-    const systemPrompt = BATCH_SYSTEM_PROMPT;
-    const responseText = await callLLM(systemPrompt, prompt, config);
+    const systemPrompt = 'You are a word categorization assistant. Respond with ONLY a single category slug. Be concise.';
+    const responseText = await callLLM(systemPrompt, prompt, config, { disableReasoning: true });
     
     return extractCategory(responseText.toLowerCase());
     
@@ -304,9 +327,17 @@ Example: {"abandon": "general", "algorithm": "technology", "bake": "food"}
 
 JSON:`;
 
-    const responseText = await callLLM(BATCH_SYSTEM_PROMPT, prompt, config);
+    const responseText = await callLLM(BATCH_SYSTEM_PROMPT, prompt, config, { disableReasoning: true });
+    
+    console.log(`[categorizeWordsBatch] Raw LLM response (${responseText.length} chars): ${responseText.slice(0, 500)}`);
     
     const categories = parseCategoriesJson(responseText, words.map(w => w.word));
+    
+    console.log(`[categorizeWordsBatch] Parsed ${Object.keys(categories).length} categories for ${words.length} words`);
+    
+    // Log sample of results
+    const sampleResults = words.slice(0, 5).map(w => `${w.word} → ${categories[w.word.toLowerCase()] || 'general'}`);
+    console.log(`[categorizeWordsBatch] Sample: ${sampleResults.join(', ')}`);
     
     if (options?.onProgress) {
       options.onProgress(words.length, words.length);
@@ -452,55 +483,72 @@ export async function testProviderConfig(config: {
   try {
     const piAiProviders = ['openai', 'anthropic', 'google', 'groq', 'openrouter', 'mistral', 'cerebras', 'xai'];
     
-    if (piAiProviders.includes(config.provider.toLowerCase())) {
-      const model = getModel(config.provider.toLowerCase() as any, config.model as any);
-      
-      if (model) {
-        const context: Context = {
-          systemPrompt: 'You are a helpful assistant.',
-          messages: [{ role: 'user', content: 'Say "ok"', timestamp: Date.now() }]
-        };
-        
-        const apiKey = config.apiKey || process.env.OPENAI_API_KEY;
-        await completeSimple(model, context, { apiKey });
-        return { success: true };
-      }
-    }
-    
-    // Custom provider - use pi-ai with custom model
-    let baseUrl = config.baseUrl;
-    if (baseUrl && !baseUrl.endsWith('/v1') && !baseUrl.endsWith('/v1/')) {
-      baseUrl = baseUrl.replace(/\/$/, '') + '/v1';
-    }
-    
-    const customModel = {
-      id: config.model,
-      name: `${config.provider}/${config.model}`,
-      api: 'openai-completions' as const,
-      provider: config.provider.toLowerCase(),
-      ...(baseUrl ? { baseUrl } : {}),
-      reasoning: false,
-      input: ['text'] as const,
-      cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
-      contextWindow: 128000,
-      maxTokens: 100,
-      compat: {
-        supportsDeveloperRole: false,
-        supportsStore: false,
-        supportsReasoningEffort: false,
-        maxTokensField: 'max_tokens' as const,
-      },
-    };
-    
     const context: Context = {
       systemPrompt: 'You are a helpful assistant.',
       messages: [{ role: 'user', content: 'Say "ok"', timestamp: Date.now() }]
     };
-    
-    await completeSimple(customModel as any, context, {
-      apiKey: config.apiKey,
-    });
-    
+
+    const apiKey = config.apiKey || process.env.OPENAI_API_KEY;
+
+    let response;
+
+    if (piAiProviders.includes(config.provider.toLowerCase())) {
+      const model = getModel(config.provider.toLowerCase() as any, config.model as any);
+      
+      if (model) {
+        response = await completeSimple(model, context, { apiKey });
+      }
+    }
+
+    // Custom provider or known provider with unknown model
+    if (!response) {
+      let baseUrl = config.baseUrl;
+      if (baseUrl && !baseUrl.endsWith('/v1') && !baseUrl.endsWith('/v1/')) {
+        baseUrl = baseUrl.replace(/\/$/, '') + '/v1';
+      }
+      
+      const customModel = {
+        id: config.model,
+        name: `${config.provider}/${config.model}`,
+        api: 'openai-completions' as const,
+        provider: config.provider.toLowerCase(),
+        ...(baseUrl ? { baseUrl } : {}),
+        reasoning: false,
+        input: ['text'] as const,
+        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+        contextWindow: 128000,
+        maxTokens: 500,
+        compat: {
+          supportsDeveloperRole: false,
+          supportsStore: false,
+          supportsReasoningEffort: false,
+          maxTokensField: 'max_tokens' as const,
+        },
+      };
+      
+      response = await completeSimple(customModel as any, context, { apiKey });
+    }
+
+    // Check response for errors
+    if (!response) {
+      return { success: false, error: 'No response from model' };
+    }
+
+    if (response.stopReason === 'error') {
+      return { success: false, error: response.errorMessage || 'LLM returned an error' };
+    }
+
+    // Verify we got actual text content back
+    const text = response.content
+      .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
+      .map(c => c.text)
+      .join('')
+      .trim();
+
+    if (!text) {
+      return { success: false, error: 'LLM returned empty response' };
+    }
+
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Connection failed' };

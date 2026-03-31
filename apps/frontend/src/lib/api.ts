@@ -275,6 +275,7 @@ export const sessionsApi = {
   complete: (id: string) =>
     request<any>(`/sessions/${id}/complete`, {
       method: 'POST',
+      body: JSON.stringify({}),
     }),
 }
 
@@ -392,11 +393,13 @@ export const adminApi = {
   activateProvider: (id: string) =>
     request<any>(`/admin/llm/providers/${id}/activate`, {
       method: 'PUT',
+      body: JSON.stringify({}),
     }),
 
   testProvider: (id: string) =>
     request<any>(`/admin/llm/providers/${id}/test`, {
       method: 'POST',
+      body: JSON.stringify({}),
     }),
 
   testLLMConfig: (config: {
@@ -463,6 +466,12 @@ export const dataApi = {
 
   importOxford: (data: { content: string; list: string; merge: boolean }) =>
     request<any>('/data/import-oxford', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  importOxfordJson: (data: { words: Record<string, any>; list?: string; merge?: boolean }) =>
+    request<any>('/data/import-oxford-json', {
       method: 'POST',
       body: JSON.stringify(data),
     }),

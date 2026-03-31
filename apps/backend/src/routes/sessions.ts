@@ -2,17 +2,85 @@ import { FastifyInstance } from 'fastify';
 import { Prisma } from '@prisma/client';
 import prisma from '../lib/prisma.js';
 import { authenticate } from '../middleware/auth.js';
-import { calculateNextReview, responseToQuality } from '../lib/spaced-repetition.js';
+import { calculateNextReview, responseToQuality, createInitialProgress } from '../lib/spaced-repetition.js';
 import type { WordStatus } from '../lib/spaced-repetition.js';
 import { checkAchievements } from '../lib/achievements.js';
+
+// Import daily progress helper from progress routes (shared logic)
+async function updateDailyProgress(userId: string, wordsLearned: number, wordsReviewed: number) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const dailyGoal = await prisma.dailyGoal.upsert({
+    where: { userId_date: { userId, date: today } },
+    create: {
+      userId,
+      date: today,
+      wordsLearned,
+      wordsReviewed,
+      wordsToLearn: 10,
+      wordsToReview: 20,
+    },
+    update: {
+      wordsLearned: { increment: wordsLearned },
+      wordsReviewed: { increment: wordsReviewed },
+    },
+  });
+
+  // Update streak
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  let streak = await prisma.userStreak.findUnique({ where: { userId } });
+  if (!streak) {
+    streak = await prisma.userStreak.create({
+      data: { userId, currentStreak: 0, longestStreak: 0, lastActivityDate: today },
+    });
+  }
+
+  const lastActive = streak.lastActivityDate ? new Date(streak.lastActivityDate) : null;
+  if (lastActive) lastActive.setHours(0, 0, 0, 0);
+  const todayStr = today.toISOString().slice(0, 10);
+  const lastStr = lastActive ? lastActive.toISOString().slice(0, 10) : '';
+
+  if (lastStr !== todayStr) {
+    const yesterdayStr = yesterday.toISOString().slice(0, 10);
+    const newStreak = lastStr === yesterdayStr ? streak.currentStreak + 1 : 1;
+    await prisma.userStreak.update({
+      where: { userId },
+      data: {
+        currentStreak: newStreak,
+        longestStreak: Math.max(newStreak, streak.longestStreak),
+        lastActivityDate: today,
+      },
+    });
+  }
+}
 
 export async function sessionRoutes(app: FastifyInstance) {
   // All session routes require authentication
   app.addHook('preHandler', authenticate);
 
+  // Helper: auto-abandon any existing incomplete session for this user
+  async function abandonExistingSession(userId: string) {
+    const existing = await prisma.learningSession.findFirst({
+      where: { userId, completedAt: null },
+    });
+    if (existing) {
+      await prisma.learningSession.update({
+        where: { id: existing.id },
+        data: { completedAt: new Date() },
+      });
+    }
+  }
+
   // Start a new learning session
   app.post('/sessions', async (request, reply) => {
     const userId = request.user!.userId;
+
+    // Auto-abandon any existing incomplete session
+    await abandonExistingSession(userId);
+
     const body = request.body as {
       type: 'learn' | 'review' | 'quiz';
       themeId?: string;
@@ -163,8 +231,7 @@ export async function sessionRoutes(app: FastifyInstance) {
         word: sw.word.word,
         phoneticUs: sw.word.phoneticUs,
         phoneticUk: sw.word.phoneticUk,
-        audioUs: sw.word.audioUs,
-        audioUk: sw.word.audioUk,
+        audioUs: sw.word.audioUs,        audioUk: sw.word.audioUk,
         partOfSpeech: sw.word.partOfSpeech as string[],
         definition: sw.word.definition,
         examples: sw.word.examples as string[],
@@ -180,48 +247,46 @@ export async function sessionRoutes(app: FastifyInstance) {
   // Generate quiz questions
   app.post('/sessions/quiz', async (request, reply) => {
     const userId = request.user!.userId;
+
+    // Auto-abandon any existing incomplete session
+    await abandonExistingSession(userId);
+
     const body = request.body as {
       themeId?: string;
       listId?: string;
       levelRange?: [string, string];
       questionCount?: number;
-      wordIds?: string[];
     };
-    const { themeId, listId, levelRange, questionCount = 10, wordIds } = body;
+    const { themeId, listId, levelRange, questionCount = 10 } = body;
 
     // Build query to get words
     const where: any = {};
 
-    // If specific word IDs provided (e.g. for "practice mistakes")
-    if (wordIds && wordIds.length > 0) {
-      where.id = { in: wordIds };
-    } else {
-      if (themeId) {
-        where.themes = { some: { themeId } };
-      }
+    if (themeId) {
+      where.themes = { some: { themeId } };
+    }
 
-      if (listId) {
-        const list = await prisma.studyList.findUnique({ where: { id: listId } });
-        if (!list) {
-          return reply.status(404).send({ error: 'List not found' });
-        }
-        if (list.userId !== userId) {
-          const shared = await prisma.studyList.findUnique({
-            where: { id: listId },
-          });
-          if (!shared) {
-            return reply.status(403).send({ error: 'Access denied' });
-          }
-        }
-        where.studyListWords = { some: { listId } };
+    if (listId) {
+      const list = await prisma.studyList.findUnique({ where: { id: listId } });
+      if (!list) {
+        return reply.status(404).send({ error: 'List not found' });
       }
+      if (list.userId !== userId) {
+        const shared = await prisma.studyList.findUnique({
+          where: { id: listId },
+        });
+        if (!shared) {
+          return reply.status(403).send({ error: 'Access denied' });
+        }
+      }
+      where.studyListWords = { some: { listId } };
+    }
 
-      if (levelRange) {
-        const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-        const startIdx = levels.indexOf(levelRange[0]);
-        const endIdx = levels.indexOf(levelRange[1]);
-        where.cefrLevel = { in: levels.slice(startIdx, endIdx + 1) };
-      }
+    if (levelRange) {
+      const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+      const startIdx = levels.indexOf(levelRange[0]);
+      const endIdx = levels.indexOf(levelRange[1]);
+      where.cefrLevel = { in: levels.slice(startIdx, endIdx + 1) };
     }
 
     // Get quiz words (prefer words user has some progress with)
@@ -343,9 +408,7 @@ export async function sessionRoutes(app: FastifyInstance) {
         id: word.id,
         word: word.word,
         phoneticUs: word.phoneticUs,
-        phoneticUk: word.phoneticUk,
-        audioUs: word.audioUs,
-        audioUk: word.audioUk,
+        phoneticUk: word.phoneticUk,        audioUs: word.audioUs,        audioUk: word.audioUk,
         partOfSpeech: word.partOfSpeech as string[],
         definition: safeDefinition,
         examples: safeExamples,
@@ -429,6 +492,10 @@ export async function sessionRoutes(app: FastifyInstance) {
   // Start spelling practice session
   app.post('/sessions/spelling', async (request, reply) => {
     const userId = request.user!.userId;
+
+    // Auto-abandon any existing incomplete session
+    await abandonExistingSession(userId);
+
     const body = request.body as {
       themeId?: string;
       listId?: string;
@@ -509,9 +576,7 @@ export async function sessionRoutes(app: FastifyInstance) {
       // DO NOT send word text — that's what the user needs to type
       definition: word.definition,
       phoneticUs: word.phoneticUs,
-      phoneticUk: word.phoneticUk,
-      audioUs: word.audioUs,
-      audioUk: word.audioUk,
+      phoneticUk: word.phoneticUk,      audioUs: word.audioUs,      audioUk: word.audioUk,
       partOfSpeech: word.partOfSpeech as string[],
       examples: (word.examples as string[] || []).map(ex => {
         // Mask the word in examples
@@ -603,6 +668,10 @@ export async function sessionRoutes(app: FastifyInstance) {
 
   app.post('/sessions/fill-blank', async (request, reply) => {
     const userId = request.user!.userId;
+
+    // Auto-abandon any existing incomplete session
+    await abandonExistingSession(userId);
+
     const body = request.body as {
       themeId?: string;
       listId?: string;
@@ -631,9 +700,12 @@ export async function sessionRoutes(app: FastifyInstance) {
       where.cefrLevel = { in: levels.slice(startIdx, endIdx + 1) };
     }
 
-    // Get words (over-fetch since we filter by examples after)
+    // Get words that have examples (use array_contains to filter JSON field)
     let fillWords = await prisma.word.findMany({
-      where,
+      where: {
+        ...where,
+        NOT: { examples: { equals: [] } },
+      },
       take: wordCount * 3, // over-fetch since some may not have good examples
       orderBy: { frequency: 'asc' },
     });
@@ -665,8 +737,12 @@ export async function sessionRoutes(app: FastifyInstance) {
       const examples = (word.examples as string[] || []);
       // Pick a random example
       const sentence = examples[Math.floor(Math.random() * examples.length)] || '';
-      // Mask the word and common inflections in the sentence
-      const maskedSentence = maskWordInText(word.word, sentence);
+      // Mask the word in the sentence
+      const escapedWord = word.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const maskedSentence = sentence.replace(
+        new RegExp(`\\b${escapedWord}\\b`, 'gi'),
+        '________'
+      );
 
       return {
         index,
@@ -747,6 +823,187 @@ export async function sessionRoutes(app: FastifyInstance) {
   });
 
   // Get session history (paginated list)
+  // Get active (incomplete) session for current user
+  app.get('/sessions/active', async (request, reply) => {
+    const userId = request.user!.userId;
+
+    const session = await prisma.learningSession.findFirst({
+      where: { userId, completedAt: null },
+      include: {
+        sessionWords: {
+          include: {
+            word: {
+              include: {
+                themes: { include: { theme: true } },
+              },
+            },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
+      },
+      orderBy: { startedAt: 'desc' },
+    });
+
+    if (!session) {
+      return { active: false };
+    }
+
+    const answeredIds = new Set(
+      session.sessionWords.filter(sw => sw.response).map(sw => sw.wordId)
+    );
+
+    // Build response based on session type
+    const base = {
+      active: true,
+      sessionId: session.id,
+      type: session.type,
+      totalCorrect: session.totalCorrect,
+      totalIncorrect: session.totalIncorrect,
+      totalWords: session.sessionWords.length,
+      answeredCount: answeredIds.size,
+    };
+
+    if (session.type === 'quiz') {
+      // Rebuild quiz questions with options
+      const quizWords = session.sessionWords.map(sw => sw.word);
+      const allWordIds = new Set(quizWords.map(w => w.id));
+
+      // Get wrong answer pool
+      const wrongPool = await prisma.$queryRaw<Array<{ id: string; word: string; definition: string }>>`
+        SELECT id, word, definition FROM words
+        WHERE id NOT IN (${Prisma.join([...allWordIds])})
+        ORDER BY RANDOM()
+        LIMIT 100
+      `;
+
+      function sanitizeDefinition(word: string, definition: string): string {
+        let sanitized = definition;
+        const w = word.toLowerCase().replace(/[^a-z]/g, '');
+        const patterns: string[] = [w, w + 's', w + 'es', w + 'ed', w + 'ing', w + 'er', w + 'ly'];
+        if (w.endsWith('y')) { const b = w.slice(0, -1); patterns.push(b + 'ies', b + 'ied'); }
+        if (w.endsWith('e')) { const b = w.slice(0, -1); patterns.push(b + 'ing', b + 'ed'); }
+        patterns.sort((a, b) => b.length - a.length);
+        for (const v of patterns) {
+          if (v.length >= 2) {
+            const escaped = v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            sanitized = sanitized.replace(new RegExp(`\\b${escaped}\\b`, 'gi'), '____');
+          }
+        }
+        return sanitized;
+      }
+
+      const questions = quizWords.map((word, index) => {
+        const shuffled = [...wrongPool].sort(() => Math.random() - 0.5);
+        const wrongAnswers = shuffled.slice(0, 3).map(w => ({
+          id: w.id, word: w.word, definition: w.definition,
+        }));
+        const options = [
+          { id: word.id, word: word.word, definition: word.definition, correct: true },
+          ...wrongAnswers.map(w => ({ ...w, correct: false })),
+        ].sort(() => Math.random() - 0.5);
+
+        const safeDefinition = sanitizeDefinition(word.word, word.definition || '');
+        const safeExamples = (word.examples as string[] || []).filter(ex => {
+          const exLower = ex.toLowerCase();
+          const wLower = word.word.toLowerCase();
+          return !exLower.includes(wLower);
+        });
+
+        // Find the user's selected answer if already answered
+        const sessionWord = session.sessionWords.find(sw => sw.wordId === word.id);
+        let selectedId: string | null = null;
+        if (sessionWord?.response) {
+          selectedId = sessionWord.response === 'easy' ? word.id : null;
+        }
+
+        return {
+          index,
+          id: word.id,
+          word: word.word,
+          phoneticUs: word.phoneticUs,
+          phoneticUk: word.phoneticUk,          audioUs: word.audioUs,          audioUk: word.audioUk,
+          partOfSpeech: word.partOfSpeech as string[],
+          definition: safeDefinition,
+          examples: safeExamples,
+          cefrLevel: word.cefrLevel,
+          options,
+          answered: answeredIds.has(word.id),
+          correct: sessionWord?.response === 'easy',
+        };
+      });
+
+      return { ...base, questions };
+    }
+
+    if (session.type === 'learn') {
+      // Could be spelling or fill-blank (both stored as type 'learn') or actual learn
+      // Check by the first session word to determine which view this came from
+      // We'll return generic data and let the frontend figure it out
+      const words = session.sessionWords.map((sw, index) => {
+        const word = sw.word;
+        const examples = (word.examples as string[] || []);
+        const escapedWord = word.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+        return {
+          index,
+          id: word.id,
+          word: word.word,
+          audioUs: word.audioUs,          audioUk: word.audioUk,
+          phoneticUs: word.phoneticUs,
+          phoneticUk: word.phoneticUk,
+          partOfSpeech: word.partOfSpeech as string[],
+          definition: word.definition,
+          examples,
+          synonyms: word.synonyms as string[] || [],
+          antonyms: word.antonyms as string[] || [],
+          oxfordList: word.oxfordList,
+          cefrLevel: word.cefrLevel,
+          themes: word.themes.map(t => t.theme.slug),
+          // Fill-blank specific
+          sentence: examples.length > 0
+            ? examples[Math.floor(Math.random() * examples.length)].replace(
+                new RegExp(`\\b${escapedWord}\\b`, 'gi'), '________'
+              )
+            : null,
+          // Spelling specific
+          letterCount: word.word.length,
+          firstLetter: word.word[0],
+          maskedExamples: examples.map(ex =>
+            ex.replace(new RegExp(`\\b${escapedWord}\\b`, 'gi'), '____')
+          ),
+          // Session state
+          answered: answeredIds.has(word.id),
+          response: sw.response,
+        };
+      });
+
+      return { ...base, words };
+    }
+
+    // Generic fallback
+    return base;
+  });
+
+  // Abandon (auto-complete with zero stats) the active incomplete session
+  app.post('/sessions/abandon-active', async (request, reply) => {
+    const userId = request.user!.userId;
+
+    const session = await prisma.learningSession.findFirst({
+      where: { userId, completedAt: null },
+    });
+
+    if (!session) {
+      return { abandoned: false };
+    }
+
+    await prisma.learningSession.update({
+      where: { id: session.id },
+      data: { completedAt: new Date() },
+    });
+
+    return { abandoned: true, sessionId: session.id };
+  });
+
   app.get('/sessions', async (request, _reply) => {
     const userId = request.user!.userId;
     const query = request.query as Record<string, string | undefined>;
@@ -874,7 +1131,10 @@ export async function sessionRoutes(app: FastifyInstance) {
       },
     });
 
-    return { success: true };
+    // Update SM-2 spaced repetition progress (combined with session respond)
+    const progressResult = await updateWordProgressFull(userId, wordId, response);
+
+    return { success: true, ...progressResult };
   });
 
   // Complete a session (only own sessions)
@@ -964,28 +1224,6 @@ function levenshtein(a: string, b: string): number {
 }
 
 /**
- * Mask a word (and its common inflections) in a text string
- */
-function maskWordInText(word: string, text: string): string {
-  const w = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const patterns = [w, w + 's', w + 'es', w + 'ed', w + 'ing', w + 'er', w + 'ly', w + 'ers', w + 'est'];
-  // -y → -ies/-ied
-  if (w.endsWith('y')) {
-    const base = w.slice(0, -1);
-    patterns.push(base + 'ies', base + 'ied', base + 'ier', base + 'iest');
-  }
-  // -e → -ing/-ed/-er
-  if (w.endsWith('e')) {
-    const base = w.slice(0, -1);
-    patterns.push(base + 'ing', base + 'ed', base + 'er', base + 'est');
-  }
-  // Deduplicate and sort by length desc (longest match first)
-  const unique = [...new Set(patterns)].sort((a, b) => b.length - a.length);
-  const re = new RegExp(`\\b(${unique.join('|')})\\b`, 'gi');
-  return text.replace(re, '________');
-}
-
-/**
  * Award XP and auto-level up the user
  * Level thresholds: level N requires sum(25*i for i in 1..N-1) XP
  */
@@ -1038,6 +1276,120 @@ async function updateWordProgress(userId: string, wordId: string, isCorrect: boo
       },
     });
   }
+}
+
+// Full SM-2 progress update with daily goals and achievements
+// Used by Learn tab respond endpoint (combines session respond + progress into 1 call)
+async function updateWordProgressFull(
+  userId: string,
+  wordId: string,
+  response: 'easy' | 'medium' | 'hard' | 'forgot',
+): Promise<{ progress?: any; achievementsUnlocked?: string[] }> {
+  const quality = responseToQuality(response);
+  const isCorrect = response !== 'forgot';
+
+  // Get or create progress
+  let existingProgress = await prisma.wordProgress.findUnique({
+    where: { userId_wordId: { userId, wordId } },
+  });
+
+  if (!existingProgress) {
+    const initial = createInitialProgress(wordId);
+    existingProgress = await prisma.wordProgress.create({
+      data: {
+        userId,
+        wordId,
+        status: initial.status,
+        interval: initial.interval,
+        easeFactor: initial.easeFactor,
+        repetitions: initial.repetitions,
+        nextReview: initial.nextReview,
+        lastReview: initial.lastReview,
+        totalReviews: initial.totalReviews,
+        correctReviews: initial.correctReviews,
+      },
+    });
+  }
+
+  const wasNew = existingProgress.status === 'new';
+  const wasNotMastered = existingProgress.status !== 'mastered';
+
+  const updated = calculateNextReview(
+    {
+      wordId: existingProgress.wordId,
+      status: existingProgress.status as any,
+      interval: existingProgress.interval,
+      easeFactor: existingProgress.easeFactor,
+      repetitions: existingProgress.repetitions,
+      nextReview: existingProgress.nextReview,
+      lastReview: existingProgress.lastReview,
+      totalReviews: existingProgress.totalReviews,
+      correctReviews: existingProgress.correctReviews,
+    },
+    quality,
+  );
+
+  const progress = await prisma.wordProgress.update({
+    where: { id: existingProgress.id },
+    data: {
+      status: updated.status,
+      interval: updated.interval,
+      easeFactor: updated.easeFactor,
+      repetitions: updated.repetitions,
+      nextReview: updated.nextReview,
+      lastReview: updated.lastReview,
+      totalReviews: updated.totalReviews,
+      correctReviews: updated.correctReviews,
+    },
+  });
+
+  // Update daily goal and streak
+  const dailyLearned = wasNew && updated.status !== 'new' ? 1 : 0;
+  const dailyReviewed = !wasNew ? 1 : 0;
+  await updateDailyProgress(userId, dailyLearned, dailyReviewed);
+
+  // Check achievements
+  const unlockedAchievements: string[] = [];
+
+  if (wasNew && updated.status !== 'new') {
+    const totalLearned = await prisma.wordProgress.count({
+      where: { userId, status: { not: 'new' } },
+    });
+    const newUnlocked = await checkAchievements({
+      userId,
+      type: 'words_learned',
+      value: totalLearned,
+    });
+    unlockedAchievements.push(...newUnlocked);
+  }
+
+  if (wasNotMastered && updated.status === 'mastered') {
+    const totalMastered = await prisma.wordProgress.count({
+      where: { userId, status: 'mastered' },
+    });
+    const newUnlocked = await checkAchievements({
+      userId,
+      type: 'words_mastered',
+      value: totalMastered,
+    });
+    unlockedAchievements.push(...newUnlocked);
+  }
+
+  const reviewUnlocked = await checkAchievements({
+    userId,
+    type: 'total_reviews',
+    value: updated.totalReviews,
+  });
+  unlockedAchievements.push(...reviewUnlocked);
+
+  return {
+    progress: {
+      status: progress.status,
+      interval: progress.interval,
+      nextReview: progress.nextReview,
+    },
+    achievementsUnlocked: unlockedAchievements,
+  };
 }
 
 async function awardXp(userId: string, xp: number): Promise<boolean> {

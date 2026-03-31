@@ -4,8 +4,13 @@ import { useRoute } from 'vue-router'
 import { request } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
 import { useListsStore } from '@/stores/lists'
+import { useActiveSession } from '@/composables/useActiveSession'
+import { getLevelRange } from '@/lib/difficulty'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
+import DifficultySelector from '@/components/learning/DifficultySelector.vue'
 import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
+import ResumePrompt from '@/components/ui/ResumePrompt.vue'
+import SingleTabWarning from '@/components/ui/SingleTabWarning.vue'
 
 interface QuizOption {
   id: string
@@ -34,9 +39,10 @@ interface QuizData {
 
 const route = useRoute()
 const toast = useToast()
+const { activeSession, checkActiveSession, abandonActiveSession, showSingleTabWarning, showTabWarning, dismissTabWarning } = useActiveSession()
 
 // State
-const phase = ref<'setup' | 'playing' | 'results'>('setup')
+const phase = ref<'setup' | 'resume' | 'playing' | 'results'>('setup')
 const loading = ref(false)
 const quizData = ref<QuizData | null>(null)
 const quizResult = ref<{ xpEarned?: number; leveledUp?: boolean; newAchievements?: string[] } | null>(null)
@@ -58,13 +64,6 @@ const selectedListId = ref('')
 
 const listsStore = useListsStore()
 onMounted(() => { listsStore.fetchLists() })
-
-const difficultyOptions = [
-  { value: 'mixed', label: 'Mixed', icon: '🎲', desc: 'All CEFR levels' },
-  { value: 'easy', label: 'Easy', icon: '🟢', desc: 'A1–A2 words' },
-  { value: 'medium', label: 'Medium', icon: '🟡', desc: 'B1–B2 words' },
-  { value: 'hard', label: 'Hard', icon: '🔴', desc: 'C1–C2 words' },
-] as const
 
 const countOptions = [5, 10, 15, 20]
 
@@ -93,15 +92,6 @@ const resultMessage = computed(() => {
   if (acc >= 50) return 'Good effort!'
   return 'Keep practicing!'
 })
-
-function getLevelRange(diff: string): [string, string] | undefined {
-  switch (diff) {
-    case 'easy': return ['A1', 'A2']
-    case 'medium': return ['B1', 'B2']
-    case 'hard': return ['C1', 'C2']
-    default: return undefined
-  }
-}
 
 async function startQuiz() {
   loading.value = true
@@ -203,7 +193,7 @@ async function completeSession() {
   try {
     const result = await request<{ xpEarned?: number; leveledUp?: boolean; newAchievements?: string[] }>(`/sessions/${quizData.value!.sessionId}/complete`, {
       method: 'POST',
-      body: '{}',
+      body: JSON.stringify({}),
     })
     quizResult.value = result
     if (result.leveledUp) {
@@ -228,19 +218,78 @@ function optionClass(option: QuizOption): string {
   return 'border-slate-200 dark:border-slate-600 opacity-50'
 }
 
-// Auto-start if coming from a list (has query params)
-onMounted(() => {
+// Check for active session on mount, or auto-start from query params
+onMounted(async () => {
   if (route.query.auto === 'true') {
     startQuiz()
+    return
+  }
+
+  const active = await checkActiveSession()
+  if (active && active.type === 'quiz' && active.questions) {
+    // Show resume prompt
+    phase.value = 'resume'
   }
 })
+
+function resumeFromActive() {
+  const active = activeSession.value
+  if (!active || !active.questions) return
+
+  quizData.value = {
+    sessionId: active.sessionId!,
+    questionCount: active.totalWords!,
+    questions: active.questions,
+  }
+  score.value = active.totalCorrect ?? 0
+  missedQuestions.value = []
+
+  // Find the first unanswered question
+  const firstUnanswered = active.questions.findIndex((q: any) => !q.answered)
+  if (firstUnanswered >= 0) {
+    currentIndex.value = firstUnanswered
+  } else {
+    // All answered — go to results
+    currentIndex.value = active.questions.length - 1
+  }
+
+  selectedId.value = null
+  answered.value = false
+  isCorrect.value = false
+  correctId.value = null
+  startTime.value = Date.now()
+  phase.value = 'playing'
+  showSingleTabWarning()
+}
+
+function resumeFromPrompt() {
+  resumeFromActive()
+}
+
+async function restartFromPrompt() {
+  await abandonActiveSession()
+  phase.value = 'setup'
+}
 </script>
 
 <template>
   <div class="max-w-2xl mx-auto">
 
+    <!-- Single Tab Warning -->
+    <SingleTabWarning v-if="showTabWarning" @dismiss="dismissTabWarning" />
+
+    <!-- ==================== RESUME PHASE ==================== -->
+    <div v-if="phase === 'resume'">
+      <ResumePrompt
+        :answered-count="activeSession?.answeredCount ?? 0"
+        :total-words="activeSession?.totalWords ?? 0"
+        @resume="resumeFromPrompt"
+        @restart="restartFromPrompt"
+      />
+    </div>
+
     <!-- ==================== SETUP PHASE ==================== -->
-    <div v-if="phase === 'setup'" class="space-y-8">
+    <div v-else-if="phase === 'setup'" class="space-y-8">
       <div class="text-center">
         <div class="text-6xl mb-4">🧠</div>
         <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Quiz Mode</h1>
@@ -248,24 +297,7 @@ onMounted(() => {
       </div>
 
       <!-- Difficulty -->
-      <div>
-        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Difficulty</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <button
-            v-for="opt in difficultyOptions"
-            :key="opt.value"
-            @click="difficulty = opt.value"
-            class="p-4 rounded-xl border-2 transition-all text-center"
-            :class="difficulty === opt.value
-              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-              : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500'"
-          >
-            <div class="text-2xl mb-1">{{ opt.icon }}</div>
-            <div class="font-medium text-slate-900 dark:text-white text-sm">{{ opt.label }}</div>
-            <div class="text-xs text-slate-500 dark:text-slate-400">{{ opt.desc }}</div>
-          </button>
-        </div>
-      </div>
+      <DifficultySelector v-model="difficulty" />
 
       <!-- Question Count -->
       <div>
@@ -419,15 +451,6 @@ onMounted(() => {
           ❌ Incorrect — the answer was <strong>{{ question.options.find(o => o.id === correctId)?.word }}</strong>
         </div>
 
-        <!-- Show full info after answering -->
-        <div class="text-sm bg-slate-50 dark:bg-slate-800 rounded-lg p-3 space-y-1">
-          <div class="font-semibold text-slate-900 dark:text-white">{{ question.word }}</div>
-          <div class="text-slate-600 dark:text-slate-400">{{ question.definition }}</div>
-          <div v-if="question.examples?.length" class="pt-1">
-            <div v-for="ex in question.examples.slice(0, 2)" :key="ex" class="text-slate-500 dark:text-slate-400 italic">"{{ ex }}"</div>
-          </div>
-        </div>
-
         <button @click="nextQuestion" class="btn btn-primary">
           {{ currentIndex < quizData!.questionCount - 1 ? 'Next Question →' : 'See Results' }}
         </button>
@@ -460,8 +483,7 @@ onMounted(() => {
 
       <!-- Difficulty & Mode info -->
       <div class="text-sm text-slate-500 dark:text-slate-400">
-        {{ difficultyOptions.find(d => d.value === difficulty)?.icon }}
-        {{ difficultyOptions.find(d => d.value === difficulty)?.label }} ·
+        {{ { mixed: '🎲 Mixed', easy: '🟢 Easy', medium: '🟡 Medium', hard: '🔴 Hard' }[difficulty] }} ·
         {{ quizData.questionCount }} questions
       </div>
 

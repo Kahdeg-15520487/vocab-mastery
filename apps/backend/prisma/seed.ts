@@ -296,19 +296,16 @@ async function main() {
     }
   }
 
-  // Create initial user stats
-  console.log('Creating user stats...');
-  await prisma.userStats.upsert({
-    where: { id: 'default' },
+  // Create initial user streak for admin
+  console.log('Creating admin user streak...');
+  await prisma.userStreak.upsert({
+    where: { userId: 'admin-00000000-0000-0000-0000-000000000001' },
     update: {},
     create: {
-      id: 'default',
-      totalWords: 0,
-      masteredWords: 0,
+      userId: 'admin-00000000-0000-0000-0000-000000000001',
       currentStreak: 0,
       longestStreak: 0,
-      totalXP: 0,
-      level: 1,
+      lastActivityDate: new Date(),
     },
   });
 

@@ -145,6 +145,23 @@ class AuthService {
     return this.request('/auth/me');
   }
 
+  async getLimits(): Promise<{
+    tier: string;
+    limits: {
+      maxLists: number;
+      maxWordsPerList: number;
+      maxLlmCallsPerMonth: number;
+      canShareLists: boolean;
+    };
+    usage: {
+      lists: number;
+      llmCallsThisMonth: number | null;
+      llmRemaining: number;
+    };
+  }> {
+    return this.request('/auth/limits');
+  }
+
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {
     await this.request('/auth/password', {
       method: 'PUT',
