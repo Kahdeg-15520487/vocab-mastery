@@ -142,7 +142,8 @@ export function clearLLMConfigCache() {
 async function callLLM(
   systemPrompt: string, 
   userPrompt: string, 
-  config: Awaited<ReturnType<typeof getLLMConfig>>
+  config: Awaited<ReturnType<typeof getLLMConfig>>,
+  options?: { disableReasoning?: boolean }
 ): Promise<string> {
   const piAiProviders = ['openai', 'anthropic', 'google', 'groq', 'openrouter', 'mistral', 'cerebras', 'xai'];
   
@@ -188,7 +189,7 @@ async function callLLM(
     api: 'openai-completions' as const,
     provider: config.provider.toLowerCase(),
     ...(baseUrl ? { baseUrl } : {}),
-    reasoning: true,
+    reasoning: options?.disableReasoning ? false : true,
     input: ['text'] as const,
     cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
     contextWindow: 128000,
@@ -215,7 +216,7 @@ async function callLLM(
     
     const response = await completeSimple(customModel as any, context, {
       apiKey,
-      reasoning: 'medium',
+      ...(options?.disableReasoning ? {} : { reasoning: 'medium' }),
     });
     
     console.log(`[LLM] Response stopReason: ${response.stopReason}, errorMessage: ${response.errorMessage}`);
@@ -245,8 +246,7 @@ async function callLLM(
         .trim();
       
       if (thinkingContent) {
-        console.log(`[LLM] Found thinking content (${thinkingContent.length} chars), using as fallback`);
-        return thinkingContent;
+        console.log(`[LLM] Found thinking content (${thinkingContent.length} chars) but skipReason=length, model ran out of tokens before producing output`);
       }
     } else {
       console.log(`[LLM] Got text response (${textContent.length} chars): ${textContent.slice(0, 200)}`);
@@ -271,17 +271,17 @@ export async function categorizeWord(
     console.log(`[categorizeWord] Categorizing: "${word}"`);
     const config = await getLLMConfig();
     
-    let prompt = `Categorize this English word:\n\nWord: "${word}"`;
+    let prompt = `Categorize this English word into ONE of these categories: ${themeSlugs.join(', ')}.\n\nWord: "${word}"`;
     if (partOfSpeech?.length) {
       prompt += `\nPart of speech: ${partOfSpeech.join(', ')}`;
     }
     if (definition) {
       prompt += `\nDefinition: ${definition.slice(0, 500)}`;
     }
-    prompt += `\n\nReturn ONLY the category slug (one of: ${themeSlugs.join(', ')}). No explanation.`;
+    prompt += `\n\nRespond with ONLY the category slug. No thinking, no explanation, just one word.`;
     
-    const systemPrompt = BATCH_SYSTEM_PROMPT;
-    const responseText = await callLLM(systemPrompt, prompt, config);
+    const systemPrompt = 'You are a word categorization assistant. Respond with ONLY a single category slug. Be concise.';
+    const responseText = await callLLM(systemPrompt, prompt, config, { disableReasoning: true });
     
     return extractCategory(responseText.toLowerCase());
     
@@ -327,7 +327,7 @@ Example: {"abandon": "general", "algorithm": "technology", "bake": "food"}
 
 JSON:`;
 
-    const responseText = await callLLM(BATCH_SYSTEM_PROMPT, prompt, config);
+    const responseText = await callLLM(BATCH_SYSTEM_PROMPT, prompt, config, { disableReasoning: true });
     
     const categories = parseCategoriesJson(responseText, words.map(w => w.word));
     
