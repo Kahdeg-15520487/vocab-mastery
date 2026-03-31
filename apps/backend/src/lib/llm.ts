@@ -452,55 +452,72 @@ export async function testProviderConfig(config: {
   try {
     const piAiProviders = ['openai', 'anthropic', 'google', 'groq', 'openrouter', 'mistral', 'cerebras', 'xai'];
     
-    if (piAiProviders.includes(config.provider.toLowerCase())) {
-      const model = getModel(config.provider.toLowerCase() as any, config.model as any);
-      
-      if (model) {
-        const context: Context = {
-          systemPrompt: 'You are a helpful assistant.',
-          messages: [{ role: 'user', content: 'Say "ok"', timestamp: Date.now() }]
-        };
-        
-        const apiKey = config.apiKey || process.env.OPENAI_API_KEY;
-        await completeSimple(model, context, { apiKey });
-        return { success: true };
-      }
-    }
-    
-    // Custom provider - use pi-ai with custom model
-    let baseUrl = config.baseUrl;
-    if (baseUrl && !baseUrl.endsWith('/v1') && !baseUrl.endsWith('/v1/')) {
-      baseUrl = baseUrl.replace(/\/$/, '') + '/v1';
-    }
-    
-    const customModel = {
-      id: config.model,
-      name: `${config.provider}/${config.model}`,
-      api: 'openai-completions' as const,
-      provider: config.provider.toLowerCase(),
-      ...(baseUrl ? { baseUrl } : {}),
-      reasoning: false,
-      input: ['text'] as const,
-      cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
-      contextWindow: 128000,
-      maxTokens: 100,
-      compat: {
-        supportsDeveloperRole: false,
-        supportsStore: false,
-        supportsReasoningEffort: false,
-        maxTokensField: 'max_tokens' as const,
-      },
-    };
-    
     const context: Context = {
       systemPrompt: 'You are a helpful assistant.',
       messages: [{ role: 'user', content: 'Say "ok"', timestamp: Date.now() }]
     };
-    
-    await completeSimple(customModel as any, context, {
-      apiKey: config.apiKey,
-    });
-    
+
+    const apiKey = config.apiKey || process.env.OPENAI_API_KEY;
+
+    let response;
+
+    if (piAiProviders.includes(config.provider.toLowerCase())) {
+      const model = getModel(config.provider.toLowerCase() as any, config.model as any);
+      
+      if (model) {
+        response = await completeSimple(model, context, { apiKey });
+      }
+    }
+
+    // Custom provider or known provider with unknown model
+    if (!response) {
+      let baseUrl = config.baseUrl;
+      if (baseUrl && !baseUrl.endsWith('/v1') && !baseUrl.endsWith('/v1/')) {
+        baseUrl = baseUrl.replace(/\/$/, '') + '/v1';
+      }
+      
+      const customModel = {
+        id: config.model,
+        name: `${config.provider}/${config.model}`,
+        api: 'openai-completions' as const,
+        provider: config.provider.toLowerCase(),
+        ...(baseUrl ? { baseUrl } : {}),
+        reasoning: false,
+        input: ['text'] as const,
+        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+        contextWindow: 128000,
+        maxTokens: 100,
+        compat: {
+          supportsDeveloperRole: false,
+          supportsStore: false,
+          supportsReasoningEffort: false,
+          maxTokensField: 'max_tokens' as const,
+        },
+      };
+      
+      response = await completeSimple(customModel as any, context, { apiKey });
+    }
+
+    // Check response for errors
+    if (!response) {
+      return { success: false, error: 'No response from model' };
+    }
+
+    if (response.stopReason === 'error') {
+      return { success: false, error: response.errorMessage || 'LLM returned an error' };
+    }
+
+    // Verify we got actual text content back
+    const text = response.content
+      .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
+      .map(c => c.text)
+      .join('')
+      .trim();
+
+    if (!text) {
+      return { success: false, error: 'LLM returned empty response' };
+    }
+
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Connection failed' };

@@ -384,11 +384,13 @@ export const adminApi = {
   activateProvider: (id: string) =>
     request<any>(`/admin/llm/providers/${id}/activate`, {
       method: 'PUT',
+      body: JSON.stringify({}),
     }),
 
   testProvider: (id: string) =>
     request<any>(`/admin/llm/providers/${id}/test`, {
       method: 'POST',
+      body: JSON.stringify({}),
     }),
 
   testLLMConfig: (config: {
