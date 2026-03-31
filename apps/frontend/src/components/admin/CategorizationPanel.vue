@@ -174,6 +174,10 @@ async function deleteJob(jobId: string) {
   }
 }
 
+function openReport(jobId: string) {
+  window.open(`/api/admin/jobs/${jobId}/report`)
+}
+
 function getStatusColor(status: string): string {
   switch (status) {
     case 'PENDING': return 'bg-yellow-100 text-yellow-800'
@@ -424,6 +428,14 @@ function getThemeIcon(slug: string): string {
               <span v-if="job.status === 'COMPLETED' || job.status === 'FAILED' || job.status === 'CANCELLED'" class="text-xs text-slate-400 dark:text-slate-500">
                 · ⏱ {{ formatDuration(job.startedAt, job.completedAt) }}
               </span>
+              <button 
+                v-if="job.status === 'COMPLETED'"
+                @click="openReport(job.id)"
+                class="text-slate-400 hover:text-blue-600 text-xs"
+                title="View report"
+              >
+                📋
+              </button>
               <button 
                 v-if="job.status !== 'RUNNING' && job.status !== 'PENDING'"
                 @click="deleteJob(job.id)"

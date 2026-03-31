@@ -849,4 +849,162 @@ export async function adminRoutes(app: FastifyInstance) {
     stopJobRunner();
     return { message: 'Job runner stopped' };
   });
+
+  // GET /api/admin/jobs/:id/report - HTML report page
+  app.get('/admin/jobs/:id/report', async (request, reply) => {
+    const params = request.params as { id: string };
+    const job = await getJob(params.id);
+
+    if (!job) {
+      return reply.type('text/html').status(404).send('<h1>Job not found</h1>');
+    }
+
+    const result = (job.result as any) || {};
+    const words: Array<{ word: string; category: string }> = result.words || [];
+    const categoryCounts: Record<string, number> = result.categoryCounts || {};
+    const totalWords = words.length;
+
+    // Compute stats
+    const generalCount = categoryCounts['general'] || 0;
+    const generalPct = totalWords > 0 ? Math.round((generalCount / totalWords) * 100) : 0;
+    const isHighGeneral = generalPct >= 70 && totalWords > 0;
+
+    // Sort categories by count descending
+    const sortedCategories = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]);
+
+    // Format dates
+    const formatDate = (d: Date | string | null) => {
+      if (!d) return 'N/A';
+      return new Date(d).toLocaleString();
+    };
+    const formatDuration = (started: string | null, completed: string | null) => {
+      if (!started || !completed) return '';
+      const ms = new Date(completed).getTime() - new Date(started).getTime();
+      const s = Math.floor(ms / 1000);
+      if (s < 60) return `${s}s`;
+      const m = Math.floor(s / 60);
+      return `${m}m ${s % 60}s`;
+    };
+
+    // Category colors
+    const catColors: Record<string, string> = {
+      technology: '#3b82f6', business: '#f59e0b', environment: '#10b981',
+      health: '#ef4444', science: '#8b5cf6', education: '#06b6d4',
+      food: '#f97316', society: '#ec4899', general: '#6b7280',
+    };
+
+    // Build category summary rows
+    const categoryRows = sortedCategories.map(([cat, count]) => {
+      const pct = totalWords > 0 ? Math.round((count / totalWords) * 100) : 0;
+      const barWidth = totalWords > 0 ? Math.round((count / totalWords) * 100) : 0;
+      const color = catColors[cat] || '#6b7280';
+      const warning = cat === 'general' && isHighGeneral ? ' ⚠ HIGH' : '';
+      return `<tr><td style="color:${color};font-weight:600">${cat}</td><td>${count}</td><td>${pct}%</td><td><div style="background:${color};width:${barWidth}%;height:8px;border-radius:4px"></div></td><td>${warning}</td></tr>`;
+    }).join('\n');
+
+    // Build word table rows
+    const wordRows = words.map((w, i) => {
+      const color = catColors[w.category] || '#6b7280';
+      return `<tr class="word-row" data-category="${w.category}" data-word="${w.word.toLowerCase()}"><td>${i + 1}</td><td style="font-weight:500">${w.word}</td><td><span style="color:${color};font-weight:500">${w.category}</span></td></tr>`;
+    }).join('\n');
+
+    const duration = formatDuration(job.startedAt as any, job.completedAt as any);
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Categorization Report — ${job.id.slice(0, 8)}</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; color: #1e293b; padding: 24px; max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  .meta { color: #64748b; font-size: 14px; margin-bottom: 20px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+  .badge-yellow { background: #fef9c3; color: #854d0e; }
+  .badge-gray { background: #f1f5f9; color: #475569; }
+  .warning { background: #fef3c7; border: 1px solid #fbbf24; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; color: #92400e; font-size: 14px; }
+  .card { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+  .card h2 { font-size: 16px; margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 6px 12px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  th { font-weight: 600; color: #64748b; font-size: 12px; text-transform: uppercase; }
+  tr:hover { background: #f8fafc; }
+  .controls { display: flex; gap: 12px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
+  select, input { padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
+  input { flex: 1; min-width: 200px; }
+  .footer { color: #94a3b8; font-size: 12px; margin-top: 16px; }
+</style>
+</head>
+<body>
+  <h1>📋 Categorization Report</h1>
+  <div class="meta">
+    <span class="font-mono" style="font-size:12px;color:#94a3b8">${job.id}</span> ·
+    <span class="badge ${job.status === 'COMPLETED' ? 'badge-green' : job.status === 'FAILED' ? 'badge-red' : 'badge-gray'}">${job.status}</span> ·
+    ${formatDate(job.createdAt)}${duration ? ` · ⏱ ${duration}` : ''}
+  </div>
+
+  <div class="meta">${result.message || ''} · ${result.errors || 0} errors</div>
+
+  ${isHighGeneral ? `<div class="warning">⚠ <strong>${generalPct}% of words were categorized as &quot;general&quot;</strong> — the model may have failed to produce proper categories. Check your LLM provider configuration and model selection.</div>` : ''}
+
+  <div class="card">
+    <h2>Category Distribution</h2>
+    <table>
+      <thead><tr><th>Category</th><th>Count</th><th>%</th><th style="width:40%"></th><th></th></tr></thead>
+      <tbody>${categoryRows}</tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Word Results</h2>
+    ${totalWords === 0 ? '<p style="color:#64748b;font-size:14px">No per-word data available for this job. Word-level tracking was added in a recent update.</p>' : `
+    <div class="controls">
+      <select id="filterCategory">
+        <option value="">All categories</option>
+        ${sortedCategories.map(([cat]) => `<option value="${cat}">${cat} (${categoryCounts[cat]})</option>`).join('\n')}
+      </select>
+      <input type="text" id="searchWord" placeholder="Search words...">
+    </div>
+    <table>
+      <thead><tr><th>#</th><th>Word</th><th>Category</th></tr></thead>
+      <tbody id="wordTableBody">${wordRows}</tbody>
+    </table>
+    <div class="footer" id="countLabel">Showing ${totalWords} of ${totalWords} words</div>
+    `}
+  </div>
+
+  ${totalWords === 0 ? '' : `
+  <script>
+    const rows = document.querySelectorAll('.word-row');
+    const categorySelect = document.getElementById('filterCategory');
+    const searchInput = document.getElementById('searchWord');
+    const countLabel = document.getElementById('countLabel');
+    const total = ${totalWords};
+
+    function filter() {
+      const cat = categorySelect.value;
+      const search = searchInput.value.toLowerCase().trim();
+      let visible = 0;
+      rows.forEach(row => {
+        const matchCat = !cat || row.dataset.category === cat;
+        const matchSearch = !search || row.dataset.word.includes(search);
+        row.style.display = (matchCat && matchSearch) ? '' : 'none';
+        if (matchCat && matchSearch) visible++;
+      });
+      countLabel.textContent = 'Showing ' + visible + ' of ' + total + ' words';
+    }
+
+    categorySelect.addEventListener('change', filter);
+    searchInput.addEventListener('input', filter);
+  </script>
+  `}
+</body>
+</html>`;
+
+    return reply.type('text/html; charset=utf-8').send(html);
+  });
 }

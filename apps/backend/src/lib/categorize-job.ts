@@ -17,6 +17,7 @@ interface CategorizeResult extends JobResult {
   tagged: number;
   errors: number;
   categoryCounts: Record<string, number>;
+  words: Array<{ word: string; category: string }>;
 }
 
 /**
@@ -67,6 +68,7 @@ registerJobHandler('CATEGORIZE_WORDS', async ({ payload, updateProgress, checkCa
 
   // 4. Process in chunks — fetch from DB chunk by chunk to save memory
   const categoryCounts: Record<string, number> = {};
+  const allWordResults: Array<{ word: string; category: string }> = [];
   let processed = 0;
   let tagged = 0;
   let errors = 0;
@@ -81,6 +83,7 @@ registerJobHandler('CATEGORIZE_WORDS', async ({ payload, updateProgress, checkCa
         tagged,
         errors,
         categoryCounts,
+        words: allWordResults,
       } as CategorizeResult;
     }
 
@@ -146,6 +149,11 @@ registerJobHandler('CATEGORIZE_WORDS', async ({ payload, updateProgress, checkCa
       chunkResults.map((r, idx) => [chunk[idx].id, r.category])
     );
 
+    // Store word-level results for report
+    for (const r of chunkResults) {
+      allWordResults.push({ word: r.word, category: r.category });
+    }
+
     // Log categorization results for this chunk
     const chunkLog = chunkResults.slice(0, 20).map((r, i) => `${r.word} → ${r.category}`);
     console.log(`[categorize-job] Chunk results (first 20): ${chunkLog.join(', ')}`);
@@ -210,6 +218,7 @@ registerJobHandler('CATEGORIZE_WORDS', async ({ payload, updateProgress, checkCa
     tagged,
     errors,
     categoryCounts,
+    words: allWordResults,
   } as CategorizeResult;
 });
 
