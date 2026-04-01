@@ -5,6 +5,7 @@
 ## Pending
 
 - [ ] **#232** 📊 Vocabulary Level Test — comprehensive assessment that estimates CEFR level #feature #backend #frontend
+- [ ] **#233** 📊 Statistics page improvements — study time tracking, improvement trends, exportable reports #feature #frontend
 
 ## Completed
 
@@ -1371,8 +1372,20 @@
       ],
       "createdAt": 1775071808725,
       "archived": false
+    },
+    {
+      "id": 233,
+      "text": "📊 Statistics page improvements — study time tracking, improvement trends, exportable reports",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "frontend"
+      ],
+      "createdAt": 1775073122957,
+      "archived": false
     }
   ],
-  "nextId": 233
+  "nextId": 234
 }
 ```

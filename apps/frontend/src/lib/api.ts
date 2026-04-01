@@ -352,6 +352,10 @@ export const statsApi = {
   get: () => request<any>('/stats'),
 
   getDaily: (days?: number) => request<any>(`/stats/daily?days=${days || 7}`),
+
+  getHeatmap: () => request<Array<{ date: string; wordsLearned: number; wordsReviewed: number }>>('/stats/heatmap'),
+
+  getStudyTime: () => request<{ totalTimeMinutes: number; totalSessions: number; avgSessionMinutes: number; byType: { type: string; totalMinutes: number; sessions: number }[] }>('/stats/study-time'),
 }
 
 // Admin API

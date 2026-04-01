@@ -1,16 +1,62 @@
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 import { useStatsStore } from '@/stores/stats'
+import { statsApi } from '@/lib/api'
 import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
 
 const statsStore = useStatsStore()
+
+// Heatmap & study time
+const heatmapData = ref<Array<{ date: string; wordsLearned: number; wordsReviewed: number; sessions: number }>>([])
+const studyTime = ref<{ totalTimeMinutes: number; totalSessions: number; avgSessionMinutes: number; byType: { type: string; totalMinutes: number; sessions: number }[] } | null>(null)
 
 onMounted(async () => {
   await Promise.all([
     statsStore.fetchStats(),
     statsStore.fetchDailyStats(7),
+    statsApi.getHeatmap().then(d => heatmapData.value = d).catch(() => {}),
+    statsApi.getStudyTime().then(d => studyTime.value = d).catch(() => {}),
   ])
 })
+
+// Heatmap computed — generate grid for last 12 months
+const heatmapGrid = computed(() => {
+  if (!heatmapData.value.length) return []
+  const dataMap = new Map(heatmapData.value.map(d => [d.date.split('T')[0], d]))
+  const today = new Date()
+  const weeks = []
+  for (let w = 51; w >= 0; w--) {
+    const week = []
+    for (let d = 6; d >= 0; d--) {
+      const date = new Date(today)
+      date.setDate(date.getDate() - w * 7 - d)
+      const key = date.toISOString().split('T')[0]
+      const entry = dataMap.get(key)
+      const total = entry ? entry.wordsLearned + entry.wordsReviewed : 0
+      week.push({ date: key, total, sessions: entry?.sessions || 0 })
+    }
+    weeks.push(week)
+  }
+  return weeks
+})
+
+const heatmapColor = (total: number) => {
+  if (total === 0) return 'bg-slate-100 dark:bg-slate-800'
+  if (total < 5) return 'bg-green-200 dark:bg-green-900'
+  if (total < 15) return 'bg-green-400 dark:bg-green-700'
+  if (total < 30) return 'bg-green-600 dark:bg-green-500'
+  return 'bg-green-800 dark:bg-green-300'
+}
+
+const totalStudyHours = computed(() => studyTime.value ? Math.round(studyTime.value.totalTimeMinutes / 60 * 10) / 10 : 0)
+
+const sessionTypeEmoji: Record<string, string> = {
+  learn: '\ud83d\udcda',
+  review: '\ud83d\udd04',
+  quiz: '\ud83e\udde0',
+  spelling: '\u270d\ufe0f',
+  'fill-blank': '\ud83d\udcdd',
+}
 
 const stats = computed(() => statsStore.stats)
 const dailyStats = computed(() => statsStore.dailyStats)
@@ -262,5 +308,61 @@ const statsXpNeeded = computed(() => {
         </div>
       </div>
     </div>
+
+      <!-- Activity Heatmap -->
+      <div v-if="heatmapGrid.length > 0" class="card">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Activity Heatmap</h2>
+        <div class="overflow-x-auto">
+          <div class="flex gap-0.5 min-w-[600px]">
+            <div v-for="(week, wi) in heatmapGrid" :key="wi" class="flex flex-col gap-0.5">
+              <div
+                v-for="(day, di) in week"
+                :key="di"
+                class="w-2.5 h-2.5 rounded-sm transition-colors"
+                :class="heatmapColor(day.total)"
+                :title="`${day.date}: ${day.total} words, ${day.sessions} sessions`"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 mt-3 text-xs text-slate-500 dark:text-slate-400">
+          <span>Less</span>
+          <div class="w-2.5 h-2.5 rounded-sm bg-slate-100 dark:bg-slate-800" />
+          <div class="w-2.5 h-2.5 rounded-sm bg-green-200 dark:bg-green-900" />
+          <div class="w-2.5 h-2.5 rounded-sm bg-green-400 dark:bg-green-700" />
+          <div class="w-2.5 h-2.5 rounded-sm bg-green-600 dark:bg-green-500" />
+          <div class="w-2.5 h-2.5 rounded-sm bg-green-800 dark:bg-green-300" />
+          <span>More</span>
+        </div>
+      </div>
+
+      <!-- Study Time -->
+      <div v-if="studyTime" class="card">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Study Time</h2>
+        <div class="grid grid-cols-3 gap-4 mb-4">
+          <div class="text-center">
+            <div class="text-2xl font-bold text-primary-600 dark:text-primary-400">{{ totalStudyHours }}h</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400">Total Study Time</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-slate-900 dark:text-white">{{ studyTime.totalSessions }}</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400">Sessions Completed</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-secondary-600">{{ studyTime.avgSessionMinutes }}min</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400">Avg per Session</div>
+          </div>
+        </div>
+        <div v-if="studyTime.byType.length" class="space-y-2">
+          <div v-for="t in studyTime.byType" :key="t.type" class="flex items-center gap-3">
+            <span class="w-6 text-center">{{ sessionTypeEmoji[t.type] || '\ud83d\udccd' }}</span>
+            <span class="w-20 text-sm text-slate-600 dark:text-slate-400 capitalize">{{ t.type.replace('-', ' ') }}</span>
+            <div class="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+              <div class="h-full bg-primary-500 rounded-full" :style="{ width: studyTime.totalTimeMinutes > 0 ? (t.totalMinutes / studyTime.totalTimeMinutes * 100) + '%' : '0%' }" />
+            </div>
+            <span class="w-16 text-xs text-slate-500 dark:text-slate-400 text-right">{{ t.totalMinutes }}min ({{ t.sessions }})</span>
+          </div>
+        </div>
+      </div>
   </div>
 </template>

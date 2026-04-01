@@ -292,4 +292,76 @@ export async function statsRoutes(app: FastifyInstance) {
       } : null,
     };
   });
+
+  // GET /stats/heatmap — Activity heatmap data (last 12 months)
+  app.get('/stats/heatmap', async (request, reply) => {
+    const userId = request.user!.userId;
+    const twelveMonthsAgo = new Date();
+    twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+
+    // Get daily activity counts
+    const dailyActivity = await prisma.$queryRaw<Array<{ date: string; wordsLearned: bigint; wordsReviewed: bigint }>>`
+      SELECT
+        DATE(dg.date) as date,
+        COALESCE(SUM(dg.words_learned), 0) as "wordsLearned",
+        COALESCE(SUM(dg.words_reviewed), 0) as "wordsReviewed"
+      FROM daily_goals dg
+      WHERE dg.user_id = ${userId}
+        AND dg.date >= ${twelveMonthsAgo}
+      GROUP BY DATE(dg.date)
+      ORDER BY date ASC
+    `;
+
+    return dailyActivity.map(d => ({
+      date: d.date,
+      wordsLearned: Number(d.wordsLearned),
+      wordsReviewed: Number(d.wordsReviewed),
+    }));
+  });
+
+  // GET /stats/study-time — Average study time and total study time
+  app.get('/stats/study-time', async (request, reply) => {
+    const userId = request.user!.userId;
+
+    // Compute total study time from sessions
+    const sessions = await prisma.$queryRaw<Array<{ totalMs: bigint; sessionCount: bigint; avgMs: bigint }>>`
+      SELECT
+        SUM(EXTRACT(EPOCH FROM (completed_at - started_at)) * 1000) as "totalMs",
+        COUNT(*) as "sessionCount",
+        AVG(EXTRACT(EPOCH FROM (completed_at - started_at)) * 1000) as "avgMs"
+      FROM learning_sessions
+      WHERE user_id = ${userId}
+        AND completed_at IS NOT NULL
+        AND (completed_at - started_at) < INTERVAL '2 hours'
+    `;
+
+    const row = sessions[0];
+    const totalMs = Number(row?.totalMs || 0);
+    const sessionCount = Number(row?.sessionCount || 0);
+    const avgMs = Number(row?.avgMs || 0);
+
+    // Study time by type
+    const byType = await prisma.$queryRaw<Array<{ type: string; totalMs: bigint; sessionCount: bigint }>>`
+      SELECT
+        type,
+        SUM(EXTRACT(EPOCH FROM (completed_at - started_at)) * 1000) as "totalMs",
+        COUNT(*) as "sessionCount"
+      FROM learning_sessions
+      WHERE user_id = ${userId}
+        AND completed_at IS NOT NULL
+        AND (completed_at - started_at) < INTERVAL '2 hours'
+      GROUP BY type
+    `;
+
+    return {
+      totalTimeMinutes: Math.round(totalMs / 60000),
+      totalSessions: sessionCount,
+      avgSessionMinutes: Math.round(avgMs / 60000 * 10) / 10,
+      byType: byType.map(r => ({
+        type: r.type,
+        totalMinutes: Math.round(Number(r.totalMs) / 60000),
+        sessions: Number(r.sessionCount),
+      })),
+    };
+  });
 }
