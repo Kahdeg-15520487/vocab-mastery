@@ -624,5 +624,6 @@ const statsXpNeeded = computed(() => {
           </div>
         </div>
       </div>
+    </div>
   </div>
 </template>
