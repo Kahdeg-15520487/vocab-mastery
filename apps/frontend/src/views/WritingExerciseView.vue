@@ -430,6 +430,7 @@ async function evaluateWithAI() {
     })
 
     const raw = await ai.generate(messages)
+    console.log('[WritingExercise] raw from generate:', JSON.stringify(raw)?.slice(0, 300))
     const evaluation = parseSentenceEvaluation(raw)
 
     if (raw) {

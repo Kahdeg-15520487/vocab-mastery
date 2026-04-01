@@ -15,12 +15,6 @@ export interface AIProgress {
   fileCount: number
 }
 
-export interface GenerateRequest {
-  id: string
-  prompt: string
-  resolve: (text: string) => void
-}
-
 // ── Singleton State ────────────────────────────────────────────────
 const STORAGE_KEY = 'browser-ai-enabled'
 
@@ -31,8 +25,6 @@ const statusMessage = ref('')
 const errorMessage = ref('')
 
 let worker: Worker | null = null
-let pendingRequests = new Map<string, GenerateRequest>()
-let requestId = 0
 
 // ── Computed ───────────────────────────────────────────────────────
 const isReady = computed(() => status.value === 'ready')
@@ -60,19 +52,31 @@ export function useBrowserAI() {
       throw new Error('Browser AI is not ready')
     }
 
-    const id = `gen_${++requestId}`
     const promptPayload = typeof prompt === 'string' ? prompt : JSON.stringify(prompt)
 
+    // Use MessageChannel for direct request/response — avoids shared pending map
+    // which can be lost during HMR or other re-initialization
+    const channel = new MessageChannel()
+
     return new Promise<string>((resolve) => {
-      pendingRequests.set(id, { id, prompt: promptPayload, resolve })
-      worker!.postMessage({ type: 'generate', id, prompt: promptPayload })
+      let settled = false
+
+      channel.port1.onmessage = (e: MessageEvent) => {
+        if (settled) return
+        settled = true
+        channel.port1.close()
+        resolve(e.data.text || '')
+      }
+
+      // Send the prompt with the transferable port
+      worker!.postMessage({ type: 'generate', prompt: promptPayload }, [channel.port2])
 
       // Timeout after 30s
       setTimeout(() => {
-        if (pendingRequests.has(id)) {
-          pendingRequests.delete(id)
-          resolve('')
-        }
+        if (settled) return
+        settled = true
+        channel.port1.close()
+        resolve('')
       }, 30_000)
     })
   }
@@ -137,15 +141,6 @@ function startWorker() {
           errorMessage.value = e.data.message
           statusMessage.value = ''
           break
-
-        case 'result': {
-          const req = pendingRequests.get(e.data.id)
-          if (req) {
-            pendingRequests.delete(e.data.id)
-            req.resolve(e.data.text || '')
-          }
-          break
-        }
       }
     }
 
@@ -168,7 +163,6 @@ function stopWorker() {
     worker.terminate()
     worker = null
   }
-  pendingRequests.clear()
   status.value = 'disabled'
   statusMessage.value = ''
   errorMessage.value = ''

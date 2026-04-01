@@ -3,15 +3,18 @@
  *
  * Message protocol:
  *   Main → Worker:  { type: 'load' }
- *   Main → Worker:  { type: 'generate', id: string, prompt: string }
+ *   Main → Worker:  { type: 'generate', prompt: string }  + MessageChannel port
  *   Main → Worker:  { type: 'unload' }
  *   Main → Worker:  { type: 'ping' }
  *
- *   Worker → Main:  { type: 'status', status: string }
- *   Worker → Main:  { type: 'progress', loaded: number, total: number, file?: string }
- *   Worker → Main:  { type: 'ready' }
- *   Worker → Main:  { type: 'error', message: string }
- *   Worker → Main:  { type: 'result', id: string, text: string }
+ *   Worker → Main (via postMessage):
+ *     { type: 'status', status: string }
+ *     { type: 'progress', loaded: number, total: number, fileCount: number }
+ *     { type: 'ready' }
+ *     { type: 'error', message: string }
+ *
+ *   Worker → Main (via MessageChannel port):
+ *     { text: string }  — generation result
  */
 
 // @ts-ignore — no type declarations for @huggingface/transformers worker context
@@ -49,8 +52,6 @@ function handleProgress(evt: Record<string, unknown>) {
   if (!evt) return
 
   if (evt.status === 'progress_total' && Number.isFinite(evt.total)) {
-    // Some transformers versions send a total hint — we can ignore it
-    // since we aggregate per-file progress ourselves
     return
   }
 
@@ -98,15 +99,11 @@ async function handleLoad() {
   }
 }
 
-async function handleGenerate(id: string, prompt: string) {
-  if (!generator) {
-    send({ type: 'result', id, text: '' })
-    return
-  }
+async function generateText(prompt: string): Promise<string> {
+  if (!generator) return ''
 
   try {
-    // Build messages — prompt is already formatted from browser-ai-prompts
-    // Try to parse as JSON messages array, otherwise treat as user message
+    // Build messages — try to parse as JSON array, otherwise wrap as user message
     let messages: Array<{ role: string; content: string }>
     try {
       const parsed = JSON.parse(prompt)
@@ -143,10 +140,10 @@ async function handleGenerate(id: string, prompt: string) {
     }
 
     console.log('[browser-ai-worker] reply:', reply.slice(0, 300))
-    send({ type: 'result', id, text: reply.trim() })
+    return reply.trim()
   } catch (err: any) {
     console.error('[browser-ai-worker] Generation failed:', err)
-    send({ type: 'result', id, text: '' })
+    return ''
   }
 }
 
@@ -164,9 +161,15 @@ self.onmessage = async (e: MessageEvent) => {
     case 'load':
       await handleLoad()
       break
-    case 'generate':
-      await handleGenerate(e.data.id, e.data.prompt)
+    case 'generate': {
+      // Respond via MessageChannel port — robust against HMR / module re-init
+      const port = e.ports[0]
+      const text = await generateText(e.data.prompt)
+      if (port) {
+        port.postMessage({ text })
+      }
       break
+    }
     case 'unload':
       handleUnload()
       break
