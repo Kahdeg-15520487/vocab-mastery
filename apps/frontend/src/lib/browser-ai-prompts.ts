@@ -2,10 +2,10 @@
  * Structured evaluation prompt templates for Browser AI Coach.
  *
  * Design principles for 0.8B model consistency:
- *  - Extremely constrained output format
- *  - Few-shot examples establish the pattern
+ *  - Extremely short prompt — tiny model, tiny context
+ *  - Single clear instruction + one example
  *  - JSON output for reliable parsing
- *  - Short instructions (model has limited context reasoning)
+ *  - Strip <think/> blocks from Qwen reasoning models
  */
 
 export interface SentenceEvaluation {
@@ -24,30 +24,27 @@ export interface SentenceEvaluation {
   suggestion: string
 }
 
-const SYSTEM_PROMPT = `You are an English writing evaluator. You ALWAYS respond with exactly one JSON object. No other text. No markdown. No explanation.
-Format: {"grammar":{"score":N,"note":"brief"},"usage":{"score":N,"note":"brief"},"clarity":{"score":N,"note":"brief"},"suggestion":"brief"}
-Scores are 1-5. Notes must be under 15 words. Suggestion must be under 20 words.`
+/**
+ * Strip Qwen <think/> blocks and any leading/trailing whitespace/noise.
+ */
+export function stripThinkBlocks(text: string): string {
+  // Remove <think ...>...</think blocks (may span multiple lines)
+  let cleaned = text.replace(/<think[\s\S]*?<\/think\s*>/gi, '')
+  // Remove any leftover <think/> or <think .../>  self-closing tags
+  cleaned = cleaned.replace(/<think[^>]*\/>/gi, '')
+  // Trim
+  cleaned = cleaned.trim()
+  return cleaned
+}
 
-const FEW_SHOT_EXAMPLES = `
-Example 1:
-Target: "sustainable" (adjective) — capable of being maintained over time
-Sentence: "The company adopted sustainable practices to reduce waste."
-{"grammar":{"score":5,"note":"Grammatically correct."},"usage":{"score":5,"note":"Natural and appropriate use."},"clarity":{"score":5,"note":"Clear and easy to understand."},"suggestion":"Could add 'environmentally' before sustainable for emphasis."}
+const SYSTEM_PROMPT = `Evaluate the sentence using the target word. Reply with ONLY a JSON object, nothing else.
+{"grammar":{"score":1-5,"note":"brief"},"usage":{"score":1-5,"note":"brief"},"clarity":{"score":1-5,"note":"brief"},"suggestion":"brief tip or None"}
+5=perfect, 1=very poor. Mark nonsensical/gibberish sentences as grammar=1, clarity=1.`
 
-Example 2:
+const EXAMPLE = `
 Target: "mitigate" (verb) — to make less severe
-Sentence: "We need mitigate the risks before launching."
-{"grammar":{"score":3,"note":"Missing 'to' before mitigate."},"usage":{"score":4,"note":"Correct meaning and context."},"clarity":{"score":4,"note":"Understandable but grammatically incomplete."},"suggestion":"Add 'to': 'We need to mitigate the risks.'"}
-
-Example 3:
-Target: "abundant" (adjective) — existing in large quantities
-Sentence: "The garden has abundant flowers in spring."
-{"grammar":{"score":5,"note":"No errors."},"usage":{"score":5,"note":"Perfect collocation."},"clarity":{"score":5,"note":"Very clear."},"suggestion":"No improvement needed."}
-
-Example 4:
-Target: "elaborate" (verb) — to explain in detail
-Sentence: "She elaborate on her theory during the meeting."
-{"grammar":{"score":2,"note":"Wrong verb form, needs past tense."},"usage":{"score":4,"note":"Correct context."},"clarity":{"score":4,"note":"Meaning is clear."},"suggestion":"Use 'elaborated': 'She elaborated on her theory.'"}`
+Sentence: "We need mitigate the risks."
+{"grammar":{"score":3,"note":"Missing 'to'."},"usage":{"score":4,"note":"Correct context."},"clarity":{"score":4,"note":"Understandable."},"suggestion":"Add 'to': We need to mitigate the risks."}`
 
 /**
  * Build the evaluation prompt for a sentence.
@@ -59,15 +56,28 @@ export function buildSentenceEvalPrompt(params: {
   sentence: string
 }): string {
   const pos = params.partOfSpeech?.length ? ` (${params.partOfSpeech[0]})` : ''
-  const def = params.definition ? ` — ${truncate(params.definition, 80)}` : ''
+  const def = params.definition ? ` — ${truncate(params.definition, 60)}` : ''
 
-  return `${SYSTEM_PROMPT}
-
-${FEW_SHOT_EXAMPLES}
+  return `${EXAMPLE}
 
 Now evaluate:
 Target: "${params.word}"${pos}${def}
 Sentence: "${params.sentence}"`
+}
+
+/**
+ * Build the messages array for chat-style generation.
+ */
+export function buildEvalMessages(params: {
+  word: string
+  partOfSpeech?: string[]
+  definition?: string
+  sentence: string
+}): Array<{ role: string; content: string }> {
+  return [
+    { role: 'system', content: SYSTEM_PROMPT },
+    { role: 'user', content: buildSentenceEvalPrompt(params) },
+  ]
 }
 
 /**
@@ -82,9 +92,14 @@ export function parseSentenceEvaluation(raw: string): SentenceEvaluation {
     suggestion: 'Could not generate suggestion.',
   }
 
+  if (!raw) return DEFAULT
+
   try {
+    // Strip Qwen thinking blocks
+    const cleaned = stripThinkBlocks(raw)
+
     // Extract JSON from the response (model may add extra text)
-    const jsonMatch = raw.match(/\{[\s\S]*\}/)
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/)
     if (!jsonMatch) return DEFAULT
 
     const parsed = JSON.parse(jsonMatch[0])

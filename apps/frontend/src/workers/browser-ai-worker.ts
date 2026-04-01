@@ -105,14 +105,26 @@ async function handleGenerate(id: string, prompt: string) {
   }
 
   try {
-    const messages = [
-      { role: 'system', content: 'Respond with JSON only.' },
-      { role: 'user', content: prompt },
-    ]
+    // Build messages — prompt is already formatted from browser-ai-prompts
+    // Try to parse as JSON messages array, otherwise treat as user message
+    let messages: Array<{ role: string; content: string }>
+    try {
+      const parsed = JSON.parse(prompt)
+      if (Array.isArray(parsed)) {
+        messages = parsed
+      } else {
+        throw new Error('not array')
+      }
+    } catch {
+      messages = [
+        { role: 'system', content: 'Reply with JSON only.' },
+        { role: 'user', content: prompt },
+      ]
+    }
 
     const output = await (generator as any)(messages, {
       max_new_tokens: 200,
-      temperature: 0.3,       // Low temp for consistency
+      temperature: 0.3,
       top_p: 0.9,
       do_sample: true,
       return_full_text: false,
@@ -129,10 +141,11 @@ async function handleGenerate(id: string, prompt: string) {
       reply = first.generated_text
     }
 
+    console.log('[browser-ai-worker] Raw reply:', JSON.stringify(reply).slice(0, 500))
     send({ type: 'result', id, text: reply.trim() })
   } catch (err: any) {
-    send({ type: 'result', id, text: '' })
     console.error('[browser-ai-worker] Generation failed:', err)
+    send({ type: 'result', id, text: '' })
   }
 }
 

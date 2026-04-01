@@ -55,15 +55,18 @@ export function useBrowserAI() {
     }
   }
 
-  async function generate(prompt: string): Promise<string> {
+  async function generate(prompt: string | Array<{ role: string; content: string }>): Promise<string> {
     if (!worker || status.value !== 'ready') {
       throw new Error('Browser AI is not ready')
     }
 
     const id = `gen_${++requestId}`
+    // Serialize messages array or plain string for the worker
+    const promptPayload = typeof prompt === 'string' ? prompt : JSON.stringify(prompt)
+
     return new Promise<string>((resolve) => {
-      pendingRequests.set(id, { id, prompt, resolve })
-      worker!.postMessage({ type: 'generate', id, prompt })
+      pendingRequests.set(id, { id, prompt: promptPayload, resolve })
+      worker!.postMessage({ type: 'generate', id, prompt: promptPayload })
 
       // Timeout after 30s
       setTimeout(() => {

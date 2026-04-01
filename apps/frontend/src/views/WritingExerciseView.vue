@@ -240,7 +240,7 @@ import { writingApi, sprintApi } from '../lib/api'
 import { useToast } from '../composables/useToast'
 import { useSpeech } from '../composables/useSpeech'
 import { useBrowserAI } from '../composables/useBrowserAI'
-import { buildSentenceEvalPrompt, parseSentenceEvaluation, type SentenceEvaluation } from '../lib/browser-ai-prompts'
+import { buildEvalMessages, parseSentenceEvaluation, type SentenceEvaluation } from '../lib/browser-ai-prompts'
 import LoadingSpinner from '../components/ui/LoadingSpinner.vue'
 import AIFeedbackPanel from '../components/writing/AIFeedbackPanel.vue'
 
@@ -422,14 +422,14 @@ async function evaluateWithAI() {
   aiError.value = ''
 
   try {
-    const prompt = buildSentenceEvalPrompt({
+    const messages = buildEvalMessages({
       word: currentPrompt.value.word,
       partOfSpeech: currentPrompt.value.partOfSpeech,
       definition: currentPrompt.value.definition,
       sentence: submittedSentence,
     })
 
-    const raw = await ai.generate(prompt)
+    const raw = await ai.generate(messages)
     const evaluation = parseSentenceEvaluation(raw)
 
     if (raw) {
