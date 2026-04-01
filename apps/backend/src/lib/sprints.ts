@@ -709,3 +709,80 @@ export async function calculatePace(userId: string) {
     progress: Math.min(100, Math.round((totalLearned / target) * 100)),
   }
 }
+
+/**
+ * Get focus area recommendations based on current quarter and progress
+ */
+export async function getFocusRecommendations(userId: string) {
+  const totalLearned = await prisma.wordProgress.count({
+    where: { userId, status: { not: 'new' } },
+  })
+
+  // Get CEFR distribution of learned words
+  const cefrDistribution = await prisma.wordProgress.groupBy({
+    by: ['status'],
+    where: { userId, status: { not: 'new' } },
+    _count: true,
+  })
+
+  // Get theme distribution of learned words
+  const learnedWordIds = await prisma.wordProgress.findMany({
+    where: { userId, status: { not: 'new' } },
+    select: { wordId: true },
+  })
+
+  const themeDistribution = await prisma.wordTheme.groupBy({
+    by: ['themeId'],
+    where: { wordId: { in: learnedWordIds.map(w => w.wordId) } },
+    _count: true,
+    orderBy: { _count: { themeId: 'desc' } },
+  })
+
+  // Determine current quarter
+  const now = new Date()
+  const month = now.getMonth()
+  let quarter: string
+  let focusArea: string
+  let suggestedLevel: string
+
+  if (month >= 3 && month <= 5) {
+    quarter = 'Q2'
+    focusArea = 'Foundational vocabulary — common academic and professional verbs & adjectives'
+    suggestedLevel = 'A2-B1'
+  } else if (month >= 6 && month <= 8) {
+    quarter = 'Q3'
+    focusArea = 'Nuance — synonyms, idioms, industry-specific terminology'
+    suggestedLevel = 'B1-B2'
+  } else if (month >= 9 && month <= 11) {
+    quarter = 'Q4'
+    focusArea = 'Mastery — complex literature, news, high-level debate'
+    suggestedLevel = 'B2-C1'
+  } else {
+    quarter = 'Q1'
+    focusArea = 'Core vocabulary — high-frequency words for daily use'
+    suggestedLevel = 'A1-A2'
+  }
+
+  // Get weakest themes (least learned)
+  const allThemes = await prisma.theme.findMany({ select: { id: true, name: true, slug: true } })
+  const learnedThemeIds = new Set(themeDistribution.map(t => t.themeId))
+  const weakestThemes = allThemes
+    .filter(t => !learnedThemeIds.has(t.id))
+    .slice(0, 3)
+    .map(t => t.name)
+
+  return {
+    quarter,
+    focusArea,
+    suggestedLevel,
+    totalLearned,
+    weakestThemes,
+    recommendation: totalLearned < 500
+      ? 'Focus on building a strong foundation with A1-A2 words'
+      : totalLearned < 1500
+      ? 'Expand vocabulary with B1-level words and review weak areas'
+      : totalLearned < 3000
+      ? 'Focus on nuanced vocabulary and thematic depth'
+      : 'Challenge yourself with C1-level words and writing exercises',
+  }
+}

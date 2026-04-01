@@ -13,6 +13,7 @@ import {
   generateWritingPrompts,
   getNextSprintSuggestion,
   calculatePace,
+  getFocusRecommendations,
 } from '../lib/sprints.js'
 
 export async function sprintRoutes(app: FastifyInstance) {
@@ -100,6 +101,13 @@ export async function sprintRoutes(app: FastifyInstance) {
     const userId = (request.user as any).userId
     const suggestion = await getNextSprintSuggestion(userId)
     return suggestion
+  })
+
+  // Focus recommendations
+  app.get('/focus', async (request) => {
+    const userId = (request.user as any).userId
+    const recommendations = await getFocusRecommendations(userId)
+    return recommendations
   })
 
   // Get pace calculation

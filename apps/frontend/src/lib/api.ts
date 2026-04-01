@@ -597,6 +597,16 @@ export const sprintApi = {
       progress: number
     }>('/sprints/pace'),
 
+  getFocusRecommendations: () =>
+    request<{
+      quarter: string
+      focusArea: string
+      suggestedLevel: string
+      totalLearned: number
+      weakestThemes: string[]
+      recommendation: string
+    }>('/sprints/focus'),
+
   updateYearGoal: (data: { yearWordTarget?: number; yearTargetDate?: string }) =>
     request<{ success: boolean; pace: any }>('/sprints/year-goal', {
       method: 'PUT',
@@ -611,4 +621,13 @@ export const sprintApi = {
       totalLearned: number
       dailyPace: number
     }>('/sprints/suggestions/next'),
+
+  getFocus: () =>
+    request<{
+      quarter: string
+      focusArea: string
+      suggestedLevel: string
+      totalLearned: number
+      weakestThemes: string[]; recommendation: string
+    }>('/sprints/focus'),
 }

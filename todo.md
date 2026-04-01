@@ -4,7 +4,9 @@
 
 ## Pending
 
-- [ ] **#219** Add Writing Prompts UI to Sprints page
+- [ ] **#220** **[high]** Implement Review Sprint logic (every 4th sprint, 50% weak words from previous 3)
+- [ ] **#224** Add Sentence Review flashcards — review your own submitted sentences
+- [ ] **#225** Sprint-aware study modes — show sprint context in Learn/Review/Quiz views
 
 ## Completed
 
@@ -93,7 +95,7 @@
 - [x] **#216** Phase 5: Speaking practice mode with Web Speech API
 - [x] **#217** Phase 5: Plateau detection + nudge suggestions
 - [x] **#218** Phase 5: Writing prompt generator using sprint words
-- [x] **#220** **[high]** Implement Review Sprint logic (every 4th sprint, 50% weak words from previous 3)
+- [x] **#219** Add Writing Prompts UI to Sprints page
 - [x] **#221** **[high]** Add Year Goal setting + Pace Calculator on dashboard
 - [x] **#222** Add Sprint Phase auto-transition (ACQUISITION→APPLICATION at day 8)
 - [x] **#223** Add Writing Challenge live sprint word counter + highlighting
@@ -1202,21 +1204,21 @@
     {
       "id": 219,
       "text": "Add Writing Prompts UI to Sprints page",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [],
       "createdAt": 1775056404737,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775059159212
     },
     {
       "id": 220,
       "text": "Implement Review Sprint logic (every 4th sprint, 50% weak words from previous 3)",
-      "done": true,
+      "done": false,
       "priority": "high",
       "tags": [],
       "createdAt": 1775057508429,
-      "archived": false,
-      "completedAt": 1775058405033
+      "archived": false
     },
     {
       "id": 221,
@@ -1247,8 +1249,26 @@
       "createdAt": 1775057518523,
       "archived": false,
       "completedAt": 1775058469828
+    },
+    {
+      "id": 224,
+      "text": "Add Sentence Review flashcards — review your own submitted sentences",
+      "done": false,
+      "priority": "medium",
+      "tags": [],
+      "createdAt": 1775059192315,
+      "archived": false
+    },
+    {
+      "id": 225,
+      "text": "Sprint-aware study modes — show sprint context in Learn/Review/Quiz views",
+      "done": false,
+      "priority": "medium",
+      "tags": [],
+      "createdAt": 1775059196368,
+      "archived": false
     }
   ],
-  "nextId": 224
+  "nextId": 226
 }
 ```
