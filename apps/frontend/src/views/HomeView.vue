@@ -386,6 +386,11 @@ function formatDate(iso: string) {
           <div class="font-semibold text-sm sm:text-base text-red-700 dark:text-red-300">Speed Round</div>
           <div class="text-xs sm:text-sm text-red-500 dark:text-red-400 hidden sm:block">Timed challenge</div>
         </router-link>
+        <router-link to="/recommendations" class="card hover:shadow-md transition-shadow text-center group bg-teal-50 dark:bg-teal-900/10 border-teal-200 dark:border-teal-800">
+          <div class="text-3xl sm:text-4xl mb-1 sm:mb-2">🎯</div>
+          <div class="font-semibold text-sm sm:text-base text-teal-700 dark:text-teal-300">For You</div>
+          <div class="text-xs sm:text-sm text-teal-500 dark:text-teal-400 hidden sm:block">Smart picks</div>
+        </router-link>
       </div>
 
       <!-- Recently Viewed Words -->

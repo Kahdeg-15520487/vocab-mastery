@@ -6,7 +6,7 @@
 
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#283** 🔔 Review Reminders — configurable time-based reminders (morning/evening) with browser notifications #feature #frontend
-- [ ] **#296** **[high]** ⚡ Speed Round — timed flashcard challenge, answer as many as possible in 60 seconds #feature #fullstack #gamification
+- [ ] **#297** **[high]** 🎯 Smart Recommendations — suggest words based on weak topics, CEFR gaps, and review priority #feature #fullstack
 
 ## Completed
 
@@ -148,6 +148,7 @@
 - [x] **#290** **[high]** 📊 Word Analytics — detailed breakdown of vocabulary by topic, CEFR level, mastery status on Stats page #feature #frontend
 - [x] **#291** **[high]** 🧠 Memory Palace — LLM generates vivid visual associations/mnemonics for words #feature #fullstack #llm
 - [x] **#293** **[high]** 🔊 Pronunciation speed control — slow/normal/fast toggle for TTS playback #feature #frontend #polish
+- [x] **#296** **[high]** ⚡ Speed Round — timed flashcard challenge, answer as many as possible in 60 seconds #feature #fullstack #gamification
 
 <!-- Raw Data -->
 ```json
@@ -1959,7 +1960,7 @@
     {
       "id": 296,
       "text": "⚡ Speed Round — timed flashcard challenge, answer as many as possible in 60 seconds",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
@@ -1967,9 +1968,22 @@
         "gamification"
       ],
       "createdAt": 1775084488099,
+      "archived": false,
+      "completedAt": 1775084712185
+    },
+    {
+      "id": 297,
+      "text": "🎯 Smart Recommendations — suggest words based on weak topics, CEFR gaps, and review priority",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "fullstack"
+      ],
+      "createdAt": 1775084961697,
       "archived": false
     }
   ],
-  "nextId": 297
+  "nextId": 298
 }
 ```

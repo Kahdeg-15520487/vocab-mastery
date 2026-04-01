@@ -714,6 +714,145 @@ Return ONLY valid JSON:
     return { correct, total, accuracy, bonusXp };
   });
 
+  // GET /stats/recommendations — Smart word recommendations based on gaps
+  app.get('/stats/recommendations', { preHandler: authenticate }, async (request, _reply) => {
+    const userId = request.user!.userId;
+    const limit = Math.min(20, Math.max(1, Number((request.query as any).limit) || 10));
+
+    // 1. Find weakest topic (lowest % learned)
+    const weakTopics = await prisma.$queryRaw<Array<{
+      topic: string; theme_slug: string; theme_name: string;
+      total: bigint; learned: bigint
+    }>>`
+      SELECT wt.topic, th.slug as theme_slug, th.name as theme_name,
+        COUNT(DISTINCT w.id) as total,
+        COUNT(DISTINCT CASE WHEN wp.status IN ('learning','reviewing','mastered') THEN w.id END) as learned
+      FROM word_themes wt
+      JOIN words w ON w.id = wt."wordId"
+      JOIN themes th ON th.id = wt."themeId"
+      LEFT JOIN word_progress wp ON wp.word_id = w.id AND wp.user_id = ${userId}
+      WHERE wt.topic IS NOT NULL
+      GROUP BY wt.topic, th.slug, th.name
+      HAVING COUNT(DISTINCT CASE WHEN wp.status IN ('learning','reviewing','mastered') THEN w.id END) < COUNT(DISTINCT w.id) * 0.3
+      ORDER BY (COUNT(DISTINCT CASE WHEN wp.status IN ('learning','reviewing','mastered') THEN w.id END)::float / COUNT(DISTINCT w.id)) ASC
+      LIMIT 3
+    `;
+
+    // 2. Find CEFR level gaps — levels with fewest learned words
+    const cefrGaps = await prisma.$queryRaw<Array<{
+      cefr_level: string; total: bigint; learned: bigint
+    }>>`
+      SELECT w.cefr_level, COUNT(*) as total,
+        COUNT(CASE WHEN wp.status IN ('learning','reviewing','mastered') THEN 1 END) as learned
+      FROM words w
+      LEFT JOIN word_progress wp ON wp.word_id = w.id AND wp.user_id = ${userId}
+      WHERE w.cefr_level IN ('A1','A2','B1','B2','C1','C2')
+        AND w.word NOT LIKE '% %'
+      GROUP BY w.cefr_level
+      ORDER BY (COUNT(CASE WHEN wp.status IN ('learning','reviewing','mastered') THEN 1 END)::float / COUNT(*)) ASC
+      LIMIT 2
+    `;
+
+    // 3. Get recommended words — prioritize weak topics and CEFR gaps
+    const weakTopicNames = weakTopics.map(t => t.topic);
+    const weakCefrLevels = cefrGaps.map(g => g.cefr_level);
+
+    // Build prioritized word query
+    let recommended: Array<{
+      id: string; word: string; definition: string; cefr_level: string;
+      part_of_speech: any; topic: string; theme_name: string;
+      reason: string; priority: number
+    }> = [];
+
+    if (weakTopicNames.length > 0) {
+      // Words from weak topics the user hasn't learned
+      const topicWords = await prisma.$queryRaw<Array<{
+        id: string; word: string; definition: string; cefr_level: string;
+        part_of_speech: any; topic: string; theme_name: string
+      }>>`
+        SELECT w.id, w.word, w.definition, w.cefr_level, w.part_of_speech,
+          wt.topic, th.name as theme_name
+        FROM words w
+        JOIN word_themes wt ON wt."wordId" = w.id
+        JOIN themes th ON th.id = wt."themeId"
+        LEFT JOIN word_progress wp ON wp.word_id = w.id AND wp.user_id = ${userId}
+        WHERE wt.topic IN (${Prisma.join(weakTopicNames)})
+          AND (wp.status IS NULL OR wp.status = 'new')
+          AND w.cefr_level IN (${Prisma.join(weakCefrLevels.length > 0 ? weakCefrLevels : ['A1','A2','B1','B2'])})
+          AND w.word NOT LIKE '% %'
+        ORDER BY RANDOM()
+        LIMIT ${limit}
+      `;
+
+      recommended.push(...topicWords.map(w => ({
+        ...w, reason: `Weak topic: ${w.topic}`, priority: 3
+      })));
+    }
+
+    // Fill remaining with CEFR gap words
+    if (recommended.length < limit) {
+      const remaining = limit - recommended.length;
+      const excludeIds = recommended.map(r => r.id);
+      let cefrWords: Array<{
+        id: string; word: string; definition: string; cefr_level: string;
+        part_of_speech: any
+      }>;
+
+      if (excludeIds.length > 0) {
+        cefrWords = await prisma.$queryRaw`
+          SELECT w.id, w.word, w.definition, w.cefr_level, w.part_of_speech
+          FROM words w
+          LEFT JOIN word_progress wp ON wp.word_id = w.id AND wp.user_id = ${userId}
+          WHERE w.cefr_level IN (${Prisma.join(weakCefrLevels.length > 0 ? weakCefrLevels : ['A1','A2','B1','B2'])})
+            AND (wp.status IS NULL OR wp.status = 'new')
+            AND w.word NOT LIKE '% %'
+            AND w.id NOT IN (${Prisma.join(excludeIds)})
+          ORDER BY RANDOM()
+          LIMIT ${remaining}
+        `;
+      } else {
+        cefrWords = await prisma.$queryRaw`
+          SELECT w.id, w.word, w.definition, w.cefr_level, w.part_of_speech
+          FROM words w
+          LEFT JOIN word_progress wp ON wp.word_id = w.id AND wp.user_id = ${userId}
+          WHERE w.cefr_level IN (${Prisma.join(weakCefrLevels.length > 0 ? weakCefrLevels : ['A1','A2','B1','B2'])})
+            AND (wp.status IS NULL OR wp.status = 'new')
+            AND w.word NOT LIKE '% %'
+          ORDER BY RANDOM()
+          LIMIT ${remaining}
+        `;
+      }
+
+      recommended.push(...cefrWords.map(w => ({
+        ...w, topic: '', theme_name: '',
+        reason: weakCefrLevels.length > 0 ? `Gap at ${w.cefr_level} level` : `New ${w.cefr_level} word`,
+        priority: 2
+      })));
+    }
+
+    // Sort by priority desc, then random
+    recommended.sort((a, b) => b.priority - a.priority);
+
+    return {
+      recommendations: recommended.slice(0, limit),
+      insights: {
+        weakTopics: weakTopics.map(t => ({
+          topic: t.topic,
+          theme: t.theme_name,
+          total: Number(t.total),
+          learned: Number(t.learned),
+          pct: t.total > 0 ? Math.round((Number(t.learned) / Number(t.total)) * 100) : 0,
+        })),
+        cefrGaps: cefrGaps.map(g => ({
+          level: g.cefr_level,
+          total: Number(g.total),
+          learned: Number(g.learned),
+          pct: g.total > 0 ? Math.round((Number(g.learned) / Number(g.total)) * 100) : 0,
+        })),
+      }
+    };
+  });
+
   // GET /stats/topic-breakdown — Vocabulary breakdown by topic
   app.get('/stats/topic-breakdown', { preHandler: authenticate }, async (request, _reply) => {
     const userId = request.user!.userId;

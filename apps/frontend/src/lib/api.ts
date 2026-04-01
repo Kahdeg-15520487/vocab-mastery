@@ -446,6 +446,18 @@ export const statsApi = {
     topics: Array<{ name: string; total: number; learned: number; mastered: number; pct: number }>
   }>>('/stats/topic-breakdown'),
 
+  getRecommendations: (limit?: number) => request<{
+    recommendations: Array<{
+      id: string; word: string; definition: string; cefr_level: string;
+      part_of_speech: any; topic: string; theme_name: string;
+      reason: string; priority: number
+    }>
+    insights: {
+      weakTopics: Array<{ topic: string; theme: string; total: number; learned: number; pct: number }>
+      cefrGaps: Array<{ level: string; total: number; learned: number; pct: number }>
+    }
+  }>('/stats/recommendations' + (limit ? `?limit=${limit}` : '')),
+
   getStudyTime: () => request<{ totalTimeMinutes: number; totalSessions: number; avgSessionMinutes: number; byType: { type: string; totalMinutes: number; sessions: number }[] }>('/stats/study-time'),
 
   getVelocity: () => request<{ daily: { date: string; learned: number; reviewed: number }[]; weekly: { week: string; level: string; count: number }[]; avgLearnedPerDay: number; avgReviewedPerDay: number; totalLearned: number; totalReviewed: number; activeDays: number }>('/stats/velocity'),
