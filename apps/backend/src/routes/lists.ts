@@ -1,12 +1,16 @@
 import { FastifyInstance } from 'fastify';
 import prisma from '../lib/prisma.js';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { TIER_LIMITS, canShareList, canCreateList, canUseLlm, trackLlmCall, getUserTier } from '../lib/lists.js';
 import { getLLMConfig, callLLM } from '../lib/llm.js';
 
 export async function listsRoutes(app: FastifyInstance) {
   // All list routes require authentication
-  app.addHook('preHandler', authenticate);
+  app.addHook('preHandler', async (request, reply) => {
+    // Skip auth for public shared list view
+    if (request.url.includes('/lists/shared/')) return;
+    return authenticate(request, reply);
+  });
 
   // ============================================
   // GET /api/lists - Get user's lists
@@ -530,6 +534,118 @@ export async function listsRoutes(app: FastifyInstance) {
     });
 
     return { success: true };
+  });
+
+  // ============================================
+  // POST /lists/:id/share-token — Generate public share token
+  // ============================================
+  app.post('/lists/:id/share-token', async (request, reply) => {
+    const userId = request.user!.userId;
+    const { id } = request.params as { id: string };
+
+    const list = await prisma.studyList.findFirst({ where: { id, userId } });
+    if (!list) return reply.status(404).send({ error: 'List not found' });
+    if (list.isSystem) return reply.status(400).send({ error: 'Cannot share system lists' });
+
+    // Generate token if not exists
+    if (!list.shareToken) {
+      const crypto = await import('crypto');
+      const token = crypto.randomBytes(12).toString('base64url');
+      await prisma.studyList.update({ where: { id }, data: { shareToken: token } });
+      return { shareToken: token, shareUrl: `/lists/shared/${token}` };
+    }
+
+    return { shareToken: list.shareToken, shareUrl: `/lists/shared/${list.shareToken}` };
+  });
+
+  // ============================================
+  // DELETE /lists/:id/share-token — Revoke public share
+  // ============================================
+  app.delete('/lists/:id/share-token', async (request, reply) => {
+    const userId = request.user!.userId;
+    const { id } = request.params as { id: string };
+
+    const list = await prisma.studyList.findFirst({ where: { id, userId } });
+    if (!list) return reply.status(404).send({ error: 'List not found' });
+
+    await prisma.studyList.update({ where: { id }, data: { shareToken: null } });
+    return { success: true };
+  });
+
+  // ============================================
+  // GET /lists/shared/:token — View shared list (public, no auth)
+  // ============================================
+  app.get('/lists/shared/:token', async (request, reply) => {
+    const { token } = request.params as { token: string };
+
+    const list = await prisma.studyList.findUnique({
+      where: { shareToken: token },
+      include: {
+        user: { select: { username: true } },
+        words: {
+          include: { word: { select: { id: true, word: true, definition: true, cefrLevel: true, partOfSpeech: true, phoneticUs: true } } },
+          orderBy: { word: { word: 'asc' } },
+        },
+      },
+    });
+
+    if (!list) return reply.status(404).send({ error: 'Shared list not found or link expired' });
+
+    return {
+      id: list.id,
+      name: list.name,
+      description: list.description,
+      icon: list.icon,
+      color: list.color,
+      wordCount: list.wordCount,
+      sharedBy: list.user.username,
+      words: list.words.map(w => ({
+        id: w.word.id,
+        word: w.word.word,
+        definition: w.word.definition,
+        cefrLevel: w.word.cefrLevel,
+        partOfSpeech: w.word.partOfSpeech,
+        phoneticUs: w.word.phoneticUs,
+      })),
+    };
+  });
+
+  // ============================================
+  // POST /lists/import-shared/:token — Import shared list into user's account
+  // ============================================
+  app.post('/lists/import-shared/:token', async (request, reply) => {
+    const userId = request.user!.userId;
+    const { token } = request.params as { token: string };
+    const body = request.body as { name?: string };
+
+    const list = await prisma.studyList.findUnique({
+      where: { shareToken: token },
+      include: {
+        words: { include: { word: true } },
+      },
+    });
+
+    if (!list) return reply.status(404).send({ error: 'Shared list not found' });
+
+    // Don't import your own list
+    if (list.userId === userId) return reply.status(400).send({ error: 'Cannot import your own list' });
+
+    const newList = await prisma.studyList.create({
+      data: {
+        userId,
+        name: body.name || list.name,
+        description: `Imported from ${list.name}`,
+        icon: list.icon,
+        color: list.color,
+        wordCount: list.words.length,
+        words: {
+          create: list.words.map(w => ({ wordId: w.word.id })),
+        },
+      },
+      include: { words: true },
+    });
+
+    return { success: true, list: { id: newList.id, name: newList.name, wordCount: newList.words.length } };
   });
 
   // ============================================

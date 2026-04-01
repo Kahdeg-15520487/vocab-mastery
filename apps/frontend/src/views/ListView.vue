@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useListsStore, type ListDetail } from '@/stores/lists'
-import { wordsApi } from '@/lib/api'
+import { wordsApi, listsApi } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
 import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
@@ -14,6 +14,10 @@ const toast = useToast()
 
 const listId = route.params.id as string
 const showAddWords = ref(false)
+const shareToken = ref<string | null>(null)
+const shareLoading = ref(false)
+const shareCopied = ref(false)
+const origin = typeof window !== "undefined" ? window.location.origin : ""
 const searchQuery = ref('')
 const searchResults = ref<any[]>([])
 const searching = ref(false)
@@ -139,6 +143,41 @@ function exportAnki() {
     })
     .catch(() => {})
 }
+
+async function toggleShare() {
+  if (shareToken.value) {
+    // Revoke
+    shareLoading.value = true
+    try {
+      await listsApi.revokeShare(listId)
+      shareToken.value = null
+      toast.success('Share link revoked')
+    } catch {
+      toast.error('Failed to revoke share link')
+    } finally {
+      shareLoading.value = false
+    }
+  } else {
+    // Generate
+    shareLoading.value = true
+    try {
+      const result = await listsApi.generateShareToken(listId)
+      shareToken.value = result.shareToken
+    } catch {
+      toast.error('Failed to generate share link')
+    } finally {
+      shareLoading.value = false
+    }
+  }
+}
+
+function copyShareLink() {
+  const url = `${origin}/lists/shared/${shareToken.value}`
+  navigator.clipboard.writeText(url).then(() => {
+    shareCopied.value = true
+    setTimeout(() => shareCopied.value = false, 2000)
+  })
+}
 </script>
 
 <template>
@@ -212,6 +251,13 @@ function exportAnki() {
               {{ showAddWords ? 'Cancel' : '+ Add Words' }}
             </button>
             <button
+              @click="toggleShare"
+              :disabled="shareLoading"
+              class="btn btn-secondary text-sm"
+            >
+              {{ shareToken ? 'Revoke Share Link' : 'Share' }}
+            </button>
+            <button
               @click="deleteList"
               class="btn btn-danger text-sm"
             >
@@ -219,6 +265,15 @@ function exportAnki() {
             </button>
             </template>
           </div>
+        </div>
+        <!-- Share link banner -->
+        <div v-if="shareToken" class="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg flex items-center gap-3">
+          <span class="text-sm text-green-700 dark:text-green-300 flex-1 truncate">
+            Share link: {{ origin }}/lists/shared/{{ shareToken }}
+          </span>
+          <button @click="copyShareLink" class="btn btn-secondary text-xs">
+            {{ shareCopied ? 'Copied!' : 'Copy' }}
+          </button>
         </div>
       </div>
 

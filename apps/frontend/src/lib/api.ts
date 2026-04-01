@@ -295,6 +295,27 @@ export const progressApi = {
   }>('/progress/review-recommendations'),
 }
 
+// Lists API
+export const listsApi = {
+  getAll: () => request<any[]>('/lists'),
+  get: (id: string) => request<any>(`/lists/${id}`),
+  create: (data: { name: string; description?: string; color?: string; icon?: string }) =>
+    request<any>('/lists', { method: 'POST', body: JSON.stringify(data) }),
+  delete: (id: string) => request<void>(`/lists/${id}`, { method: 'DELETE' }),
+  addWord: (listId: string, wordId: string) =>
+    request<void>(`/lists/${listId}/words`, { method: 'POST', body: JSON.stringify({ wordId }) }),
+  removeWord: (listId: string, wordId: string) =>
+    request<void>(`/lists/${listId}/words/${wordId}`, { method: 'DELETE' }),
+  generateShareToken: (listId: string) =>
+    request<{ shareToken: string; shareUrl: string }>(`/lists/${listId}/share-token`, { method: 'POST' }),
+  revokeShare: (listId: string) =>
+    request<{ success: boolean }>(`/lists/${listId}/share-token`, { method: 'DELETE' }),
+  getShared: (token: string) =>
+    request<any>(`/lists/shared/${token}`),
+  importShared: (token: string, name?: string) =>
+    request<{ success: boolean; list: { id: string; name: string; wordCount: number } }>(`/lists/import-shared/${token}`, { method: 'POST', body: JSON.stringify(name ? { name } : {}) }),
+}
+
 // Sessions API
 export const sessionsApi = {
   create: (data: {

@@ -7,8 +7,7 @@
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#246** **[low]** 📤 Shareable progress card — generate a shareable image/markdown of vocabulary achievements #feature #backend
 - [ ] **#253** 📊 Shareable progress summary card on Dashboard — embeddable stats snapshot #feature #frontend
-- [ ] **#256** 🎯 Word Mastery Goals — set target CEFR level and track % mastery per level #feature #fullstack
-- [ ] **#257** 📚 Study List sharing — generate share link, other users can import list #feature #fullstack
+- [ ] **#258** **[high]** 📚 Study List sharing — share token, import into another user's account #feature #fullstack
 
 ## Completed
 
@@ -126,6 +125,8 @@
 - [x] **#252** 📝 Personal word notes/mnemonics — add notes to word progress during learning #feature #fullstack
 - [x] **#254** 📋 Import words from text — paste text, extract unknown words, create study list #feature #fullstack
 - [x] **#255** **[high]** 📤 Export to Anki CSV — word, definition, examples, CEFR level, audio filename #feature #fullstack
+- [x] **#256** 🎯 Word Mastery Goals — set target CEFR level and track % mastery per level #feature #fullstack
+- [x] **#257** 📚 Study List sharing — generate share link, other users can import list #feature #fullstack
 
 <!-- Raw Data -->
 ```json
@@ -1631,28 +1632,42 @@
     {
       "id": 256,
       "text": "🎯 Word Mastery Goals — set target CEFR level and track % mastery per level",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
         "fullstack"
       ],
       "createdAt": 1775078317720,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775078692268
     },
     {
       "id": 257,
       "text": "📚 Study List sharing — generate share link, other users can import list",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
         "fullstack"
       ],
       "createdAt": 1775078321278,
+      "archived": false,
+      "completedAt": 1775078695861
+    },
+    {
+      "id": 258,
+      "text": "📚 Study List sharing — share token, import into another user's account",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "fullstack"
+      ],
+      "createdAt": 1775078699031,
       "archived": false
     }
   ],
-  "nextId": 258
+  "nextId": 259
 }
 ```

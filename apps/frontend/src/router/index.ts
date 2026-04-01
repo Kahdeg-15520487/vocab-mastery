@@ -171,6 +171,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/lists/shared/:token',
+    name: 'shared-list',
+    component: () => import('@/views/SharedListView.vue'),
+    meta: { requiresAuth: false }
+  },
+  {
     path: '/lists/:id',
     name: 'list-detail',
     component: () => import('@/views/ListView.vue'),
