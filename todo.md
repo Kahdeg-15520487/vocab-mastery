@@ -6,7 +6,7 @@
 
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#283** 🔔 Review Reminders — configurable time-based reminders (morning/evening) with browser notifications #feature #frontend
-- [ ] **#300** **[high]** 🔔 Next Review Timer — shows time until next review is due on dashboard #feature #frontend #ux
+- [ ] **#301** 🃏 Flashcard Layout Options — toggle definition/examples/CEFR on cards #feature #frontend #ux
 
 ## Completed
 
@@ -152,6 +152,7 @@
 - [x] **#297** **[high]** 🎯 Smart Recommendations — suggest words based on weak topics, CEFR gaps, and review priority #feature #fullstack
 - [x] **#298** **[high]** 📚 Word Collection Badges — topic completion tracking with milestone badges #feature #fullstack #gamification
 - [x] **#299** 📊 Weekly Learning Insights — AI-generated summary of learning patterns and tips #feature #fullstack #llm
+- [x] **#300** **[high]** 🔔 Next Review Timer — shows time until next review is due on dashboard #feature #frontend #ux
 
 <!-- Raw Data -->
 ```json
@@ -2018,7 +2019,7 @@
     {
       "id": 300,
       "text": "🔔 Next Review Timer — shows time until next review is due on dashboard",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
@@ -2026,9 +2027,23 @@
         "ux"
       ],
       "createdAt": 1775085744792,
+      "archived": false,
+      "completedAt": 1775085965081
+    },
+    {
+      "id": 301,
+      "text": "🃏 Flashcard Layout Options — toggle definition/examples/CEFR on cards",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "frontend",
+        "ux"
+      ],
+      "createdAt": 1775085969613,
       "archived": false
     }
   ],
-  "nextId": 301
+  "nextId": 302
 }
 ```

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { request, sprintApi } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
@@ -12,6 +12,20 @@ const authStore = useAuthStore()
 const toast = useToast()
 const notifications = useNotifications()
 const { speechSpeed: currentSpeed, setSpeed: setSpeechSpeed } = useSpeech()
+
+const studyPrefs = ref({
+  autoPlayAudio: localStorage.getItem('studyAutoPlay') !== 'false',
+  showLevel: localStorage.getItem('studyShowLevel') !== 'false',
+  showExamples: localStorage.getItem('studyShowExamples') !== 'false',
+  sessionSize: Number(localStorage.getItem('studySessionSize')) || 10,
+})
+
+watch(() => studyPrefs.value, (prefs) => {
+  localStorage.setItem('studyAutoPlay', String(prefs.autoPlayAudio))
+  localStorage.setItem('studyShowLevel', String(prefs.showLevel))
+  localStorage.setItem('studyShowExamples', String(prefs.showExamples))
+  localStorage.setItem('studySessionSize', String(prefs.sessionSize))
+}, { deep: true })
 const ai = useBrowserAI()
 
 // Password change
@@ -271,6 +285,59 @@ async function handleImport(event: Event) {
         >
           {{ speed === 'slow' ? '🐢 Slow' : speed === 'normal' ? '🎯 Normal' : '🐇 Fast' }}
         </button>
+      </div>
+    </div>
+
+    <!-- Study Preferences -->
+    <div class="card mb-6">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Study Preferences</h2>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+        Customize how flashcards and study sessions work.
+      </p>
+      <div class="space-y-4">
+        <!-- Auto-play audio -->
+        <label class="flex items-center justify-between">
+          <div>
+            <div class="font-medium text-sm text-slate-700 dark:text-slate-300">Auto-play pronunciation</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400">Play audio when flipping flashcard</div>
+          </div>
+          <input type="checkbox" v-model="studyPrefs.autoPlayAudio" class="w-5 h-5 rounded text-primary-600" />
+        </label>
+
+        <!-- Show CEFR level -->
+        <label class="flex items-center justify-between">
+          <div>
+            <div class="font-medium text-sm text-slate-700 dark:text-slate-300">Show CEFR level</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400">Display difficulty level on flashcards</div>
+          </div>
+          <input type="checkbox" v-model="studyPrefs.showLevel" class="w-5 h-5 rounded text-primary-600" />
+        </label>
+
+        <!-- Show examples -->
+        <label class="flex items-center justify-between">
+          <div>
+            <div class="font-medium text-sm text-slate-700 dark:text-slate-300">Show example sentences</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400">Include example usage on flashcard back</div>
+          </div>
+          <input type="checkbox" v-model="studyPrefs.showExamples" class="w-5 h-5 rounded text-primary-600" />
+        </label>
+
+        <!-- Session size -->
+        <div>
+          <label class="font-medium text-sm text-slate-700 dark:text-slate-300">Session word count</label>
+          <div class="text-xs text-slate-500 dark:text-slate-400 mb-2">Number of words per study session</div>
+          <div class="flex gap-2">
+            <button
+              v-for="n in [5, 10, 15, 20]"
+              :key="n"
+              @click="studyPrefs.sessionSize = n"
+              class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              :class="studyPrefs.sessionSize === n ? 'bg-primary-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'"
+            >
+              {{ n }}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
