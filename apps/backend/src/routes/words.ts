@@ -549,9 +549,63 @@ Rules:
       LIMIT 3
     `;
 
+    // Word family: find morphological relatives
+    // Strategy: strip common English suffixes to get stem, then find words starting with that stem
+    const wordStr = word.word.toLowerCase();
+
+    // Compute stems by removing common suffixes
+    const suffixPairs: [string, string][] = [
+      ['ational', 'ate'], ['ation', 'ate'], ['tion', 't'], ['sion', 's'],
+      ['ment', ''], ['ness', ''], ['ity', 'e'], ['ible', ''], ['able', ''],
+      ['ful', ''], ['less', ''], ['ous', ''], ['ive', ''], ['ical', ''],
+      ['ally', 'al'], ['lly', 'le'], ['ling', 'le'],
+      ['ing', ''], ['ing', 'e'],
+      ['ied', 'y'], ['ies', 'y'],
+      ['ed', ''], ['ed', 'e'],
+      ['er', ''], ['er', 'e'],
+      ['est', ''], ['est', 'e'],
+      ['ly', ''], ['es', ''], ['s', ''],
+    ];
+
+    const stems = new Set<string>();
+    for (const [suffix, replacement] of suffixPairs) {
+      if (wordStr.endsWith(suffix) && (wordStr.length - suffix.length) >= 3) {
+        stems.add(wordStr.slice(0, -suffix.length) + replacement);
+      }
+    }
+
+    // For each stem, find words that start with it and have sufficient overlap
+    // Require shared prefix >= 60% of the shorter word's length
+    const minSharedLen = Math.ceil(wordStr.length * 0.65);
+    const stemPrefix = wordStr.slice(0, Math.max(minSharedLen, 5));
+
+    const familyWords = await prisma.$queryRaw<Array<{ id: string; word: string; definition: string; cefrLevel: string }>>`
+      SELECT id, word, definition, cefr_level as "cefrLevel"
+      FROM words
+      WHERE word ILIKE ${stemPrefix + '%'}
+        AND id != ${wordId}
+      ORDER BY
+        ABS(LENGTH(word) - LENGTH(${wordStr})),
+        word ASC
+      LIMIT 8
+    `;
+
+    // Further filter: require actual morphological relation
+    const family = familyWords.filter(fw => {
+      const fwLower = fw.word.toLowerCase();
+      // Must share at least minSharedLen characters at the start
+      let sharedLen = 0;
+      for (let i = 0; i < Math.min(fwLower.length, wordStr.length); i++) {
+        if (fwLower[i] === wordStr[i]) sharedLen++;
+        else break;
+      }
+      return sharedLen >= minSharedLen;
+    });
+
     return {
       sameTopic: related.map(w => ({ ...w })),
       similar: prefixWords.map(w => ({ ...w })),
+      family: family.map(w => ({ ...w })),
     };
   });
 }

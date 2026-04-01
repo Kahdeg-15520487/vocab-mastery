@@ -4,8 +4,9 @@
 
 ## Pending
 
-- [ ] **#232** 📊 Vocabulary Level Test — comprehensive assessment that estimates CEFR level #feature #backend #frontend
-- [ ] **#239** 🔗 Related words on Word Detail — same topic, similar words, same CEFR level #feature #backend
+- [ ] **#240** 👨‍👩‍👧‍👦 Word Family feature — show related word forms (noun/verb/adj/adv) on Word Detail page #feature #backend #frontend
+- [ ] **#241** 🔊 Audio pronunciation in quiz results — play word audio when revealing correct answer #feature #frontend
+- [ ] **#242** **[low]** 🖨️ Print-friendly vocabulary export — clean printable view for word lists #polish #frontend
 
 ## Completed
 
@@ -107,10 +108,12 @@
 - [x] **#229** **[high]** 🧠 Adaptive Quiz Difficulty — track performance and adjust difficulty dynamically #feature #backend #frontend
 - [x] **#230** **[high]** 🎯 Smart Review Recommendations — suggest which words to review based on due dates and weakness #feature #frontend
 - [x] **#231** **[high]** 💡 LLM-powered example sentences — generate contextual examples for words on demand #feature #backend #frontend #llm
+- [x] **#232** 📊 Vocabulary Level Test — comprehensive assessment that estimates CEFR level #feature #backend #frontend
 - [x] **#233** 📊 Statistics page improvements — study time tracking, improvement trends, exportable reports #feature #frontend
 - [x] **#234** 🔍 Global word search — quick search from any page with keyboard shortcut #feature #frontend
 - [x] **#235** **[low]** ⌨️ Keyboard shortcut help modal — ? to show all shortcuts #polish #frontend
 - [x] **#237** 📈 Dashboard learning velocity — words/day trend and CEFR progress over time #feature #frontend #backend
+- [x] **#239** 🔗 Related words on Word Detail — same topic, similar words, same CEFR level #feature #backend
 
 <!-- Raw Data -->
 ```json
@@ -1367,7 +1370,7 @@
     {
       "id": 232,
       "text": "📊 Vocabulary Level Test — comprehensive assessment that estimates CEFR level",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
@@ -1375,7 +1378,8 @@
         "frontend"
       ],
       "createdAt": 1775071808725,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775074279518
     },
     {
       "id": 233,
@@ -1433,16 +1437,54 @@
     {
       "id": 239,
       "text": "🔗 Related words on Word Detail — same topic, similar words, same CEFR level",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
         "backend"
       ],
       "createdAt": 1775073815822,
+      "archived": false,
+      "completedAt": 1775074266746
+    },
+    {
+      "id": 240,
+      "text": "👨‍👩‍👧‍👦 Word Family feature — show related word forms (noun/verb/adj/adv) on Word Detail page",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "backend",
+        "frontend"
+      ],
+      "createdAt": 1775074618412,
+      "archived": false
+    },
+    {
+      "id": 241,
+      "text": "🔊 Audio pronunciation in quiz results — play word audio when revealing correct answer",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "frontend"
+      ],
+      "createdAt": 1775074621864,
+      "archived": false
+    },
+    {
+      "id": 242,
+      "text": "🖨️ Print-friendly vocabulary export — clean printable view for word lists",
+      "done": false,
+      "priority": "low",
+      "tags": [
+        "polish",
+        "frontend"
+      ],
+      "createdAt": 1775074625387,
       "archived": false
     }
   ],
-  "nextId": 240
+  "nextId": 243
 }
 ```

@@ -202,7 +202,7 @@ export const wordsApi = {
     body: '{}',
   }),
 
-  getRelated: (wordId: string) => request<{ sameTopic: { id: string; word: string; definition: string; cefrLevel: string }[]; similar: { id: string; word: string; definition: string; cefrLevel: string }[] }>(`/words/${wordId}/related`),
+  getRelated: (wordId: string) => request<{ sameTopic: { id: string; word: string; definition: string; cefrLevel: string }[]; similar: { id: string; word: string; definition: string; cefrLevel: string }[]; family: { id: string; word: string; definition: string; cefrLevel: string }[] }>(`/words/${wordId}/related`),
 
   getFavorites: (params?: { page?: number; limit?: number }) => {
     const searchParams = new URLSearchParams()

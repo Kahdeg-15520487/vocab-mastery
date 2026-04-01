@@ -5,6 +5,7 @@ import { request } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
 import { useListsStore } from '@/stores/lists'
 import { useActiveSession } from '@/composables/useActiveSession'
+import { useSpeech } from '@/composables/useSpeech'
 import { getLevelRange } from '@/lib/difficulty'
 import ProgressBar from '@/components/learning/ProgressBar.vue'
 import DifficultySelector from '@/components/learning/DifficultySelector.vue'
@@ -46,6 +47,7 @@ interface QuizData {
 
 const route = useRoute()
 const toast = useToast()
+const { playAudio } = useSpeech()
 const { activeSession, checkActiveSession, abandonActiveSession, showSingleTabWarning, showTabWarning, dismissTabWarning } = useActiveSession()
 
 // State
@@ -191,6 +193,9 @@ async function selectOption(option: QuizOption) {
   correctId.value = question.value!.id
   if (option.correct) score.value++
   else missedQuestions.value.push({ question: question.value!, selectedId: option.id })
+
+  // Play pronunciation audio for the correct answer
+  try { playAudio(question.value!.word, 'us') } catch {}
 
   // Fire-and-forget: record answer on server for session tracking
   try {

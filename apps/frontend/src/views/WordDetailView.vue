@@ -13,7 +13,7 @@ const { playAudio } = useSpeech()
 const toast = useToast()
 const { addViewedWord } = useRecentlyViewed()
 const generatingExamples = ref(false)
-const relatedWords = ref<{ sameTopic: any[]; similar: any[] } | null>(null)
+const relatedWords = ref<{ sameTopic: any[]; similar: any[]; family?: any[] } | null>(null)
 
 interface WordDetail {
   id: string
@@ -377,8 +377,22 @@ async function generateExamples() {
       </div>
 
       <!-- Related Words -->
-      <div v-if="relatedWords && (relatedWords.sameTopic.length > 0 || relatedWords.similar.length > 0)" class="card">
+      <div v-if="relatedWords && (relatedWords.sameTopic.length > 0 || relatedWords.similar.length > 0 || (relatedWords.family && relatedWords.family.length > 0))" class="card">
         <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Related Words</h2>
+        <!-- Word Family -->
+        <div v-if="relatedWords.family && relatedWords.family.length > 0" class="mb-4">
+          <h3 class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Word Family</h3>
+          <div class="flex flex-wrap gap-2">
+            <router-link
+              v-for="w in relatedWords.family"
+              :key="w.id"
+              :to="`/words/${w.id}`"
+              class="px-3 py-1.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 text-sm font-medium hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors"
+            >
+              {{ w.word }}
+            </router-link>
+          </div>
+        </div>
         <div v-if="relatedWords.sameTopic.length > 0" class="mb-4">
           <h3 class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Same Topic</h3>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
