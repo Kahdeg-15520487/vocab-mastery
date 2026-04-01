@@ -159,14 +159,15 @@
           📚 Sprint Words ({{ currentSprint._count?.words ?? currentSprint.words?.length ?? 0 }})
         </h3>
         <div v-if="currentSprint.words?.length" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
-          <span
+          <router-link
             v-for="sw in currentSprint.words.slice(0, 50)"
             :key="sw.id"
-            class="px-2 py-1 text-sm rounded-full"
+            :to="`/words/${sw.word?.id}`"
+            class="px-2 py-1 text-sm rounded-full hover:opacity-80 transition-opacity"
             :class="getWordStatusClass(sw)"
           >
             {{ sw.word?.word }}
-          </span>
+          </router-link>
           <span v-if="currentSprint.words.length > 50" class="px-2 py-1 text-sm text-gray-400 dark:text-gray-500">
             +{{ currentSprint.words.length - 50 }} more...
           </span>
