@@ -573,7 +573,8 @@ const missedWords = computed(() =>
 
         <div class="flex gap-3 mt-6">
           <button @click="retry" class="btn btn-primary flex-1">Try Again</button>
-          <router-link to="/" class="btn btn-secondary flex-1">Home</router-link>
+          <router-link v-if="route.query.sprintId" to="/sprints" class="btn btn-secondary flex-1">Back to Sprint</router-link>
+          <router-link v-else to="/" class="btn btn-secondary flex-1">Home</router-link>
         </div>
       </div>
 

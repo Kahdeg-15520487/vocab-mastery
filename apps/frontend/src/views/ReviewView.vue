@@ -279,7 +279,10 @@ async function restartActiveSession() {
         <button @click="startNewSession" class="btn btn-primary">
           Review More
         </button>
-        <router-link to="/" class="btn btn-secondary">
+        <router-link v-if="route.query.sprintId" to="/sprints" class="btn btn-secondary">
+          Back to Sprint
+        </router-link>
+        <router-link v-else to="/" class="btn btn-secondary">
           Back to Home
         </router-link>
       </div>

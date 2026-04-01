@@ -507,7 +507,10 @@ async function restartFromPrompt() {
         <button @click="phase = 'setup'" class="btn btn-secondary">
           ⚙️ Change Settings
         </button>
-        <router-link to="/" class="btn btn-secondary">
+        <router-link v-if="route.query.sprintId" to="/sprints" class="btn btn-secondary">
+          ← Back to Sprint
+        </router-link>
+        <router-link v-else to="/" class="btn btn-secondary">
           ← Home
         </router-link>
       </div>
