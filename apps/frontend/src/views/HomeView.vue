@@ -74,6 +74,52 @@ const masteryData = ref<{ levels: Array<{ level: string; total: number; mastered
 // Plateau detection
 const plateau = ref<{ plateau: boolean; message: string | null; suggestions: string[]; currentStreak: number } | null>(null)
 const nextReviewData = ref<{ dueNow: number; nextReview: { at: string; word: string } | null; upcoming24h: number } | null>(null)
+
+// Compute recommended CEFR focus level
+const learningPath = computed(() => {
+  const levels = dashboard.value?.levelProgress
+  if (!levels?.length) return null
+
+  let focusLevel = 'A1'
+  let focusReason = ''
+  let nextMilestone = ''
+  let pct = 0
+
+  // Find the lowest level that isn't >= 80% mastered
+  for (const level of levels) {
+    if (level.progress < 80) {
+      focusLevel = level.level
+      pct = level.progress
+      const remaining = level.total - level.learned
+      focusReason = remaining <= 0 ? `Master ${level.level} — you're close!` : `${remaining} more words to 80% mastery`
+      break
+    }
+  }
+
+  // If all levels >= 80%, suggest the next unmastered
+  if (levels.every(l => l.progress >= 80)) {
+    const unmastered = levels.find(l => l.mastered < l.total)
+    if (unmastered) {
+      focusLevel = unmastered.level
+      pct = unmastered.progress
+      focusReason = `Almost fully mastered! ${unmastered.total - unmastered.mastered} words remaining`
+    } else {
+      focusLevel = 'C2'
+      pct = 100
+      focusReason = 'All levels mastered! Maintain with reviews'
+    }
+  }
+
+  // Next milestone
+  const currentLevel = levels.find(l => l.level === focusLevel)
+  if (currentLevel) {
+    const thresholds = [25, 50, 75, 100]
+    const next = thresholds.find(t => currentLevel.progress < t)
+    nextMilestone = next ? `${next}% of ${focusLevel}` : `${focusLevel} complete!`
+  }
+
+  return { focusLevel, pct, focusReason, nextMilestone }
+})
 const paceData = ref<{
   target: number
   deadline: string
@@ -837,6 +883,40 @@ function formatTimeUntil(iso: string): string {
           class="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary-600 dark:text-primary-400 hover:underline"
         >
           Start Review →
+        </router-link>
+      </div>
+
+      <!-- Adaptive Learning Path -->
+      <div v-if="learningPath" class="card">
+        <h3 class="font-semibold text-slate-900 dark:text-white mb-3">🧭 Learning Path</h3>
+        <div class="flex items-center gap-4 mb-3">
+          <div class="text-center">
+            <div class="text-3xl font-bold" :class="{
+              'text-emerald-600 dark:text-emerald-400': ['A1','A2'].includes(learningPath.focusLevel),
+              'text-blue-600 dark:text-blue-400': ['B1','B2'].includes(learningPath.focusLevel),
+              'text-purple-600 dark:text-purple-400': ['C1','C2'].includes(learningPath.focusLevel),
+            }">
+              {{ learningPath.focusLevel }}
+            </div>
+            <div class="text-xs text-slate-500 dark:text-slate-400">Focus Level</div>
+          </div>
+          <div class="flex-1">
+            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 mb-2">
+              <div
+                class="h-2.5 rounded-full transition-all"
+                :class="learningPath.pct >= 75 ? 'bg-green-500' : learningPath.pct >= 50 ? 'bg-blue-500' : 'bg-amber-500'"
+                :style="{ width: learningPath.pct + '%' }"
+              />
+            </div>
+            <p class="text-sm text-slate-600 dark:text-slate-400">{{ learningPath.focusReason }}</p>
+            <p class="text-xs text-slate-400 mt-1">Next milestone: {{ learningPath.nextMilestone }}</p>
+          </div>
+        </div>
+        <router-link
+          to="/browse"
+          class="text-sm font-medium text-primary-600 dark:text-primary-400 hover:underline"
+        >
+          Browse {{ learningPath.focusLevel }} words →
         </router-link>
       </div>
 

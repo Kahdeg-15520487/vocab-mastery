@@ -9,6 +9,8 @@
 - [ ] **#303** 📊 Word Streak Tracker — show per-word review streak on Word Detail #feature #frontend
 - [ ] **#305** 📖 Contextual Learning Mode — learn words from a user-pasted article/paragraph #feature #frontend #backend
 - [ ] **#307** **[high]** 📖 Contextual Learning Mode — paste article, extract unknown words, learn them in context #feature #backend #frontend #learning
+- [ ] **#308** **[high]** 🔄 Smart Session Resume — detect incomplete sessions, offer to resume #feature #backend #frontend #ux
+- [ ] **#309** **[high]** 🎯 Adaptive Learning Path — suggest CEFR focus level on dashboard based on mastery #feature #frontend #ux
 
 ## Completed
 
@@ -2129,8 +2131,35 @@
       ],
       "createdAt": 1775086696786,
       "archived": false
+    },
+    {
+      "id": 308,
+      "text": "🔄 Smart Session Resume — detect incomplete sessions, offer to resume",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "backend",
+        "frontend",
+        "ux"
+      ],
+      "createdAt": 1775086888562,
+      "archived": false
+    },
+    {
+      "id": 309,
+      "text": "🎯 Adaptive Learning Path — suggest CEFR focus level on dashboard based on mastery",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "frontend",
+        "ux"
+      ],
+      "createdAt": 1775086902557,
+      "archived": false
     }
   ],
-  "nextId": 308
+  "nextId": 310
 }
 ```
