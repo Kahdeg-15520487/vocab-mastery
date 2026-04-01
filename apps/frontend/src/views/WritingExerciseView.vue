@@ -378,12 +378,22 @@ async function submitSentence() {
       currentPrompt.value.wordId,
       sentence.value.trim()
     )
+
+    if (!result.valid) {
+      // Word not found — reject, keep textarea editable, let user retry
+      lastResult.value = result
+      toast.error(`Word "${result.targetWord}" not found. Try using it directly.`)
+      // Clean up the rejected writing from the backend
+      if (result.writing?.id) {
+        writingApi.deleteWriting(sprintId.value!, result.writing.id).catch(() => {})
+      }
+      return
+    }
+
+    // ── Valid submission ──
     results.value.push(result)
     lastResult.value = result
-
-    if (result.valid) {
-      toast.success('Great usage! ✓')
-    }
+    toast.success('Great usage! ✓')
 
     // ── Step 3: AI Coach evaluation (if enabled & ready) ──
     if (ai.enabled.value && ai.isReady.value) {
