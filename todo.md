@@ -6,7 +6,7 @@
 
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#283** 🔔 Review Reminders — configurable time-based reminders (morning/evening) with browser notifications #feature #frontend
-- [ ] **#298** **[high]** 📚 Word Collection Badges — topic completion tracking with milestone badges #feature #fullstack #gamification
+- [ ] **#299** 📊 Weekly Learning Insights — AI-generated summary of learning patterns and tips #feature #fullstack #llm
 
 ## Completed
 
@@ -150,6 +150,7 @@
 - [x] **#293** **[high]** 🔊 Pronunciation speed control — slow/normal/fast toggle for TTS playback #feature #frontend #polish
 - [x] **#296** **[high]** ⚡ Speed Round — timed flashcard challenge, answer as many as possible in 60 seconds #feature #fullstack #gamification
 - [x] **#297** **[high]** 🎯 Smart Recommendations — suggest words based on weak topics, CEFR gaps, and review priority #feature #fullstack
+- [x] **#298** **[high]** 📚 Word Collection Badges — topic completion tracking with milestone badges #feature #fullstack #gamification
 
 <!-- Raw Data -->
 ```json
@@ -1988,7 +1989,7 @@
     {
       "id": 298,
       "text": "📚 Word Collection Badges — topic completion tracking with milestone badges",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
@@ -1996,9 +1997,23 @@
         "gamification"
       ],
       "createdAt": 1775085328731,
+      "archived": false,
+      "completedAt": 1775085498528
+    },
+    {
+      "id": 299,
+      "text": "📊 Weekly Learning Insights — AI-generated summary of learning patterns and tips",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "fullstack",
+        "llm"
+      ],
+      "createdAt": 1775085503590,
       "archived": false
     }
   ],
-  "nextId": 299
+  "nextId": 300
 }
 ```

@@ -27,6 +27,8 @@ async function downloadReport() {
 // Heatmap & study time
 const heatmapData = ref<Array<{ date: string; wordsLearned: number; wordsReviewed: number }>>([])
 const topicBreakdown = ref<Array<{ name: string; slug: string; topics: Array<{ name: string; total: number; learned: number; mastered: number; pct: number }> }>>([])
+const weeklyInsights = ref<{ summary: string; strengths: string[]; tips: string[]; motivation: string } | null>(null)
+const insightsLoading = ref(false)
 const studyTime = ref<{ totalTimeMinutes: number; totalSessions: number; avgSessionMinutes: number; byType: { type: string; totalMinutes: number; sessions: number }[] } | null>(null)
 const masteryData = ref<{ levels: Array<{ level: string; total: number; mastered: number; learning: number; reviewing: number; unseen: number; masteryPercent: number; coveragePercent: number }>; overall: { totalWords: number; totalMastered: number; totalSeen: number; masteryPercent: number; coveragePercent: number }; estimatedLevel: string } | null>(null)
 const studyPlan = ref<any>(null)
@@ -52,6 +54,8 @@ onMounted(async () => {
     statsStore.fetchDailyStats(7),
     statsApi.getHeatmap().then(d => heatmapData.value = d).catch(() => {}),
     statsApi.getTopicBreakdown().then(d => topicBreakdown.value = d).catch(() => {}),
+    insightsLoading.value = true,
+    statsApi.getInsights().then(d => weeklyInsights.value = d.insights).catch(() => {}).finally(() => insightsLoading.value = false),
     statsApi.getStudyTime().then(d => studyTime.value = d).catch(() => {}),
     statsApi.getMastery().then(d => masteryData.value = d).catch(() => {}),
   ])
@@ -323,6 +327,46 @@ const statsXpNeeded = computed(() => {
             <span class="text-sm text-slate-600 dark:text-slate-400">Overall Coverage</span>
             <span class="text-sm font-semibold text-slate-900 dark:text-white">{{ masteryData.overall.totalMastered }} / {{ masteryData.overall.totalWords }} words ({{ masteryData.overall.masteryPercent }}%)</span>
           </div>
+        </div>
+      </div>
+
+      <!-- Weekly Insights -->
+      <div class="card">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">💡 Weekly Insights</h2>
+
+        <div v-if="insightsLoading" class="text-center py-6">
+          <div class="animate-spin w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+          <p class="text-sm text-slate-500">Analyzing your learning patterns...</p>
+        </div>
+
+        <div v-else-if="weeklyInsights" class="space-y-4">
+          <p class="text-slate-700 dark:text-slate-300">{{ weeklyInsights.summary }}</p>
+
+          <div v-if="weeklyInsights.strengths?.length">
+            <h3 class="text-sm font-semibold text-green-600 dark:text-green-400 mb-1">💪 Strengths</h3>
+            <ul class="space-y-1">
+              <li v-for="(s, i) in weeklyInsights.strengths" :key="i" class="text-sm text-slate-600 dark:text-slate-400 flex gap-2">
+                <span class="text-green-500">•</span> {{ s }}
+              </li>
+            </ul>
+          </div>
+
+          <div v-if="weeklyInsights.tips?.length">
+            <h3 class="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-1">🎯 Tips</h3>
+            <ul class="space-y-1">
+              <li v-for="(t, i) in weeklyInsights.tips" :key="i" class="text-sm text-slate-600 dark:text-slate-400 flex gap-2">
+                <span class="text-blue-500">•</span> {{ t }}
+              </li>
+            </ul>
+          </div>
+
+          <div class="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+            <p class="text-sm text-amber-800 dark:text-amber-200 italic">✨ {{ weeklyInsights.motivation }}</p>
+          </div>
+        </div>
+
+        <div v-else class="text-center py-6">
+          <p class="text-sm text-slate-500 dark:text-slate-400">Configure an LLM provider in admin settings to get AI-powered insights.</p>
         </div>
       </div>
 

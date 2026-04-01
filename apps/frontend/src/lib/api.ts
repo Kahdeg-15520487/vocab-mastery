@@ -477,6 +477,11 @@ export const statsApi = {
     estimatedLevel: string
   }>('/stats/mastery'),
 
+  getInsights: () => request<{
+    insights: { summary: string; strengths: string[]; tips: string[]; motivation: string } | null
+    raw?: string
+  }>('/stats/insights'),
+
   generateStudyPlan: () => request<{
     plan: {
       assessment: string

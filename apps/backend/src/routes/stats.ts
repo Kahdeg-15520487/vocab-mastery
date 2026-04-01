@@ -494,6 +494,106 @@ export async function statsRoutes(app: FastifyInstance) {
     };
   });
 
+  // GET /stats/insights — AI-generated weekly learning insights
+  app.get('/stats/insights', { preHandler: authenticate }, async (request, _reply) => {
+    const userId = request.user!.userId;
+
+    try {
+      // Gather user data
+      const user = await prisma.user.findUnique({ where: { id: userId }, select: { username: true } });
+
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      // Weekly activity
+      const weeklySessions = await prisma.learningSession.groupBy({
+        by: ['type'],
+        where: { userId, startedAt: { gte: sevenDaysAgo } },
+        _count: { _all: true },
+      });
+
+      // Total weekly words
+      const weeklyProgress = await prisma.wordProgress.count({
+        where: { userId, updatedAt: { gte: sevenDaysAgo }, status: { not: 'new' } },
+      });
+
+      // Current streak
+      const streakData = await prisma.userStreak.findUnique({ where: { userId } });
+
+      // Level distribution
+      const levelDist = await prisma.wordProgress.groupBy({
+        by: ['status'],
+        where: { userId },
+        _count: { _all: true },
+      });
+
+      // CEFR breakdown
+      const cefrCounts = await prisma.$queryRaw<Array<{ cefr_level: string; learned: bigint }>>`
+        SELECT w.cefr_level, COUNT(*) as learned
+        FROM word_progress wp
+        JOIN words w ON w.id = wp.word_id
+        WHERE wp.user_id = ${userId} AND wp.status IN ('learning','reviewing','mastered')
+        GROUP BY w.cefr_level
+        ORDER BY w.cefr_level
+      `;
+
+      // Check if LLM is available
+      let config: any;
+      try {
+        config = await getLLMConfig();
+      } catch {
+        // No LLM configured — return raw data
+        return {
+          insights: null,
+          data: {
+            username: user?.username,
+            weeklySessions: weeklySessions.length,
+            weeklyWords: weeklyProgress,
+            streak: streakData?.currentStreak || 0,
+            longestStreak: streakData?.longestStreak || 0,
+            levelDistribution: levelDist.map(l => ({ status: l.status, count: l._count._all })),
+            cefrBreakdown: cefrCounts.map(c => ({ level: c.cefr_level, learned: Number(c.learned) })),
+          }
+        };
+      }
+
+      // Build prompt for LLM
+      const dataSummary = `
+User: ${user?.username || 'Student'}
+Streak: ${streakData?.currentStreak || 0} days (longest: ${streakData?.longestStreak || 0})
+Weekly words studied: ${weeklyProgress}
+Weekly sessions: ${weeklySessions.map(s => `${s.type}(${s._count})`).join(', ') || 'None'}
+Level distribution: ${levelDist.map(l => `${l.status}(${l._count._all})`).join(', ')}
+CEFR learned: ${cefrCounts.map(c => `${c.cefr_level}(${Number(c.learned)})`).join(', ') || 'None'}
+`.trim();
+
+      const systemPrompt = `You are a friendly, encouraging vocabulary learning coach. Analyze the student's weekly learning data and provide 3-4 concise insights.
+
+Return a JSON object with:
+- "summary": One sentence summarizing the week (encouraging tone)
+- "strengths": Array of 1-2 things they're doing well
+- "tips": Array of 1-2 specific, actionable improvement tips
+- "motivation": A short motivational message (1 sentence)
+
+Keep each item to 1-2 short sentences. Be specific to their data. Return ONLY valid JSON.`;
+
+      const responseText = await callLLM(systemPrompt, dataSummary, config, { disableReasoning: true });
+
+      let insights: any = null;
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          insights = JSON.parse(jsonMatch[0].replace(/,\s*\}/g, '}'));
+        } catch { /* empty */ }
+      }
+
+      return { insights, raw: dataSummary };
+    } catch (error: any) {
+      console.error('[insights] Error:', error.message);
+      throw { statusCode: 500, message: 'Failed to generate insights' };
+    }
+  });
+
   // POST /stats/study-plan — Generate personalized study plan via LLM
   app.post('/stats/study-plan', async (request, _reply) => {
     const userId = request.user!.userId;
