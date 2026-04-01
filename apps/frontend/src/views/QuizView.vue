@@ -11,6 +11,7 @@ import DifficultySelector from '@/components/learning/DifficultySelector.vue'
 import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
 import ResumePrompt from '@/components/ui/ResumePrompt.vue'
 import SingleTabWarning from '@/components/ui/SingleTabWarning.vue'
+import SprintBanner from '@/components/ui/SprintBanner.vue'
 
 interface QuizOption {
   id: string
@@ -275,6 +276,8 @@ async function restartFromPrompt() {
 
 <template>
   <div class="max-w-2xl mx-auto">
+    <!-- Sprint Banner -->
+    <SprintBanner :sprint-id="route.query.sprintId as string" />
 
     <!-- Single Tab Warning -->
     <SingleTabWarning v-if="showTabWarning" @dismiss="dismissTabWarning" />

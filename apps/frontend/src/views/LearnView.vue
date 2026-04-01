@@ -13,6 +13,7 @@ import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import ResumePrompt from '@/components/ui/ResumePrompt.vue'
 import SingleTabWarning from '@/components/ui/SingleTabWarning.vue'
+import SprintBanner from '@/components/ui/SprintBanner.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -184,6 +185,9 @@ async function restartActiveSession() {
 
 <template>
   <div class="max-w-2xl mx-auto">
+    <!-- Sprint Banner -->
+    <SprintBanner :sprint-id="sprintId" />
+
     <!-- Single Tab Warning -->
     <SingleTabWarning v-if="showTabWarning" @dismiss="showTabWarning = false" />
 

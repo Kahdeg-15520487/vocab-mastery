@@ -5,8 +5,6 @@
 ## Pending
 
 - [ ] **#223** **[high]** [Shelved] Backend: Validation key signing for writing exercises
-- [ ] **#227** **[high]** Sprint integration: Add practice buttons to SprintsView (Quiz, Spelling, Fill Blanks, Review) #frontend #sprint #integration
-- [ ] **#228** **[high]** Sprint integration: QuizView, SpellingView, FillBlankView, ReviewView accept sprintId query param #frontend #sprint #integration
 
 ## Completed
 
@@ -102,6 +100,8 @@
 - [x] **#224** **[high]** Client-side gibberish check — reject nonsense instantly before submit
 - [x] **#225** **[high]** Frontend: Add delete button to recent sentences
 - [x] **#226** Polish AI Coach feedback quality — prompt calibrated, 15/15 for correct sentences ✓ #ai-coach #writing
+- [x] **#227** **[high]** Sprint integration: Add practice buttons to SprintsView (Quiz, Spelling, Fill Blanks, Review) #frontend #sprint #integration
+- [x] **#228** **[high]** Sprint integration: QuizView, SpellingView, FillBlankView, ReviewView accept sprintId query param #frontend #sprint #integration
 
 <!-- Raw Data -->
 ```json
@@ -1312,7 +1312,7 @@
     {
       "id": 227,
       "text": "Sprint integration: Add practice buttons to SprintsView (Quiz, Spelling, Fill Blanks, Review)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "frontend",
@@ -1320,12 +1320,13 @@
         "integration"
       ],
       "createdAt": 1775030411895,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775031146583
     },
     {
       "id": 228,
       "text": "Sprint integration: QuizView, SpellingView, FillBlankView, ReviewView accept sprintId query param",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "frontend",
@@ -1333,7 +1334,8 @@
         "integration"
       ],
       "createdAt": 1775030423194,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775031159230
     }
   ],
   "nextId": 229

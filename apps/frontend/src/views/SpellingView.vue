@@ -12,6 +12,7 @@ import DifficultySelector from '@/components/learning/DifficultySelector.vue'
 import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
 import ResumePrompt from '@/components/ui/ResumePrompt.vue'
 import SingleTabWarning from '@/components/ui/SingleTabWarning.vue'
+import SprintBanner from '@/components/ui/SprintBanner.vue'
 
 const toast = useToast()
 const route = useRoute()
@@ -327,6 +328,9 @@ const missedWords = computed(() =>
 
 <template>
   <div>
+    <!-- Sprint Banner -->
+    <SprintBanner :sprint-id="route.query.sprintId as string" />
+
     <!-- Single Tab Warning -->
     <SingleTabWarning v-if="showTabWarning" @dismiss="dismissTabWarning" />
 
