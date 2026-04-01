@@ -12,6 +12,7 @@ const router = useRouter()
 const { playAudio } = useSpeech()
 const toast = useToast()
 const { addViewedWord } = useRecentlyViewed()
+const generatingExamples = ref(false)
 
 interface WordDetail {
   id: string
@@ -118,6 +119,24 @@ async function markStatus(status: 'learning' | 'reviewing' | 'mastered' | 'new')
     toast.error('Failed to update status')
   }
 }
+
+async function generateExamples() {
+  if (!word.value || generatingExamples.value) return
+  generatingExamples.value = true
+  try {
+    const result = await wordsApi.generateExamples(word.value.id)
+    if (result.examples.length > 0) {
+      word.value = { ...word.value, examples: [...(word.value.examples || []), ...result.examples] }
+      toast.success(`Generated ${result.examples.length} example sentences`)
+    } else {
+      toast.error('Could not generate examples. Try again later.')
+    }
+  } catch (e: any) {
+    toast.error(e.message || 'Failed to generate examples')
+  } finally {
+    generatingExamples.value = false
+  }
+}
 </script>
 
 <template>
@@ -218,9 +237,18 @@ async function markStatus(status: 'learning' | 'reviewing' | 'mastered' | 'new')
       </div>
 
       <!-- Examples -->
-      <div v-if="word.examples?.length" class="card mb-6">
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">💬 Examples</h2>
-        <div class="space-y-2">
+      <div class="card mb-6">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-semibold text-slate-900 dark:text-white">\U0001f4ac Examples</h2>
+          <button
+            @click="generateExamples"
+            :disabled="generatingExamples"
+            class="text-xs px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors disabled:opacity-50"
+          >
+            {{ generatingExamples ? 'Generating...' : (word.examples?.length ? 'Generate More' : 'Generate Examples') }}
+          </button>
+        </div>
+        <div v-if="word.examples?.length" class="space-y-2">
           <div
             v-for="(ex, idx) in word.examples"
             :key="idx"
@@ -230,6 +258,9 @@ async function markStatus(status: 'learning' | 'reviewing' | 'mastered' | 'new')
             <p class="text-slate-700 dark:text-slate-300 italic">{{ ex }}</p>
           </div>
         </div>
+        <p v-else-if="!generatingExamples" class="text-sm text-slate-400 dark:text-slate-500">
+          No examples yet. Click "Generate Examples" to create some with AI.
+        </p>
       </div>
 
       <!-- Synonyms & Antonyms -->

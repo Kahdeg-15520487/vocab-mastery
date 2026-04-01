@@ -4,7 +4,7 @@
 
 ## Pending
 
-- [ ] **#230** **[high]** 🎯 Smart Review Recommendations — suggest which words to review based on due dates and weakness #feature #frontend
+- [ ] **#231** **[high]** 💡 LLM-powered example sentences — generate contextual examples for words on demand #feature #backend #frontend #llm
 
 ## Completed
 
@@ -104,6 +104,7 @@
 - [x] **#227** **[high]** Sentence Review flashcards — review your own submitted sentences as flashcards #P1
 - [x] **#228** **[high]** 🤖 AI Writing Feedback — server-side LLM review of user sentences #feature #backend #frontend #llm
 - [x] **#229** **[high]** 🧠 Adaptive Quiz Difficulty — track performance and adjust difficulty dynamically #feature #backend #frontend
+- [x] **#230** **[high]** 🎯 Smart Review Recommendations — suggest which words to review based on due dates and weakness #feature #frontend
 
 <!-- Raw Data -->
 ```json
@@ -1332,16 +1333,31 @@
     {
       "id": 230,
       "text": "🎯 Smart Review Recommendations — suggest which words to review based on due dates and weakness",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
         "frontend"
       ],
       "createdAt": 1775071236886,
+      "archived": false,
+      "completedAt": 1775071480753
+    },
+    {
+      "id": 231,
+      "text": "💡 LLM-powered example sentences — generate contextual examples for words on demand",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "backend",
+        "frontend",
+        "llm"
+      ],
+      "createdAt": 1775071485971,
       "archived": false
     }
   ],
-  "nextId": 231
+  "nextId": 232
 }
 ```

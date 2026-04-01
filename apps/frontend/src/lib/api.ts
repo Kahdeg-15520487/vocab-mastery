@@ -197,6 +197,11 @@ export const wordsApi = {
     body: '{}',
   }),
 
+  generateExamples: (wordId: string) => request<{ examples: string[]; cached: boolean }>(`/words/${wordId}/generate-examples`, {
+    method: 'POST',
+    body: '{}',
+  }),
+
   getFavorites: (params?: { page?: number; limit?: number }) => {
     const searchParams = new URLSearchParams()
     if (params) {

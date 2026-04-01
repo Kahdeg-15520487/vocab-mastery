@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import prisma from '../lib/prisma.js';
 import { optionalAuth, authenticate } from '../middleware/auth.js';
+import { callLLM, getLLMConfig } from '../lib/llm.js';
 
 export async function wordRoutes(app: FastifyInstance) {
   // Get all words with filters (requires auth)
@@ -430,5 +431,75 @@ export async function wordRoutes(app: FastifyInstance) {
     });
 
     return { favorited: !!favorite };
+  });
+
+  // POST /words/:wordId/generate-examples - LLM-powered example sentence generation
+  app.post('/words/:wordId/generate-examples', { preHandler: authenticate }, async (request, _reply) => {
+    const userId = request.user!.userId;
+    const { wordId } = request.params as { wordId: string };
+
+    const word = await prisma.word.findUnique({ where: { id: wordId } });
+    if (!word) throw { statusCode: 404, message: 'Word not found' };
+
+    try {
+      const config = await getLLMConfig();
+
+      const systemPrompt = `You are an English vocabulary tutor. Generate 3 example sentences for the given word.
+Return ONLY a valid JSON array of strings. No markdown, no explanation.
+Example format: ["Sentence 1.", "Sentence 2.", "Sentence 3."]
+
+Rules:
+- Each sentence should showcase a different usage or context
+- Sentences should be natural and realistic
+- Vary difficulty: one simple, one intermediate, one advanced
+- Bold the target word using **word** format`;
+
+      let userPrompt = `Word: "${word.word}"`;
+      if ((word.partOfSpeech as string[])?.length) {
+        userPrompt += `\nPart of speech: ${(word.partOfSpeech as string[]).join(', ')}`;
+      }
+      if (word.definition) {
+        userPrompt += `\nDefinition: ${word.definition}`;
+      }
+      userPrompt += `\n\nGenerate 3 example sentences.`;
+
+      const responseText = await callLLM(systemPrompt, userPrompt, config, { disableReasoning: true });
+
+      // Parse JSON array from response
+      let examples: string[] = [];
+      const jsonMatch = responseText.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        try {
+          const parsed = JSON.parse(jsonMatch[0].replace(/,\s*\]/g, ']'));
+          if (Array.isArray(parsed)) {
+            examples = parsed.map((s: any) => String(s).trim()).filter((s: string) => s.length > 0);
+          }
+        } catch {
+          // Fall back to line-based parsing
+          examples = responseText
+            .split('\n')
+            .map(line => line.replace(/^\s*[\d\-*.]+\s*/, '').replace(/^"|"$/g, '').trim())
+            .filter(line => line.length > 10 && line.includes(word.word.toLowerCase().split(' ')[0]));
+        }
+      }
+
+      // Fallback if parsing failed
+      if (examples.length === 0) {
+        examples = [`${word.word} is a common English ${(word.partOfSpeech as string[])?.[0] || 'word'}.`];
+      }
+
+      // Cache the generated examples on the word record (append, don't overwrite)
+      const existingExamples = (word.examples as string[]) || [];
+      const newExamples = [...existingExamples, ...examples];
+      await prisma.word.update({
+        where: { id: wordId },
+        data: { examples: newExamples },
+      });
+
+      return { examples, cached: false };
+    } catch (error: any) {
+      console.error('[generate-examples] Error:', error.message);
+      throw { statusCode: 500, message: 'Failed to generate examples' };
+    }
   });
 }
