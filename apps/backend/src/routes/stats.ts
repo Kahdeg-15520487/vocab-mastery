@@ -692,6 +692,57 @@ Return ONLY valid JSON:
 
     return { correct, total, accuracy, bonusXp };
   });
+
+  // GET /stats/topic-breakdown — Vocabulary breakdown by topic
+  app.get('/stats/topic-breakdown', { preHandler: authenticate }, async (request, _reply) => {
+    const userId = request.user!.userId;
+
+    const topics = await prisma.$queryRaw<Array<{
+      theme_slug: string; theme_name: string; topic: string;
+      total_words: bigint; learned: bigint; mastered: bigint
+    }>>`
+      SELECT th.slug as theme_slug, th.name as theme_name, t.topic,
+        COUNT(DISTINCT w.id) as total_words,
+        COUNT(DISTINCT CASE WHEN wp.status IN ('learning','reviewing','mastered') THEN w.id END) as learned,
+        COUNT(DISTINCT CASE WHEN wp.status = 'mastered' THEN w.id END) as mastered
+      FROM word_themes t
+      JOIN words w ON w.id = t."wordId"
+      JOIN themes th ON th.id = t."themeId"
+      LEFT JOIN word_progress wp ON wp.word_id = w.id AND wp.user_id = ${userId}
+      WHERE t.topic IS NOT NULL
+      GROUP BY th.slug, th.name, t.topic
+      ORDER BY th.slug, t.topic
+    `;
+
+    // Group by theme
+    const grouped: Record<string, {
+      name: string; slug: string;
+      topics: Array<{ name: string; total: number; learned: number; mastered: number; pct: number }>
+    }> = {};
+
+    for (const row of topics) {
+      const slug = row.theme_slug;
+      if (!grouped[slug]) {
+        grouped[slug] = { name: row.theme_name, slug, topics: [] };
+      }
+      const total = Number(row.total_words);
+      const learned = Number(row.learned);
+      const mastered = Number(row.mastered);
+      grouped[slug].topics.push({
+        name: row.topic,
+        total,
+        learned,
+        mastered,
+        pct: total > 0 ? Math.round((learned / total) * 100) : 0,
+      });
+    }
+
+    return Object.values(grouped).sort((a, b) => {
+      const aLearned = a.topics.reduce((s, t) => s + t.learned, 0);
+      const bLearned = b.topics.reduce((s, t) => s + t.learned, 0);
+      return bLearned - aLearned;
+    });
+  });
 }
 
 function computeEstimatedLevel(levels: Array<{ level: string; coveragePercent: number }>): string {

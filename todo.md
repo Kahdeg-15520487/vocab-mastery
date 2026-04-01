@@ -6,7 +6,7 @@
 
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#283** 🔔 Review Reminders — configurable time-based reminders (morning/evening) with browser notifications #feature #frontend
-- [ ] **#287** **[high]** 🎓 Word Difficulty Rating — user rates 1-5 stars, affects spaced repetition ease factor #feature #fullstack
+- [ ] **#290** **[high]** 📊 Word Analytics — detailed breakdown of vocabulary by topic, CEFR level, mastery status on Stats page #feature #frontend
 
 ## Completed
 
@@ -144,6 +144,7 @@
 - [x] **#281** **[high]** 📎 Export Progress Report — HTML report with study stats, mastery breakdown, weak words list #feature #fullstack
 - [x] **#282** 📊 Dashboard quick stat cards — Total Words, XP, Level, Streak in prominent grid #feature #frontend
 - [x] **#286** **[high]** 🎮 Word Chain Game — chain words by last letter, earn XP, learn new words #feature #fullstack #gamification
+- [x] **#287** **[high]** 🎓 Word Difficulty Rating — user rates 1-5 stars, affects spaced repetition ease factor #feature #fullstack
 
 <!-- Raw Data -->
 ```json
@@ -1901,16 +1902,29 @@
     {
       "id": 287,
       "text": "🎓 Word Difficulty Rating — user rates 1-5 stars, affects spaced repetition ease factor",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
         "fullstack"
       ],
       "createdAt": 1775083584013,
+      "archived": false,
+      "completedAt": 1775083873516
+    },
+    {
+      "id": 290,
+      "text": "📊 Word Analytics — detailed breakdown of vocabulary by topic, CEFR level, mastery status on Stats page",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "frontend"
+      ],
+      "createdAt": 1775083897630,
       "archived": false
     }
   ],
-  "nextId": 288
+  "nextId": 291
 }
 ```

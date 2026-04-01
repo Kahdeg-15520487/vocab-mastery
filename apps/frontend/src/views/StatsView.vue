@@ -26,6 +26,7 @@ async function downloadReport() {
 
 // Heatmap & study time
 const heatmapData = ref<Array<{ date: string; wordsLearned: number; wordsReviewed: number }>>([])
+const topicBreakdown = ref<Array<{ name: string; slug: string; topics: Array<{ name: string; total: number; learned: number; mastered: number; pct: number }> }>>([])
 const studyTime = ref<{ totalTimeMinutes: number; totalSessions: number; avgSessionMinutes: number; byType: { type: string; totalMinutes: number; sessions: number }[] } | null>(null)
 const masteryData = ref<{ levels: Array<{ level: string; total: number; mastered: number; learning: number; reviewing: number; unseen: number; masteryPercent: number; coveragePercent: number }>; overall: { totalWords: number; totalMastered: number; totalSeen: number; masteryPercent: number; coveragePercent: number }; estimatedLevel: string } | null>(null)
 const studyPlan = ref<any>(null)
@@ -50,6 +51,7 @@ onMounted(async () => {
     statsStore.fetchStats(),
     statsStore.fetchDailyStats(7),
     statsApi.getHeatmap().then(d => heatmapData.value = d).catch(() => {}),
+    statsApi.getTopicBreakdown().then(d => topicBreakdown.value = d).catch(() => {}),
     statsApi.getStudyTime().then(d => studyTime.value = d).catch(() => {}),
     statsApi.getMastery().then(d => masteryData.value = d).catch(() => {}),
   ])
@@ -477,7 +479,29 @@ const statsXpNeeded = computed(() => {
           </div>
         </div>
       </div>
-    </div>
+
+      <!-- Topic Breakdown -->
+      <div v-if="topicBreakdown.length > 0" class="card">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Topic Breakdown</h2>
+        <div class="space-y-4">
+          <details v-for="theme in topicBreakdown" :key="theme.slug" class="group">
+            <summary class="flex items-center justify-between cursor-pointer py-2 px-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+              <span class="font-medium text-slate-900 dark:text-white">{{ theme.name }}</span>
+              <span class="text-sm text-slate-500">{{ theme.topics.reduce((s, t) => s + t.learned, 0) }}/{{ theme.topics.reduce((s, t) => s + t.total, 0) }} words</span>
+            </summary>
+            <div class="mt-2 space-y-2 pl-3">
+              <div v-for="topic in theme.topics" :key="topic.name" class="flex items-center gap-3">
+                <span class="text-sm text-slate-700 dark:text-slate-300 w-36 truncate" :title="topic.name">{{ topic.name }}</span>
+                <div class="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-2 relative">
+                  <div class="bg-primary-500 h-2 rounded-full transition-all" :style="{ width: topic.pct + '%' }"></div>
+                </div>
+                <span class="text-xs text-slate-500 w-14 text-right">{{ topic.learned }}/{{ topic.total }}</span>
+                <span class="text-xs font-medium w-10 text-right" :class="topic.pct >= 80 ? 'text-green-600' : topic.pct >= 50 ? 'text-amber-600' : 'text-red-500'">{{ topic.pct }}%</span>
+              </div>
+            </div>
+          </details>
+        </div>
+      </div>
 
       <!-- Activity Heatmap -->
       <div v-if="heatmapGrid.length > 0" class="card">

@@ -439,6 +439,11 @@ export const statsApi = {
 
   getHeatmap: () => request<Array<{ date: string; wordsLearned: number; wordsReviewed: number }>>('/stats/heatmap'),
 
+  getTopicBreakdown: () => request<Array<{
+    name: string; slug: string;
+    topics: Array<{ name: string; total: number; learned: number; mastered: number; pct: number }>
+  }>>('/stats/topic-breakdown'),
+
   getStudyTime: () => request<{ totalTimeMinutes: number; totalSessions: number; avgSessionMinutes: number; byType: { type: string; totalMinutes: number; sessions: number }[] }>('/stats/study-time'),
 
   getVelocity: () => request<{ daily: { date: string; learned: number; reviewed: number }[]; weekly: { week: string; level: string; count: number }[]; avgLearnedPerDay: number; avgReviewedPerDay: number; totalLearned: number; totalReviewed: number; activeDays: number }>('/stats/velocity'),
