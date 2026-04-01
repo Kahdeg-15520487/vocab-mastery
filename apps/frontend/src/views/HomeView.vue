@@ -297,18 +297,22 @@ function formatDate(iso: string) {
       </div>
 
       <!-- Today Summary (mobile-compact) -->
-      <div v-if="dashboard" class="grid grid-cols-3 gap-2 text-center">
+      <div v-if="dashboard" class="grid grid-cols-4 gap-2 text-center">
         <div class="card py-2 px-1">
           <div class="text-lg font-bold text-orange-500">{{ dashboard.streak.current }}</div>
-          <div class="text-xs text-slate-500 dark:text-slate-400">🔥 Streak</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">Streak</div>
         </div>
         <div class="card py-2 px-1">
           <div class="text-lg font-bold text-primary-600 dark:text-primary-400">{{ dashboard.stats.totalXp }}</div>
-          <div class="text-xs text-slate-500 dark:text-slate-400">⭐ XP</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">XP</div>
+        </div>
+        <div class="card py-2 px-1">
+          <div class="text-lg font-bold text-purple-600 dark:text-purple-400">{{ dashboard.stats.level }}</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">Level</div>
         </div>
         <div class="card py-2 px-1">
           <div class="text-lg font-bold text-green-600 dark:text-green-400">{{ dashboard.stats.totalWordsLearned }}</div>
-          <div class="text-xs text-slate-500 dark:text-slate-400">📖 Learned</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">Learned</div>
         </div>
       </div>
 

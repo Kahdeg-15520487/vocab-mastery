@@ -9,7 +9,7 @@
 - [ ] **#253** 📊 Shareable progress summary card on Dashboard — embeddable stats snapshot #feature #frontend
 - [ ] **#261** **[high]** 🧩 Word Context Examples — show real-world usage snippets from different domains on word detail #feature #frontend
 - [ ] **#265** **[high]** 📈 Study Plan Generator — LLM generates personalized weekly study plan based on user stats/goals #feature #fullstack
-- [ ] **#281** **[high]** 📎 Export Progress Report — HTML report with study stats, mastery breakdown, weak words list #feature #fullstack
+- [ ] **#282** 📊 Dashboard quick stat cards — Total Words, XP, Level, Streak in prominent grid #feature #frontend
 
 ## Completed
 
@@ -144,6 +144,7 @@
 - [x] **#276** **[high]** 🔄 Session Resume — detect incomplete sessions and offer to resume from where user left off #feature #fullstack
 - [x] **#277** **[high]** 🎯 Daily Challenge — a daily word challenge with bonus XP for completion #feature #fullstack #gamification
 - [x] **#278** 🌐 Word Translations — LLM-powered translations in multiple languages on word detail page #feature #fullstack #llm
+- [x] **#281** **[high]** 📎 Export Progress Report — HTML report with study stats, mastery breakdown, weak words list #feature #fullstack
 
 <!-- Raw Data -->
 ```json
@@ -1897,16 +1898,29 @@
     {
       "id": 281,
       "text": "📎 Export Progress Report — HTML report with study stats, mastery breakdown, weak words list",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
         "fullstack"
       ],
       "createdAt": 1775082686974,
+      "archived": false,
+      "completedAt": 1775082904097
+    },
+    {
+      "id": 282,
+      "text": "📊 Dashboard quick stat cards — Total Words, XP, Level, Streak in prominent grid",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "frontend"
+      ],
+      "createdAt": 1775082909121,
       "archived": false
     }
   ],
-  "nextId": 282
+  "nextId": 283
 }
 ```
