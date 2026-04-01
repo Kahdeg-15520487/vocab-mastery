@@ -145,7 +145,7 @@ export function clearLLMConfigCache() {
 /**
  * Call LLM API - always use pi-ai for proper thinking/reasoning handling
  */
-async function callLLM(
+export async function callLLM(
   systemPrompt: string, 
   userPrompt: string, 
   config: Awaited<ReturnType<typeof getLLMConfig>>,

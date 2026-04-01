@@ -2,8 +2,7 @@ import { FastifyInstance } from 'fastify';
 import prisma from '../lib/prisma.js';
 import { authenticate } from '../middleware/auth.js';
 import { TIER_LIMITS, canShareList, canCreateList, canUseLlm, trackLlmCall, getUserTier } from '../lib/lists.js';
-import { getLLMConfig } from '../lib/llm.js';
-import { getModel, completeSimple, type Context } from '@mariozechner/pi-ai';
+import { getLLMConfig, callLLM } from '../lib/llm.js';
 
 export async function listsRoutes(app: FastifyInstance) {
   // All list routes require authentication
@@ -590,63 +589,8 @@ Requirements:
 
 Return ONLY a JSON array of objects with "word" and "reason" fields.`;
 
-      // Call LLM
-      const piAiProviders = ['openai', 'anthropic', 'google', 'groq', 'openrouter', 'mistral', 'cerebras', 'xai'];
-      let responseText = '';
-
-      if (piAiProviders.includes(config.provider.toLowerCase())) {
-        const model = getModel(config.provider.toLowerCase() as any, config.model as any);
-        if (model) {
-          const context: Context = {
-            systemPrompt,
-            messages: [{ role: 'user', content: userPrompt, timestamp: Date.now() }],
-          };
-          const apiKey = config.apiKey || process.env.OPENAI_API_KEY;
-          const response = await completeSimple(model, context, { apiKey });
-          responseText = response.content
-            .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
-            .map(c => c.text)
-            .join('')
-            .trim();
-        }
-      }
-
-      // Fallback for custom providers
-      if (!responseText) {
-        let baseUrl = config.baseUrl;
-        if (baseUrl && !baseUrl.endsWith('/v1') && !baseUrl.endsWith('/v1/')) {
-          baseUrl = baseUrl.replace(/\/$/, '') + '/v1';
-        }
-        const customModel = {
-          id: config.model,
-          name: `${config.provider}/${config.model}`,
-          api: 'openai-completions' as const,
-          provider: config.provider.toLowerCase(),
-          ...(baseUrl ? { baseUrl } : {}),
-          reasoning: false,
-          input: ['text'] as const,
-          cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
-          contextWindow: 128000,
-          maxTokens: config.maxTokens,
-          compat: {
-            supportsDeveloperRole: false,
-            supportsStore: false,
-            supportsReasoningEffort: false,
-            maxTokensField: 'max_tokens' as const,
-          },
-        };
-        const context: Context = {
-          systemPrompt,
-          messages: [{ role: 'user', content: userPrompt, timestamp: Date.now() }],
-        };
-        const apiKey = config.apiKey || process.env.OPENAI_API_KEY;
-        const response = await completeSimple(customModel as any, context, { apiKey });
-        responseText = response.content
-          .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
-          .map(c => c.text)
-          .join('')
-          .trim();
-      }
+      // Call LLM via shared callLLM (handles reasoning models, /no_think prefix, etc.)
+      const responseText = await callLLM(systemPrompt, userPrompt, config, { disableReasoning: true });
 
       // Parse response
       const jsonMatch = responseText.match(/\[[\s\S]*\]/);
