@@ -255,7 +255,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { writingApi, sprintApi } from '../lib/api'
 import { useToast } from '../composables/useToast'
@@ -402,9 +402,10 @@ async function submitSentence() {
       evaluateWithAI()
     }
 
-    loadWritings()
+    await loadWritings()
 
-    // Keep focus on textarea for Enter → next prompt
+    // Keep focus on textarea after DOM updates (result panel, writings list)
+    await nextTick()
     sentenceInput.value?.focus()
   } catch (e: any) {
     toast.error(e.message || 'Failed to submit')
@@ -433,7 +434,7 @@ function skipPrompt() {
   }
 }
 
-function nextPrompt() {
+async function nextPrompt() {
   if (currentIndex.value < prompts.value.length - 1) {
     currentIndex.value++
     sentence.value = ''
@@ -444,6 +445,7 @@ function nextPrompt() {
     // All done
     currentIndex.value = prompts.value.length
   }
+  await nextTick()
   sentenceInput.value?.focus()
 }
 
