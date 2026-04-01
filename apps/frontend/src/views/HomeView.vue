@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, computed, ref } from 'vue'
+import { onMounted, computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useProgressStore } from '@/stores/progress'
@@ -15,6 +15,8 @@ import WordOfDay from '@/components/learning/WordOfDay.vue'
 import VocabDonut from '@/components/progress/VocabDonut.vue'
 import { useRecentlyViewed } from '@/composables/useRecentlyViewed'
 import { useNotifications } from '@/composables/useNotifications'
+import { useToast } from '@/composables/useToast'
+import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
 import { progressApi } from '@/lib/api'
 
 const router = useRouter()
@@ -24,10 +26,24 @@ const notifications = useNotifications()
 // Learning velocity
 const velocity = ref<{ daily: { date: string; learned: number; reviewed: number }[]; avgLearnedPerDay: number; activeDays: number } | null>(null)
 
+const toast = useToast()
+const goalAlreadyCelebrated = ref(false)
+const confettiActive = ref(false)
+
 const authStore = useAuthStore()
 const progressStore = useProgressStore()
 const wordsStore = useWordsStore()
 const sprintStore = useSprintStore()
+
+// Watch for daily goal completion → trigger celebration
+watch(() => progressStore.dashboard?.dailyGoal?.completed, (completed) => {
+  if (completed && !goalAlreadyCelebrated.value) {
+    goalAlreadyCelebrated.value = true
+    confettiActive.value = true
+    toast.success('🎯 Daily goal completed! Amazing work!')
+    setTimeout(() => { confettiActive.value = false }, 5000)
+  }
+})
 
 // Review schedule
 const reviewSchedule = ref<{ overdue: number; days: Array<{ date: string; dayLabel: string; count: number; isToday: boolean }> } | null>(null)
@@ -900,4 +916,5 @@ function formatTimeUntil(iso: string): string {
       </div>
     </template>
   </div>
+  <ConfettiEffect :active="confettiActive" :duration="5000" />
 </template>

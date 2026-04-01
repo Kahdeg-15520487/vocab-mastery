@@ -6,7 +6,9 @@
 
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#283** 🔔 Review Reminders — configurable time-based reminders (morning/evening) with browser notifications #feature #frontend
-- [ ] **#302** 📊 Vocabulary CSV Export — download learned words as CSV for external tools #feature #backend
+- [ ] **#303** 📊 Word Streak Tracker — show per-word review streak on Word Detail #feature #frontend
+- [ ] **#305** 📖 Contextual Learning Mode — learn words from a user-pasted article/paragraph #feature #frontend #backend
+- [ ] **#306** 🕐 Session Timer — track time spent per study session, show on session history #feature #backend #frontend
 
 ## Completed
 
@@ -154,6 +156,8 @@
 - [x] **#299** 📊 Weekly Learning Insights — AI-generated summary of learning patterns and tips #feature #fullstack #llm
 - [x] **#300** **[high]** 🔔 Next Review Timer — shows time until next review is due on dashboard #feature #frontend #ux
 - [x] **#301** 🃏 Flashcard Layout Options — toggle definition/examples/CEFR on cards #feature #frontend #ux
+- [x] **#302** 📊 Vocabulary CSV Export — download learned words as CSV for external tools #feature #backend
+- [x] **#304** 🎯 Goal Celebrations — confetti + toast when daily/weekly goals are met #feature #frontend #ux
 
 <!-- Raw Data -->
 ```json
@@ -2048,16 +2052,69 @@
     {
       "id": 302,
       "text": "📊 Vocabulary CSV Export — download learned words as CSV for external tools",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
         "backend"
       ],
       "createdAt": 1775086105084,
+      "archived": false,
+      "completedAt": 1775086274383
+    },
+    {
+      "id": 303,
+      "text": "📊 Word Streak Tracker — show per-word review streak on Word Detail",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "frontend"
+      ],
+      "createdAt": 1775086564096,
+      "archived": false
+    },
+    {
+      "id": 304,
+      "text": "🎯 Goal Celebrations — confetti + toast when daily/weekly goals are met",
+      "done": true,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "frontend",
+        "ux"
+      ],
+      "createdAt": 1775086567115,
+      "archived": false,
+      "completedAt": 1775086578819
+    },
+    {
+      "id": 305,
+      "text": "📖 Contextual Learning Mode — learn words from a user-pasted article/paragraph",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "frontend",
+        "backend"
+      ],
+      "createdAt": 1775086570257,
+      "archived": false
+    },
+    {
+      "id": 306,
+      "text": "🕐 Session Timer — track time spent per study session, show on session history",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "backend",
+        "frontend"
+      ],
+      "createdAt": 1775086574155,
       "archived": false
     }
   ],
-  "nextId": 303
+  "nextId": 307
 }
 ```
