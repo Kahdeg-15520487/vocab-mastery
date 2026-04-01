@@ -110,8 +110,10 @@
               class="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white resize-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               rows="3"
               @keydown.ctrl.enter="submitSentence"
+              @keydown.enter.exact="handleTextareaEnter"
               @input="gibberishWarning = ''"
               :disabled="submitting"
+              :readonly="hasSubmittedCurrent"
             />
             <div class="flex justify-between items-center">
               <span class="text-xs text-slate-400">{{ sentence.trim().split(/\s+/).filter(Boolean).length }} words</span>
@@ -393,6 +395,15 @@ async function submitSentence() {
     toast.error(e.message || 'Failed to submit')
   } finally {
     submitting.value = false
+  }
+}
+
+function handleTextareaEnter(e: KeyboardEvent) {
+  // Only active after submit (textarea is readonly)
+  // Plain Enter → next prompt
+  if (hasSubmittedCurrent.value) {
+    e.preventDefault()
+    nextPrompt()
   }
 }
 
