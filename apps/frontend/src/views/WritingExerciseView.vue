@@ -255,7 +255,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { writingApi, sprintApi } from '../lib/api'
 import { useToast } from '../composables/useToast'
@@ -404,9 +404,11 @@ async function submitSentence() {
 
     await loadWritings()
 
-    // Keep focus on textarea after DOM updates (result panel, writings list)
-    await nextTick()
-    sentenceInput.value?.focus()
+    // Refocus textarea — use setTimeout to win the race against Vue re-renders
+    // triggered by async data loading and AI coach panel appearing
+    setTimeout(() => {
+      sentenceInput.value?.focus()
+    }, 50)
   } catch (e: any) {
     toast.error(e.message || 'Failed to submit')
   } finally {
@@ -445,8 +447,9 @@ async function nextPrompt() {
     // All done
     currentIndex.value = prompts.value.length
   }
-  await nextTick()
-  sentenceInput.value?.focus()
+  setTimeout(() => {
+    sentenceInput.value?.focus()
+  }, 50)
 }
 
 function speak(word: string) {
