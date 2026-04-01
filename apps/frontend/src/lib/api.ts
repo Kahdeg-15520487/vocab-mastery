@@ -467,6 +467,8 @@ export const statsApi = {
     generatedAt: string
   }>('/stats/study-plan', { method: 'POST', body: JSON.stringify({}) }),
 
+  getSpeedRound: () => request<{ words: Array<{ id: string; word: string; definition: string; cefr_level: string }>; total: number }>('/stats/speed-round'),
+
   getDailyChallenge: () => request<{
     challengeDay: string
     challengeName: string

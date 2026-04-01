@@ -135,6 +135,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/speed-round',
+    name: 'speed-round',
+    component: () => import('@/views/SpeedRoundView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/achievements',
     name: 'achievements',
     component: () => import('@/views/AchievementsView.vue'),

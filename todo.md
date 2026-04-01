@@ -6,7 +6,7 @@
 
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#283** 🔔 Review Reminders — configurable time-based reminders (morning/evening) with browser notifications #feature #frontend
-- [ ] **#293** **[high]** 🔊 Pronunciation speed control — slow/normal/fast toggle for TTS playback #feature #frontend #polish
+- [ ] **#296** **[high]** ⚡ Speed Round — timed flashcard challenge, answer as many as possible in 60 seconds #feature #fullstack #gamification
 
 ## Completed
 
@@ -147,6 +147,7 @@
 - [x] **#287** **[high]** 🎓 Word Difficulty Rating — user rates 1-5 stars, affects spaced repetition ease factor #feature #fullstack
 - [x] **#290** **[high]** 📊 Word Analytics — detailed breakdown of vocabulary by topic, CEFR level, mastery status on Stats page #feature #frontend
 - [x] **#291** **[high]** 🧠 Memory Palace — LLM generates vivid visual associations/mnemonics for words #feature #fullstack #llm
+- [x] **#293** **[high]** 🔊 Pronunciation speed control — slow/normal/fast toggle for TTS playback #feature #frontend #polish
 
 <!-- Raw Data -->
 ```json
@@ -1944,7 +1945,7 @@
     {
       "id": 293,
       "text": "🔊 Pronunciation speed control — slow/normal/fast toggle for TTS playback",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
@@ -1952,9 +1953,23 @@
         "polish"
       ],
       "createdAt": 1775084306855,
+      "archived": false,
+      "completedAt": 1775084437623
+    },
+    {
+      "id": 296,
+      "text": "⚡ Speed Round — timed flashcard challenge, answer as many as possible in 60 seconds",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "fullstack",
+        "gamification"
+      ],
+      "createdAt": 1775084488099,
       "archived": false
     }
   ],
-  "nextId": 294
+  "nextId": 297
 }
 ```

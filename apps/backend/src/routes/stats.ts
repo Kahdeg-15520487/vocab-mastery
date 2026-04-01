@@ -564,6 +564,27 @@ Return ONLY valid JSON:
     }
   });
 
+  // GET /stats/speed-round — Get 20 random words for speed round
+  app.get('/stats/speed-round', { preHandler: authenticate }, async (request, _reply) => {
+    const userId = request.user!.userId;
+
+    // Get mix of unseen, learning, and reviewing words
+    const words = await prisma.$queryRaw<Array<{
+      id: string; word: string; definition: string; cefr_level: string
+    }>>`
+      SELECT w.id, w.word, w.definition, w.cefr_level
+      FROM words w
+      LEFT JOIN word_progress wp ON wp.word_id = w.id AND wp.user_id = ${userId}
+      WHERE w.cefr_level IN ('A1','A2','B1','B2')
+        AND w.word NOT LIKE '% %'
+        AND LENGTH(w.word) >= 3
+      ORDER BY RANDOM()
+      LIMIT 20
+    `;
+
+    return { words, total: words.length };
+  });
+
   // GET /stats/daily-challenge — Get today's daily challenge (5 words)
   app.get('/stats/daily-challenge', async (request, reply) => {
     const userId = request.user!.userId;
