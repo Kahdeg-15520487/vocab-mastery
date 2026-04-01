@@ -564,6 +564,62 @@ Analyze the etymology.`;
     }
   });
 
+  // POST /words/:wordId/context-examples — Domain-specific usage examples (cached)
+  app.post('/words/:wordId/context-examples', { preHandler: authenticate }, async (request, _reply) => {
+    const userId = request.user!.userId;
+    const { wordId } = request.params as { wordId: string };
+
+    const word = await prisma.word.findUnique({ where: { id: wordId } });
+    if (!word) throw { statusCode: 404, message: 'Word not found' };
+
+    // Return cached if available
+    if (word.contextExamples) {
+      try {
+        return { examples: JSON.parse(word.contextExamples as string), cached: true };
+      } catch { /* generate fresh */ }
+    }
+
+    try {
+      const config = await getLLMConfig();
+
+      const systemPrompt = `You are an English vocabulary expert. Generate domain-specific example sentences for a word.
+Return ONLY a valid JSON object with these domain keys:
+{ "academic": "...", "business": "...", "casual": "...", "news": "...", "literature": "..." }
+Each value is a single natural sentence using the word in that domain's context.
+Rules: natural phrasing, domain-appropriate vocabulary, bold the target word with **word**.`;
+
+      let userPrompt = `Word: "${word.word}"`;
+      if (word.definition) userPrompt += `\nDefinition: ${word.definition}`;
+      if ((word.partOfSpeech as string[])?.length) userPrompt += `\nPOS: ${(word.partOfSpeech as string[]).join(', ')}`;
+      userPrompt += '\n\nGenerate one sentence per domain.';
+
+      const responseText = await callLLM(systemPrompt, userPrompt, config, { disableReasoning: true });
+
+      let examples: Record<string, string>;
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          examples = JSON.parse(jsonMatch[0].replace(/,\s*\}/g, '}'));
+        } catch {
+          examples = { academic: 'Context example unavailable.', business: '', casual: '', news: '', literature: '' };
+        }
+      } else {
+        examples = { academic: '', business: '', casual: '', news: '', literature: '' };
+      }
+
+      // Cache
+      await prisma.word.update({
+        where: { id: wordId },
+        data: { contextExamples: JSON.stringify(examples) },
+      });
+
+      return { examples, cached: false };
+    } catch (error: any) {
+      console.error('[context-examples] Error:', error.message);
+      throw { statusCode: 500, message: 'Failed to generate context examples' };
+    }
+  });
+
   // POST /words/compare — Compare two words with LLM analysis
   app.post('/words/compare', { preHandler: authenticate }, async (request, _reply) => {
     const { word1, word2 } = request.body as { word1: string; word2: string };

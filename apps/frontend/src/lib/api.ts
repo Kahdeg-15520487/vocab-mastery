@@ -206,6 +206,8 @@ export const wordsApi = {
 
   getEtymology: (wordId: string) => request<{ etymology: { origin: string; root: string; breakdown: Array<{part: string; meaning: string; type: string}>; story: string; related: string[] }; cached: boolean }>(`/words/${wordId}/etymology`, { method: 'POST', body: JSON.stringify({}) }),
 
+  getContextExamples: (wordId: string) => request<{ examples: Record<string, string>; cached: boolean }>(`/words/${wordId}/context-examples`, { method: 'POST', body: JSON.stringify({}) }),
+
   compareWords: (word1: string, word2: string) => request<{
     comparison: string
     word1: { word: string; meaning: string; usage: string; example: string; collocations: string[] }

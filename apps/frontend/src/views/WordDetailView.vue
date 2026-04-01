@@ -16,6 +16,7 @@ const { addViewedWord } = useRecentlyViewed()
 const generatingExamples = ref(false)
 const relatedWords = ref<{ sameTopic: any[]; similar: any[]; family?: any[] } | null>(null)
 const etymology = ref<{ origin: string; root: string; breakdown: Array<{part: string; meaning: string; type: string}>; story: string; related: string[] } | null>(null)
+const contextExamples = ref<Record<string, string> | null>(null)
 const compareWord = ref('')
 const compareResult = ref<any>(null)
 const compareLoading = ref(false)
@@ -87,6 +88,7 @@ onMounted(async () => {
     // Fetch related words
     wordsApi.getRelated(data.id).then(r => relatedWords.value = r).catch(() => {})
     wordsApi.getEtymology(data.id).then(r => etymology.value = r.etymology).catch(() => {})
+    wordsApi.getContextExamples(data.id).then(r => contextExamples.value = r.examples).catch(() => {})
   } catch (e: any) {
     error.value = e.message || 'Word not found'
   } finally {
@@ -534,6 +536,26 @@ n            <span class="text-slate-500 dark:text-slate-400">Origin:</span>
                 class="text-xs px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-slate-600 dark:text-slate-400 hover:text-primary-600"
               >{{ rw }}</router-link>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Context Examples -->
+      <div v-if="contextExamples" class="card">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Context Examples</h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">How this word is used across different domains</p>
+        <div class="space-y-3">
+          <div v-for="(sentence, domain) in contextExamples" :key="domain" v-show="sentence" class="flex gap-3">
+            <span class="shrink-0 mt-0.5 px-2 py-0.5 rounded text-xs font-medium"
+              :class="{
+                'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300': domain === 'academic',
+                'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300': domain === 'business',
+                'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300': domain === 'casual',
+                'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300': domain === 'news',
+                'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300': domain === 'literature',
+              }"
+            >{{ domain }}</span>
+            <p class="text-sm text-slate-700 dark:text-slate-300" v-html="sentence.replace(/\*\*(.+?)\*\*/g, '<strong class=\'text-slate-900 dark:text-white\'>$1</strong>')"></p>
           </div>
         </div>
       </div>

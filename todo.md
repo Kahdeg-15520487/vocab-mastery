@@ -9,7 +9,7 @@
 - [ ] **#253** 📊 Shareable progress summary card on Dashboard — embeddable stats snapshot #feature #frontend
 - [ ] **#261** **[high]** 🧩 Word Context Examples — show real-world usage snippets from different domains on word detail #feature #frontend
 - [ ] **#265** **[high]** 📈 Study Plan Generator — LLM generates personalized weekly study plan based on user stats/goals #feature #fullstack
-- [ ] **#273** **[high]** 📚 Add to List from Browse — add selected words to a study list directly from browse batch mode #feature #frontend
+- [ ] **#274** **[high]** 🧩 Word Context Examples — LLM generates domain-specific usage examples (academic, business, casual, news) on Word Detail #feature #fullstack #llm
 
 ## Completed
 
@@ -138,6 +138,7 @@
 - [x] **#269** **[high]** 🃏 Word Comparison — compare two similar words side by side with LLM analysis #feature #fullstack
 - [x] **#270** 📊 Vocabulary Distribution Chart — visual breakdown of known words by CEFR level and topic on dashboard #feature #frontend
 - [x] **#272** **[high]** 💫 Streak Freeze — protect streak once per week, shows in settings and dashboard #feature #fullstack
+- [x] **#273** **[high]** 📚 Add to List from Browse — add selected words to a study list directly from browse batch mode #feature #frontend
 
 <!-- Raw Data -->
 ```json
@@ -1810,16 +1811,30 @@
     {
       "id": 273,
       "text": "📚 Add to List from Browse — add selected words to a study list directly from browse batch mode",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
         "frontend"
       ],
       "createdAt": 1775081088397,
+      "archived": false,
+      "completedAt": 1775081335719
+    },
+    {
+      "id": 274,
+      "text": "🧩 Word Context Examples — LLM generates domain-specific usage examples (academic, business, casual, news) on Word Detail",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "fullstack",
+        "llm"
+      ],
+      "createdAt": 1775081689734,
       "archived": false
     }
   ],
-  "nextId": 274
+  "nextId": 275
 }
 ```
