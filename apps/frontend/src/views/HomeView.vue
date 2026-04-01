@@ -12,6 +12,7 @@ import LevelProgress from '@/components/progress/LevelProgress.vue'
 import CalendarHeatmap from '@/components/progress/CalendarHeatmap.vue'
 import ThemeCard from '@/components/learning/ThemeCard.vue'
 import WordOfDay from '@/components/learning/WordOfDay.vue'
+import VocabDonut from '@/components/progress/VocabDonut.vue'
 import { useRecentlyViewed } from '@/composables/useRecentlyViewed'
 import { useNotifications } from '@/composables/useNotifications'
 import { progressApi } from '@/lib/api'
@@ -33,6 +34,9 @@ const reviewSchedule = ref<{ overdue: number; days: Array<{ date: string; dayLab
 
 // Smart review recommendations
 const reviewRecs = ref<any>(null)
+
+// CEFR mastery data for donut chart
+const masteryData = ref<{ levels: Array<{ level: string; total: number; mastered: number; learning: number; reviewing: number; unseen: number }> } | null>(null)
 
 // Plateau detection
 const plateau = ref<{ plateau: boolean; message: string | null; suggestions: string[]; currentStreak: number } | null>(null)
@@ -71,6 +75,7 @@ onMounted(async () => {
   await Promise.all([
     progressStore.fetchDashboard(),
     statsApi.getVelocity().then(v => velocity.value = v).catch(() => {}),
+    statsApi.getMastery().then(d => masteryData.value = d).catch(() => {}),
     progressStore.fetchCalendar(90),
     wordsStore.fetchThemes(),
     loadReviewSchedule(),
@@ -102,6 +107,14 @@ onMounted(async () => {
 const themes = computed(() => wordsStore.themes)
 const dashboard = computed(() => progressStore.dashboard)
 const calendar = computed(() => progressStore.calendar)
+
+const cefrSegments = computed(() => {
+  if (!masteryData.value) return []
+  const colors: Record<string, string> = { A1: '#22c55e', A2: '#3b82f6', B1: '#f59e0b', B2: '#ef4444', C1: '#8b5cf6', C2: '#ec4899' }
+  return masteryData.value.levels
+    .filter(l => l.mastered + l.learning + l.reviewing > 0)
+    .map(l => ({ label: l.level, value: l.mastered + l.learning + l.reviewing, color: colors[l.level] || '#94a3b8' }))
+})
 const loading = computed(() => progressStore.loading)
 
 const sprintData = computed(() => sprintStore.currentSprint)
@@ -507,6 +520,14 @@ function formatDate(iso: string) {
                   {{ dashboard.stats.totalWordsInDb ? Math.round((dashboard.stats.totalWordsMastered / dashboard.stats.totalWordsInDb) * 100) : 0 }}% mastered
                 </p>
               </div>
+            </div>
+          </div>
+
+          <!-- CEFR Distribution -->
+          <div v-if="cefrSegments.length" class="card">
+            <h3 class="font-semibold text-slate-900 dark:text-white mb-3">Vocabulary by Level</h3>
+            <div class="flex justify-center">
+              <VocabDonut :segments="cefrSegments" :size="140" :stroke-width="18" />
             </div>
           </div>
 
