@@ -5,7 +5,7 @@
 ## Pending
 
 - [ ] **#232** 📊 Vocabulary Level Test — comprehensive assessment that estimates CEFR level #feature #backend #frontend
-- [ ] **#235** **[low]** ⌨️ Keyboard shortcut help modal — ? to show all shortcuts #polish #frontend
+- [ ] **#237** 📈 Dashboard learning velocity — words/day trend and CEFR progress over time #feature #frontend #backend
 
 ## Completed
 
@@ -109,6 +109,7 @@
 - [x] **#231** **[high]** 💡 LLM-powered example sentences — generate contextual examples for words on demand #feature #backend #frontend #llm
 - [x] **#233** 📊 Statistics page improvements — study time tracking, improvement trends, exportable reports #feature #frontend
 - [x] **#234** 🔍 Global word search — quick search from any page with keyboard shortcut #feature #frontend
+- [x] **#235** **[low]** ⌨️ Keyboard shortcut help modal — ? to show all shortcuts #polish #frontend
 
 <!-- Raw Data -->
 ```json
@@ -1404,16 +1405,30 @@
     {
       "id": 235,
       "text": "⌨️ Keyboard shortcut help modal — ? to show all shortcuts",
-      "done": false,
+      "done": true,
       "priority": "low",
       "tags": [
         "polish",
         "frontend"
       ],
       "createdAt": 1775073571538,
+      "archived": false,
+      "completedAt": 1775073630610
+    },
+    {
+      "id": 237,
+      "text": "📈 Dashboard learning velocity — words/day trend and CEFR progress over time",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "frontend",
+        "backend"
+      ],
+      "createdAt": 1775073653971,
       "archived": false
     }
   ],
-  "nextId": 236
+  "nextId": 238
 }
 ```

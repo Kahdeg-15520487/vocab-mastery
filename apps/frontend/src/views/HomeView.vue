@@ -5,7 +5,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useProgressStore } from '@/stores/progress'
 import { useWordsStore } from '@/stores/words'
 import { useSprintStore } from '@/stores/sprint'
-import { request, sprintApi } from '@/lib/api'
+import { request, sprintApi, statsApi } from '@/lib/api'
 import StreakDisplay from '@/components/progress/StreakDisplay.vue'
 import DailyGoals from '@/components/progress/DailyGoals.vue'
 import LevelProgress from '@/components/progress/LevelProgress.vue'
@@ -19,6 +19,9 @@ import { progressApi } from '@/lib/api'
 const router = useRouter()
 const { recentlyViewed } = useRecentlyViewed()
 const notifications = useNotifications()
+
+// Learning velocity
+const velocity = ref<{ daily: { date: string; learned: number; reviewed: number }[]; avgLearnedPerDay: number; activeDays: number } | null>(null)
 
 const authStore = useAuthStore()
 const progressStore = useProgressStore()
@@ -67,6 +70,7 @@ async function loadReviewRecommendations() {
 onMounted(async () => {
   await Promise.all([
     progressStore.fetchDashboard(),
+    statsApi.getVelocity().then(v => velocity.value = v).catch(() => {}),
     progressStore.fetchCalendar(90),
     wordsStore.fetchThemes(),
     loadReviewSchedule(),
@@ -391,6 +395,35 @@ function formatDate(iso: string) {
                 <div class="text-xl font-bold text-orange-500">{{ dashboard.weeklyProgress.daysActive }}<span class="text-sm text-slate-400">/7</span></div>
                 <div class="text-xs text-slate-500 dark:text-slate-400">Days Active</div>
               </div>
+            </div>
+          </div>
+
+          <!-- Learning Velocity -->
+          <div v-if="velocity && velocity.daily.length > 0" class="card">
+            <h3 class="font-semibold text-slate-900 dark:text-white mb-3">\ud83d\udcc8 Learning Velocity</h3>
+            <div class="flex items-center gap-4 mb-3">
+              <div class="text-center">
+                <div class="text-xl font-bold text-green-600 dark:text-green-400">{{ velocity.avgLearnedPerDay }}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">words/day avg</div>
+              </div>
+              <div class="text-center">
+                <div class="text-xl font-bold text-blue-600 dark:text-blue-400">{{ velocity.activeDays }}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">active days (30d)</div>
+              </div>
+            </div>
+            <div class="flex items-end gap-1 h-16">
+              <div
+                v-for="(day, i) in velocity.daily.slice(-14)"
+                :key="i"
+                class="flex-1 rounded-t transition-all"
+                :class="day.learned > 0 ? 'bg-green-500' : 'bg-slate-200 dark:bg-slate-700'"
+                :style="{ height: day.learned > 0 ? Math.max(15, (day.learned / Math.max(...velocity.daily.map(d => d.learned))) * 100) + '%' : '4px' }"
+                :title="day.date.split('T')[0] + ': ' + day.learned + ' learned'"
+              />
+            </div>
+            <div class="flex justify-between text-xs text-slate-400 mt-1">
+              <span>14 days ago</span>
+              <span>Today</span>
             </div>
           </div>
 

@@ -364,4 +364,65 @@ export async function statsRoutes(app: FastifyInstance) {
       })),
     };
   });
+
+  // GET /stats/velocity — Learning velocity (words/day for last 30 days)
+  app.get('/stats/velocity', async (request, reply) => {
+    const userId = request.user!.userId;
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const dailyData = await prisma.$queryRaw<Array<{ date: string; learned: bigint; reviewed: bigint }>>`
+      SELECT
+        DATE(dg.date) as date,
+        COALESCE(SUM(dg.words_learned), 0) as learned,
+        COALESCE(SUM(dg.words_reviewed), 0) as reviewed
+      FROM daily_goals dg
+      WHERE dg.user_id = ${userId}
+        AND dg.date >= ${thirtyDaysAgo}
+      GROUP BY DATE(dg.date)
+      ORDER BY date ASC
+    `;
+
+    // Also get CEFR level progress over time (words learned per level per week)
+    const weeklyProgress = await prisma.$queryRaw<Array<{ week: string; level: string; count: bigint }>>`
+      SELECT
+        DATE_TRUNC('week', wp.created_at) as week,
+        w.cefr_level as level,
+        COUNT(*) as count
+      FROM word_progress wp
+      JOIN words w ON w.id = wp.word_id
+      WHERE wp.user_id = ${userId}
+        AND wp.status != 'new'
+        AND wp.created_at >= ${thirtyDaysAgo}
+      GROUP BY DATE_TRUNC('week', wp.created_at), w.cefr_level
+      ORDER BY week ASC, level ASC
+    `;
+
+    const daily = dailyData.map(d => ({
+      date: d.date,
+      learned: Number(d.learned),
+      reviewed: Number(d.reviewed),
+    }));
+
+    const weekly = weeklyProgress.map(w => ({
+      week: w.week,
+      level: w.level,
+      count: Number(w.count),
+    }));
+
+    // Compute averages
+    const totalLearned = daily.reduce((sum, d) => sum + d.learned, 0);
+    const totalReviewed = daily.reduce((sum, d) => sum + d.reviewed, 0);
+    const activeDays = daily.length || 1;
+
+    return {
+      daily,
+      weekly,
+      avgLearnedPerDay: Math.round(totalLearned / activeDays * 10) / 10,
+      avgReviewedPerDay: Math.round(totalReviewed / activeDays * 10) / 10,
+      totalLearned,
+      totalReviewed,
+      activeDays,
+    };
+  });
 }
