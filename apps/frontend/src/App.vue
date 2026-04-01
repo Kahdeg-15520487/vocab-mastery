@@ -5,6 +5,7 @@ import AppNavigation from '@/components/layout/AppNavigation.vue'
 import ToastContainer from '@/components/ui/ToastContainer.vue'
 import OfflineBanner from '@/components/ui/OfflineBanner.vue'
 import GlobalSearch from '@/components/ui/GlobalSearch.vue'
+import ShortcutHelp from '@/components/ui/ShortcutHelp.vue'
 import { useAuthStore } from '@/stores/auth'
 import { usePageTitle } from '@/composables/usePageTitle'
 
@@ -30,6 +31,7 @@ onMounted(async () => {
     <ToastContainer />
     <OfflineBanner />
     <GlobalSearch />
+    <ShortcutHelp />
   </div>
 </template>
 

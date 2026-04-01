@@ -5,7 +5,7 @@
 ## Pending
 
 - [ ] **#232** 📊 Vocabulary Level Test — comprehensive assessment that estimates CEFR level #feature #backend #frontend
-- [ ] **#234** 🔍 Global word search — quick search from any page with keyboard shortcut #feature #frontend
+- [ ] **#235** **[low]** ⌨️ Keyboard shortcut help modal — ? to show all shortcuts #polish #frontend
 
 ## Completed
 
@@ -108,6 +108,7 @@
 - [x] **#230** **[high]** 🎯 Smart Review Recommendations — suggest which words to review based on due dates and weakness #feature #frontend
 - [x] **#231** **[high]** 💡 LLM-powered example sentences — generate contextual examples for words on demand #feature #backend #frontend #llm
 - [x] **#233** 📊 Statistics page improvements — study time tracking, improvement trends, exportable reports #feature #frontend
+- [x] **#234** 🔍 Global word search — quick search from any page with keyboard shortcut #feature #frontend
 
 <!-- Raw Data -->
 ```json
@@ -1390,16 +1391,29 @@
     {
       "id": 234,
       "text": "🔍 Global word search — quick search from any page with keyboard shortcut",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
         "frontend"
       ],
       "createdAt": 1775073424788,
+      "archived": false,
+      "completedAt": 1775073567085
+    },
+    {
+      "id": 235,
+      "text": "⌨️ Keyboard shortcut help modal — ? to show all shortcuts",
+      "done": false,
+      "priority": "low",
+      "tags": [
+        "polish",
+        "frontend"
+      ],
+      "createdAt": 1775073571538,
       "archived": false
     }
   ],
-  "nextId": 235
+  "nextId": 236
 }
 ```
