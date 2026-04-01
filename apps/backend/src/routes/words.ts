@@ -988,6 +988,50 @@ Word 2: "${word2}"${w2 ? ` — ${w2.definition}` : ''}${w2?.partOfSpeech ? ` (${
     return { encounters };
   });
 
+  // GET /words/:wordId/activity — Word interaction timeline
+  app.get('/words/:wordId/activity', { preHandler: authenticate }, async (request, reply) => {
+    const { wordId } = request.params as { wordId: string };
+    const userId = request.user!.userId;
+
+    // Get all session interactions with this word
+    const interactions = await prisma.sessionWord.findMany({
+      where: { wordId, session: { userId } },
+      include: {
+        session: {
+          select: { type: true, startedAt: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+    });
+
+    const activity = interactions.map(i => ({
+      type: i.session.type,
+      date: i.createdAt,
+      response: i.response,
+      responseTime: i.responseTime,
+      correct: i.response === 'easy' || i.response === 'good' || i.response === 'correct',
+    }));
+
+    // Get progress for current status
+    const progress = await prisma.wordProgress.findUnique({
+      where: { userId_wordId: { userId, wordId } },
+      select: {
+        status: true,
+        repetitions: true,
+        easeFactor: true,
+        interval: true,
+        totalReviews: true,
+        correctReviews: true,
+        nextReview: true,
+        lastReview: true,
+        createdAt: true,
+      },
+    });
+
+    return { activity, progress };
+  });
+
   // DELETE /words/:wordId/encounters/:encounterId — Delete an encounter
   app.delete('/words/:wordId/encounters/:encounterId', { preHandler: authenticate }, async (request, reply) => {
     const { wordId, encounterId } = request.params as { wordId: string; encounterId: string };

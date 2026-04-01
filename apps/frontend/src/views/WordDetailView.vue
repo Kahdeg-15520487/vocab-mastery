@@ -127,6 +127,7 @@ const encounterNote = ref('')
 const encounterLoading = ref(false)
 const encounterCount = ref(0)
 const encounterList = ref<{ id: string; source: string; note: string | null; createdAt: string }[]>([])
+const wordActivity = ref<Array<{ type: string; date: string; response: string | null; responseTime: number | null; correct: boolean }>>([])
 
 async function loadEncounters() {
   if (!word.value) return
@@ -138,7 +139,12 @@ async function loadEncounters() {
 }
 
 // Load encounters when word loads
-watch(word, (w) => { if (w) loadEncounters() })
+watch(word, (w) => {
+  if (w) {
+    loadEncounters()
+    wordsApi.getWordActivity(w.id).then(d => wordActivity.value = d.activity).catch(() => {})
+  }
+})
 
 async function addEncounter() {
   if (!word.value) return
@@ -748,6 +754,39 @@ n            <span class="text-slate-500 dark:text-slate-400">Origin:</span>
             >
               {{ w.word }}
             </router-link>
+          </div>
+        </div>
+      </div>
+
+      <!-- Word Activity Timeline -->
+      <div class="card">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">📊 Activity Timeline</h2>
+
+        <div v-if="wordActivity.length === 0" class="text-center py-4">
+          <p class="text-sm text-slate-500 dark:text-slate-400">No activity yet for this word.</p>
+        </div>
+
+        <div v-else class="space-y-2">
+          <div
+            v-for="(act, i) in wordActivity"
+            :key="i"
+            class="flex items-center gap-3 py-2 border-b border-slate-100 dark:border-slate-700 last:border-0"
+          >
+            <span class="text-lg">
+              {{ act.correct ? '✅' : act.response ? '❌' : '📝' }}
+            </span>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium text-slate-700 dark:text-slate-300 capitalize">{{ act.type }}</span>
+                <span v-if="act.response" class="text-xs px-1.5 py-0.5 rounded-full"
+                  :class="act.correct ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'"
+                >{{ act.response }}</span>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                {{ new Date(act.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) }}
+                <span v-if="act.responseTime"> · {{ act.responseTime }}ms</span>
+              </p>
+            </div>
           </div>
         </div>
       </div>

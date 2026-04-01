@@ -8,7 +8,7 @@
 - [ ] **#283** 🔔 Review Reminders — configurable time-based reminders (morning/evening) with browser notifications #feature #frontend
 - [ ] **#303** 📊 Word Streak Tracker — show per-word review streak on Word Detail #feature #frontend
 - [ ] **#305** 📖 Contextual Learning Mode — learn words from a user-pasted article/paragraph #feature #frontend #backend
-- [ ] **#306** 🕐 Session Timer — track time spent per study session, show on session history #feature #backend #frontend
+- [ ] **#307** **[high]** 📖 Contextual Learning Mode — paste article, extract unknown words, learn them in context #feature #backend #frontend #learning
 
 ## Completed
 
@@ -158,6 +158,7 @@
 - [x] **#301** 🃏 Flashcard Layout Options — toggle definition/examples/CEFR on cards #feature #frontend #ux
 - [x] **#302** 📊 Vocabulary CSV Export — download learned words as CSV for external tools #feature #backend
 - [x] **#304** 🎯 Goal Celebrations — confetti + toast when daily/weekly goals are met #feature #frontend #ux
+- [x] **#306** 🕐 Session Timer — track time spent per study session, show on session history #feature #backend #frontend
 
 <!-- Raw Data -->
 ```json
@@ -2104,7 +2105,7 @@
     {
       "id": 306,
       "text": "🕐 Session Timer — track time spent per study session, show on session history",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
@@ -2112,9 +2113,24 @@
         "frontend"
       ],
       "createdAt": 1775086574155,
+      "archived": false,
+      "completedAt": 1775086666853
+    },
+    {
+      "id": 307,
+      "text": "📖 Contextual Learning Mode — paste article, extract unknown words, learn them in context",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "backend",
+        "frontend",
+        "learning"
+      ],
+      "createdAt": 1775086696786,
       "archived": false
     }
   ],
-  "nextId": 307
+  "nextId": 308
 }
 ```
