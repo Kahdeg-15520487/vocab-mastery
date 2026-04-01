@@ -153,6 +153,38 @@
         </div>
       </div>
 
+      <!-- Writing Prompts -->
+      <div v-if="currentSprint?.status === 'ACTIVE' && prompts.length" class="card">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-semibold text-gray-900 dark:text-white">✍️ Writing Prompts</h3>
+          <button @click="refreshPrompts" class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">
+            🔄 New prompts
+          </button>
+        </div>
+        <div class="space-y-3">
+          <div
+            v-for="(prompt, i) in prompts.slice(0, 5)"
+            :key="i"
+            class="p-3 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-indigo-300 dark:hover:border-indigo-500 cursor-pointer transition-colors"
+            @click="usePromptAction(prompt)"
+          >
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-sm font-medium px-2 py-0.5 rounded-full"
+                :class="promptTypeClass(prompt.type)">
+                {{ promptTypeLabel(prompt.type) }}
+              </span>
+            </div>
+            <p class="text-sm text-gray-700 dark:text-gray-300">{{ prompt.description }}</p>
+            <div class="flex flex-wrap gap-1 mt-2">
+              <span v-for="w in prompt.words" :key="w"
+                class="px-1.5 py-0.5 text-xs rounded bg-indigo-50 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">
+                {{ w }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Sprint Words Preview -->
       <div class="card">
         <h3 class="font-semibold text-gray-900 dark:text-white mb-3">
@@ -300,8 +332,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useSprintStore } from '@/stores/sprint'
 import { useToast } from '@/composables/useToast'
+import { sprintApi } from '@/lib/api'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import AICoachPanel from '@/components/writing/AICoachPanel.vue'
 import SprintCompletionModal from '@/components/sprints/SprintCompletionModal.vue'
@@ -309,12 +343,14 @@ import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
 
 const store = useSprintStore()
 const toast = useToast()
+const router = useRouter()
 
 const showCreate = ref(false)
 const creating = ref(false)
 const completionReport = ref<any>(null)
 const showCompletion = ref(false)
 const showConfetti = ref(false)
+const prompts = ref<any[]>([])
 const newSprint = ref({
   wordTarget: 265,
   durationDays: 14,
@@ -349,6 +385,21 @@ function getHistoryStatusClass(status: string) {
   if (status === 'COMPLETED') return 'text-xs font-medium px-2 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
   if (status === 'ABANDONED') return 'text-xs font-medium px-2 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
   return 'text-xs font-medium px-2 py-1 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+}
+
+function promptTypeClass(type: string) {
+  if (type === 'sentence') return 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+  if (type === 'paragraph') return 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300'
+  if (type === 'story') return 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300'
+  return 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+}
+
+function promptTypeLabel(type: string) {
+  if (type === 'sentence') return '📝 Sentence'
+  if (type === 'paragraph') return '📄 Paragraph'
+  if (type === 'story') return '📖 Story'
+  if (type === 'opinion') return '💬 Opinion'
+  return type
 }
 
 async function handleCreate() {
@@ -409,9 +460,32 @@ async function handleComplete() {
   }
 }
 
-onMounted(() => {
-  store.fetchDashboard()
-  store.fetchSprints()
+async function refreshPrompts() {
+  if (!currentSprint.value) return
+  try {
+    const data = await sprintApi.getPrompts(currentSprint.value.id)
+    prompts.value = data.prompts ?? []
+  } catch {
+    // Non-critical
+  }
+}
+
+function usePromptAction(prompt: any) {
+  router.push({ path: '/writing', query: { prompt: JSON.stringify(prompt) } })
+}
+
+onMounted(async () => {
+  await store.fetchDashboard()
+  await store.fetchSprints()
+  // Load prompts if active sprint
+  if (store.currentSprint?.id) {
+    try {
+      const data = await sprintApi.getPrompts(store.currentSprint.id)
+      prompts.value = data.prompts ?? []
+    } catch {
+      // Non-critical
+    }
+  }
 })
 
 async function handleCreateNext() {
