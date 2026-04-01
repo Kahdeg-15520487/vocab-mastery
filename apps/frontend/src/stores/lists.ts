@@ -134,6 +134,18 @@ export const useListsStore = defineStore('lists', () => {
     }
   }
 
+  async function bulkAddToList(listId: string, wordIds: string[]) {
+    try {
+      return await request<{ added: number; total: number; skipped: number }>(`/lists/${listId}/words/bulk`, {
+        method: 'POST',
+        body: JSON.stringify({ wordIds }),
+      });
+    } catch (e: unknown) {
+      error.value = (e as Error).message;
+      throw e;
+    }
+  }
+
   async function removeWordFromList(listId: string, wordId: string) {
     try {
       await request(`/lists/${listId}/words/${wordId}`, { method: 'DELETE' });
@@ -192,6 +204,7 @@ export const useListsStore = defineStore('lists', () => {
     updateList,
     deleteList,
     addWordToList,
+    bulkAddToList,
     removeWordFromList,
     togglePin,
     shareList,

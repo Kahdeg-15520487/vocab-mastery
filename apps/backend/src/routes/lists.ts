@@ -346,6 +346,38 @@ export async function listsRoutes(app: FastifyInstance) {
     }
   });
 
+  // POST /api/lists/:id/words/bulk — Bulk add words to list
+  app.post('/lists/:id/words/bulk', async (request, reply) => {
+    const userId = request.user!.userId;
+    const { id } = request.params as { id: string };
+    const body = request.body as { wordIds: string[] };
+
+    if (!body.wordIds?.length) {
+      return reply.status(400).send({ error: 'wordIds array is required' });
+    }
+
+    const list = await prisma.studyList.findUnique({ where: { id } });
+    if (!list) return reply.status(404).send({ error: 'List not found' });
+    if (list.userId !== userId) return reply.status(403).send({ error: 'Access denied' });
+
+    // Bulk upsert
+    let added = 0;
+    for (const wordId of body.wordIds) {
+      try {
+        await prisma.studyListWord.create({ data: { listId: id, wordId } });
+        added++;
+      } catch {
+        // Skip duplicates
+      }
+    }
+
+    // Update word count
+    const totalWords = await prisma.studyListWord.count({ where: { listId: id } });
+    await prisma.studyList.update({ where: { id }, data: { wordCount: totalWords } });
+
+    return { added, total: body.wordIds.length, skipped: body.wordIds.length - added };
+  });
+
   // ============================================
   // DELETE /api/lists/:id/words/:wordId - Remove word from list
   // ============================================

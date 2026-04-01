@@ -9,7 +9,7 @@
 - [ ] **#253** 📊 Shareable progress summary card on Dashboard — embeddable stats snapshot #feature #frontend
 - [ ] **#261** **[high]** 🧩 Word Context Examples — show real-world usage snippets from different domains on word detail #feature #frontend
 - [ ] **#265** **[high]** 📈 Study Plan Generator — LLM generates personalized weekly study plan based on user stats/goals #feature #fullstack
-- [ ] **#272** **[high]** 💫 Streak Freeze — protect streak once per week, shows in settings and dashboard #feature #fullstack
+- [ ] **#273** **[high]** 📚 Add to List from Browse — add selected words to a study list directly from browse batch mode #feature #frontend
 
 ## Completed
 
@@ -137,6 +137,7 @@
 - [x] **#268** **[high]** 📱 PWA Install Prompt — show install banner when criteria met, persist dismissal #feature #frontend
 - [x] **#269** **[high]** 🃏 Word Comparison — compare two similar words side by side with LLM analysis #feature #fullstack
 - [x] **#270** 📊 Vocabulary Distribution Chart — visual breakdown of known words by CEFR level and topic on dashboard #feature #frontend
+- [x] **#272** **[high]** 💫 Streak Freeze — protect streak once per week, shows in settings and dashboard #feature #fullstack
 
 <!-- Raw Data -->
 ```json
@@ -1796,16 +1797,29 @@
     {
       "id": 272,
       "text": "💫 Streak Freeze — protect streak once per week, shows in settings and dashboard",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
         "fullstack"
       ],
       "createdAt": 1775080884024,
+      "archived": false,
+      "completedAt": 1775081083479
+    },
+    {
+      "id": 273,
+      "text": "📚 Add to List from Browse — add selected words to a study list directly from browse batch mode",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "frontend"
+      ],
+      "createdAt": 1775081088397,
       "archived": false
     }
   ],
-  "nextId": 273
+  "nextId": 274
 }
 ```

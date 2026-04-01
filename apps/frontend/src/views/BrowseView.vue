@@ -34,6 +34,7 @@ const addedToList = ref<string | null>(null)
 const batchMode = ref(false)
 const selectedWordIds = ref<Set<string>>(new Set())
 const batchProcessing = ref(false)
+const selectedListId = ref('')
 const selectedTopic = ref('')
 const selectedSubtopic = ref('')
 const topics = ref<Array<{ name: string; totalCount: number; subtopics: Array<{ name: string; count: number }> }>>([])
@@ -224,6 +225,23 @@ async function batchMarkStatus(status: 'mastered' | 'learning' | 'reviewing' | '
   }
 }
 
+async function batchAddToList() {
+  if (!selectedListId.value || selectedWordIds.value.size === 0) return
+  batchProcessing.value = true
+  try {
+    const result = await listsStore.bulkAddToList(selectedListId.value, Array.from(selectedWordIds.value))
+    toast.success(`Added ${result.added} word${result.added !== 1 ? 's' : ''} to list${result.skipped ? ` (${result.skipped} already in list)` : ''}`)
+    showListPicker.value = false
+    selectedListId.value = ''
+    selectedWordIds.value.clear()
+    batchMode.value = false
+  } catch {
+    toast.error('Failed to add words to list')
+  } finally {
+    batchProcessing.value = false
+  }
+}
+
 // Keyboard navigation in modal
 function handleModalKeydown(e: KeyboardEvent) {
   if (!selectedWord.value) return
@@ -400,13 +418,26 @@ const visiblePages = computed(() => {
         </div>
         <div class="flex items-center gap-2">
           <button @click="batchMarkStatus('mastered')" :disabled="batchProcessing || selectedWordIds.size === 0" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-            ✅ I Know These
+            Know
           </button>
           <button @click="batchMarkStatus('learning')" :disabled="batchProcessing || selectedWordIds.size === 0" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-            📖 Learning
+            Learning
+          </button>
+          <button @click="showListPicker = !showListPicker" :disabled="batchProcessing || selectedWordIds.size === 0" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            Add to List
           </button>
           <button @click="toggleBatchMode" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">
             Cancel
+          </button>
+        </div>
+        <!-- List picker -->
+        <div v-if="showListPicker" class="w-full flex items-center gap-2 pt-2 border-t border-primary-200 dark:border-primary-800">
+          <select v-model="selectedListId" class="flex-1 px-3 py-1.5 rounded-lg text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white">
+            <option value="" disabled>Select a list...</option>
+            <option v-for="list in listsStore.lists" :key="list.id" :value="list.id">{{ list.name }} ({{ list.wordCount }} words)</option>
+          </select>
+          <button @click="batchAddToList" :disabled="!selectedListId" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 transition-colors">
+            Add
           </button>
         </div>
       </div>
