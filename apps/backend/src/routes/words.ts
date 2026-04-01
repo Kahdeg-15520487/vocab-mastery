@@ -502,4 +502,56 @@ Rules:
       throw { statusCode: 500, message: 'Failed to generate examples' };
     }
   });
+
+  // GET /words/:wordId/related — Related words (same topic, similar CEFR level)
+  app.get('/words/:wordId/related', async (request, reply) => {
+    const { wordId } = request.params as { wordId: string };
+
+    const word = await prisma.word.findUnique({
+      where: { id: wordId },
+      include: { themes: { include: { theme: true } } },
+    });
+    if (!word) {
+      return reply.status(404).send({ error: 'Word not found' });
+    }
+
+    const themeIds = word.themes.map(wt => wt.themeId);
+
+    // Find words in the same themes with similar CEFR level
+    const related = await prisma.$queryRaw<Array<{ id: string; word: string; definition: string; cefrLevel: string }>>`
+      SELECT w.id, w.word, w.definition, w.cefr_level as "cefrLevel"
+      FROM words w
+      JOIN word_themes wt ON wt."wordId" = w.id
+      WHERE wt."themeId" = ANY(${themeIds}::text[])
+        AND w.id != ${wordId}
+        AND w.cefr_level IN (${word.cefrLevel}, 
+          CASE ${word.cefrLevel}
+            WHEN 'A1' THEN 'A2'
+            WHEN 'A2' THEN 'B1'
+            WHEN 'B1' THEN 'B2'
+            WHEN 'B2' THEN 'C1'
+            WHEN 'C1' THEN 'C2'
+            WHEN 'C2' THEN 'C1'
+            ELSE 'B1'
+          END)
+      GROUP BY w.id, w.word, w.definition, w.cefr_level ORDER BY RANDOM()
+      LIMIT 6
+    `;
+
+    // Also find words starting with same prefix (3 chars)
+    const prefix = word.word.substring(0, Math.min(3, word.word.length));
+    const prefixWords = await prisma.$queryRaw<Array<{ id: string; word: string; definition: string; cefrLevel: string }>>`
+      SELECT id, word, definition, cefr_level as "cefrLevel"
+      FROM words
+      WHERE word LIKE ${prefix + '%'}
+        AND id != ${wordId}
+      ORDER BY RANDOM()
+      LIMIT 3
+    `;
+
+    return {
+      sameTopic: related.map(w => ({ ...w })),
+      similar: prefixWords.map(w => ({ ...w })),
+    };
+  });
 }

@@ -13,6 +13,7 @@ const { playAudio } = useSpeech()
 const toast = useToast()
 const { addViewedWord } = useRecentlyViewed()
 const generatingExamples = ref(false)
+const relatedWords = ref<{ sameTopic: any[]; similar: any[] } | null>(null)
 
 interface WordDetail {
   id: string
@@ -65,7 +66,9 @@ onMounted(async () => {
     const data = await request<WordDetail>(`/words/${route.params.id}`)
     word.value = data
     addViewedWord(data.id, data.word, data.cefrLevel)
-    document.title = `${data.word} · Vocab Master`
+    document.title = `${data.word} \u00b7 Vocab Master`
+    // Fetch related words
+    wordsApi.getRelated(data.id).then(r => relatedWords.value = r).catch(() => {})
   } catch (e: any) {
     error.value = e.message || 'Word not found'
   } finally {
@@ -371,6 +374,39 @@ async function generateExamples() {
         <button @click="router.back()" class="btn btn-secondary">
           ← Go Back
         </button>
+      </div>
+
+      <!-- Related Words -->
+      <div v-if="relatedWords && (relatedWords.sameTopic.length > 0 || relatedWords.similar.length > 0)" class="card">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Related Words</h2>
+        <div v-if="relatedWords.sameTopic.length > 0" class="mb-4">
+          <h3 class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Same Topic</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <router-link
+              v-for="w in relatedWords.sameTopic"
+              :key="w.id"
+              :to="`/words/${w.id}`"
+              class="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+            >
+              <span class="font-medium text-slate-900 dark:text-white">{{ w.word }}</span>
+              <span v-if="w.cefrLevel" class="text-xs px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">{{ w.cefrLevel }}</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400 truncate flex-1">{{ w.definition }}</span>
+            </router-link>
+          </div>
+        </div>
+        <div v-if="relatedWords.similar.length > 0">
+          <h3 class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Similar Words</h3>
+          <div class="flex flex-wrap gap-2">
+            <router-link
+              v-for="w in relatedWords.similar"
+              :key="w.id"
+              :to="`/words/${w.id}`"
+              class="px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
+            >
+              {{ w.word }}
+            </router-link>
+          </div>
+        </div>
       </div>
     </div>
   </div>
