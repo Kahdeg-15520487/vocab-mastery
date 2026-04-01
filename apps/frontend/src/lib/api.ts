@@ -297,6 +297,13 @@ export const sessionsApi = {
       method: 'POST',
       body: JSON.stringify({}),
     }),
+
+  getVocabSizeTest: () => request<{ bands: { level: string; estimatedTotal: number; totalInDb: number; words: { id: string; word: string; known: boolean }[] }[] }>('/sessions/vocab-size-test'),
+
+  submitVocabSize: (responses: { wordId: string; known: boolean }[]) => request<{ estimatedVocabularySize: number; confidence: string; bands: { band: string; total: number; recognized: number; rate: number }[] }>('/sessions/vocab-size', {
+    method: 'POST',
+    body: JSON.stringify({ responses }),
+  }),
 }
 
 export const writingApi = {

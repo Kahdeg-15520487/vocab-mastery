@@ -111,6 +111,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/vocab-size',
+    name: 'vocab-size',
+    component: () => import('@/views/VocabSizeView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/achievements',
     name: 'achievements',
     component: () => import('@/views/AchievementsView.vue'),

@@ -1551,6 +1551,105 @@ export async function sessionRoutes(app: FastifyInstance) {
       newAchievements: newAchievementKeys,
     };
   });
+
+  // GET /sessions/vocab-size-test — Vocabulary size estimation test words
+  app.get('/sessions/vocab-size-test', async (request, reply) => {
+    const userId = request.user!.userId;
+
+    // Sample words from each CEFR level
+    const cefrBands = [
+      { level: 'A1', estimatedTotal: 500 },
+      { level: 'A2', estimatedTotal: 1000 },
+      { level: 'B1', estimatedTotal: 2000 },
+      { level: 'B2', estimatedTotal: 4000 },
+      { level: 'C1', estimatedTotal: 8000 },
+      { level: 'C2', estimatedTotal: 16000 },
+    ];
+
+    const results: { level: string; estimatedTotal: number; totalInDb: number; words: { id: string; word: string; known: boolean }[] }[] = [];
+
+    for (const band of cefrBands) {
+      const countResult = await prisma.$queryRawUnsafe<Array<{ c: bigint }>>(
+        `SELECT COUNT(*) as c FROM words WHERE cefr_level = '${band.level}'`
+      );
+      const totalInDb = Number(countResult[0]?.c || 0);
+      if (totalInDb === 0) continue;
+
+      const wordsData = await prisma.$queryRawUnsafe<Array<{ id: string; word: string }>>(
+        `SELECT id, word FROM words WHERE cefr_level = '${band.level}' ORDER BY RANDOM() LIMIT 10`
+      );
+
+      // Check which words the user already knows
+      const ids = wordsData.map((w: any) => w.id);
+      const progress = await prisma.wordProgress.findMany({
+        where: { userId, wordId: { in: ids }, status: { not: 'new' } },
+        select: { wordId: true },
+      });
+      const knownIds = new Set(progress.map((p: any) => p.wordId));
+
+      results.push({
+        level: band.level,
+        estimatedTotal: band.estimatedTotal,
+        totalInDb,
+        words: wordsData.map((w: any) => ({ id: w.id, word: w.word, known: knownIds.has(w.id) })),
+      });
+    }
+
+    return { bands: results };
+  });
+
+    // POST /sessions/vocab-size — Calculate estimated vocabulary size from responses
+  app.post('/sessions/vocab-size', async (request, reply) => {
+    const userId = request.user!.userId;
+    const { responses } = request.body as { responses: { wordId: string; known: boolean }[] };
+
+    // Get word CEFR levels
+    const words = await prisma.word.findMany({
+      where: { id: { in: responses.map((r: any) => r.wordId) } },
+      select: { id: true, cefrLevel: true },
+    });
+
+    // Group by CEFR level and compute recognition rate
+    const levelMap = new Map<string, { total: number; recognized: number }>();
+    const levelSizes: Record<string, number> = {
+      A1: 500,
+      A2: 1000,
+      B1: 2000,
+      B2: 4000,
+      C1: 8000,
+      C2: 16000,
+    };
+
+    for (const r of responses) {
+      const word = words.find((w: any) => w.id === r.wordId);
+      if (!word || !word.cefrLevel) continue;
+
+      const level = word.cefrLevel;
+      const current = levelMap.get(level) || { total: 0, recognized: 0 };
+      current.total++;
+      if (r.known) current.recognized++;
+      levelMap.set(level, current);
+    }
+
+    // Estimate: for each level, known words = rate * estimated_total_for_level
+    let estimatedTotal = 0;
+    const results: { band: string; total: number; recognized: number; rate: number }[] = [];
+
+    for (const [level, size] of Object.entries(levelSizes)) {
+      const data = levelMap.get(level);
+      if (data && data.total > 0) {
+        const rate = data.recognized / data.total;
+        estimatedTotal += Math.round(rate * size);
+        results.push({ band: level, total: data.total, recognized: data.recognized, rate: Math.round(rate * 100) });
+      }
+    }
+
+    return {
+      estimatedVocabularySize: estimatedTotal,
+      confidence: responses.length >= 40 ? 'high' : responses.length >= 20 ? 'medium' : 'low',
+      bands: results,
+    };
+  });
 }
 
 /**
@@ -1817,4 +1916,8 @@ async function checkSessionAchievements(
   }
 
   return allUnlocked;
+  return allUnlocked;
 }
+
+
+

@@ -102,6 +102,9 @@ const statsXpNeeded = computed(() => {
         <router-link to="/leaderboard" class="text-primary-600 dark:text-primary-400 hover:underline text-sm">
           🏆 Leaderboard →
         </router-link>
+        <router-link to="/vocab-size" class="text-primary-600 dark:text-primary-400 hover:underline text-sm">
+          📐 Vocab Size Test →
+        </router-link>
         <router-link to="/history" class="text-primary-600 dark:text-primary-400 hover:underline text-sm">
           View session history →
         </router-link>

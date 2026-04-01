@@ -11,6 +11,7 @@ const titles: Record<string, string> = {
   '/browse': 'Browse',
   '/lists': 'My Lists',
   '/stats': 'Statistics',
+  '/vocab-size': 'Vocabulary Size Estimator',
   '/achievements': 'Achievements',
   '/spelling': 'Spelling Practice',
   '/fill-blank': 'Fill in the Blank',

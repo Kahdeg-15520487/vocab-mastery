@@ -4,9 +4,9 @@
 
 ## Pending
 
-- [ ] **#242** **[low]** 🖨️ Print-friendly vocabulary export — clean printable view for word lists #polish #frontend
 - [ ] **#243** 📊 Vocabulary Statistics API — word count by status, CEFR level distribution, study time estimates #feature #backend
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
+- [ ] **#245** 📐 Vocabulary Size Estimator — statistical sampling test to estimate total known words #feature #backend #frontend
 
 ## Completed
 
@@ -116,6 +116,7 @@
 - [x] **#239** 🔗 Related words on Word Detail — same topic, similar words, same CEFR level #feature #backend
 - [x] **#240** 👨‍👩‍👧‍👦 Word Family feature — show related word forms (noun/verb/adj/adv) on Word Detail page #feature #backend #frontend
 - [x] **#241** 🔊 Audio pronunciation in quiz results — play word audio when revealing correct answer #feature #frontend
+- [x] **#242** **[low]** 🖨️ Print-friendly vocabulary export — clean printable view for word lists #polish #frontend
 
 <!-- Raw Data -->
 ```json
@@ -1479,14 +1480,15 @@
     {
       "id": 242,
       "text": "🖨️ Print-friendly vocabulary export — clean printable view for word lists",
-      "done": false,
+      "done": true,
       "priority": "low",
       "tags": [
         "polish",
         "frontend"
       ],
       "createdAt": 1775074625387,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775075374898
     },
     {
       "id": 243,
@@ -1512,8 +1514,21 @@
       ],
       "createdAt": 1775075006292,
       "archived": false
+    },
+    {
+      "id": 245,
+      "text": "📐 Vocabulary Size Estimator — statistical sampling test to estimate total known words",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "backend",
+        "frontend"
+      ],
+      "createdAt": 1775075379420,
+      "archived": false
     }
   ],
-  "nextId": 245
+  "nextId": 246
 }
 ```
