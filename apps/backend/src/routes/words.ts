@@ -503,6 +503,63 @@ Rules:
     }
   });
 
+  // POST /words/:wordId/etymology — Generate etymology analysis via LLM (cached)
+  app.post('/words/:wordId/etymology', { preHandler: authenticate }, async (request, _reply) => {
+    const { wordId } = request.params as { wordId: string };
+
+    const word = await prisma.word.findUnique({ where: { id: wordId } });
+    if (!word) throw { statusCode: 404, message: 'Word not found' };
+
+    // Return cached etymology if available
+    if (word.etymology) {
+      try {
+        return { etymology: JSON.parse(word.etymology), cached: true };
+      } catch {
+        // Invalid JSON, regenerate
+      }
+    }
+
+    try {
+      const config = await getLLMConfig();
+
+      const systemPrompt = `You are an English etymology expert. Analyze the given word and return a JSON object with these fields:
+- "origin": Brief language of origin (e.g., "Latin", "Old French", "Germanic")
+- "root": The root word or morpheme it comes from
+- "breakdown": Array of morphological parts, each with {"part": string, "meaning": string, "type": "prefix"|"root"|"suffix"}
+- "story": One engaging sentence about the word's history or how its meaning evolved
+- "related": Array of 3-5 related English words that share the same root
+
+Return ONLY valid JSON. No markdown.`;
+
+      const userPrompt = `Word: "${word.word}"
+Part of speech: ${(word.partOfSpeech as string[])?.join(', ') || 'unknown'}
+Definition: ${word.definition || 'N/A'}
+
+Analyze the etymology.`;
+
+      const responseText = await callLLM(systemPrompt, userPrompt, config, { disableReasoning: true });
+
+      let etymology;
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        etymology = JSON.parse(jsonMatch[0].replace(/,\s*\}/g, '}').replace(/,\s*\]/g, ']'));
+      } else {
+        etymology = { origin: 'Unknown', root: word.word, breakdown: [], story: 'Etymology unavailable.', related: [] };
+      }
+
+      // Cache on word record
+      await prisma.word.update({
+        where: { id: wordId },
+        data: { etymology: JSON.stringify(etymology) },
+      });
+
+      return { etymology, cached: false };
+    } catch (error: any) {
+      console.error('[etymology] Error:', error.message);
+      throw { statusCode: 500, message: 'Failed to generate etymology analysis' };
+    }
+  });
+
   // GET /words/:wordId/related — Related words (same topic, similar CEFR level)
   app.get('/words/:wordId/related', async (request, reply) => {
     const { wordId } = request.params as { wordId: string };

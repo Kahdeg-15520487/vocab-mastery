@@ -345,6 +345,7 @@ model Word {
   audioUs       String?       @map("audio_us")
   audioUk       String?       @map("audio_uk")
   definitionUrl String?       @map("definition_url")
+  etymology     String?       @map("etymology")
   themes        WordTheme[]
   progress      WordProgress[]
   sessionWords  SessionWord[]

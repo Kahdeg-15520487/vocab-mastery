@@ -7,7 +7,7 @@
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#246** **[low]** 📤 Shareable progress card — generate a shareable image/markdown of vocabulary achievements #feature #backend
 - [ ] **#253** 📊 Shareable progress summary card on Dashboard — embeddable stats snapshot #feature #frontend
-- [ ] **#258** **[high]** 📚 Study List sharing — share token, import into another user's account #feature #fullstack
+- [ ] **#259** 🔍 Word Etymology — show word roots, prefixes, suffixes breakdown on Word Detail #feature #fullstack
 
 ## Completed
 
@@ -127,6 +127,7 @@
 - [x] **#255** **[high]** 📤 Export to Anki CSV — word, definition, examples, CEFR level, audio filename #feature #fullstack
 - [x] **#256** 🎯 Word Mastery Goals — set target CEFR level and track % mastery per level #feature #fullstack
 - [x] **#257** 📚 Study List sharing — generate share link, other users can import list #feature #fullstack
+- [x] **#258** **[high]** 📚 Study List sharing — share token, import into another user's account #feature #fullstack
 
 <!-- Raw Data -->
 ```json
@@ -1658,16 +1659,29 @@
     {
       "id": 258,
       "text": "📚 Study List sharing — share token, import into another user's account",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
         "fullstack"
       ],
       "createdAt": 1775078699031,
+      "archived": false,
+      "completedAt": 1775079322581
+    },
+    {
+      "id": 259,
+      "text": "🔍 Word Etymology — show word roots, prefixes, suffixes breakdown on Word Detail",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "fullstack"
+      ],
+      "createdAt": 1775079327307,
       "archived": false
     }
   ],
-  "nextId": 259
+  "nextId": 260
 }
 ```

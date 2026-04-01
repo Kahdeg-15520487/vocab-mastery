@@ -204,6 +204,8 @@ export const wordsApi = {
 
   getRelated: (wordId: string) => request<{ sameTopic: { id: string; word: string; definition: string; cefrLevel: string }[]; similar: { id: string; word: string; definition: string; cefrLevel: string }[]; family: { id: string; word: string; definition: string; cefrLevel: string }[] }>(`/words/${wordId}/related`),
 
+  getEtymology: (wordId: string) => request<{ etymology: { origin: string; root: string; breakdown: Array<{part: string; meaning: string; type: string}>; story: string; related: string[] }; cached: boolean }>(`/words/${wordId}/etymology`, { method: 'POST', body: JSON.stringify({}) }),
+
   // Encounters (Words in the Wild)
   getEncounters: (params?: { page?: number; limit?: number; source?: string }) => {
     const q = new URLSearchParams()

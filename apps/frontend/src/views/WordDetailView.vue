@@ -14,6 +14,7 @@ const toast = useToast()
 const { addViewedWord } = useRecentlyViewed()
 const generatingExamples = ref(false)
 const relatedWords = ref<{ sameTopic: any[]; similar: any[]; family?: any[] } | null>(null)
+const etymology = ref<{ origin: string; root: string; breakdown: Array<{part: string; meaning: string; type: string}>; story: string; related: string[] } | null>(null)
 
 interface WordDetail {
   id: string
@@ -69,6 +70,7 @@ onMounted(async () => {
     document.title = `${data.word} \u00b7 Vocab Master`
     // Fetch related words
     wordsApi.getRelated(data.id).then(r => relatedWords.value = r).catch(() => {})
+    wordsApi.getEtymology(data.id).then(r => etymology.value = r.etymology).catch(() => {})
   } catch (e: any) {
     error.value = e.message || 'Word not found'
   } finally {
@@ -467,6 +469,50 @@ async function generateExamples() {
         <button @click="router.back()" class="btn btn-secondary">
           ← Go Back
         </button>
+      </div>
+
+      <!-- Etymology -->
+      <div v-if="etymology" class="card">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Etymology</h2>
+        <div class="space-y-3">
+          <div class="flex items-center gap-2 text-sm">
+n            <span class="text-slate-500 dark:text-slate-400">Origin:</span>
+            <span class="font-medium text-slate-900 dark:text-white">{{ etymology.origin }}</span>
+            <span v-if="etymology.root" class="text-slate-400">(root: <em>{{ etymology.root }}</em>)</span>
+          </div>
+          <!-- Word breakdown -->
+          <div v-if="etymology.breakdown && etymology.breakdown.length" class="flex flex-wrap gap-2">
+            <div
+              v-for="(b, i) in etymology.breakdown"
+              :key="i"
+              class="px-3 py-1.5 rounded-lg text-sm"
+              :class="{
+                'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800': b.type === 'prefix',
+                'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800': b.type === 'root',
+                'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800': b.type === 'suffix',
+              }"
+            >
+              <span class="font-semibold">{{ b.part }}</span>
+              <span class="text-xs ml-1 opacity-75">{{ b.meaning }}</span>
+            </div>
+          </div>
+          <!-- Story -->
+          <p v-if="etymology.story" class="text-sm text-slate-600 dark:text-slate-400 italic">
+            {{ etymology.story }}
+          </p>
+          <!-- Related root words -->
+          <div v-if="etymology.related && etymology.related.length">
+            <span class="text-xs text-slate-500 dark:text-slate-400">Related:</span>
+            <div class="flex flex-wrap gap-1 mt-1">
+              <router-link
+                v-for="rw in etymology.related"
+                :key="rw"
+                :to="'/browse?search=' + rw"
+                class="text-xs px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-slate-600 dark:text-slate-400 hover:text-primary-600"
+              >{{ rw }}</router-link>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Related Words -->
