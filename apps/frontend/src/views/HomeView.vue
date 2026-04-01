@@ -42,6 +42,7 @@ const paceData = ref<{
   estimatedCompletion: string | null
   progress: number
 } | null>(null)
+const milestones = ref<any[]>([])
 
 async function loadReviewSchedule() {
   try {
@@ -73,6 +74,11 @@ onMounted(async () => {
   // Load pace calculator (non-blocking)
   sprintApi.getPace().then((data) => {
     if (data && data.target > 0) paceData.value = data
+  }).catch(() => {})
+
+  // Load milestones (non-blocking)
+  sprintApi.getMilestones().then((data) => {
+    if (data.milestones?.length) milestones.value = data.milestones
   }).catch(() => {})
 })
 
@@ -497,6 +503,34 @@ function formatDate(iso: string) {
             <p v-else-if="paceData.onTrack && paceData.dailyPace > 0" class="text-xs text-green-600 dark:text-green-400 mt-2">
               {{ paceData.projectedTotal }} words projected by deadline — keep it up! 🚀
             </p>
+          </div>
+
+          <!-- Milestone Tracker -->
+          <div v-if="milestones.length" class="card">
+            <h3 class="font-semibold text-slate-900 dark:text-white mb-3">🎯 Milestones</h3>
+            <div class="space-y-3">
+              <div v-for="m in milestones" :key="m.id">
+                <div class="flex justify-between text-sm mb-1">
+                  <span class="text-slate-700 dark:text-slate-300">
+                    {{ m.achieved ? '🏆' : m.progress > 0 ? '🔵' : '⚪' }} {{ m.name }}
+                  </span>
+                  <span class="text-slate-500 dark:text-slate-400">{{ m.current?.toLocaleString() ?? 0 }} / {{ m.wordTarget?.toLocaleString() }}</span>
+                </div>
+                <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                  <div
+                    class="h-2 rounded-full transition-all duration-500"
+                    :class="m.achieved ? 'bg-green-500' : 'bg-indigo-500'"
+                    :style="{ width: m.progress + '%' }"
+                  ></div>
+                </div>
+                <div class="flex justify-between mt-0.5">
+                  <span class="text-xs text-slate-400">{{ m.progress }}%</span>
+                  <span class="text-xs" :class="m.daysRemaining < 30 && !m.achieved ? 'text-amber-500' : 'text-slate-400'">
+                    {{ m.achieved ? '✅ Achieved!' : `${m.daysRemaining} days left` }}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Quick Stats -->
