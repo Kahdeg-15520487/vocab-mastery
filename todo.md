@@ -6,7 +6,8 @@
 
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#246** **[low]** 📤 Shareable progress card — generate a shareable image/markdown of vocabulary achievements #feature #backend
-- [ ] **#252** 📝 Personal word notes/mnemonics — add notes to word progress during learning #feature #fullstack
+- [ ] **#253** 📊 Shareable progress summary card on Dashboard — embeddable stats snapshot #feature #frontend
+- [ ] **#254** 📋 Import words from text — paste text, extract unknown words, create study list #feature #fullstack
 
 ## Completed
 
@@ -121,6 +122,7 @@
 - [x] **#247** 🛡️ 500 Error Page + API Error Boundary — graceful handling when backend is down #polish #frontend
 - [x] **#248** 🔊 Auto-play pronunciation in learn/review flashcards — play word audio when card is revealed #feature #frontend
 - [x] **#250** 🌍 Words in the Wild — encounter tracking system (COMPLETE) #feature #complete
+- [x] **#252** 📝 Personal word notes/mnemonics — add notes to word progress during learning #feature #fullstack
 
 <!-- Raw Data -->
 ```json
@@ -1575,16 +1577,41 @@
     {
       "id": 252,
       "text": "📝 Personal word notes/mnemonics — add notes to word progress during learning",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
         "fullstack"
       ],
       "createdAt": 1775077300477,
+      "archived": false,
+      "completedAt": 1775077576740
+    },
+    {
+      "id": 253,
+      "text": "📊 Shareable progress summary card on Dashboard — embeddable stats snapshot",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "frontend"
+      ],
+      "createdAt": 1775077598523,
+      "archived": false
+    },
+    {
+      "id": 254,
+      "text": "📋 Import words from text — paste text, extract unknown words, create study list",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "fullstack"
+      ],
+      "createdAt": 1775077631920,
       "archived": false
     }
   ],
-  "nextId": 253
+  "nextId": 255
 }
 ```

@@ -112,7 +112,16 @@
 
       <!-- Unknown words in dictionary -->
       <div v-if="result.unknown.inDictionary.length" class="card">
-        <h3 class="font-semibold text-slate-900 dark:text-white mb-3">📖 Unknown Words in Dictionary</h3>
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-semibold text-slate-900 dark:text-white">📖 Unknown Words in Dictionary</h3>
+          <button
+            @click="addUnknownWordsToList"
+            :disabled="addingToList"
+            class="text-sm px-3 py-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors"
+          >
+            {{ addingToList ? 'Adding...' : 'Add to Study List' }}
+          </button>
+        </div>
         <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">These words are in our dictionary. Click to learn them!</p>
         <div class="space-y-2">
           <div
@@ -164,6 +173,8 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { request } from '../lib/api'
+import { useListsStore } from '@/stores/lists'
+import { useToast } from '@/composables/useToast'
 import LevelBadge from '../components/learning/LevelBadge.vue'
 
 const route = useRoute()
@@ -174,6 +185,34 @@ const result = ref<any>(null)
 const suggestions = ref<any>(null)
 const sprintId = ref<string | null>(null)
 const checkSprint = ref(true)
+const toast = useToast()
+const listsStore = useListsStore()
+const addingToList = ref(false)
+
+async function addUnknownWordsToList() {
+  if (!result.value?.unknown?.inDictionary?.length) return
+  addingToList.value = true
+  try {
+    // Get user's lists
+    await listsStore.fetchLists()
+    const lists = listsStore.lists
+    if (!lists.length) {
+      toast.error('Create a study list first')
+      return
+    }
+    // Use the first list or prompt — for simplicity, use first list
+    const listId = lists[0].id
+    const wordIds = result.value.unknown.inDictionary.map((w: any) => w.id)
+    for (const wordId of wordIds) {
+      await listsStore.addWordToList(listId, wordId)
+    }
+    toast.success(`Added ${wordIds.length} words to "${lists[0].name}"`)
+  } catch (e: any) {
+    toast.error(e.message || 'Failed to add words')
+  } finally {
+    addingToList.value = false
+  }
+}
 
 onMounted(async () => {
   const sid = route.query.sprintId as string
