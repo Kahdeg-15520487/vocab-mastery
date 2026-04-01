@@ -5,8 +5,6 @@
 ## Pending
 
 - [ ] **#223** **[high]** [Shelved] Backend: Validation key signing for writing exercises
-- [ ] **#224** **[high]** Client-side gibberish check — reject nonsense instantly before submit
-- [ ] **#225** **[high]** Frontend: Add delete button to recent sentences
 
 ## Completed
 
@@ -99,6 +97,8 @@
 - [x] **#220** **[high]** Create AIFeedbackPanel component with structured evaluation display #frontend #writing #component
 - [x] **#221** Add AI Coach toggle + model status to SettingsView #frontend #settings
 - [x] **#222** **[high]** Integrate AI Coach into WritingExerciseView sentence mode #frontend #writing
+- [x] **#224** **[high]** Client-side gibberish check — reject nonsense instantly before submit
+- [x] **#225** **[high]** Frontend: Add delete button to recent sentences
 
 <!-- Raw Data -->
 ```json
@@ -1276,20 +1276,22 @@
     {
       "id": 224,
       "text": "Client-side gibberish check — reject nonsense instantly before submit",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [],
       "createdAt": 1775017656469,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775017930293
     },
     {
       "id": 225,
       "text": "Frontend: Add delete button to recent sentences",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [],
       "createdAt": 1775017662765,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775017934174
     }
   ],
   "nextId": 226

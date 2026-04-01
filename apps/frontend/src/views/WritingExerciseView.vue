@@ -359,9 +359,9 @@ async function deleteWriting(writingId: string) {
 async function submitSentence() {
   if (!sprintId.value || !currentPrompt.value || !sentence.value.trim()) return
 
-  // ── Step 1: Gibberish check (instant, no network) ──
+  // ── Step 1: Quality check (instant, no network) ──
   const quality = analyzeSentenceQuality(sentence.value.trim(), currentPrompt.value.word)
-  if (quality.isGibberish) {
+  if (quality.rejected) {
     gibberishWarning.value = quality.reason
     toast.error(quality.reason)
     return
