@@ -86,6 +86,8 @@ export async function wordRoutes(app: FastifyInstance) {
         status: word.progress[0].status,
         interval: word.progress[0].interval,
         nextReview: word.progress[0].nextReview,
+        repetitions: word.progress[0].repetitions,
+        easeFactor: word.progress[0].easeFactor,
       } : null,
       favorited: word.favorites.length > 0,
     }));
@@ -153,6 +155,8 @@ export async function wordRoutes(app: FastifyInstance) {
         status: w.progress[0].status,
         interval: w.progress[0].interval,
         nextReview: w.progress[0].nextReview,
+        repetitions: w.progress[0].repetitions,
+        easeFactor: w.progress[0].easeFactor,
       } : null,
     };
   });

@@ -7,7 +7,10 @@
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#246** **[low]** 📤 Shareable progress card — generate a shareable image/markdown of vocabulary achievements #feature #backend
 - [ ] **#253** 📊 Shareable progress summary card on Dashboard — embeddable stats snapshot #feature #frontend
-- [ ] **#259** 🔍 Word Etymology — show word roots, prefixes, suffixes breakdown on Word Detail #feature #fullstack
+- [ ] **#261** **[high]** 🧩 Word Context Examples — show real-world usage snippets from different domains on word detail #feature #frontend
+- [ ] **#264** **[high]** 🎓 Word Mastery Levels — 5-tier mastery badge (New→Learning→Familiar→Mastered→Expert) on browse/word detail #feature #frontend
+- [ ] **#265** **[high]** 📈 Study Plan Generator — LLM generates personalized weekly study plan based on user stats/goals #feature #fullstack
+- [ ] **#266** 📱 PWA Install Prompt — show install banner when PWA criteria met, persist dismissal #feature #fullstack
 
 ## Completed
 
@@ -128,6 +131,7 @@
 - [x] **#256** 🎯 Word Mastery Goals — set target CEFR level and track % mastery per level #feature #fullstack
 - [x] **#257** 📚 Study List sharing — generate share link, other users can import list #feature #fullstack
 - [x] **#258** **[high]** 📚 Study List sharing — share token, import into another user's account #feature #fullstack
+- [x] **#259** 🔍 Word Etymology — show word roots, prefixes, suffixes breakdown on Word Detail #feature #fullstack
 
 <!-- Raw Data -->
 ```json
@@ -1672,16 +1676,65 @@
     {
       "id": 259,
       "text": "🔍 Word Etymology — show word roots, prefixes, suffixes breakdown on Word Detail",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
         "fullstack"
       ],
       "createdAt": 1775079327307,
+      "archived": false,
+      "completedAt": 1775079589137
+    },
+    {
+      "id": 261,
+      "text": "🧩 Word Context Examples — show real-world usage snippets from different domains on word detail",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "frontend"
+      ],
+      "createdAt": 1775079829385,
+      "archived": false
+    },
+    {
+      "id": 264,
+      "text": "🎓 Word Mastery Levels — 5-tier mastery badge (New→Learning→Familiar→Mastered→Expert) on browse/word detail",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "frontend"
+      ],
+      "createdAt": 1775079873471,
+      "archived": false
+    },
+    {
+      "id": 265,
+      "text": "📈 Study Plan Generator — LLM generates personalized weekly study plan based on user stats/goals",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "fullstack"
+      ],
+      "createdAt": 1775079877482,
+      "archived": false
+    },
+    {
+      "id": 266,
+      "text": "📱 PWA Install Prompt — show install banner when PWA criteria met, persist dismissal",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "fullstack"
+      ],
+      "createdAt": 1775079881127,
       "archived": false
     }
   ],
-  "nextId": 260
+  "nextId": 267
 }
 ```

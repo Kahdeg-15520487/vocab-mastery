@@ -6,6 +6,7 @@ import { useListsStore } from '@/stores/lists'
 import { useSpeech } from '@/composables/useSpeech'
 import { useRecentlyViewed } from '@/composables/useRecentlyViewed'
 import LevelBadge from '@/components/learning/LevelBadge.vue'
+import MasteryBadge from '@/components/learning/MasteryBadge.vue'
 import type { Word } from '@/types'
 import { wordsApi, progressApi } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
@@ -468,17 +469,13 @@ const visiblePages = computed(() => {
             >
               {{ word.favorited ? '❤️' : '🤍' }}
             </button>
-            <span 
+            <MasteryBadge
               v-if="word.progress"
-              :class="[
-                'badge',
-                word.progress.status === 'mastered' ? 'badge-success' :
-                word.progress.status === 'reviewing' ? 'badge-primary' :
-                word.progress.status === 'learning' ? 'badge-warning' : 'badge-secondary'
-              ]"
-            >
-              {{ word.progress.status }}
-            </span>
+              :status="word.progress.status"
+              :repetitions="word.progress.repetitions"
+              :ease-factor="word.progress.easeFactor"
+              size="sm"
+            />
           </div>
         </div>
       </div>

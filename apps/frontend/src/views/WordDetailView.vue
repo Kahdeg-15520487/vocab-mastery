@@ -5,6 +5,7 @@ import { request, wordsApi, progressApi } from '@/lib/api'
 import { useSpeech } from '@/composables/useSpeech'
 import { useToast } from '@/composables/useToast'
 import { useRecentlyViewed } from '@/composables/useRecentlyViewed'
+import MasteryBadge from '@/components/learning/MasteryBadge.vue'
 import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
 
 const route = useRoute()
@@ -266,6 +267,13 @@ async function generateExamples() {
             <span v-if="word.cefrLevel" class="text-sm font-medium px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400">
               {{ word.cefrLevel }}
             </span>
+            <MasteryBadge
+              v-if="word.progress"
+              :status="word.progress.status"
+              :repetitions="word.progress.repetitions"
+              :ease-factor="word.progress.easeFactor"
+              size="md"
+            />
             <span v-for="pos in (word.partOfSpeech || [])" :key="pos" class="text-sm text-slate-500 dark:text-slate-400 italic">
               {{ pos }}
             </span>
