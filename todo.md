@@ -4,9 +4,9 @@
 
 ## Pending
 
-- [ ] **#240** 👨‍👩‍👧‍👦 Word Family feature — show related word forms (noun/verb/adj/adv) on Word Detail page #feature #backend #frontend
-- [ ] **#241** 🔊 Audio pronunciation in quiz results — play word audio when revealing correct answer #feature #frontend
 - [ ] **#242** **[low]** 🖨️ Print-friendly vocabulary export — clean printable view for word lists #polish #frontend
+- [ ] **#243** 📊 Vocabulary Statistics API — word count by status, CEFR level distribution, study time estimates #feature #backend
+- [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 
 ## Completed
 
@@ -114,6 +114,8 @@
 - [x] **#235** **[low]** ⌨️ Keyboard shortcut help modal — ? to show all shortcuts #polish #frontend
 - [x] **#237** 📈 Dashboard learning velocity — words/day trend and CEFR progress over time #feature #frontend #backend
 - [x] **#239** 🔗 Related words on Word Detail — same topic, similar words, same CEFR level #feature #backend
+- [x] **#240** 👨‍👩‍👧‍👦 Word Family feature — show related word forms (noun/verb/adj/adv) on Word Detail page #feature #backend #frontend
+- [x] **#241** 🔊 Audio pronunciation in quiz results — play word audio when revealing correct answer #feature #frontend
 
 <!-- Raw Data -->
 ```json
@@ -1450,7 +1452,7 @@
     {
       "id": 240,
       "text": "👨‍👩‍👧‍👦 Word Family feature — show related word forms (noun/verb/adj/adv) on Word Detail page",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
@@ -1458,19 +1460,21 @@
         "frontend"
       ],
       "createdAt": 1775074618412,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775074992104
     },
     {
       "id": 241,
       "text": "🔊 Audio pronunciation in quiz results — play word audio when revealing correct answer",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
         "frontend"
       ],
       "createdAt": 1775074621864,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775074996075
     },
     {
       "id": 242,
@@ -1483,8 +1487,33 @@
       ],
       "createdAt": 1775074625387,
       "archived": false
+    },
+    {
+      "id": 243,
+      "text": "📊 Vocabulary Statistics API — word count by status, CEFR level distribution, study time estimates",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "backend"
+      ],
+      "createdAt": 1775075001200,
+      "archived": false
+    },
+    {
+      "id": 244,
+      "text": "📱 PWA offline mode — cache word data for offline study sessions",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "frontend",
+        "backend"
+      ],
+      "createdAt": 1775075006292,
+      "archived": false
     }
   ],
-  "nextId": 243
+  "nextId": 245
 }
 ```

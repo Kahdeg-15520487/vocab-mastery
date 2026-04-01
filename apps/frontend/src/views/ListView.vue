@@ -115,6 +115,12 @@ function goBack() {
 function studyList() {
   router.push({ path: '/learn', query: { list: listId } })
 }
+
+function printList() {
+  const token = sessionStorage.getItem('accessToken')
+  const url = `/api/lists/${listId}/print?token=${token}`
+  window.open(url, '_blank')
+}
 </script>
 
 <template>
@@ -167,6 +173,13 @@ function studyList() {
               🧠 Quiz
             </button>
             <template v-if="list.isOwner && !list.isSystem">
+            <button
+              @click="printList"
+              class="btn btn-secondary text-sm"
+              :disabled="list.pagination.total === 0"
+            >
+              Print
+            </button>
             <button
               @click="showAddWords = !showAddWords"
               class="btn btn-secondary text-sm"

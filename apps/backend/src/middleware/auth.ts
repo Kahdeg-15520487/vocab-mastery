@@ -15,14 +15,25 @@ export async function authenticate(
   request: FastifyRequest,
   reply: FastifyReply
 ): Promise<void> {
-  const authHeader = request.headers.authorization;
+  let token: string | undefined;
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  // Try Authorization header first
+  const authHeader = request.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7);
+  }
+
+  // Fall back to query parameter (for print/export views)
+  if (!token) {
+    const query = request.query as { token?: string };
+    token = query.token;
+  }
+
+  if (!token) {
     reply.status(401).send({ error: 'Missing or invalid authorization header' });
     return;
   }
 
-  const token = authHeader.substring(7);
   const payload = verifyAccessToken(token);
 
   if (!payload) {
