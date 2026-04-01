@@ -465,12 +465,22 @@ export async function seedDictionary(prisma: PrismaClient, force = false): Promi
 
   // 8. Stats
   const cefrStats: Record<string, number> = {};
+  const cefrBySource: Record<string, Record<string, number>> = {};
   for (const w of allWords) {
     cefrStats[w.cefrLevel] = (cefrStats[w.cefrLevel] || 0) + 1;
+    const src = w.oxfordList;
+    if (!cefrBySource[src]) cefrBySource[src] = {};
+    cefrBySource[src][w.cefrLevel] = (cefrBySource[src][w.cefrLevel] || 0) + 1;
   }
 
   console.log('[seed] Import complete!');
-  console.log(`[seed]   Words: ${allWords.length} (CEFR: ${JSON.stringify(cefrStats)})`);
+  console.log(`[seed]   Words: ${allWords.length}`);
+  console.log(`[seed]   CEFR overall: ${JSON.stringify(cefrStats)}`);
+  console.log(`[seed]   CEFR by source:`);
+  for (const [src, stats] of Object.entries(cefrBySource)) {
+    console.log(`[seed]     ${src}: ${JSON.stringify(stats)}`);
+  }
+  console.log(`[seed]   Definitions: ${allWords.filter(w => w.definition).length} with, ${allWords.filter(w => !w.definition).length} without`);
   console.log(`[seed]   Themes: ${categoryNames.length}`);
   console.log(`[seed]   Theme links: ${themeLinksCreated}`);
 
