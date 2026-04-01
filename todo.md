@@ -11,6 +11,8 @@
 - [ ] **#307** **[high]** 📖 Contextual Learning Mode — paste article, extract unknown words, learn them in context #feature #backend #frontend #learning
 - [ ] **#308** **[high]** 🔄 Smart Session Resume — detect incomplete sessions, offer to resume #feature #backend #frontend #ux
 - [ ] **#309** **[high]** 🎯 Adaptive Learning Path — suggest CEFR focus level on dashboard based on mastery #feature #frontend #ux
+- [ ] **#310** 📝 Word of the Day push — daily browser notification with a random word #feature #frontend #ux
+- [ ] **#311** **[high]** 🎧 Listening Comprehension — hear word audio, type what you heard #feature #frontend #learning
 
 ## Completed
 
@@ -2158,8 +2160,34 @@
       ],
       "createdAt": 1775086902557,
       "archived": false
+    },
+    {
+      "id": 310,
+      "text": "📝 Word of the Day push — daily browser notification with a random word",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "frontend",
+        "ux"
+      ],
+      "createdAt": 1775087020123,
+      "archived": false
+    },
+    {
+      "id": 311,
+      "text": "🎧 Listening Comprehension — hear word audio, type what you heard",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "frontend",
+        "learning"
+      ],
+      "createdAt": 1775087025442,
+      "archived": false
     }
   ],
-  "nextId": 310
+  "nextId": 312
 }
 ```
