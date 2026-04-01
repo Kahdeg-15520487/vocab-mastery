@@ -61,3 +61,6 @@ words-export.json
 datas/
 tests/.auth/
 test-results/
+node_modules/.cache/
+test-results/
+tests/.auth/
