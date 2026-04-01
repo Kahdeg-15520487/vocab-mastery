@@ -620,6 +620,69 @@ Rules: natural phrasing, domain-appropriate vocabulary, bold the target word wit
     }
   });
 
+  // POST /words/:wordId/translate — Get word translations in multiple languages (cached)
+  app.post('/words/:wordId/translate', { preHandler: authenticate }, async (request, _reply) => {
+    const userId = request.user!.userId;
+    const { wordId } = request.params as { wordId: string };
+    const body = request.body as { languages?: string[] };
+    const targetLanguages = body.languages || ['es', 'fr', 'de', 'pt', 'vi', 'ja', 'ko', 'zh'];
+
+    const word = await prisma.word.findUnique({ where: { id: wordId } });
+    if (!word) throw { statusCode: 404, message: 'Word not found' };
+
+    // Return cached if available
+    if (word.translations) {
+      try {
+        const cached = JSON.parse(word.translations as string);
+        return { translations: cached, cached: true };
+      } catch { /* generate fresh */ }
+    }
+
+    try {
+      const config = await getLLMConfig();
+
+      const langNames: Record<string, string> = {
+        es: 'Spanish', fr: 'French', de: 'German', pt: 'Portuguese',
+        vi: 'Vietnamese', ja: 'Japanese', ko: 'Korean', zh: 'Chinese',
+        it: 'Italian', nl: 'Dutch', ru: 'Russian', ar: 'Arabic', hi: 'Hindi', th: 'Thai',
+      };
+      const requestedNames = targetLanguages.map(c => langNames[c] || c).join(', ');
+
+      const systemPrompt = `You are a professional translator. Return ONLY a valid JSON object mapping language codes to their translations.
+Example: { "es": "absurdo", "fr": "absurde", "de": "absurd" }
+Provide the most common translation for the given word in each language. If the word has multiple meanings, pick the most common one.`;
+
+      const userPrompt = `Word: "${word.word}"
+Definition: ${word.definition || 'N/A'}
+Part of speech: ${(word.partOfSpeech as string[])?.join(', ') || 'N/A'}
+Target languages: ${requestedNames}
+Language codes: ${targetLanguages.join(', ')}
+
+Return translations as a JSON object with these language codes as keys.`;
+
+      const responseText = await callLLM(systemPrompt, userPrompt, config, { disableReasoning: true });
+
+      let translations: Record<string, string> = {};
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          translations = JSON.parse(jsonMatch[0].replace(/,\s*\}/g, '}'));
+        } catch { /* empty */ }
+      }
+
+      // Cache
+      await prisma.word.update({
+        where: { id: wordId },
+        data: { translations: JSON.stringify(translations) },
+      });
+
+      return { translations, cached: false };
+    } catch (error: any) {
+      console.error('[translate] Error:', error.message);
+      throw { statusCode: 500, message: 'Failed to generate translations' };
+    }
+  });
+
   // POST /words/compare — Compare two words with LLM analysis
   app.post('/words/compare', { preHandler: authenticate }, async (request, _reply) => {
     const { word1, word2 } = request.body as { word1: string; word2: string };

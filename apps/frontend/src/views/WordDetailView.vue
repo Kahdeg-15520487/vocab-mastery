@@ -17,6 +17,7 @@ const generatingExamples = ref(false)
 const relatedWords = ref<{ sameTopic: any[]; similar: any[]; family?: any[] } | null>(null)
 const etymology = ref<{ origin: string; root: string; breakdown: Array<{part: string; meaning: string; type: string}>; story: string; related: string[] } | null>(null)
 const contextExamples = ref<Record<string, string> | null>(null)
+const translations = ref<Record<string, string> | null>(null)
 const compareWord = ref('')
 const compareResult = ref<any>(null)
 const compareLoading = ref(false)
@@ -89,6 +90,7 @@ onMounted(async () => {
     wordsApi.getRelated(data.id).then(r => relatedWords.value = r).catch(() => {})
     wordsApi.getEtymology(data.id).then(r => etymology.value = r.etymology).catch(() => {})
     wordsApi.getContextExamples(data.id).then(r => contextExamples.value = r.examples).catch(() => {})
+    wordsApi.getTranslations(data.id).then(r => translations.value = r.translations).catch(() => {})
   } catch (e: any) {
     error.value = e.message || 'Word not found'
   } finally {
@@ -556,6 +558,22 @@ n            <span class="text-slate-500 dark:text-slate-400">Origin:</span>
               }"
             >{{ domain }}</span>
             <p class="text-sm text-slate-700 dark:text-slate-300" v-html="sentence.replace(/\*\*(.+?)\*\*/g, '<strong class=\'text-slate-900 dark:text-white\'>$1</strong>')"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Translations -->
+      <div v-if="translations" class="card">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Translations</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div v-for="(tr, code) in translations" :key="code" v-show="tr"
+            class="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800"
+          >
+            <span class="text-lg">{{ { es: '🇪🇸', fr: '🇫🇷', de: '🇩🇪', pt: '🇵🇹', vi: '🇻🇳', ja: '🇯🇵', ko: '🇰🇷', zh: '🇨🇳', it: '🇮🇹', nl: '🇳🇱', ru: '🇷🇺', ar: '🇸🇦', hi: '🇮🇳', th: '🇹🇭' }[code] || '🌐' }}</span>
+            <div>
+              <div class="text-xs text-slate-400 uppercase">{{ code }}</div>
+              <div class="text-sm font-medium text-slate-900 dark:text-white">{{ tr }}</div>
+            </div>
           </div>
         </div>
       </div>

@@ -9,7 +9,7 @@
 - [ ] **#253** 📊 Shareable progress summary card on Dashboard — embeddable stats snapshot #feature #frontend
 - [ ] **#261** **[high]** 🧩 Word Context Examples — show real-world usage snippets from different domains on word detail #feature #frontend
 - [ ] **#265** **[high]** 📈 Study Plan Generator — LLM generates personalized weekly study plan based on user stats/goals #feature #fullstack
-- [ ] **#277** **[high]** 🎯 Daily Challenge — a daily word challenge with bonus XP for completion #feature #fullstack #gamification
+- [ ] **#278** 🌐 Word Translations — LLM-powered translations in multiple languages on word detail page #feature #fullstack #llm
 
 ## Completed
 
@@ -142,6 +142,7 @@
 - [x] **#274** **[high]** 🧩 Word Context Examples — LLM generates domain-specific usage examples (academic, business, casual, news) on Word Detail #feature #fullstack #llm
 - [x] **#275** **[high]** 📤 Shareable Progress Card — visual snapshot of user stats (streak, words learned, CEFR level, XP) as downloadable image #feature #frontend
 - [x] **#276** **[high]** 🔄 Session Resume — detect incomplete sessions and offer to resume from where user left off #feature #fullstack
+- [x] **#277** **[high]** 🎯 Daily Challenge — a daily word challenge with bonus XP for completion #feature #fullstack #gamification
 
 <!-- Raw Data -->
 ```json
@@ -1867,7 +1868,7 @@
     {
       "id": 277,
       "text": "🎯 Daily Challenge — a daily word challenge with bonus XP for completion",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
@@ -1875,9 +1876,23 @@
         "gamification"
       ],
       "createdAt": 1775082048837,
+      "archived": false,
+      "completedAt": 1775082494348
+    },
+    {
+      "id": 278,
+      "text": "🌐 Word Translations — LLM-powered translations in multiple languages on word detail page",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "fullstack",
+        "llm"
+      ],
+      "createdAt": 1775082500923,
       "archived": false
     }
   ],
-  "nextId": 278
+  "nextId": 279
 }
 ```

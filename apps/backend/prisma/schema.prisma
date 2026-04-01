@@ -349,6 +349,7 @@ model Word {
   definitionUrl String?       @map("definition_url")
   etymology     String?       @map("etymology")
   contextExamples String?     @map("context_examples")
+  translations  String?       @map("translations")
   themes        WordTheme[]
   progress      WordProgress[]
   sessionWords  SessionWord[]

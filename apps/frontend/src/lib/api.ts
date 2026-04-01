@@ -208,6 +208,8 @@ export const wordsApi = {
 
   getContextExamples: (wordId: string) => request<{ examples: Record<string, string>; cached: boolean }>(`/words/${wordId}/context-examples`, { method: 'POST', body: JSON.stringify({}) }),
 
+  getTranslations: (wordId: string, languages?: string[]) => request<{ translations: Record<string, string>; cached: boolean }>(`/words/${wordId}/translate`, { method: 'POST', body: JSON.stringify({ languages }) }),
+
   compareWords: (word1: string, word2: string) => request<{
     comparison: string
     word1: { word: string; meaning: string; usage: string; example: string; collocations: string[] }
