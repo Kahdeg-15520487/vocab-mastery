@@ -114,8 +114,9 @@ function openSearch() {
             </button>
             <div
               v-if="showPracticeMenu"
-              class="absolute top-full left-0 mt-1 w-44 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg py-1 z-50"
+              class="absolute top-full left-0 pt-1 w-44 z-50"
             >
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg py-1">
               <RouterLink
                 v-for="item in practiceItems"
                 :key="item.path"
@@ -131,7 +132,7 @@ function openSearch() {
                 <span>{{ item.icon }}</span>
                 {{ item.label }}
               </RouterLink>
-            </div>
+            </div></div>
           </div>
 
           <!-- Stats dropdown -->
@@ -150,8 +151,9 @@ function openSearch() {
             </button>
             <div
               v-if="showStatsMenu"
-              class="absolute top-full left-0 mt-1 w-44 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg py-1 z-50"
+              class="absolute top-full left-0 pt-1 w-44 z-50"
             >
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg py-1">
               <RouterLink
                 v-for="item in statsItems"
                 :key="item.path"
@@ -167,7 +169,7 @@ function openSearch() {
                 <span>{{ item.icon }}</span>
                 {{ item.label }}
               </RouterLink>
-            </div>
+            </div></div>
           </div>
 
           <!-- More dropdown (collections + admin) -->
@@ -185,8 +187,9 @@ function openSearch() {
             </button>
             <div
               v-if="showMoreMenu"
-              class="absolute top-full right-0 mt-1 w-44 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg py-1 z-50"
+              class="absolute top-full right-0 pt-1 w-44 z-50"
             >
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg py-1">
               <RouterLink
                 v-for="item in collectionItems"
                 :key="item.path"
@@ -216,7 +219,7 @@ function openSearch() {
                 <span>⚙️</span>
                 Admin
               </RouterLink>
-            </div>
+            </div></div>
           </div>
         </div>
 
