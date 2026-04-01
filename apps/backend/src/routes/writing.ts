@@ -163,6 +163,27 @@ export async function writingRoutes(app: FastifyInstance) {
     }
   })
 
+  // Delete a writing entry
+  app.delete('/:sprintId/writings/:writingId', async (request) => {
+    const userId = (request.user as any).userId
+    const { sprintId, writingId } = request.params as { sprintId: string; writingId: string }
+
+    // Verify ownership
+    const sprint = await prisma.sprint.findFirst({
+      where: { id: sprintId, userId },
+    })
+    if (!sprint) throw { statusCode: 404, message: 'Sprint not found' }
+
+    const writing = await prisma.sprintWriting.findFirst({
+      where: { id: writingId, sprintId },
+    })
+    if (!writing) throw { statusCode: 404, message: 'Writing not found' }
+
+    await prisma.sprintWriting.delete({ where: { id: writingId } })
+
+    return { success: true }
+  })
+
   // Get writing history for a sprint
   app.get('/:sprintId/writings', async (request) => {
     const userId = (request.user as any).userId

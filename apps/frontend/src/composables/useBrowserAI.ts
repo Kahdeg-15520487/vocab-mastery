@@ -60,11 +60,8 @@ export function useBrowserAI() {
 
     return new Promise<string>((resolve) => {
       let settled = false
-      const t0 = performance.now()
 
       channel.port1.onmessage = (e: MessageEvent) => {
-        const dt = (performance.now() - t0).toFixed(0)
-        console.log(`[useBrowserAI] port1.onmessage fired after ${dt}ms, data:`, JSON.stringify(e.data)?.slice(0, 200))
         if (settled) return
         settled = true
         channel.port1.close()
@@ -72,14 +69,11 @@ export function useBrowserAI() {
       }
 
       // Send the prompt with the transferable port
-      console.log('[useBrowserAI] posting generate to worker, transferring port2')
       worker!.postMessage({ type: 'generate', prompt: promptPayload }, [channel.port2])
 
       // Timeout after 120s — first inference can be slow due to WebGPU shader compilation
       setTimeout(() => {
-        const dt = (performance.now() - t0).toFixed(0)
         if (settled) return
-        console.log(`[useBrowserAI] TIMEOUT after ${dt}ms — resolving with ''`)
         settled = true
         channel.port1.close()
         resolve('')

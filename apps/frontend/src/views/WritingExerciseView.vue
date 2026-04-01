@@ -76,6 +76,14 @@
             </p>
           </div>
 
+          <!-- Gibberish warning -->
+          <div v-if="gibberishWarning" class="p-3 rounded-lg border bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">🚫</span>
+              <span class="text-sm font-medium text-red-700 dark:text-red-300">{{ gibberishWarning }}</span>
+            </div>
+          </div>
+
           <!-- Previous result -->
           <div v-if="lastResult" :class="lastResult.valid ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800' : 'bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800'" class="p-3 rounded-lg border">
             <div class="flex items-center gap-2">
@@ -102,6 +110,7 @@
               class="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white resize-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               rows="3"
               @keydown.ctrl.enter="submitSentence"
+              @input="gibberishWarning = ''"
               :disabled="submitting"
             />
             <div class="flex justify-between items-center">
@@ -154,8 +163,17 @@
       <!-- Writing History -->
       <div v-if="writings.length > 0" class="card space-y-3">
         <h3 class="font-semibold text-slate-900 dark:text-white">Recent Sentences</h3>
-        <div v-for="w in writings.slice(0, 10)" :key="w.id" class="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
-          <p class="text-slate-900 dark:text-white">{{ w.text }}</p>
+        <div v-for="w in writings.slice(0, 10)" :key="w.id" class="group p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+          <div class="flex items-start justify-between gap-2">
+            <p class="text-slate-900 dark:text-white">{{ w.text }}</p>
+            <button
+              @click="deleteWriting(w.id)"
+              class="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 p-1"
+              title="Delete"
+            >
+              ✕
+            </button>
+          </div>
           <div class="flex items-center gap-2 mt-1">
             <span class="text-xs" :class="w.sprintWordsUsed > 0 ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'">
               {{ w.sprintWordsUsed > 0 ? '✓ Word used' : '⚠ Word not detected' }}
@@ -241,6 +259,7 @@ import { useToast } from '../composables/useToast'
 import { useSpeech } from '../composables/useSpeech'
 import { useBrowserAI } from '../composables/useBrowserAI'
 import { buildEvalMessages, parseSentenceEvaluation, type SentenceEvaluation } from '../lib/browser-ai-prompts'
+import { analyzeSentenceQuality } from '../lib/gibberish'
 import LoadingSpinner from '../components/ui/LoadingSpinner.vue'
 import AIFeedbackPanel from '../components/writing/AIFeedbackPanel.vue'
 
@@ -272,6 +291,7 @@ const usedLongFormWords = ref<Set<string>>(new Set())
 const aiFeedbackStatus = ref<'idle' | 'evaluating' | 'done' | 'error'>('idle')
 const aiEvaluation = ref<SentenceEvaluation | null>(null)
 const aiError = ref('')
+const gibberishWarning = ref('')
 
 const currentPrompt = computed(() => prompts.value[currentIndex.value] ?? null)
 const hasSubmittedCurrent = computed(() => results.value.length > currentIndex.value)
@@ -325,10 +345,32 @@ async function loadSprintWords() {
   }
 }
 
+async function deleteWriting(writingId: string) {
+  if (!sprintId.value) return
+  try {
+    await writingApi.deleteWriting(sprintId.value, writingId)
+    writings.value = writings.value.filter(w => w.id !== writingId)
+    toast.success('Sentence deleted')
+  } catch (e: any) {
+    toast.error(e.message || 'Failed to delete')
+  }
+}
+
 async function submitSentence() {
   if (!sprintId.value || !currentPrompt.value || !sentence.value.trim()) return
+
+  // ── Step 1: Gibberish check (instant, no network) ──
+  const quality = analyzeSentenceQuality(sentence.value.trim(), currentPrompt.value.word)
+  if (quality.isGibberish) {
+    gibberishWarning.value = quality.reason
+    toast.error(quality.reason)
+    return
+  }
+  gibberishWarning.value = ''
+
   submitting.value = true
   try {
+    // ── Step 2: Submit to backend (word presence check) ──
     const result = await writingApi.submitSentence(
       sprintId.value,
       currentPrompt.value.wordId,
@@ -341,7 +383,7 @@ async function submitSentence() {
       toast.success('Great usage! ✓')
     }
 
-    // Trigger AI Coach evaluation if enabled and ready
+    // ── Step 3: AI Coach evaluation (if enabled & ready) ──
     if (ai.enabled.value && ai.isReady.value) {
       evaluateWithAI()
     }
@@ -430,7 +472,6 @@ async function evaluateWithAI() {
     })
 
     const raw = await ai.generate(messages)
-    console.log('[WritingExercise] raw from generate:', JSON.stringify(raw)?.slice(0, 300))
     const evaluation = parseSentenceEvaluation(raw)
 
     if (raw) {

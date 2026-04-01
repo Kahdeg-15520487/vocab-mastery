@@ -162,16 +162,12 @@ self.onmessage = async (e: MessageEvent) => {
       await handleLoad()
       break
     case 'generate': {
-      // Respond via MessageChannel port — robust against HMR / module re-init
       const port = e.ports[0]
-      const t0 = performance.now()
       const text = await generateText(e.data.prompt)
-      const dt = (performance.now() - t0).toFixed(0)
-      console.log(`[browser-ai-worker] generation took ${dt}ms`)
       if (port) {
         port.postMessage({ text })
       } else {
-        console.warn('[browser-ai-worker] NO PORT — falling back to self.postMessage')
+        console.warn('[browser-ai-worker] No MessageChannel port — falling back')
         send({ type: 'result', text })
       }
       break

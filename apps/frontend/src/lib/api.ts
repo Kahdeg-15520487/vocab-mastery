@@ -299,6 +299,11 @@ export const writingApi = {
 
   getWritings: (sprintId: string) =>
     request<{ writings: any[] }>(`/writing/${sprintId}/writings`),
+
+  deleteWriting: (sprintId: string, writingId: string) =>
+    request<{ success: boolean }>(`/writing/${sprintId}/writings/${writingId}`, {
+      method: 'DELETE',
+    }),
 }
 
 export const readingApi = {
