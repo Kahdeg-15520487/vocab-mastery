@@ -37,14 +37,19 @@ export function stripThinkBlocks(text: string): string {
   return cleaned
 }
 
-const SYSTEM_PROMPT = `Evaluate the sentence using the target word. Reply with ONLY a JSON object, nothing else.
-{"grammar":{"score":1-5,"note":"brief"},"usage":{"score":1-5,"note":"brief"},"clarity":{"score":1-5,"note":"brief"},"suggestion":"brief tip or None"}
-5=perfect, 1=very poor. Mark nonsensical/gibberish sentences as grammar=1, clarity=1.`
+const SYSTEM_PROMPT = `You are a friendly English tutor. Evaluate the student's sentence. Score generously — minor issues get 4, not 3.
+Reply ONLY with JSON: {"grammar":{"score":1-5,"note":"brief"},"usage":{"score":1-5,"note":"brief"},"clarity":{"score":1-5,"note":"brief"},"suggestion":"tip or None"}
+Scoring: 5=perfect, 4=minor issue, 3=ok but could improve, 2=significant issue, 1=broken/gibberish.
+If sentence is grammatically correct and uses the word properly, give 4-5.`
 
 const EXAMPLE = `
 Target: "mitigate" (verb) — to make less severe
 Sentence: "We need mitigate the risks."
-{"grammar":{"score":3,"note":"Missing 'to'."},"usage":{"score":4,"note":"Correct context."},"clarity":{"score":4,"note":"Understandable."},"suggestion":"Add 'to': We need to mitigate the risks."}`
+{"grammar":{"score":3,"note":"Missing 'to'."},"usage":{"score":4,"note":"Correct context."},"clarity":{"score":5,"note":"Clear."},"suggestion":"Add 'to': We need to mitigate the risks."}
+
+Target: "abundant" (adj) — existing in large quantities
+Sentence: "The garden has abundant flowers this year."
+{"grammar":{"score":5,"note":"Perfect."},"usage":{"score":5,"note":"Correct."},"clarity":{"score":5,"note":"Very clear."},"suggestion":"None"}`
 
 /**
  * Build the evaluation prompt for a sentence.
@@ -117,7 +122,7 @@ export function parseSentenceEvaluation(raw: string): SentenceEvaluation {
         score: clampScore(parsed?.clarity?.score),
         note: String(parsed?.clarity?.note || DEFAULT.clarity.note).slice(0, 100),
       },
-      suggestion: String(parsed?.suggestion || DEFAULT.suggestion).slice(0, 200),
+      suggestion: (typeof parsed?.suggestion === 'string' ? parsed.suggestion : JSON.stringify(parsed?.suggestion) || DEFAULT.suggestion).slice(0, 200),
     }
   } catch {
     return DEFAULT

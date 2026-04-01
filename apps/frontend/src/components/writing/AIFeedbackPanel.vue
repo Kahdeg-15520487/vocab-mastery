@@ -61,7 +61,7 @@
         </div>
 
         <!-- Suggestion -->
-        <div v-if="evaluation.suggestion && evaluation.suggestion !== 'No improvement needed.'" class="p-3 rounded-lg
+        <div v-if="evaluation.suggestion && evaluation.suggestion !== 'None' && evaluation.suggestion !== 'No improvement needed.'" class="p-3 rounded-lg
           bg-indigo-50 border border-indigo-100 dark:bg-indigo-950 dark:border-indigo-800">
           <div class="flex items-start gap-2">
             <span class="text-sm">💡</span>

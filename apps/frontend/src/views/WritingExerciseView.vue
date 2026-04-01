@@ -102,6 +102,26 @@
             :error-message="aiError"
           />
 
+          <!-- AI Coach status hint (when enabled but not ready) -->
+          <div
+            v-if="ai.enabled.value && !ai.isReady.value && aiFeedbackStatus === 'idle'"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+          >
+            <span class="text-sm">🤖</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400">
+              <template v-if="ai.isLoading.value">
+                AI Coach loading… {{ ai.statusMessage.value }}
+                <span v-if="ai.progressPercent.value > 0">({{ ai.progressPercent.value }}%)</span>
+              </template>
+              <template v-else-if="ai.status.value === 'error'">
+                AI Coach error: {{ ai.errorMessage.value }}
+              </template>
+              <template v-else>
+                AI Coach preparing…
+              </template>
+            </span>
+          </div>
+
           <!-- Input -->
           <div class="space-y-2">
             <textarea
