@@ -52,6 +52,10 @@ const { activeSession, checkActiveSession, abandonActiveSession, showSingleTabWa
 const phase = ref<'setup' | 'resume' | 'playing' | 'results'>('setup')
 const loading = ref(false)
 const isLevelTest = ref(false)
+const levelTestResults = ref<{
+  estimatedLevel: string
+  levelBreakdown: { level: string; total: number; correct: number; accuracy: number | null }[]
+} | null>(null)
 const quizData = ref<QuizData | null>(null)
 const quizResult = ref<{ xpEarned?: number; leveledUp?: boolean; newAchievements?: string[] } | null>(null)
 const confettiActive = ref(false)
@@ -152,7 +156,9 @@ async function startLevelTest() {
   } finally {
     loading.value = false
   }
-}() {
+}
+
+async function practiceMistakes() {
   if (missedQuestions.value.length === 0) return
   loading.value = true
   try {
@@ -216,6 +222,18 @@ function nextQuestion() {
     // Complete the session
     completeSession()
     phase.value = 'results'
+
+    // Fetch level test results if this was a level test
+    if (isLevelTest.value && quizData.value) {
+      ;(async () => {
+        try {
+          const results = await request<typeof levelTestResults.value>(`/sessions/level-test/${quizData.value!.sessionId}/results`)
+          levelTestResults.value = results
+        } catch {
+          // Silently fail
+        }
+      })()
+    }
   }
 }
 
@@ -389,12 +407,18 @@ async function restartFromPrompt() {
         </select>
       </div>
 
-      <!-- Start Button -->
-      <div class="text-center">
+      <!-- Start Buttons -->
+      <div class="text-center space-y-3">
         <button @click="startQuiz" :disabled="loading" class="btn btn-primary text-lg px-8 py-3">
           <span v-if="loading" class="animate-spin inline-block mr-2">⏳</span>
           {{ loading ? 'Starting...' : '🧠 Start Quiz' }}
         </button>
+        <div>
+          <button @click="startLevelTest" :disabled="loading" class="px-6 py-2 text-sm border-2 border-indigo-300 dark:border-indigo-600 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors">
+            📊 Vocabulary Level Test
+          </button>
+          <p class="text-xs text-slate-400 mt-1">Tests all CEFR levels to estimate your vocabulary level</p>
+        </div>
       </div>
     </div>
 
@@ -402,7 +426,7 @@ async function restartFromPrompt() {
     <div v-else-if="phase === 'playing' && question" class="space-y-6">
       <!-- Header -->
       <div class="flex items-center justify-between">
-        <button @click="phase = 'setup'" class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+        <button @click="phase = 'setup'; isLevelTest = false; levelTestResults = null" class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
           ← Exit
         </button>
         <span class="text-sm text-slate-500 dark:text-slate-400">
@@ -525,6 +549,23 @@ async function restartFromPrompt() {
         <span class="text-lg font-bold text-primary-600 dark:text-primary-400">+{{ quizResult.xpEarned }} XP</span>
       </div>
 
+      <!-- Level Test Results -->
+      <div v-if="isLevelTest && levelTestResults" class="card max-w-md mx-auto">
+        <div class="text-center mb-4">
+          <div class="text-sm text-slate-500 dark:text-slate-400">Your estimated level</div>
+          <div class="text-4xl font-bold text-indigo-600 dark:text-indigo-400 mt-1">{{ levelTestResults.estimatedLevel }}</div>
+        </div>
+        <div class="space-y-2">
+          <div v-for="lvl in levelTestResults.levelBreakdown" :key="lvl.level" class="flex items-center gap-3">
+            <span class="w-8 text-sm font-medium text-slate-600 dark:text-slate-300">{{ lvl.level }}</span>
+            <div class="flex-1 h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+              <div class="h-full rounded-full transition-all" :class="lvl.accuracy && lvl.accuracy >= 60 ? 'bg-green-500' : lvl.accuracy && lvl.accuracy >= 30 ? 'bg-yellow-500' : 'bg-red-500'" :style="{ width: (lvl.accuracy || 0) + '%' }"></div>
+            </div>
+            <span class="w-12 text-xs text-slate-500 dark:text-slate-400 text-right">{{ lvl.accuracy ?? '-' }}%</span>
+          </div>
+        </div>
+      </div>
+
       <div class="flex gap-4 justify-center flex-wrap">
         <button v-if="missedQuestions.length > 0" @click="practiceMistakes" class="btn btn-primary">
           🔁 Practice Mistakes ({{ missedQuestions.length }})
@@ -532,7 +573,7 @@ async function restartFromPrompt() {
         <button @click="startQuiz" class="btn btn-primary">
           🔄 Try Again
         </button>
-        <button @click="phase = 'setup'" class="btn btn-secondary">
+        <button @click="phase = 'setup'; isLevelTest = false; levelTestResults = null" class="btn btn-secondary">
           ⚙️ Change Settings
         </button>
         <router-link v-if="route.query.sprintId" to="/sprints" class="btn btn-secondary">
