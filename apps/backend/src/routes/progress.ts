@@ -204,6 +204,42 @@ export async function progressRoutes(app: FastifyInstance) {
     return streak;
   });
 
+  // POST /progress/streak/freeze — Activate streak freeze (once per 7 days)
+  app.post('/progress/streak/freeze', async (request, _reply) => {
+    const userId = request.user!.userId;
+
+    const streak = await prisma.userStreak.findUnique({ where: { userId } });
+    if (!streak) throw { statusCode: 404, message: 'No streak found' };
+
+    // Check cooldown (7 days)
+    if (streak.lastFreezeUsed) {
+      const daysSinceFreeze = (Date.now() - streak.lastFreezeUsed.getTime()) / (1000 * 60 * 60 * 24);
+      if (daysSinceFreeze < 7) {
+        throw { statusCode: 400, message: `Streak freeze available in ${Math.ceil(7 - daysSinceFreeze)} days` };
+      }
+    }
+
+    // Must have an active streak to freeze
+    if (streak.currentStreak < 2) {
+      throw { statusCode: 400, message: 'Need at least 2-day streak to use freeze' };
+    }
+
+    // Set frozen_until to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(23, 59, 59, 999);
+
+    await prisma.userStreak.update({
+      where: { userId },
+      data: {
+        lastFreezeUsed: new Date(),
+        frozenUntil: tomorrow,
+      },
+    });
+
+    return { success: true, frozenUntil: tomorrow.toISOString() };
+  });
+
   // ============================================
   // GET /api/progress/calendar - Activity heatmap
   // ============================================

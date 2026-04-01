@@ -150,9 +150,15 @@ export async function updateStreak(userId: string): Promise<StreakResult> {
         };
       }
 
-      // Not consecutive and no grace period - reset streak
-      newCurrentStreak = 1;
-      streakExtended = false;
+      // Not consecutive and no grace period - check streak freeze
+      if (streak.frozenUntil && streak.frozenUntil >= today) {
+        // Streak freeze is active - don't reset
+        newCurrentStreak++;
+        streakExtended = true;
+      } else {
+        newCurrentStreak = 1;
+        streakExtended = false;
+      }
     }
   } else {
     // First activity ever
@@ -200,5 +206,7 @@ export async function getStreak(userId: string) {
     longestStreak: streak.longestStreak,
     lastActivityDate: streak.lastActivityDate,
     gracePeriodsUsed: streak.gracePeriodsUsed,
+    freezeAvailable: !streak.lastFreezeUsed || (Date.now() - streak.lastFreezeUsed.getTime()) / (1000 * 60 * 60 * 24) >= 7,
+    frozenUntil: streak.frozenUntil,
   };
 }

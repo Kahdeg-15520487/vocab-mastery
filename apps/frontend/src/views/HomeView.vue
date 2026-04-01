@@ -34,6 +34,23 @@ const reviewSchedule = ref<{ overdue: number; days: Array<{ date: string; dayLab
 
 // Smart review recommendations
 const reviewRecs = ref<any>(null)
+const freezeLoading = ref(false)
+const freezeResult = ref<{ success: boolean; frozenUntil: string } | null>(null)
+
+async function activateFreeze() {
+  freezeLoading.value = true
+  try {
+    freezeResult.value = await progressApi.activateStreakFreeze()
+    if (dashboard.value?.streak) {
+      // Refetch dashboard to update streak state
+      await progressStore.fetchDashboard()
+    }
+  } catch (e: any) {
+    freezeResult.value = null
+  } finally {
+    freezeLoading.value = false
+  }
+}
 
 // CEFR mastery data for donut chart
 const masteryData = ref<{ levels: Array<{ level: string; total: number; mastered: number; learning: number; reviewing: number; unseen: number }> } | null>(null)
@@ -382,6 +399,32 @@ function formatDate(iso: string) {
             :current="dashboard.streak.current"
             :longest="dashboard.streak.longest"
           />
+
+          <!-- Streak Freeze -->
+          <div v-if="dashboard && dashboard.streak.current >= 2" class="card flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">🧊</span>
+              <div>
+                <p class="text-sm font-medium text-slate-900 dark:text-white">Streak Freeze</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Protect your streak for one day</p>
+              </div>
+            </div>
+            <button
+              v-if="freezeResult?.success"
+              disabled
+              class="px-3 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg text-sm font-medium"
+            >
+              Active ✅
+            </button>
+            <button
+              v-else
+              @click="activateFreeze"
+              :disabled="freezeLoading"
+              class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              {{ freezeLoading ? '...' : 'Activate' }}
+            </button>
+          </div>
           
           <DailyGoals
             v-if="dashboard"

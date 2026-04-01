@@ -267,6 +267,11 @@ export const themesApi = {
 export const progressApi = {
   getAll: () => request<any>('/progress'),
 
+  activateStreakFreeze: () => request<{ success: boolean; frozenUntil: string }>('/progress/streak/freeze', {
+    method: 'POST',
+    body: JSON.stringify({}),
+  }),
+
   getByWordId: (wordId: string) => request<any>(`/progress/${wordId}`),
 
   update: (wordId: string, response: 'easy' | 'medium' | 'hard' | 'forgot', responseTime?: number) =>
