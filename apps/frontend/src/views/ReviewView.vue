@@ -13,6 +13,7 @@ import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
 import ResumePrompt from '@/components/ui/ResumePrompt.vue'
 import SingleTabWarning from '@/components/ui/SingleTabWarning.vue'
 import SprintBanner from '@/components/ui/SprintBanner.vue'
+import { useSpeech } from '@/composables/useSpeech'
 
 const sessionStore = useSessionStore()
 const toast = useToast()
@@ -25,6 +26,7 @@ const sessionComplete = ref(false)
 const sessionResult = ref<any>(null)
 const cardFlipped = ref(false)
 const confettiActive = ref(false)
+const { playAudio } = useSpeech()
 
 // Settings
 const wordCount = ref(20)
@@ -37,6 +39,9 @@ const resumeData = ref<{ answeredCount: number; totalWords: number } | null>(nul
 
 function handleCardFlip(flipped: boolean) {
   cardFlipped.value = flipped
+  if (flipped && sessionStore.currentWord) {
+    try { playAudio(sessionStore.currentWord.word, 'us') } catch {}
+  }
 }
 
 onMounted(async () => {

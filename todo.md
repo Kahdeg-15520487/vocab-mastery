@@ -7,7 +7,7 @@
 - [ ] **#243** 📊 Vocabulary Statistics API — word count by status, CEFR level distribution, study time estimates #feature #backend
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#246** **[low]** 📤 Shareable progress card — generate a shareable image/markdown of vocabulary achievements #feature #backend
-- [ ] **#247** 🛡️ 500 Error Page + API Error Boundary — graceful handling when backend is down #polish #frontend
+- [ ] **#248** 🔊 Auto-play pronunciation in learn/review flashcards — play word audio when card is revealed #feature #frontend
 
 ## Completed
 
@@ -119,6 +119,7 @@
 - [x] **#241** 🔊 Audio pronunciation in quiz results — play word audio when revealing correct answer #feature #frontend
 - [x] **#242** **[low]** 🖨️ Print-friendly vocabulary export — clean printable view for word lists #polish #frontend
 - [x] **#245** 📐 Vocabulary Size Estimator — statistical sampling test to estimate total known words #feature #backend #frontend
+- [x] **#247** 🛡️ 500 Error Page + API Error Boundary — graceful handling when backend is down #polish #frontend
 
 <!-- Raw Data -->
 ```json
@@ -1546,16 +1547,29 @@
     {
       "id": 247,
       "text": "🛡️ 500 Error Page + API Error Boundary — graceful handling when backend is down",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "polish",
         "frontend"
       ],
       "createdAt": 1775075980226,
+      "archived": false,
+      "completedAt": 1775076110338
+    },
+    {
+      "id": 248,
+      "text": "🔊 Auto-play pronunciation in learn/review flashcards — play word audio when card is revealed",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "frontend"
+      ],
+      "createdAt": 1775076116003,
       "archived": false
     }
   ],
-  "nextId": 248
+  "nextId": 249
 }
 ```

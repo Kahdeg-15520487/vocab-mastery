@@ -14,9 +14,9 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import ResumePrompt from '@/components/ui/ResumePrompt.vue'
 import SingleTabWarning from '@/components/ui/SingleTabWarning.vue'
 import SprintBanner from '@/components/ui/SprintBanner.vue'
-
-const route = useRoute()
+import { useSpeech } from '@/composables/useSpeech'
 const router = useRouter()
+const route = useRoute()
 const sessionStore = useSessionStore()
 const wordsStore = useWordsStore()
 const toast = useToast()
@@ -36,6 +36,7 @@ const wordCountOptions = [5, 10, 15, 20]
 const difficulty = ref<'mixed' | 'easy' | 'medium' | 'hard'>('mixed')
 
 // Track if card is flipped (for keyboard shortcuts)
+const { playAudio } = useSpeech()
 const cardFlipped = ref(false)
 const confettiActive = ref(false)
 
@@ -45,6 +46,10 @@ const resumeData = ref<{ answeredCount: number; totalWords: number } | null>(nul
 
 function handleCardFlip(flipped: boolean) {
   cardFlipped.value = flipped
+  // Play pronunciation when card is revealed (showing answer side)
+  if (flipped && sessionStore.currentWord) {
+    try { playAudio(sessionStore.currentWord.word, 'us') } catch {}
+  }
 }
 
 onMounted(async () => {
