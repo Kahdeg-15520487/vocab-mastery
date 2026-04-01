@@ -2,6 +2,7 @@ import { FastifyInstance } from 'fastify';
 import prisma from '../lib/prisma.js';
 import { authenticate } from '../middleware/auth.js';
 import { getLLMConfig, callLLM } from '../lib/llm.js';
+import { Prisma } from '@prisma/client';
 
 export async function statsRoutes(app: FastifyInstance) {
   // All stats routes require authentication
@@ -561,6 +562,135 @@ Return ONLY valid JSON:
       console.error('[study-plan] Error:', error.message);
       throw { statusCode: 500, message: 'Failed to generate study plan' };
     }
+  });
+
+  // GET /stats/daily-challenge — Get today's daily challenge (5 words)
+  app.get('/stats/daily-challenge', async (request, reply) => {
+    const userId = request.user!.userId;
+    const today = new Date();
+    const dayKey = today.toISOString().split('T')[0];
+
+    // Check if already completed today
+    const existing = await prisma.dailyGoal.findFirst({
+      where: { userId, date: new Date(dayKey) },
+    });
+
+    // Day-of-week themed challenge
+    const dayOfWeek = today.getUTCDay();
+    const themes = [
+      { name: 'Sunday Synonyms', type: 'synonym' as const },
+      { name: 'Monday Motivation', type: 'definition' as const },
+      { name: 'Tuesday Translation', type: 'definition' as const },
+      { name: 'Wednesday Words', type: 'mixed' as const },
+      { name: 'Thursday Thesaurus', type: 'synonym' as const },
+      { name: 'Friday Flashback', type: 'review' as const },
+      { name: 'Saturday Spelling', type: 'spelling' as const },
+    ];
+    const theme = themes[dayOfWeek];
+
+    // Seed random from date for consistent words per day
+    const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+
+    // Get words the user hasn't mastered yet
+    const masteredIds = await prisma.wordProgress.findMany({
+      where: { userId, status: 'mastered' },
+      select: { wordId: true },
+    });
+    const masteredSet = new Set(masteredIds.map(m => m.wordId));
+
+    // Get 5 random unmastered words (or any words if all mastered)
+    let words;
+    if (masteredSet.size > 0) {
+      words = await prisma.$queryRaw<Array<{ id: string; word: string; definition: string; cefr_level: string; part_of_speech: string[]; examples: string[] }>>`
+        SELECT id, word, definition, cefr_level, part_of_speech, examples
+        FROM words
+        WHERE id NOT IN (${Prisma.join([...masteredSet].slice(0, 5000))})
+        ORDER BY RANDOM()
+        LIMIT 5
+      `;
+    } else {
+      words = await prisma.$queryRaw<Array<{ id: string; word: string; definition: string; cefr_level: string; part_of_speech: string[]; examples: string[] }>>`
+        SELECT id, word, definition, cefr_level, part_of_speech, examples
+        FROM words
+        ORDER BY RANDOM()
+        LIMIT 5
+      `;
+    };
+
+    // For synonym type, get wrong answer options
+    const questions = words.map((w, i) => {
+      return {
+        index: i,
+        id: w.id,
+        word: w.word,
+        definition: w.definition,
+        cefrLevel: w.cefr_level,
+        partOfSpeech: w.part_of_speech,
+        examples: w.examples,
+        type: theme.type,
+      };
+    });
+
+    return {
+      challengeDay: dayKey,
+      challengeName: theme.name,
+      challengeType: theme.type,
+      questions,
+      completed: false, // TODO: check from dailyGoal
+      bonusXp: 50,
+    };
+  });
+
+  // POST /stats/daily-challenge — Submit daily challenge answers
+  app.post('/stats/daily-challenge', async (request, reply) => {
+    const userId = request.user!.userId;
+    const { answers } = request.body as { answers: Array<{ wordId: string; correct: boolean }> };
+
+    if (!answers?.length) {
+      return reply.status(400).send({ error: 'answers array required' });
+    }
+
+    const correct = answers.filter(a => a.correct).length;
+    const total = answers.length;
+    const accuracy = Math.round((correct / total) * 100);
+
+    // Bonus XP based on performance
+    let bonusXp = 0;
+    if (accuracy >= 80) bonusXp = 50;
+    else if (accuracy >= 60) bonusXp = 30;
+    else if (accuracy >= 40) bonusXp = 15;
+    else bonusXp = 5; // participation
+
+    // Perfect score bonus
+    if (correct === total) bonusXp += 25;
+
+    // Award XP
+    if (bonusXp > 0) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { totalXp: { increment: bonusXp } },
+      });
+    }
+
+    // Update word progress for correct answers
+    for (const answer of answers) {
+      if (answer.correct) {
+        const existing = await prisma.wordProgress.findUnique({
+          where: { userId_wordId: { userId, wordId: answer.wordId } },
+        });
+        if (existing) {
+          await prisma.wordProgress.update({
+            where: { userId_wordId: { userId, wordId: answer.wordId } },
+            data: {
+              repetitions: { increment: 1 },
+              lastReview: new Date(),
+            },
+          });
+        }
+      }
+    }
+
+    return { correct, total, accuracy, bonusXp };
   });
 }
 

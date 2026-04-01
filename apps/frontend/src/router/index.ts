@@ -123,6 +123,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/daily-challenge',
+    name: 'daily-challenge',
+    component: () => import('@/views/DailyChallengeView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/achievements',
     name: 'achievements',
     component: () => import('@/views/AchievementsView.vue'),

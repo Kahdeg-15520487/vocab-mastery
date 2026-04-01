@@ -448,6 +448,19 @@ export const statsApi = {
     }
     generatedAt: string
   }>('/stats/study-plan', { method: 'POST', body: JSON.stringify({}) }),
+
+  getDailyChallenge: () => request<{
+    challengeDay: string
+    challengeName: string
+    challengeType: string
+    questions: Array<{ index: number; id: string; word: string; definition: string; cefrLevel: string; partOfSpeech: string[]; examples: string[]; type: string }>
+    completed: boolean
+    bonusXp: number
+  }>('/stats/daily-challenge'),
+
+  submitDailyChallenge: (answers: Array<{ wordId: string; correct: boolean }>) => request<{
+    correct: number; total: number; accuracy: number; bonusXp: number
+  }>('/stats/daily-challenge', { method: 'POST', body: JSON.stringify({ answers }) }),
 }
 
 // Admin API

@@ -9,7 +9,7 @@
 - [ ] **#253** 📊 Shareable progress summary card on Dashboard — embeddable stats snapshot #feature #frontend
 - [ ] **#261** **[high]** 🧩 Word Context Examples — show real-world usage snippets from different domains on word detail #feature #frontend
 - [ ] **#265** **[high]** 📈 Study Plan Generator — LLM generates personalized weekly study plan based on user stats/goals #feature #fullstack
-- [ ] **#275** **[high]** 📤 Shareable Progress Card — visual snapshot of user stats (streak, words learned, CEFR level, XP) as downloadable image #feature #frontend
+- [ ] **#277** **[high]** 🎯 Daily Challenge — a daily word challenge with bonus XP for completion #feature #fullstack #gamification
 
 ## Completed
 
@@ -140,6 +140,8 @@
 - [x] **#272** **[high]** 💫 Streak Freeze — protect streak once per week, shows in settings and dashboard #feature #fullstack
 - [x] **#273** **[high]** 📚 Add to List from Browse — add selected words to a study list directly from browse batch mode #feature #frontend
 - [x] **#274** **[high]** 🧩 Word Context Examples — LLM generates domain-specific usage examples (academic, business, casual, news) on Word Detail #feature #fullstack #llm
+- [x] **#275** **[high]** 📤 Shareable Progress Card — visual snapshot of user stats (streak, words learned, CEFR level, XP) as downloadable image #feature #frontend
+- [x] **#276** **[high]** 🔄 Session Resume — detect incomplete sessions and offer to resume from where user left off #feature #fullstack
 
 <!-- Raw Data -->
 ```json
@@ -1839,16 +1841,43 @@
     {
       "id": 275,
       "text": "📤 Shareable Progress Card — visual snapshot of user stats (streak, words learned, CEFR level, XP) as downloadable image",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
         "frontend"
       ],
       "createdAt": 1775081854732,
+      "archived": false,
+      "completedAt": 1775081987661
+    },
+    {
+      "id": 276,
+      "text": "🔄 Session Resume — detect incomplete sessions and offer to resume from where user left off",
+      "done": true,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "fullstack"
+      ],
+      "createdAt": 1775081992287,
+      "archived": false,
+      "completedAt": 1775082038626
+    },
+    {
+      "id": 277,
+      "text": "🎯 Daily Challenge — a daily word challenge with bonus XP for completion",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "fullstack",
+        "gamification"
+      ],
+      "createdAt": 1775082048837,
       "archived": false
     }
   ],
-  "nextId": 276
+  "nextId": 278
 }
 ```
