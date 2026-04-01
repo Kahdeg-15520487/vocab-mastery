@@ -4,7 +4,7 @@
 
 ## Pending
 
-- [ ] **#229** **[high]** 🧠 Adaptive Quiz Difficulty — track performance and adjust difficulty dynamically #feature #backend #frontend
+- [ ] **#230** **[high]** 🎯 Smart Review Recommendations — suggest which words to review based on due dates and weakness #feature #frontend
 
 ## Completed
 
@@ -103,6 +103,7 @@
 - [x] **#226** **[high]** Sprint retention rate — compute & display retention rate per sprint + 85% target indicator #P1
 - [x] **#227** **[high]** Sentence Review flashcards — review your own submitted sentences as flashcards #P1
 - [x] **#228** **[high]** 🤖 AI Writing Feedback — server-side LLM review of user sentences #feature #backend #frontend #llm
+- [x] **#229** **[high]** 🧠 Adaptive Quiz Difficulty — track performance and adjust difficulty dynamically #feature #backend #frontend
 
 <!-- Raw Data -->
 ```json
@@ -1317,7 +1318,7 @@
     {
       "id": 229,
       "text": "🧠 Adaptive Quiz Difficulty — track performance and adjust difficulty dynamically",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
@@ -1325,9 +1326,22 @@
         "frontend"
       ],
       "createdAt": 1775071022744,
+      "archived": false,
+      "completedAt": 1775071231160
+    },
+    {
+      "id": 230,
+      "text": "🎯 Smart Review Recommendations — suggest which words to review based on due dates and weakness",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "frontend"
+      ],
+      "createdAt": 1775071236886,
       "archived": false
     }
   ],
-  "nextId": 230
+  "nextId": 231
 }
 ```

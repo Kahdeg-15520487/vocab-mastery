@@ -251,6 +251,15 @@ export const progressApi = {
     }),
 
   getAchievements: () => request<any>('/progress/achievements'),
+
+  getReviewRecommendations: () => request<{
+    overdue: Array<{ id: string; word: string; definition: string; cefrLevel: string; partOfSpeech: string[]; nextReview: string; easeFactor: number; totalReviews: number; correctReviews: number; daysOverdue: number }>
+    weak: Array<{ id: string; word: string; definition: string; cefrLevel: string; partOfSpeech: string[]; nextReview: string; easeFactor: number; totalReviews: number; correctReviews: number }>
+    recentNew: Array<{ id: string; word: string; definition: string; cefrLevel: string; partOfSpeech: string[]; nextReview: string; totalReviews: number }>
+    stats: { totalLearning: number; totalReviewing: number; totalMastered: number }
+    recommendation: string
+    priority: 'high' | 'medium' | 'low'
+  }>('/progress/review-recommendations'),
 }
 
 // Sessions API

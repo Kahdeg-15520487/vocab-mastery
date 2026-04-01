@@ -14,6 +14,7 @@ import ThemeCard from '@/components/learning/ThemeCard.vue'
 import WordOfDay from '@/components/learning/WordOfDay.vue'
 import { useRecentlyViewed } from '@/composables/useRecentlyViewed'
 import { useNotifications } from '@/composables/useNotifications'
+import { progressApi } from '@/lib/api'
 
 const router = useRouter()
 const { recentlyViewed } = useRecentlyViewed()
@@ -26,6 +27,9 @@ const sprintStore = useSprintStore()
 
 // Review schedule
 const reviewSchedule = ref<{ overdue: number; days: Array<{ date: string; dayLabel: string; count: number; isToday: boolean }> } | null>(null)
+
+// Smart review recommendations
+const reviewRecs = ref<any>(null)
 
 // Plateau detection
 const plateau = ref<{ plateau: boolean; message: string | null; suggestions: string[]; currentStreak: number } | null>(null)
@@ -52,12 +56,21 @@ async function loadReviewSchedule() {
   }
 }
 
+async function loadReviewRecommendations() {
+  try {
+    reviewRecs.value = await progressApi.getReviewRecommendations()
+  } catch {
+    // Non-critical
+  }
+}
+
 onMounted(async () => {
   await Promise.all([
     progressStore.fetchDashboard(),
     progressStore.fetchCalendar(90),
     wordsStore.fetchThemes(),
     loadReviewSchedule(),
+    loadReviewRecommendations(),
     sprintStore.fetchCurrent(),
   ])
 
@@ -600,6 +613,62 @@ function formatDate(iso: string) {
         <div v-if="reviewSchedule.overdue > 0" class="mt-2 text-center text-sm text-red-600 dark:text-red-400">
           ⚠️ {{ reviewSchedule.overdue }} word{{ reviewSchedule.overdue !== 1 ? 's' : '' }} overdue for review
         </div>
+      </div>
+
+      <!-- Smart Review Recommendations -->
+      <div v-if="reviewRecs && (reviewRecs.overdue.length > 0 || reviewRecs.weak.length > 0)" class="card">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-semibold text-slate-900 dark:text-white">🎯 Review Focus</h3>
+          <span
+            class="text-xs px-2 py-0.5 rounded-full font-medium"
+            :class="{
+              'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300': reviewRecs.priority === 'high',
+              'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300': reviewRecs.priority === 'medium',
+              'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300': reviewRecs.priority === 'low',
+            }"
+          >
+            {{ reviewRecs.priority }} priority
+          </span>
+        </div>
+        <p class="text-sm text-slate-600 dark:text-slate-400 mb-3">{{ reviewRecs.recommendation }}</p>
+
+        <!-- Overdue words -->
+        <div v-if="reviewRecs.overdue.length > 0" class="mb-3">
+          <h4 class="text-xs font-semibold text-red-600 dark:text-red-400 mb-2">⏰ Overdue ({{ reviewRecs.overdue.length }})</h4>
+          <div class="flex flex-wrap gap-1.5">
+            <router-link
+              v-for="w in reviewRecs.overdue.slice(0, 8)"
+              :key="w.id"
+              :to="`/words/${w.id}`"
+              class="px-2 py-1 text-xs rounded-full bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+            >
+              {{ w.word }}
+              <span v-if="w.daysOverdue > 1" class="text-red-400 dark:text-red-500">(+{{ w.daysOverdue }}d)</span>
+            </router-link>
+          </div>
+        </div>
+
+        <!-- Weak words -->
+        <div v-if="reviewRecs.weak.length > 0">
+          <h4 class="text-xs font-semibold text-amber-600 dark:text-amber-400 mb-2">💪 Needs Practice ({{ reviewRecs.weak.length }})</h4>
+          <div class="flex flex-wrap gap-1.5">
+            <router-link
+              v-for="w in reviewRecs.weak.slice(0, 6)"
+              :key="w.id"
+              :to="`/words/${w.id}`"
+              class="px-2 py-1 text-xs rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+            >
+              {{ w.word }}
+            </router-link>
+          </div>
+        </div>
+
+        <router-link
+          to="/review"
+          class="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary-600 dark:text-primary-400 hover:underline"
+        >
+          Start Review →
+        </router-link>
       </div>
 
       <!-- Recently Learned Words -->

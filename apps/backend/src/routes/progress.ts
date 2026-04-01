@@ -318,6 +318,123 @@ export async function progressRoutes(app: FastifyInstance) {
   });
 
   // ============================================
+  // GET /api/progress/review-recommendations - Smart review suggestions
+  // ============================================
+  app.get('/progress/review-recommendations', async (request, _reply) => {
+    const userId = request.user!.userId;
+
+    const now = new Date();
+
+    // 1. Overdue words (high priority)
+    const overdue = await prisma.wordProgress.findMany({
+      where: {
+        userId,
+        status: { not: 'new' },
+        nextReview: { lt: now },
+      },
+      include: {
+        word: {
+          select: { id: true, word: true, definition: true, cefrLevel: true, partOfSpeech: true },
+        },
+      },
+      orderBy: { nextReview: 'asc' },
+      take: 20,
+    });
+
+    // 2. Weak words (low ease factor, many incorrect reviews)
+    const weakWords = await prisma.wordProgress.findMany({
+      where: {
+        userId,
+        status: { in: ['learning', 'reviewing'] },
+        nextReview: { gte: now },
+        OR: [
+          { easeFactor: { lt: 2.0 } },
+          { correctReviews: { lt: 2 } },
+        ],
+      },
+      include: {
+        word: {
+          select: { id: true, word: true, definition: true, cefrLevel: true, partOfSpeech: true },
+        },
+      },
+      orderBy: { easeFactor: 'asc' },
+      take: 10,
+    });
+
+    // 3. Recently learned (need reinforcement)
+    const threeDaysAgo = new Date(now);
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    const recentNew = await prisma.wordProgress.findMany({
+      where: {
+        userId,
+        status: 'learning',
+        lastReview: { gte: threeDaysAgo },
+        totalReviews: { lt: 3 },
+      },
+      include: {
+        word: {
+          select: { id: true, word: true, definition: true, cefrLevel: true, partOfSpeech: true },
+        },
+      },
+      take: 10,
+    });
+
+    // Stats summary
+    const totalLearning = await prisma.wordProgress.count({
+      where: { userId, status: 'learning' },
+    });
+    const totalReviewing = await prisma.wordProgress.count({
+      where: { userId, status: 'reviewing' },
+    });
+    const totalMastered = await prisma.wordProgress.count({
+      where: { userId, status: { in: ['known', 'mastered'] } },
+    });
+
+    // Recommendation message
+    let recommendation: string;
+    let priority: 'high' | 'medium' | 'low';
+    if (overdue.length > 0) {
+      recommendation = `You have ${overdue.length} overdue word${overdue.length > 1 ? 's' : ''} to review. Start with these to maintain your memory!`;
+      priority = 'high';
+    } else if (weakWords.length > 5) {
+      recommendation = `You have ${weakWords.length} words that need reinforcement. Review them to strengthen your recall.`;
+      priority = 'medium';
+    } else if (recentNew.length > 0) {
+      recommendation = `${recentNew.length} recently learned words could use a quick review to cement them in memory.`;
+      priority = 'low';
+    } else {
+      recommendation = 'Great job! All words are up to date. Try learning some new words!';
+      priority = 'low';
+    }
+
+    return {
+      overdue: overdue.map(wp => ({
+        ...wp.word,
+        nextReview: wp.nextReview,
+        easeFactor: wp.easeFactor,
+        totalReviews: wp.totalReviews,
+        correctReviews: wp.correctReviews,
+        daysOverdue: Math.floor((now.getTime() - (wp.nextReview as Date).getTime()) / (1000 * 60 * 60 * 24)),
+      })),
+      weak: weakWords.map(wp => ({
+        ...wp.word,
+        nextReview: wp.nextReview,
+        easeFactor: wp.easeFactor,
+        totalReviews: wp.totalReviews,
+        correctReviews: wp.correctReviews,
+      })),
+      recentNew: recentNew.map(wp => ({
+        ...wp.word,
+        nextReview: wp.nextReview,
+        totalReviews: wp.totalReviews,
+      })),
+      stats: { totalLearning, totalReviewing, totalMastered },
+      recommendation,
+      priority,
+    };
+  });
+
+  // ============================================
   // POST /api/progress/update - Update goal progress
   // ============================================
   app.post('/progress/update', async (request, _reply) => {
