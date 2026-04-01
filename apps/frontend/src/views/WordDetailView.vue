@@ -18,6 +18,8 @@ const relatedWords = ref<{ sameTopic: any[]; similar: any[]; family?: any[] } | 
 const etymology = ref<{ origin: string; root: string; breakdown: Array<{part: string; meaning: string; type: string}>; story: string; related: string[] } | null>(null)
 const contextExamples = ref<Record<string, string> | null>(null)
 const translations = ref<Record<string, string> | null>(null)
+const difficulty = ref<number>(0)
+const hoverDifficulty = ref(0)
 const compareWord = ref('')
 const compareResult = ref<any>(null)
 const compareLoading = ref(false)
@@ -59,6 +61,7 @@ interface WordDetail {
     lastReview: string | null
     totalReviews: number
     correctReviews: number
+    difficulty?: number | null
   } | null
 }
 
@@ -91,6 +94,7 @@ onMounted(async () => {
     wordsApi.getEtymology(data.id).then(r => etymology.value = r.etymology).catch(() => {})
     wordsApi.getContextExamples(data.id).then(r => contextExamples.value = r.examples).catch(() => {})
     wordsApi.getTranslations(data.id).then(r => translations.value = r.translations).catch(() => {})
+    if (data.progress?.difficulty) difficulty.value = data.progress.difficulty
   } catch (e: any) {
     error.value = e.message || 'Word not found'
   } finally {
@@ -185,6 +189,18 @@ async function saveNotes() {
 function onNotesInput() {
   if (notesSaveTimer) clearTimeout(notesSaveTimer)
   notesSaveTimer = setTimeout(saveNotes, 1000)
+}
+
+async function rateDifficulty(rating: number) {
+  if (!word.value) return
+  difficulty.value = rating
+  try {
+    await wordsApi.rateDifficulty(word.value.id, rating)
+    toast.success(`Rated difficulty: ${'⭐'.repeat(rating)}`)
+  } catch {
+    toast.error('Failed to save difficulty')
+    difficulty.value = 0
+  }
 }
 
 async function markStatus(status: 'learning' | 'reviewing' | 'mastered' | 'new') {
@@ -489,6 +505,30 @@ async function generateExamples() {
             🔄 Reset Progress
           </button>
         </div>
+      </div>
+
+      <!-- Difficulty Rating -->
+      <div class="card">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Difficulty Rating</h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">How hard is this word for you? This adjusts your review schedule.</p>
+        <div class="flex items-center gap-1">
+          <button
+            v-for="star in 5" :key="star"
+            @click="rateDifficulty(star)"
+            @mouseenter="hoverDifficulty = star"
+            @mouseleave="hoverDifficulty = 0"
+            class="text-2xl transition-transform hover:scale-110"
+            :title="['Very Easy', 'Easy', 'Normal', 'Hard', 'Very Hard'][star - 1]"
+          >
+            {{ star <= (hoverDifficulty || difficulty) ? '⭐' : '☆' }}
+          </button>
+          <span v-if="difficulty" class="ml-2 text-sm font-medium text-slate-500 dark:text-slate-400">
+            {{ ['', 'Very Easy', 'Easy', 'Normal', 'Hard', 'Very Hard'][difficulty] }}
+          </span>
+        </div>
+        <p v-if="difficulty" class="text-xs text-slate-400 mt-2">
+          {{ difficulty <= 2 ? 'Reviews will be spaced further apart' : difficulty >= 4 ? 'Reviews will come more frequently' : 'Standard review schedule' }}
+        </p>
       </div>
 
       <!-- Back Button -->

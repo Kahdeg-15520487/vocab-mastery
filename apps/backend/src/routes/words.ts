@@ -88,6 +88,10 @@ export async function wordRoutes(app: FastifyInstance) {
         nextReview: word.progress[0].nextReview,
         repetitions: word.progress[0].repetitions,
         easeFactor: word.progress[0].easeFactor,
+        lastReview: word.progress[0].lastReview,
+        totalReviews: word.progress[0].totalReviews,
+        correctReviews: word.progress[0].correctReviews,
+        difficulty: word.progress[0].difficulty,
       } : null,
       favorited: word.favorites.length > 0,
     }));
@@ -157,6 +161,7 @@ export async function wordRoutes(app: FastifyInstance) {
         nextReview: w.progress[0].nextReview,
         repetitions: w.progress[0].repetitions,
         easeFactor: w.progress[0].easeFactor,
+        difficulty: w.progress[0].difficulty,
       } : null,
     };
   });
@@ -435,6 +440,51 @@ export async function wordRoutes(app: FastifyInstance) {
     });
 
     return { favorited: !!favorite };
+  });
+
+  // POST /words/:wordId/difficulty — Rate word difficulty (1-5), adjusts ease factor
+  app.post('/words/:wordId/difficulty', { preHandler: authenticate }, async (request, _reply) => {
+    const userId = request.user!.userId;
+    const { wordId } = request.params as { wordId: string };
+    const { difficulty } = request.body as { difficulty: number };
+
+    if (!difficulty || difficulty < 1 || difficulty > 5) {
+      throw { statusCode: 400, message: 'Difficulty must be 1-5' };
+    }
+
+    // Get or create progress
+    let progress = await prisma.wordProgress.findUnique({
+      where: { userId_wordId: { userId, wordId } },
+    });
+
+    // Map difficulty to ease factor adjustment:
+    // 1 (very easy) → ease +0.3, 2 (easy) → +0.15, 3 (normal) → no change
+    // 4 (hard) → -0.15, 5 (very hard) → -0.3
+    const easeAdjustments: Record<number, number> = { 1: 0.3, 2: 0.15, 3: 0, 4: -0.15, 5: -0.3 };
+    const adjustment = easeAdjustments[difficulty] || 0;
+
+    if (progress) {
+      const newEase = Math.max(1.3, Math.min(3.0, progress.easeFactor + adjustment));
+      await prisma.wordProgress.update({
+        where: { id: progress.id },
+        data: {
+          difficulty,
+          easeFactor: newEase,
+        },
+      });
+    } else {
+      const baseEase = 2.5 + adjustment;
+      await prisma.wordProgress.create({
+        data: {
+          userId,
+          wordId,
+          difficulty,
+          easeFactor: Math.max(1.3, Math.min(3.0, baseEase)),
+        },
+      });
+    }
+
+    return { difficulty, easeAdjusted: adjustment !== 0 };
   });
 
   // POST /words/:wordId/generate-examples - LLM-powered example sentence generation

@@ -6,7 +6,7 @@
 
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#283** 🔔 Review Reminders — configurable time-based reminders (morning/evening) with browser notifications #feature #frontend
-- [ ] **#286** **[high]** 🎮 Word Chain Game — chain words by last letter, earn XP, learn new words #feature #fullstack #gamification
+- [ ] **#287** **[high]** 🎓 Word Difficulty Rating — user rates 1-5 stars, affects spaced repetition ease factor #feature #fullstack
 
 ## Completed
 
@@ -143,6 +143,7 @@
 - [x] **#278** 🌐 Word Translations — LLM-powered translations in multiple languages on word detail page #feature #fullstack #llm
 - [x] **#281** **[high]** 📎 Export Progress Report — HTML report with study stats, mastery breakdown, weak words list #feature #fullstack
 - [x] **#282** 📊 Dashboard quick stat cards — Total Words, XP, Level, Streak in prominent grid #feature #frontend
+- [x] **#286** **[high]** 🎮 Word Chain Game — chain words by last letter, earn XP, learn new words #feature #fullstack #gamification
 
 <!-- Raw Data -->
 ```json
@@ -1886,7 +1887,7 @@
     {
       "id": 286,
       "text": "🎮 Word Chain Game — chain words by last letter, earn XP, learn new words",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
@@ -1894,9 +1895,22 @@
         "gamification"
       ],
       "createdAt": 1775083272121,
+      "archived": false,
+      "completedAt": 1775083577655
+    },
+    {
+      "id": 287,
+      "text": "🎓 Word Difficulty Rating — user rates 1-5 stars, affects spaced repetition ease factor",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "fullstack"
+      ],
+      "createdAt": 1775083584013,
       "archived": false
     }
   ],
-  "nextId": 287
+  "nextId": 288
 }
 ```

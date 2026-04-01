@@ -193,8 +193,11 @@ export const wordsApi = {
   getDaily: () => request<any>('/words/daily'),
 
   toggleFavorite: (wordId: string) => request<{ favorited: boolean }>(`/words/${wordId}/favorite`, {
-    method: 'POST',
-    body: '{}',
+    method: 'POST', body: JSON.stringify({}),
+  }),
+
+  rateDifficulty: (wordId: string, difficulty: number) => request<{ difficulty: number; easeAdjusted: boolean }>(`/words/${wordId}/difficulty`, {
+    method: 'POST', body: JSON.stringify({ difficulty }),
   }),
 
   generateExamples: (wordId: string) => request<{ examples: string[]; cached: boolean }>(`/words/${wordId}/generate-examples`, {

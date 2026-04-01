@@ -409,6 +409,7 @@ model WordProgress {
   totalReviews    Int       @default(0) @map("total_reviews")
   correctReviews  Int       @default(0) @map("correct_reviews")
   notes           String?  // Personal notes/mnemonics
+  difficulty      Int?     // User-rated difficulty 1-5
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
 
