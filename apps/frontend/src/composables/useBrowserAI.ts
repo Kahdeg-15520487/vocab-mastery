@@ -61,7 +61,6 @@ export function useBrowserAI() {
     }
 
     const id = `gen_${++requestId}`
-    // Serialize messages array or plain string for the worker
     const promptPayload = typeof prompt === 'string' ? prompt : JSON.stringify(prompt)
 
     return new Promise<string>((resolve) => {

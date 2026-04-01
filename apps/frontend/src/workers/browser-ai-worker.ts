@@ -134,14 +134,15 @@ async function handleGenerate(id: string, prompt: string) {
     const first = output?.[0]
 
     if (Array.isArray(first?.generated_text)) {
-      // Chat-format response — get last assistant message
       const last = first.generated_text.at(-1)
       reply = last?.content || ''
     } else if (typeof first?.generated_text === 'string') {
       reply = first.generated_text
+    } else if (typeof first?.generated_text === 'object' && first?.generated_text !== null) {
+      reply = first.generated_text.content || first.generated_text.text || ''
     }
 
-    console.log('[browser-ai-worker] Raw reply:', JSON.stringify(reply).slice(0, 500))
+    console.log('[browser-ai-worker] reply:', reply.slice(0, 300))
     send({ type: 'result', id, text: reply.trim() })
   } catch (err: any) {
     console.error('[browser-ai-worker] Generation failed:', err)
