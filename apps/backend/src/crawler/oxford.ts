@@ -7,10 +7,12 @@ const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
 
 /**
  * Fetch word page from Oxford Learners Dictionary
+ * If definitionUrl is provided, use it directly (includes correct entry suffix like bottle_1)
+ * Otherwise, construct from the word name
  */
-async function fetchWordPage(word: string): Promise<string | null> {
+async function fetchWordPage(word: string, definitionUrl?: string | null): Promise<string | null> {
   try {
-    const url = `${BASE_URL}/definition/english/${encodeURIComponent(word)}`;
+    const url = definitionUrl || `${BASE_URL}/definition/english/${encodeURIComponent(word)}`;
     const response = await axios.get(url, {
       headers: {
         'User-Agent': USER_AGENT,
@@ -120,8 +122,8 @@ function parseOxfordPage(html: string, word: string): CrawlResult {
 /**
  * Crawl a single word from Oxford Dictionary
  */
-export async function crawlWord(word: string): Promise<CrawlResult> {
-  const html = await fetchWordPage(word);
+export async function crawlWord(word: string, definitionUrl?: string | null): Promise<CrawlResult> {
+  const html = await fetchWordPage(word, definitionUrl);
   
   if (!html) {
     return { word, success: false, error: 'Word not found (404)' };

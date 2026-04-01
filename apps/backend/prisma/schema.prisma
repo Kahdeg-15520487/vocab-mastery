@@ -339,6 +339,7 @@ model Word {
   frequency     Int
   audioUs       String?       @map("audio_us")
   audioUk       String?       @map("audio_uk")
+  definitionUrl String?       @map("definition_url")
   themes        WordTheme[]
   progress      WordProgress[]
   sessionWords  SessionWord[]

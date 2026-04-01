@@ -132,6 +132,7 @@ export async function seedDictionary(prisma: PrismaClient, force = false): Promi
     topic: string;
     subtopic: string;
     cefr: string;
+    definitionUrl?: string;
   }
 
   const topicMap = new Map<string, TopicAssignment[]>();
@@ -153,6 +154,7 @@ export async function seedDictionary(prisma: PrismaClient, force = false): Promi
             topic,
             subtopic,
             cefr: w.primaryCefr || w.cefr || '',
+            definitionUrl: w.definitionUrl,
           });
         }
       }
@@ -194,6 +196,7 @@ export async function seedDictionary(prisma: PrismaClient, force = false): Promi
     frequency: number;
     audioUs: string | null;
     audioUk: string | null;
+    definitionUrl: string | null;
     topics: TopicAssignment[];
   }
 
@@ -218,6 +221,7 @@ export async function seedDictionary(prisma: PrismaClient, force = false): Promi
       frequency: 0,
       audioUs: entry.us || null,
       audioUk: entry.uk || null,
+      definitionUrl: null,
       topics: topicMap.get(key) || [],
     });
   }
@@ -243,12 +247,109 @@ export async function seedDictionary(prisma: PrismaClient, force = false): Promi
       frequency: 0,
       audioUs: null,
       audioUk: null,
+      definitionUrl: assignments.find(a => a.definitionUrl)?.definitionUrl || null,
       topics: assignments,
     });
   }
 
+  // ────────────────────────────────────────────
+  // 5b. Enrich topic-only words from WordNet 2025
+  // ────────────────────────────────────────────
+  const wnDir = path.join(DICT_BASE, 'english-wordnet-2025-json');
+  let wnEnriched = 0;
+  let wnSkipped = 0;
+
+  if (fs.existsSync(wnDir)) {
+    console.log('[seed] Loading WordNet 2025 for enrichment...');
+
+    // Load all synset files into a lookup: synsetId → { definition, example, members, partOfSpeech }
+    const synsetMap = new Map<string, { definition: string; examples: string[]; members: string[]; partOfSpeech: string }>();
+    const synsetFiles = fs.readdirSync(wnDir).filter(f =>
+      /^(noun|verb|adj|adv)\.\w+\.json$/.test(f)
+    );
+
+    for (const sf of synsetFiles) {
+      const data = JSON.parse(fs.readFileSync(path.join(wnDir, sf), 'utf-8')) as Record<string, any>;
+      for (const [id, syn] of Object.entries(data)) {
+        if (syn.definition?.length) {
+          synsetMap.set(id, {
+            definition: syn.definition[0],
+            examples: syn.example || [],
+            members: syn.members || [],
+            partOfSpeech: syn.partOfSpeech || '',
+          });
+        }
+      }
+    }
+    console.log(`[seed] Loaded ${synsetMap.size} WordNet synsets`);
+
+    // Load all entry files: word → { pos → { sense: [{ synset }] } }
+    const entryMap = new Map<string, Record<string, { sense: Array<{ synset: string }> }>>();
+    const entryFiles = fs.readdirSync(wnDir).filter(f => f.startsWith('entries-') && f.endsWith('.json'));
+
+    for (const ef of entryFiles) {
+      const data = JSON.parse(fs.readFileSync(path.join(wnDir, ef), 'utf-8')) as Record<string, any>;
+      for (const [word, poses] of Object.entries(data)) {
+        entryMap.set(word.toLowerCase(), poses);
+      }
+    }
+    console.log(`[seed] Loaded ${entryMap.size} WordNet entries`);
+
+    // Enrich topic-only words that have empty definitions
+    for (const [key, merged] of mergedMap) {
+      if (merged.definition) continue; // already has data from Oxford 5000
+
+      const wnEntry = entryMap.get(key);
+      if (!wnEntry) {
+        wnSkipped++;
+        continue;
+      }
+
+      // Collect all synsets across all POS, pick the one with the most examples (or first)
+      let bestSynset: { definition: string; examples: string[]; members: string[]; partOfSpeech: string } | null = null;
+      let bestScore = -1;
+      const posList: string[] = [];
+
+      for (const [pos, data] of Object.entries(wnEntry)) {
+        const posMap: Record<string, string> = { n: 'noun', v: 'verb', a: 'adjective', s: 'adjective', r: 'adverb' };
+        if (!posList.includes(posMap[pos] || pos)) {
+          posList.push(posMap[pos] || pos);
+        }
+
+        for (const sense of (data as any).sense || []) {
+          const syn = synsetMap.get(sense.synset);
+          if (!syn) continue;
+
+          // Score: prefer synsets with examples and shorter definitions (more common sense)
+          const score = syn.examples.length * 10 - syn.definition.length * 0.01;
+          if (score > bestScore) {
+            bestScore = score;
+            bestSynset = syn;
+          }
+        }
+      }
+
+      if (bestSynset) {
+        merged.definition = bestSynset.definition;
+        merged.examples = bestSynset.examples.slice(0, 5);
+        merged.synonyms = bestSynset.members.filter(m => m.toLowerCase() !== key).slice(0, 10);
+        if (posList.length > 0 && merged.partOfSpeech.length === 0) {
+          merged.partOfSpeech = posList;
+        }
+        wnEnriched++;
+      } else {
+        wnSkipped++;
+      }
+    }
+
+    console.log(`[seed] WordNet enrichment: ${wnEnriched} words enriched, ${wnSkipped} not found in WordNet`);
+  } else {
+    console.log('[seed] WordNet directory not found — skipping enrichment');
+  }
+
   const allWords = Array.from(mergedMap.values());
-  console.log(`[seed] Merged word list: ${allWords.length} words (${oxfordEntries.length} from Oxford 5000, ${allWords.length - oxfordEntries.length} topic-only)`);
+  const withDefinition = allWords.filter(w => w.definition).length;
+  console.log(`[seed] Final word list: ${allWords.length} words (${withDefinition} with definitions, ${allWords.length - withDefinition} without)`);
 
   // 6. Upsert words in batches
   const BATCH_SIZE = 500;
@@ -273,6 +374,7 @@ export async function seedDictionary(prisma: PrismaClient, force = false): Promi
             cefrLevel: w.cefrLevel,
             audioUs: w.audioUs,
             audioUk: w.audioUk,
+            definitionUrl: w.definitionUrl,
           },
           create: {
             word: w.word,
@@ -288,6 +390,7 @@ export async function seedDictionary(prisma: PrismaClient, force = false): Promi
             frequency: w.frequency,
             audioUs: w.audioUs,
             audioUk: w.audioUk,
+            definitionUrl: w.definitionUrl,
           },
         })
       )

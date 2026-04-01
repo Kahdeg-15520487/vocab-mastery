@@ -9,12 +9,12 @@ const prisma = new PrismaClient();
  * Get words that need crawling (definition is empty)
  * Database IS the progress tracker - no external file needed
  */
-async function getWordsToCrawl(config: CrawlerConfig): Promise<Array<{ id: string; word: string }>> {
+async function getWordsToCrawl(config: CrawlerConfig): Promise<Array<{ id: string; word: string; definitionUrl: string | null }>> {
   const words = await prisma.word.findMany({
     where: {
       definition: '',
     },
-    select: { id: true, word: true },
+    select: { id: true, word: true, definitionUrl: true },
     orderBy: { word: 'asc' },
     take: config.batchSize,
   });
@@ -88,7 +88,7 @@ async function runCrawler(config: CrawlerConfig = DEFAULT_CONFIG): Promise<void>
     console.log(`[${num}/${words.length}] ${word}...`);
 
     try {
-      const result = await crawlWord(word);
+      const result = await crawlWord(word, words[i].definitionUrl);
 
       if (result.success) {
         if (!config.dryRun) {
