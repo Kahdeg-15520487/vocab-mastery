@@ -102,6 +102,7 @@
 - [x] **#226** Polish AI Coach feedback quality — prompt calibrated, 15/15 for correct sentences ✓ #ai-coach #writing
 - [x] **#227** **[high]** Sprint integration: Add practice buttons to SprintsView (Quiz, Spelling, Fill Blanks, Review) #frontend #sprint #integration
 - [x] **#228** **[high]** Sprint integration: QuizView, SpellingView, FillBlankView, ReviewView accept sprintId query param #frontend #sprint #integration
+- [x] **#229** **[high]** Sprint system integrated with all practice tools (Learn, Review, Quiz, Spelling, Fill Blanks, Writing) #sprint #integration
 
 <!-- Raw Data -->
 ```json
@@ -1336,8 +1337,21 @@
       "createdAt": 1775030423194,
       "archived": false,
       "completedAt": 1775031159230
+    },
+    {
+      "id": 229,
+      "text": "Sprint system integrated with all practice tools (Learn, Review, Quiz, Spelling, Fill Blanks, Writing)",
+      "done": true,
+      "priority": "high",
+      "tags": [
+        "sprint",
+        "integration"
+      ],
+      "createdAt": 1775032192461,
+      "archived": false,
+      "completedAt": 1775032196928
     }
   ],
-  "nextId": 229
+  "nextId": 230
 }
 ```
