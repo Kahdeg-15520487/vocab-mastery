@@ -139,12 +139,15 @@
           >
             {{ sw.word?.word }}
           </span>
-          <span v-if="currentSprint.words.length > 50" class="px-2 py-1 text-sm text-gray-400">
+          <span v-if="currentSprint.words.length > 50" class="px-2 py-1 text-sm text-gray-400 dark:text-gray-500">
             +{{ currentSprint.words.length - 50 }} more...
           </span>
         </div>
       </div>
     </div>
+
+    <!-- AI Coach Status -->
+    <AICoachPanel />
 
     <!-- Milestones -->
     <div v-if="milestones.length" class="card">
@@ -162,7 +165,7 @@
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between">
               <span class="font-medium text-gray-900 dark:text-white">{{ m.name }}</span>
-              <span class="text-sm text-gray-500">{{ m.progress }}%</span>
+              <span class="text-sm text-gray-500 dark:text-gray-300">{{ m.progress }}%</span>
             </div>
             <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2 mt-1">
               <div
@@ -171,7 +174,7 @@
                 :style="{ width: Math.max(2, m.progress) + '%' }"
               ></div>
             </div>
-            <div class="text-xs text-gray-500 mt-1">
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {{ m.current.toLocaleString() }} / {{ m.wordTarget.toLocaleString() }} words
               · {{ m.daysRemaining > 0 ? m.daysRemaining + ' days left' : 'Deadline passed' }}
               <span v-if="m.focusArea"> · {{ m.focusArea }}</span>
@@ -192,7 +195,7 @@
         >
           <div>
             <span class="font-medium text-gray-900 dark:text-white">Sprint #{{ s.number }}</span>
-            <span class="text-sm text-gray-500 ml-2">{{ s._count?.words ?? 0 }} words</span>
+            <span class="text-sm text-gray-500 dark:text-gray-300 ml-2">{{ s._count?.words ?? 0 }} words</span>
           </div>
           <span :class="getHistoryStatusClass(s.status)">{{ s.status }}</span>
         </div>
@@ -216,7 +219,7 @@
                 class="input-field"
                 placeholder="265"
               />
-              <p class="text-xs text-gray-500 mt-1">Recommended: 265 words per 2-week sprint</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Recommended: 265 words per 2-week sprint</p>
             </div>
 
             <div>
@@ -260,6 +263,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useSprintStore } from '@/stores/sprint'
 import { useToast } from '@/composables/useToast'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import AICoachPanel from '@/components/writing/AICoachPanel.vue'
 
 const store = useSprintStore()
 const toast = useToast()

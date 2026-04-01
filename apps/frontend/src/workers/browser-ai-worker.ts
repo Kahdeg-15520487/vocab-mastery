@@ -27,21 +27,40 @@ function send(msg: Record<string, unknown>) {
   self.postMessage(msg)
 }
 
+// Aggregate progress across multiple file downloads
+const fileProgress = new Map<string, { loaded: number; total: number }>()
+
+function sendAggregateProgress() {
+  let loaded = 0
+  let total = 0
+  for (const entry of fileProgress.values()) {
+    loaded += entry.loaded
+    total += entry.total
+  }
+  send({
+    type: 'progress',
+    loaded,
+    total,
+    fileCount: fileProgress.size,
+  })
+}
+
 function handleProgress(evt: Record<string, unknown>) {
   if (!evt) return
 
   if (evt.status === 'progress_total' && Number.isFinite(evt.total)) {
-    send({ type: 'status', status: 'Preparing download…' })
+    // Some transformers versions send a total hint — we can ignore it
+    // since we aggregate per-file progress ourselves
     return
   }
 
   if (evt.status === 'progress') {
-    send({
-      type: 'progress',
+    const key = String(evt.file || evt.name || `file_${fileProgress.size}`)
+    fileProgress.set(key, {
       loaded: Number(evt.loaded) || 0,
       total: Number(evt.total) || 0,
-      file: String(evt.file || evt.name || ''),
     })
+    sendAggregateProgress()
     return
   }
 

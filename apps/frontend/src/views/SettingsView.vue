@@ -371,8 +371,8 @@ async function handleImport(event: Event) {
               :style="{ width: `${ai.progressPercent.value}%` }"
             />
           </div>
-          <p v-if="ai.progress.value.file" class="text-xs text-slate-400 mt-1 truncate">
-            {{ ai.progress.value.file }}
+          <p v-if="ai.progress.value.fileCount > 0" class="text-xs text-slate-400 dark:text-slate-500 mt-1 truncate">
+            Downloading {{ ai.progress.value.fileCount }} file{{ ai.progress.value.fileCount !== 1 ? 's' : '' }}
           </p>
         </div>
 

@@ -12,7 +12,7 @@ export type AIStatus = 'disabled' | 'idle' | 'checking' | 'downloading' | 'loadi
 export interface AIProgress {
   loaded: number
   total: number
-  file: string
+  fileCount: number
 }
 
 export interface GenerateRequest {
@@ -26,7 +26,7 @@ const STORAGE_KEY = 'browser-ai-enabled'
 
 const enabled = ref(loadEnabled())
 const status = ref<AIStatus>(enabled.value ? 'idle' : 'disabled')
-const progress = ref<AIProgress>({ loaded: 0, total: 0, file: '' })
+const progress = ref<AIProgress>({ loaded: 0, total: 0, fileCount: 0 })
 const statusMessage = ref('')
 const errorMessage = ref('')
 
@@ -117,7 +117,7 @@ function startWorker() {
           progress.value = {
             loaded: e.data.loaded || 0,
             total: e.data.total || 0,
-            file: e.data.file || '',
+            fileCount: e.data.fileCount || 0,
           }
           if (status.value !== 'downloading') {
             status.value = 'downloading'
@@ -127,7 +127,7 @@ function startWorker() {
         case 'ready':
           status.value = 'ready'
           statusMessage.value = 'AI Coach ready'
-          progress.value = { loaded: 0, total: 0, file: '' }
+          progress.value = { loaded: 0, total: 0, fileCount: 0 }
           break
 
         case 'error':
@@ -170,7 +170,7 @@ function stopWorker() {
   status.value = 'disabled'
   statusMessage.value = ''
   errorMessage.value = ''
-  progress.value = { loaded: 0, total: 0, file: '' }
+  progress.value = { loaded: 0, total: 0, fileCount: 0 }
 }
 
 // ── Persistence ────────────────────────────────────────────────────
