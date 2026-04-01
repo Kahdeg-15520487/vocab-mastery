@@ -105,6 +105,7 @@
           <!-- Input -->
           <div class="space-y-2">
             <textarea
+              ref="sentenceInput"
               v-model="sentence"
               placeholder="Write a sentence using this word..."
               class="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white resize-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -279,6 +280,7 @@ const submitting = ref(false)
 const prompts = ref<any[]>([])
 const currentIndex = ref(0)
 const sentence = ref('')
+const sentenceInput = ref<HTMLTextAreaElement | null>(null)
 const results = ref<any[]>([])
 const lastResult = ref<any>(null)
 const writings = ref<any[]>([])
@@ -401,6 +403,9 @@ async function submitSentence() {
     }
 
     loadWritings()
+
+    // Keep focus on textarea for Enter → next prompt
+    sentenceInput.value?.focus()
   } catch (e: any) {
     toast.error(e.message || 'Failed to submit')
   } finally {
@@ -439,6 +444,7 @@ function nextPrompt() {
     // All done
     currentIndex.value = prompts.value.length
   }
+  sentenceInput.value?.focus()
 }
 
 function speak(word: string) {
