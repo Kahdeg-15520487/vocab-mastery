@@ -208,10 +208,17 @@ async function callLLM(
     },
   };
   
+  // For reasoning models (Qwen3.5 etc.) via llama.cpp, prefix with /no_think
+  // to prevent the model from spending all tokens on thinking instead of producing output.
+  // Non-reasoning models ignore this prefix.
+  const effectivePrompt = options?.disableReasoning && config.reasoning
+    ? `/no_think\n${userPrompt}`
+    : userPrompt;
+
   const context: Context = {
     systemPrompt,
     messages: [
-      { role: 'user', content: userPrompt, timestamp: Date.now() }
+      { role: 'user', content: effectivePrompt, timestamp: Date.now() }
     ]
   };
   
