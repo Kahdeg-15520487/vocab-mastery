@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { request } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
 import { useSpeech } from '@/composables/useSpeech'
@@ -13,6 +14,7 @@ import ResumePrompt from '@/components/ui/ResumePrompt.vue'
 import SingleTabWarning from '@/components/ui/SingleTabWarning.vue'
 
 const toast = useToast()
+const route = useRoute()
 const { speak } = useSpeech()
 const { activeSession, checkActiveSession, abandonActiveSession, showSingleTabWarning, showTabWarning, dismissTabWarning } = useActiveSession()
 
@@ -221,6 +223,7 @@ async function startPractice() {
     const body: any = { wordCount: wordCount.value }
     const levelRange = getLevelRange(difficulty.value)
     if (levelRange) body.levelRange = levelRange
+    if (route.query.sprintId) body.sprintId = route.query.sprintId as string
 
     const data = await request<{ sessionId: string; questionCount: number; questions: SpellingQuestion[] }>('/sessions/spelling', {
       method: 'POST',

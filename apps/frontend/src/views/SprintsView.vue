@@ -86,13 +86,48 @@
         </div>
 
         <!-- Actions -->
-        <div class="mt-4 flex gap-3">
+        <div class="mt-4 flex flex-wrap gap-3">
           <button
             v-if="currentSprint?.status === 'ACTIVE'"
             @click="$router.push(`/learn?sprintId=${currentSprint.id}`)"
             class="px-4 py-2 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100"
           >
-            📖 Study Sprint Words
+            📖 Study Words
+          </button>
+          <button
+            v-if="currentSprint?.status === 'ACTIVE'"
+            @click="$router.push(`/review?sprintId=${currentSprint.id}`)"
+            class="px-4 py-2 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100"
+          >
+            🔄 Review
+          </button>
+          <button
+            v-if="currentSprint?.status === 'ACTIVE'"
+            @click="$router.push(`/quiz?sprintId=${currentSprint.id}&auto=true`)"
+            class="px-4 py-2 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100"
+          >
+            🧠 Quiz
+          </button>
+          <button
+            v-if="currentSprint?.status === 'ACTIVE'"
+            @click="$router.push(`/spelling?sprintId=${currentSprint.id}`)"
+            class="px-4 py-2 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100"
+          >
+            ✍️ Spelling
+          </button>
+          <button
+            v-if="currentSprint?.status === 'ACTIVE'"
+            @click="$router.push(`/fill-blank?sprintId=${currentSprint.id}`)"
+            class="px-4 py-2 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100"
+          >
+            📝 Fill Blanks
+          </button>
+          <button
+            v-if="currentSprint?.status === 'ACTIVE'"
+            @click="$router.push(`/writing?sprintId=${currentSprint.id}`)"
+            class="px-4 py-2 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100"
+          >
+            📝 Writing
           </button>
           <button
             v-if="currentSprint.status === 'PLANNED'"
@@ -100,13 +135,6 @@
             class="px-4 py-2 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100"
           >
             ▶ Start Sprint
-          </button>
-          <button
-            v-if="currentSprint?.status === 'ACTIVE'"
-            @click="$router.push(`/writing?sprintId=${currentSprint.id}`)"
-            class="px-4 py-2 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100"
-          >
-            ✍️ Writing Practice
           </button>
           <button
             v-if="currentSprint?.status === 'ACTIVE' && sprintProgress >= 100"

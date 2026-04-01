@@ -103,6 +103,7 @@ async function startQuiz() {
     if (levelRange) body.levelRange = levelRange
     if (route.query.list) body.listId = route.query.list as string
     else if (selectedListId.value) body.listId = selectedListId.value
+    if (route.query.sprintId) body.sprintId = route.query.sprintId as string
 
     const data = await request<QuizData>('/sessions/quiz', {
       method: 'POST',

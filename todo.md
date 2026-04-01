@@ -5,6 +5,8 @@
 ## Pending
 
 - [ ] **#223** **[high]** [Shelved] Backend: Validation key signing for writing exercises
+- [ ] **#227** **[high]** Sprint integration: Add practice buttons to SprintsView (Quiz, Spelling, Fill Blanks, Review) #frontend #sprint #integration
+- [ ] **#228** **[high]** Sprint integration: QuizView, SpellingView, FillBlankView, ReviewView accept sprintId query param #frontend #sprint #integration
 
 ## Completed
 
@@ -99,6 +101,7 @@
 - [x] **#222** **[high]** Integrate AI Coach into WritingExerciseView sentence mode #frontend #writing
 - [x] **#224** **[high]** Client-side gibberish check — reject nonsense instantly before submit
 - [x] **#225** **[high]** Frontend: Add delete button to recent sentences
+- [x] **#226** Polish AI Coach feedback quality — prompt calibrated, 15/15 for correct sentences ✓ #ai-coach #writing
 
 <!-- Raw Data -->
 ```json
@@ -1292,8 +1295,47 @@
       "createdAt": 1775017662765,
       "archived": false,
       "completedAt": 1775017934174
+    },
+    {
+      "id": 226,
+      "text": "Polish AI Coach feedback quality — prompt calibrated, 15/15 for correct sentences ✓",
+      "done": true,
+      "priority": "medium",
+      "tags": [
+        "ai-coach",
+        "writing"
+      ],
+      "createdAt": 1775028789592,
+      "archived": false,
+      "completedAt": 1775028799087
+    },
+    {
+      "id": 227,
+      "text": "Sprint integration: Add practice buttons to SprintsView (Quiz, Spelling, Fill Blanks, Review)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "frontend",
+        "sprint",
+        "integration"
+      ],
+      "createdAt": 1775030411895,
+      "archived": false
+    },
+    {
+      "id": 228,
+      "text": "Sprint integration: QuizView, SpellingView, FillBlankView, ReviewView accept sprintId query param",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "frontend",
+        "sprint",
+        "integration"
+      ],
+      "createdAt": 1775030423194,
+      "archived": false
     }
   ],
-  "nextId": 226
+  "nextId": 229
 }
 ```

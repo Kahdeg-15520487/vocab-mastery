@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useSessionStore } from '@/stores/session'
 import { useToast } from '@/composables/useToast'
 import { request } from '@/lib/api'
@@ -14,6 +15,7 @@ import SingleTabWarning from '@/components/ui/SingleTabWarning.vue'
 
 const sessionStore = useSessionStore()
 const toast = useToast()
+const route = useRoute()
 
 // Phase: setup | resume | playing
 const phase = ref<'setup' | 'resume' | 'playing'>('setup')
@@ -114,6 +116,7 @@ function startNewSession() {
     type: 'review',
     wordCount: wordCount.value,
     levelRange,
+    ...(route.query.sprintId ? { sprintId: route.query.sprintId as string } : {}),
   })
 
   phase.value = 'playing'
