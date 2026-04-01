@@ -9,8 +9,7 @@
 - [ ] **#253** 📊 Shareable progress summary card on Dashboard — embeddable stats snapshot #feature #frontend
 - [ ] **#261** **[high]** 🧩 Word Context Examples — show real-world usage snippets from different domains on word detail #feature #frontend
 - [ ] **#265** **[high]** 📈 Study Plan Generator — LLM generates personalized weekly study plan based on user stats/goals #feature #fullstack
-- [ ] **#266** 📱 PWA Install Prompt — show install banner when PWA criteria met, persist dismissal #feature #fullstack
-- [ ] **#267** **[high]** 📝 Study Plan Generator — LLM generates personalized weekly study plan from user stats #feature #fullstack
+- [ ] **#268** **[high]** 📱 PWA Install Prompt — show install banner when criteria met, persist dismissal #feature #frontend
 
 ## Completed
 
@@ -133,6 +132,8 @@
 - [x] **#258** **[high]** 📚 Study List sharing — share token, import into another user's account #feature #fullstack
 - [x] **#259** 🔍 Word Etymology — show word roots, prefixes, suffixes breakdown on Word Detail #feature #fullstack
 - [x] **#264** **[high]** 🎓 Word Mastery Levels — 5-tier mastery badge (New→Learning→Familiar→Mastered→Expert) on browse/word detail #feature #frontend
+- [x] **#266** 📱 PWA Install Prompt — show install banner when PWA criteria met, persist dismissal #feature #fullstack
+- [x] **#267** **[high]** 📝 Study Plan Generator — LLM generates personalized weekly study plan from user stats #feature #fullstack
 
 <!-- Raw Data -->
 ```json
@@ -1727,28 +1728,42 @@
     {
       "id": 266,
       "text": "📱 PWA Install Prompt — show install banner when PWA criteria met, persist dismissal",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
         "fullstack"
       ],
       "createdAt": 1775079881127,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775080479995
     },
     {
       "id": 267,
       "text": "📝 Study Plan Generator — LLM generates personalized weekly study plan from user stats",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
         "fullstack"
       ],
       "createdAt": 1775080066344,
+      "archived": false,
+      "completedAt": 1775080476759
+    },
+    {
+      "id": 268,
+      "text": "📱 PWA Install Prompt — show install banner when criteria met, persist dismissal",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "frontend"
+      ],
+      "createdAt": 1775080484033,
       "archived": false
     }
   ],
-  "nextId": 268
+  "nextId": 269
 }
 ```

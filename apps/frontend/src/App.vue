@@ -4,6 +4,7 @@ import { RouterView } from 'vue-router'
 import AppNavigation from '@/components/layout/AppNavigation.vue'
 import ToastContainer from '@/components/ui/ToastContainer.vue'
 import OfflineBanner from '@/components/ui/OfflineBanner.vue'
+import InstallBanner from '@/components/ui/InstallBanner.vue'
 import GlobalSearch from '@/components/ui/GlobalSearch.vue'
 import ShortcutHelp from '@/components/ui/ShortcutHelp.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -30,6 +31,7 @@ onMounted(async () => {
     </main>
     <ToastContainer />
     <OfflineBanner />
+    <InstallBanner />
     <GlobalSearch />
     <ShortcutHelp />
   </div>
