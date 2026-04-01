@@ -4,12 +4,14 @@ import { useAuthStore } from '@/stores/auth'
 import { request, sprintApi } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
 import { useNotifications } from '@/composables/useNotifications'
+import { useSpeech } from '@/composables/useSpeech'
 import { useBrowserAI } from '@/composables/useBrowserAI'
 import UserAvatar from '@/components/ui/UserAvatar.vue'
 
 const authStore = useAuthStore()
 const toast = useToast()
 const notifications = useNotifications()
+const { speechSpeed: currentSpeed, setSpeed: setSpeechSpeed } = useSpeech()
 const ai = useBrowserAI()
 
 // Password change
@@ -250,6 +252,25 @@ async function handleImport(event: Event) {
           <span class="text-slate-600 dark:text-slate-400">Subscription:</span>
           <span class="badge badge-primary">{{ authStore.user?.subscriptionTier }}</span>
         </div>
+      </div>
+    </div>
+
+    <!-- Pronunciation Settings -->
+    <div class="card mb-6">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Pronunciation</h2>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+        Control the speed of text-to-speech pronunciation.
+      </p>
+      <div class="flex gap-2">
+        <button
+          v-for="speed in ['slow', 'normal', 'fast'] as const"
+          :key="speed"
+          @click="setSpeechSpeed(speed)"
+          class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          :class="currentSpeed === speed ? 'bg-primary-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'"
+        >
+          {{ speed === 'slow' ? '🐢 Slow' : speed === 'normal' ? '🎯 Normal' : '🐇 Fast' }}
+        </button>
       </div>
     </div>
 

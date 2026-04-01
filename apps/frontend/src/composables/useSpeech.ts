@@ -4,6 +4,12 @@ import { ref } from 'vue'
 let audioElement: HTMLAudioElement | null = null
 let currentSrc = ''
 
+export type SpeechSpeed = 'slow' | 'normal' | 'fast'
+
+const speedRates: Record<SpeechSpeed, number> = { slow: 0.6, normal: 0.9, fast: 1.3 }
+const savedSpeed = (typeof localStorage !== 'undefined' && localStorage.getItem('speechSpeed')) as SpeechSpeed | null
+const speechSpeed = ref<SpeechSpeed>(savedSpeed || 'normal')
+
 export function useSpeech() {
   const isSpeaking = ref(false)
   const isSupported = ref('speechSynthesis' in window)
@@ -77,7 +83,7 @@ export function useSpeech() {
 
     const utterance = new SpeechSynthesisUtterance(text)
     utterance.lang = lang
-    utterance.rate = 0.9
+    utterance.rate = speedRates[speechSpeed.value]
     utterance.pitch = 1
 
     utterance.onstart = () => {
@@ -112,12 +118,21 @@ export function useSpeech() {
     isLoading.value = false
   }
 
+  function setSpeed(speed: SpeechSpeed) {
+    speechSpeed.value = speed
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('speechSpeed', speed)
+    }
+  }
+
   return {
     isSpeaking,
     isLoading,
     isSupported,
+    speechSpeed,
     speak,
     playAudio,
+    setSpeed,
     stop,
   }
 }

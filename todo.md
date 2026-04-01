@@ -6,7 +6,7 @@
 
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#283** 🔔 Review Reminders — configurable time-based reminders (morning/evening) with browser notifications #feature #frontend
-- [ ] **#291** **[high]** 🧠 Memory Palace — LLM generates vivid visual associations/mnemonics for words #feature #fullstack #llm
+- [ ] **#293** **[high]** 🔊 Pronunciation speed control — slow/normal/fast toggle for TTS playback #feature #frontend #polish
 
 ## Completed
 
@@ -146,6 +146,7 @@
 - [x] **#286** **[high]** 🎮 Word Chain Game — chain words by last letter, earn XP, learn new words #feature #fullstack #gamification
 - [x] **#287** **[high]** 🎓 Word Difficulty Rating — user rates 1-5 stars, affects spaced repetition ease factor #feature #fullstack
 - [x] **#290** **[high]** 📊 Word Analytics — detailed breakdown of vocabulary by topic, CEFR level, mastery status on Stats page #feature #frontend
+- [x] **#291** **[high]** 🧠 Memory Palace — LLM generates vivid visual associations/mnemonics for words #feature #fullstack #llm
 
 <!-- Raw Data -->
 ```json
@@ -1929,7 +1930,7 @@
     {
       "id": 291,
       "text": "🧠 Memory Palace — LLM generates vivid visual associations/mnemonics for words",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
@@ -1937,9 +1938,23 @@
         "llm"
       ],
       "createdAt": 1775084132100,
+      "archived": false,
+      "completedAt": 1775084291494
+    },
+    {
+      "id": 293,
+      "text": "🔊 Pronunciation speed control — slow/normal/fast toggle for TTS playback",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "frontend",
+        "polish"
+      ],
+      "createdAt": 1775084306855,
       "archived": false
     }
   ],
-  "nextId": 292
+  "nextId": 294
 }
 ```
