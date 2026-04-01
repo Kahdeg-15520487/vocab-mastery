@@ -18,6 +18,7 @@ const titles: Record<string, string> = {
   '/word-chain': 'Word Chain',
   '/speed-round': 'Speed Round',
   '/recommendations': 'Recommendations',
+  '/collections': 'Collections',
   '/achievements': 'Achievements',
   '/spelling': 'Spelling Practice',
   '/fill-blank': 'Fill in the Blank',

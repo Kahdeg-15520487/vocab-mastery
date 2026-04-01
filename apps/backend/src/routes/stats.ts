@@ -853,6 +853,68 @@ Return ONLY valid JSON:
     };
   });
 
+  // GET /stats/collections — Word collection badges by topic
+  app.get('/stats/collections', { preHandler: authenticate }, async (request, _reply) => {
+    const userId = request.user!.userId;
+
+    // Get all topics with learned counts
+    const topicStats = await prisma.$queryRaw<Array<{
+      topic: string; theme_name: string; theme_slug: string;
+      total: bigint; learned: bigint; mastered: bigint
+    }>>`
+      SELECT wt.topic, th.name as theme_name, th.slug as theme_slug,
+        COUNT(DISTINCT w.id) as total,
+        COUNT(DISTINCT CASE WHEN wp.status IN ('learning','reviewing','mastered') THEN w.id END) as learned,
+        COUNT(DISTINCT CASE WHEN wp.status = 'mastered' THEN w.id END) as mastered
+      FROM word_themes wt
+      JOIN words w ON w.id = wt."wordId"
+      JOIN themes th ON th.id = wt."themeId"
+      LEFT JOIN word_progress wp ON wp.word_id = w.id AND wp.user_id = ${userId}
+      WHERE wt.topic IS NOT NULL
+      GROUP BY wt.topic, th.name, th.slug
+      ORDER BY th.slug, wt.topic
+    `;
+
+    // Calculate badges for each topic
+    const badges = topicStats.map(t => {
+      const total = Number(t.total);
+      const learned = Number(t.learned);
+      const mastered = Number(t.mastered);
+      const pct = total > 0 ? Math.round((learned / total) * 100) : 0;
+      const masteredPct = total > 0 ? Math.round((mastered / total) * 100) : 0;
+
+      let tier: 'none' | 'bronze' | 'silver' | 'gold' | 'platinum' = 'none';
+      if (masteredPct >= 80) tier = 'platinum';
+      else if (masteredPct >= 60) tier = 'gold';
+      else if (masteredPct >= 40) tier = 'silver';
+      else if (learned >= 10) tier = 'bronze';
+
+      return {
+        topic: t.topic,
+        theme: t.theme_name,
+        themeSlug: t.theme_slug,
+        total,
+        learned,
+        mastered,
+        pct,
+        masteredPct,
+        tier,
+      };
+    });
+
+    // Summary stats
+    const totalBadges = badges.filter(b => b.tier !== 'none').length;
+    const platinum = badges.filter(b => b.tier === 'platinum').length;
+    const gold = badges.filter(b => b.tier === 'gold').length;
+    const silver = badges.filter(b => b.tier === 'silver').length;
+    const bronze = badges.filter(b => b.tier === 'bronze').length;
+
+    return {
+      badges,
+      summary: { totalBadges, platinum, gold, silver, bronze, totalTopics: badges.length },
+    };
+  });
+
   // GET /stats/topic-breakdown — Vocabulary breakdown by topic
   app.get('/stats/topic-breakdown', { preHandler: authenticate }, async (request, _reply) => {
     const userId = request.user!.userId;

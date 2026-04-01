@@ -446,6 +446,15 @@ export const statsApi = {
     topics: Array<{ name: string; total: number; learned: number; mastered: number; pct: number }>
   }>>('/stats/topic-breakdown'),
 
+  getCollections: () => request<{
+    badges: Array<{
+      topic: string; theme: string; themeSlug: string;
+      total: number; learned: number; mastered: number;
+      pct: number; masteredPct: number; tier: string
+    }>
+    summary: { totalBadges: number; platinum: number; gold: number; silver: number; bronze: number; totalTopics: number }
+  }>('/stats/collections'),
+
   getRecommendations: (limit?: number) => request<{
     recommendations: Array<{
       id: string; word: string; definition: string; cefr_level: string;

@@ -6,7 +6,7 @@
 
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#283** 🔔 Review Reminders — configurable time-based reminders (morning/evening) with browser notifications #feature #frontend
-- [ ] **#297** **[high]** 🎯 Smart Recommendations — suggest words based on weak topics, CEFR gaps, and review priority #feature #fullstack
+- [ ] **#298** **[high]** 📚 Word Collection Badges — topic completion tracking with milestone badges #feature #fullstack #gamification
 
 ## Completed
 
@@ -149,6 +149,7 @@
 - [x] **#291** **[high]** 🧠 Memory Palace — LLM generates vivid visual associations/mnemonics for words #feature #fullstack #llm
 - [x] **#293** **[high]** 🔊 Pronunciation speed control — slow/normal/fast toggle for TTS playback #feature #frontend #polish
 - [x] **#296** **[high]** ⚡ Speed Round — timed flashcard challenge, answer as many as possible in 60 seconds #feature #fullstack #gamification
+- [x] **#297** **[high]** 🎯 Smart Recommendations — suggest words based on weak topics, CEFR gaps, and review priority #feature #fullstack
 
 <!-- Raw Data -->
 ```json
@@ -1974,16 +1975,30 @@
     {
       "id": 297,
       "text": "🎯 Smart Recommendations — suggest words based on weak topics, CEFR gaps, and review priority",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
         "fullstack"
       ],
       "createdAt": 1775084961697,
+      "archived": false,
+      "completedAt": 1775085324614
+    },
+    {
+      "id": 298,
+      "text": "📚 Word Collection Badges — topic completion tracking with milestone badges",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "fullstack",
+        "gamification"
+      ],
+      "createdAt": 1775085328731,
       "archived": false
     }
   ],
-  "nextId": 298
+  "nextId": 299
 }
 ```
