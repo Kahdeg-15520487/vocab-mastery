@@ -4,11 +4,7 @@
 
 ## Pending
 
-- [ ] **#220** **[high]** Implement Review Sprint logic (every 4th sprint, 50% weak words from previous 3)
-- [ ] **#224** Add Sentence Review flashcards — review your own submitted sentences
-- [ ] **#225** Sprint-aware study modes — show sprint context in Learn/Review/Quiz views
 - [ ] **#226** **[high]** Sprint retention rate — compute & display retention rate per sprint + 85% target indicator #P1
-- [ ] **#227** **[high]** Sentence Review flashcards — review your own submitted sentences as flashcards #P1
 
 ## Completed
 
@@ -98,9 +94,13 @@
 - [x] **#217** Phase 5: Plateau detection + nudge suggestions
 - [x] **#218** Phase 5: Writing prompt generator using sprint words
 - [x] **#219** Add Writing Prompts UI to Sprints page
+- [x] **#220** **[high]** Implement Review Sprint logic (every 4th sprint, 50% weak words from previous 3)
 - [x] **#221** **[high]** Add Year Goal setting + Pace Calculator on dashboard
 - [x] **#222** Add Sprint Phase auto-transition (ACQUISITION→APPLICATION at day 8)
 - [x] **#223** Add Writing Challenge live sprint word counter + highlighting
+- [x] **#224** Add Sentence Review flashcards — review your own submitted sentences
+- [x] **#225** Sprint-aware study modes — show sprint context in Learn/Review/Quiz views
+- [x] **#227** **[high]** Sentence Review flashcards — review your own submitted sentences as flashcards #P1
 
 <!-- Raw Data -->
 ```json
@@ -1216,11 +1216,12 @@
     {
       "id": 220,
       "text": "Implement Review Sprint logic (every 4th sprint, 50% weak words from previous 3)",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [],
       "createdAt": 1775057508429,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775068461735
     },
     {
       "id": 221,
@@ -1255,20 +1256,22 @@
     {
       "id": 224,
       "text": "Add Sentence Review flashcards — review your own submitted sentences",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [],
       "createdAt": 1775059192315,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775068463658
     },
     {
       "id": 225,
       "text": "Sprint-aware study modes — show sprint context in Learn/Review/Quiz views",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [],
       "createdAt": 1775059196368,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775068465763
     },
     {
       "id": 226,
@@ -1284,13 +1287,14 @@
     {
       "id": 227,
       "text": "Sentence Review flashcards — review your own submitted sentences as flashcards",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "P1"
       ],
       "createdAt": 1775060946194,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775068453935
     }
   ],
   "nextId": 228
