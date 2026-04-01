@@ -9,7 +9,7 @@
 - [ ] **#253** 📊 Shareable progress summary card on Dashboard — embeddable stats snapshot #feature #frontend
 - [ ] **#261** **[high]** 🧩 Word Context Examples — show real-world usage snippets from different domains on word detail #feature #frontend
 - [ ] **#265** **[high]** 📈 Study Plan Generator — LLM generates personalized weekly study plan based on user stats/goals #feature #fullstack
-- [ ] **#274** **[high]** 🧩 Word Context Examples — LLM generates domain-specific usage examples (academic, business, casual, news) on Word Detail #feature #fullstack #llm
+- [ ] **#275** **[high]** 📤 Shareable Progress Card — visual snapshot of user stats (streak, words learned, CEFR level, XP) as downloadable image #feature #frontend
 
 ## Completed
 
@@ -139,6 +139,7 @@
 - [x] **#270** 📊 Vocabulary Distribution Chart — visual breakdown of known words by CEFR level and topic on dashboard #feature #frontend
 - [x] **#272** **[high]** 💫 Streak Freeze — protect streak once per week, shows in settings and dashboard #feature #fullstack
 - [x] **#273** **[high]** 📚 Add to List from Browse — add selected words to a study list directly from browse batch mode #feature #frontend
+- [x] **#274** **[high]** 🧩 Word Context Examples — LLM generates domain-specific usage examples (academic, business, casual, news) on Word Detail #feature #fullstack #llm
 
 <!-- Raw Data -->
 ```json
@@ -1824,7 +1825,7 @@
     {
       "id": 274,
       "text": "🧩 Word Context Examples — LLM generates domain-specific usage examples (academic, business, casual, news) on Word Detail",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
@@ -1832,9 +1833,22 @@
         "llm"
       ],
       "createdAt": 1775081689734,
+      "archived": false,
+      "completedAt": 1775081850031
+    },
+    {
+      "id": 275,
+      "text": "📤 Shareable Progress Card — visual snapshot of user stats (streak, words learned, CEFR level, XP) as downloadable image",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "frontend"
+      ],
+      "createdAt": 1775081854732,
       "archived": false
     }
   ],
-  "nextId": 275
+  "nextId": 276
 }
 ```

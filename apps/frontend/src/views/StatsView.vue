@@ -3,8 +3,10 @@ import { onMounted, computed, ref } from 'vue'
 import { useStatsStore } from '@/stores/stats'
 import { statsApi } from '@/lib/api'
 import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
+import ShareableCard from '@/components/progress/ShareableCard.vue'
 
 const statsStore = useStatsStore()
+const shareCard = ref<InstanceType<typeof ShareableCard> | null>(null)
 
 // Heatmap & study time
 const heatmapData = ref<Array<{ date: string; wordsLearned: number; wordsReviewed: number }>>([])
@@ -126,8 +128,13 @@ const statsXpNeeded = computed(() => {
         <router-link to="/history" class="text-primary-600 dark:text-primary-400 hover:underline text-sm">
           View session history →
         </router-link>
+        <button @click="shareCard?.open()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors">
+          Share Progress
+        </button>
       </div>
     </div>
+
+    <ShareableCard ref="shareCard" />
 
     <!-- Loading Skeleton -->
     <div v-if="loading && !stats" class="space-y-6">
