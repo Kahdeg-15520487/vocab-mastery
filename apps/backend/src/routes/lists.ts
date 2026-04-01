@@ -794,4 +794,80 @@ Return ONLY a JSON array of objects with "word" and "reason" fields.`;
 
     reply.type('text/html').send(html);
   });
+
+  // GET /lists/:id/export/anki — Export list as Anki-compatible CSV
+  app.get('/lists/:id/export/anki', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const userId = request.user!.userId;
+
+    const list = await prisma.studyList.findFirst({
+      where: { id, userId },
+      include: {
+        words: {
+          include: {
+            word: {
+              include: {
+                themes: { include: { theme: true } },
+                progress: { where: { userId } },
+              },
+            },
+          },
+          orderBy: { word: { word: 'asc' } },
+        },
+      },
+    });
+
+    if (!list) {
+      return reply.status(404).send({ error: 'List not found' });
+    }
+
+    // Build CSV rows
+    const rows: string[][] = [];
+    // Header
+    rows.push([
+      'Word', 'Definition', 'Part of Speech', 'CEFR Level',
+      'Phonetic US', 'Phonetic UK', 'Examples', 'Synonyms',
+      'Topics', 'Status', 'Next Review', 'Ease Factor',
+    ]);
+
+    for (const lw of list.words) {
+      const w = lw.word;
+      const progress = w.progress?.[0];
+      const examples = (w.examples as string[])?.join('<br>') || '';
+      const synonyms = (w.synonyms as string[])?.join(', ') || '';
+      const topics = w.themes.map(t => t.theme.name).join(', ');
+
+      rows.push([
+        w.word,
+        (w.definition || '').replace(/\n/g, '<br>'),
+        (w.partOfSpeech as string[])?.join(', ') || '',
+        w.cefrLevel || '',
+        w.phoneticUs || '',
+        w.phoneticUk || '',
+        examples,
+        synonyms,
+        topics,
+        progress?.status || 'new',
+        progress?.nextReview ? new Date(progress.nextReview).toISOString().split('T')[0] : '',
+        progress?.easeFactor?.toString() || '',
+      ]);
+    }
+
+    // CSV escape (handle quotes, commas, newlines)
+    const csv = rows.map(row =>
+      row.map(cell => {
+        const str = String(cell);
+        if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('<br>')) {
+          return '"' + str.replace(/"/g, '""') + '"';
+        }
+        return str;
+      }).join(',')
+    ).join('\n');
+
+    const filename = `${list.name.replace(/[^a-zA-Z0-9]/g, '_')}_anki_export.csv`;
+    reply
+      .header('Content-Type', 'text/csv; charset=utf-8')
+      .header('Content-Disposition', `attachment; filename="${filename}"`)
+      .send('\uFEFF' + csv); // BOM for Excel UTF-8 compatibility
+  });
 }

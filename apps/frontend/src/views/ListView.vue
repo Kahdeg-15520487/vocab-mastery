@@ -121,6 +121,24 @@ function printList() {
   const url = `/api/lists/${listId}/print?token=${token}`
   window.open(url, '_blank')
 }
+
+function exportAnki() {
+  const token = sessionStorage.getItem('accessToken')
+  // Use fetch to download with auth header
+  fetch(`/api/lists/${listId}/export/anki`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(r => r.blob())
+    .then(blob => {
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${list.value?.name || 'vocab'}_anki_export.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+    })
+    .catch(() => {})
+}
 </script>
 
 <template>
@@ -179,6 +197,13 @@ function printList() {
               :disabled="list.pagination.total === 0"
             >
               Print
+            </button>
+            <button
+              @click="exportAnki"
+              class="btn btn-secondary text-sm"
+              :disabled="list.pagination.total === 0"
+            >
+              Export CSV
             </button>
             <button
               @click="showAddWords = !showAddWords"

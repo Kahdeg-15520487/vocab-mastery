@@ -7,6 +7,9 @@
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#246** **[low]** 📤 Shareable progress card — generate a shareable image/markdown of vocabulary achievements #feature #backend
 - [ ] **#253** 📊 Shareable progress summary card on Dashboard — embeddable stats snapshot #feature #frontend
+- [ ] **#255** **[high]** 📤 Export to Anki CSV — word, definition, examples, CEFR level, audio filename #feature #fullstack
+- [ ] **#256** 🎯 Word Mastery Goals — set target CEFR level and track % mastery per level #feature #fullstack
+- [ ] **#257** 📚 Study List sharing — generate share link, other users can import list #feature #fullstack
 
 ## Completed
 
@@ -1611,8 +1614,44 @@
       "createdAt": 1775077631920,
       "archived": false,
       "completedAt": 1775077787003
+    },
+    {
+      "id": 255,
+      "text": "📤 Export to Anki CSV — word, definition, examples, CEFR level, audio filename",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "fullstack"
+      ],
+      "createdAt": 1775078313784,
+      "archived": false
+    },
+    {
+      "id": 256,
+      "text": "🎯 Word Mastery Goals — set target CEFR level and track % mastery per level",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "fullstack"
+      ],
+      "createdAt": 1775078317720,
+      "archived": false
+    },
+    {
+      "id": 257,
+      "text": "📚 Study List sharing — generate share link, other users can import list",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "fullstack"
+      ],
+      "createdAt": 1775078321278,
+      "archived": false
     }
   ],
-  "nextId": 255
+  "nextId": 258
 }
 ```
