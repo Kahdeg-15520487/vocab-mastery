@@ -782,10 +782,47 @@ export async function sessionRoutes(app: FastifyInstance) {
       const examples = (word.examples as string[] || []);
       // Pick a random example
       const sentence = examples[Math.floor(Math.random() * examples.length)] || '';
-      // Mask the word in the sentence
+      // Mask the word in the sentence, handling common inflected forms
+      // e.g. "accumulate" → also match "accumulated", "accumulating", "accumulates"
       const escapedWord = word.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const w = word.word.toLowerCase();
+      const forms = new Set([escapedWord]);
+      // Verb forms: -s, -es, -ed, -ing
+      forms.add(escapedWord + 's');
+      forms.add(escapedWord + 'es');
+      forms.add(escapedWord + 'ed');
+      forms.add(escapedWord + 'd');
+      forms.add(escapedWord + 'ing');
+      // Drop silent e before -ed/-ing: accumulate → accumulated, accumulating
+      if (w.endsWith('e')) {
+        const base = escapedWord.slice(0, -1);
+        forms.add(base + 'ed');
+        forms.add(base + 'ing');
+        forms.add(base + 'es');
+      }
+      // Consonant doubling (e.g. stop → stopped, stopping)
+      if (w.length >= 2 && /[bcdfghjklmnpqrstvwxyz]$/.test(w.slice(-1)) && /[aeiou]$/.test(w.slice(-2, -1))) {
+        const doubled = escapedWord + w.slice(-1);
+        forms.add(doubled + 'ed');
+        forms.add(doubled + 'ing');
+      }
+      // -y → -ied/-ies: vary → varied, varies
+      if (w.endsWith('y') && w.length > 1 && !/[aeiou]/.test(w.slice(-2, -1))) {
+        const ies = escapedWord.slice(0, -1) + 'i';
+        forms.add(ies + 'ed');
+        forms.add(ies + 'es');
+      }
+      // Noun plural: -s, -es, -ies (already covered above for most)
+      if (w.endsWith('y') && w.length > 1 && !/[aeiou]/.test(w.slice(-2, -1))) {
+        forms.add(escapedWord.slice(0, -1) + 'ies');
+      }
+      if (w.endsWith('s') || w.endsWith('x') || w.endsWith('ch') || w.endsWith('sh')) {
+        forms.add(escapedWord + 'es');
+      }
+
+      const pattern = [...forms].join('|');
       const maskedSentence = sentence.replace(
-        new RegExp(`\\b${escapedWord}\\b`, 'gi'),
+        new RegExp(`\\b(${pattern})\\b`, 'gi'),
         '________'
       );
 
