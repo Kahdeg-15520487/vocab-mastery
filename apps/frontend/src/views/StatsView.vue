@@ -8,6 +8,22 @@ import ShareableCard from '@/components/progress/ShareableCard.vue'
 const statsStore = useStatsStore()
 const shareCard = ref<InstanceType<typeof ShareableCard> | null>(null)
 
+async function downloadReport() {
+  try {
+    const token = sessionStorage.getItem('accessToken')
+    const res = await fetch('/api/progress/report', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    const html = await res.text()
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const w = window.open(url, '_blank')
+    if (w) w.onload = () => URL.revokeObjectURL(url)
+  } catch {
+    // Silently fail
+  }
+}
+
 // Heatmap & study time
 const heatmapData = ref<Array<{ date: string; wordsLearned: number; wordsReviewed: number }>>([])
 const studyTime = ref<{ totalTimeMinutes: number; totalSessions: number; avgSessionMinutes: number; byType: { type: string; totalMinutes: number; sessions: number }[] } | null>(null)
@@ -130,6 +146,9 @@ const statsXpNeeded = computed(() => {
         </router-link>
         <button @click="shareCard?.open()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors">
           Share Progress
+        </button>
+        <button @click="downloadReport" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 rounded-lg text-sm font-medium transition-colors">
+          Print Report
         </button>
       </div>
     </div>

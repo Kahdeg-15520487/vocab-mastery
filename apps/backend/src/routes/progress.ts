@@ -1058,9 +1058,98 @@ export async function progressRoutes(app: FastifyInstance) {
     };
   });
 
-  // ============================================
-  // IMPORT USER DATA
-  // ============================================
+  // GET /progress/report — Self-contained HTML progress report
+  app.get('/progress/report', { preHandler: authenticate }, async (request, reply) => {
+    const userId = request.user!.userId;
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw { statusCode: 404, message: 'User not found' };
+
+    // Gather data
+    const [streak, masteryData, recentSessions] = await Promise.all([
+      prisma.userStreak.findUnique({ where: { userId } }),
+      prisma.$queryRaw<Array<{ cefr_level: string; total: bigint; learned: bigint; mastered: bigint }>>`
+        SELECT w.cefr_level,
+          COUNT(*) as total,
+          COUNT(CASE WHEN wp.status IN ('learning','reviewing','mastered') THEN 1 END) as learned,
+          COUNT(CASE WHEN wp.status = 'mastered' THEN 1 END) as mastered
+        FROM words w
+        LEFT JOIN word_progress wp ON wp.word_id = w.id AND wp.user_id = ${userId}
+        GROUP BY w.cefr_level
+        ORDER BY ARRAY_POSITION(ARRAY['A1','A2','B1','B2','C1','C2'], w.cefr_level)
+      `,
+      prisma.learningSession.findMany({
+        where: { userId, completedAt: { not: null } },
+        orderBy: { completedAt: 'desc' }, take: 10,
+        select: { type: true, totalCorrect: true, totalIncorrect: true, completedAt: true },
+      }),
+    ]);
+
+    // Weak words (learning status, low ease factor)
+    const weakWords = await prisma.wordProgress.findMany({
+      where: { userId, status: 'learning' },
+      include: { word: { select: { word: true, definition: true, cefrLevel: true } } },
+      orderBy: { easeFactor: 'asc' }, take: 20,
+    });
+
+    const totalLearned = masteryData.reduce((s, r) => s + Number(r.learned), 0);
+    const totalMastered = masteryData.reduce((s, r) => s + Number(r.mastered), 0);
+    const totalWords = masteryData.reduce((s, r) => s + Number(r.total), 0);
+
+    const cefrColors: Record<string, string> = { A1: '#22c55e', A2: '#3b82f6', B1: '#f59e0b', B2: '#ef4444', C1: '#8b5cf6', C2: '#ec4899' };
+
+    const masteryRows = masteryData.map(r => {
+      const lvl = r.cefr_level;
+      const total = Number(r.total);
+      const learned = Number(r.learned);
+      const mastered = Number(r.mastered);
+      const pct = total > 0 ? Math.round((learned / total) * 100) : 0;
+      const mPct = total > 0 ? Math.round((mastered / total) * 100) : 0;
+      return `<tr><td style="padding:8px;font-weight:600;color:${cefrColors[lvl] || '#333'}">${lvl}</td><td style="padding:8px;text-align:center">${total}</td><td style="padding:8px;text-align:center">${learned} (${pct}%)</td><td style="padding:8px;text-align:center">${mastered} (${mPct}%)</td><td style="padding:8px"><div style="background:#e2e8f0;border-radius:999px;height:8px;width:100%"><div style="background:${cefrColors[lvl] || '#3b82f6'};height:8px;border-radius:999px;width:${pct}%"></div></div></td></tr>`;
+    }).join('');
+
+    const weakRows = weakWords.map(w =>
+      `<tr><td style="padding:6px 8px;font-weight:500">${w.word.word}</td><td style="padding:6px 8px;color:#64748b;font-size:13px">${(w.word.definition || '').substring(0, 60)}...</td><td style="padding:6px 8px;text-align:center;color:${cefrColors[w.word.cefrLevel] || '#333'}">${w.word.cefrLevel}</td></tr>`
+    ).join('');
+
+    const sessionRows = recentSessions.map(s =>
+      `<tr><td style="padding:6px 8px;text-transform:capitalize">${s.type}</td><td style="padding:6px 8px;text-align:center">${s.totalCorrect}/${s.totalCorrect + s.totalIncorrect}</td><td style="padding:6px 8px;text-align:center">${s.completedAt ? new Date(s.completedAt).toLocaleDateString() : '-'}</td></tr>`
+    ).join('');
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Vocab Master — Progress Report</title><style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; color: #1e293b; padding: 40px; max-width: 800px; margin: 0 auto; }
+      h1 { font-size: 24px; margin-bottom: 4px; }
+      h2 { font-size: 18px; margin: 24px 0 12px; color: #334155; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+      .meta { color: #64748b; font-size: 14px; margin-bottom: 24px; }
+      .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+      .stat { background: white; border-radius: 12px; padding: 16px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+      .stat .value { font-size: 28px; font-weight: 700; color: #312e81; }
+      .stat .label { font-size: 12px; color: #64748b; margin-top: 4px; }
+      table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+      th { background: #f1f5f9; padding: 8px; text-align: left; font-size: 13px; color: #475569; font-weight: 600; }
+      td { border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+      .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+      @media print { body { padding: 20px; } .no-print { display: none; } }
+    </style></head><body>
+      <div class="no-print" style="text-align:right;margin-bottom:16px"><button onclick="window.print()" style="padding:8px 20px;background:#312e81;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px">Print / Save PDF</button></div>
+      <h1>Vocabulary Progress Report</h1>
+      <p class="meta">${user.username} &middot; Level ${user.level} &middot; ${user.totalXp} XP &middot; ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+      <div class="stats">
+        <div class="stat"><div class="value">${totalLearned}</div><div class="label">Words Learned</div></div>
+        <div class="stat"><div class="value">${totalMastered}</div><div class="label">Mastered</div></div>
+        <div class="stat"><div class="value">${streak?.currentStreak || 0}</div><div class="label">Day Streak</div></div>
+        <div class="stat"><div class="value">${user.totalXp}</div><div class="label">Total XP</div></div>
+      </div>
+      <h2>CEFR Mastery Breakdown</h2>
+      <table><thead><tr><th>Level</th><th style="text-align:center">Total</th><th style="text-align:center">Learned</th><th style="text-align:center">Mastered</th><th>Coverage</th></tr></thead><tbody>${masteryRows}</tbody></table>
+      ${weakWords.length ? `<h2>Words to Focus On (${weakWords.length})</h2><table><thead><tr><th>Word</th><th>Definition</th><th style="text-align:center">Level</th></tr></thead><tbody>${weakRows}</tbody></table>` : ''}
+      ${recentSessions.length ? `<h2>Recent Sessions</h2><table><thead><tr><th>Type</th><th style="text-align:center">Score</th><th style="text-align:center">Date</th></tr></thead><tbody>${sessionRows}</tbody></table>` : ''}
+      <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:32px">Generated by Vocab Master &middot; ${new Date().toLocaleDateString()}</p>
+    </body></html>`;
+
+    reply.type('text/html').send(html);
+  });
   app.post('/progress/import', { preHandler: authenticate }, async (request, reply) => {
     const userId = request.user!.userId;
     const body = request.body as {
