@@ -390,6 +390,7 @@ export async function adminRoutes(app: FastifyInstance) {
       apiKey?: string;
       context?: string;
       maxTokens?: number;
+      reasoning?: boolean;
       isActive?: boolean;
     };
 
@@ -423,6 +424,7 @@ export async function adminRoutes(app: FastifyInstance) {
         apiKey: body.apiKey || null,
         context: body.context || null,
         maxTokens: body.maxTokens || 4096,
+        reasoning: body.reasoning !== undefined ? body.reasoning : true,
         isActive: body.isActive ?? false,
       },
     });
@@ -450,6 +452,7 @@ export async function adminRoutes(app: FastifyInstance) {
       apiKey?: string;
       context?: string;
       maxTokens?: number;
+      reasoning?: boolean;
       isActive?: boolean;
     };
 
@@ -487,6 +490,7 @@ export async function adminRoutes(app: FastifyInstance) {
     if (body.baseUrl !== undefined) updateData.baseUrl = body.baseUrl || null;
     if (body.context !== undefined) updateData.context = body.context || null;
     if (body.maxTokens !== undefined) updateData.maxTokens = body.maxTokens;
+    if (body.reasoning !== undefined) updateData.reasoning = body.reasoning;
     if (body.isActive !== undefined) updateData.isActive = body.isActive;
     
     // Only update API key if it's a new value (not the masked placeholder)

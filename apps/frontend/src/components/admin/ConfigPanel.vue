@@ -12,6 +12,7 @@ interface LLMProvider {
   apiKey: string | null
   context: string | null
   maxTokens: number
+  reasoning: boolean
   isActive: boolean
   hasApiKey: boolean
   createdAt: string
@@ -44,6 +45,7 @@ const formData = ref({
   model: '',
   context: '',
   maxTokens: 4096,
+  reasoning: true,
 })
 const showApiKey = ref(false)
 const customModel = ref('')
@@ -124,6 +126,7 @@ function openAddForm() {
     model: 'gpt-4o-mini',
     context: '',
     maxTokens: 4096,
+    reasoning: true,
   }
   customModel.value = ''
   showApiKey.value = false
@@ -140,6 +143,7 @@ function openEditForm(provider: LLMProvider) {
     model: provider.model,
     context: provider.context || '',
     maxTokens: provider.maxTokens || 4096,
+    reasoning: provider.reasoning !== undefined ? provider.reasoning : true,
   }
   
   // Check if model is in preset list
@@ -182,6 +186,7 @@ async function saveProvider() {
       model: customModel.value || formData.value.model,
       context: formData.value.context || null,
       maxTokens: formData.value.maxTokens || 4096,
+      reasoning: formData.value.reasoning,
     }
 
     // Only include API key if it's a new value
@@ -362,6 +367,10 @@ async function testNewProvider() {
                     {{ provider.hasApiKey ? '✓ Configured' : '✗ Not set' }}
                   </span>
                 </div>
+                <div>
+                  <span class="text-slate-500 dark:text-slate-400">Reasoning:</span>
+                  <span>{{ provider.reasoning ? '🧠 Enabled' : '💬 Standard' }}</span>
+                </div>
               </div>
             </div>
             
@@ -534,6 +543,31 @@ async function testNewProvider() {
               <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 Maximum response tokens. Check your provider's limits (e.g. DeepSeek: 8192, OpenAI: 16384)
               </p>
+            </div>
+
+            <!-- Reasoning -->
+            <div class="flex items-center justify-between py-2">
+              <div>
+                <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Reasoning Model</label>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                  Enable for models with thinking/reasoning (Qwen3, DeepSeek-R1, Claude). Disable for standard models.
+                </p>
+              </div>
+              <button
+                type="button"
+                @click="formData.reasoning = !formData.reasoning"
+                :class="[
+                  'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
+                  formData.reasoning ? 'bg-primary-600' : 'bg-slate-300 dark:bg-slate-600'
+                ]"
+              >
+                <span
+                  :class="[
+                    'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+                    formData.reasoning ? 'translate-x-6' : 'translate-x-1'
+                  ]"
+                />
+              </button>
             </div>
 
             <!-- Actions -->

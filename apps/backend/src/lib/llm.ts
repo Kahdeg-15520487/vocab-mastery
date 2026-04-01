@@ -10,6 +10,7 @@ let cachedConfig: {
   baseUrl?: string;
   context?: string;
   maxTokens: number;
+  reasoning: boolean;
 } | null = null;
 let configCacheTime = 0;
 const CONFIG_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
@@ -53,6 +54,7 @@ export async function getLLMConfig(): Promise<{
   baseUrl?: string;
   context?: string;
   maxTokens: number;
+  reasoning: boolean;
 }> {
   // Return cached config if still fresh
   if (cachedConfig && Date.now() - configCacheTime < CONFIG_CACHE_TTL) {
@@ -74,6 +76,7 @@ export async function getLLMConfig(): Promise<{
         baseUrl: activeProvider.baseUrl || undefined,
         context: activeProvider.context || undefined,
         maxTokens: activeProvider.maxTokens,
+        reasoning: activeProvider.reasoning,
       };
       configCacheTime = Date.now();
       return cachedConfig;
@@ -97,6 +100,7 @@ export async function getLLMConfig(): Promise<{
         baseUrl: configMap['llm.base_url'] || undefined,
         context: configMap['llm.context'] || undefined,
         maxTokens: 4096,
+        reasoning: true,
       };
       configCacheTime = Date.now();
       return cachedConfig;
@@ -111,6 +115,7 @@ export async function getLLMConfig(): Promise<{
       baseUrl: process.env.LLM_BASE_URL,
       context: process.env.LLM_CONTEXT,
       maxTokens: 4096,
+      reasoning: true,
     };
     configCacheTime = Date.now();
     return cachedConfig;
@@ -124,6 +129,7 @@ export async function getLLMConfig(): Promise<{
       baseUrl: process.env.LLM_BASE_URL,
       context: process.env.LLM_CONTEXT,
       maxTokens: 4096,
+      reasoning: true,
     };
   }
 }
@@ -189,7 +195,7 @@ async function callLLM(
     api: 'openai-completions' as const,
     provider: config.provider.toLowerCase(),
     ...(baseUrl ? { baseUrl } : {}),
-    reasoning: options?.disableReasoning ? false : true,
+    reasoning: options?.disableReasoning ? false : config.reasoning,
     input: ['text'] as const,
     cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
     contextWindow: 128000,
@@ -216,7 +222,7 @@ async function callLLM(
     
     const response = await completeSimple(customModel as any, context, {
       apiKey,
-      ...(options?.disableReasoning ? {} : { reasoning: 'medium' }),
+      ...(options?.disableReasoning || !config.reasoning ? {} : { reasoning: 'medium' }),
     });
     
     console.log(`[LLM] Response stopReason: ${response.stopReason}, errorMessage: ${response.errorMessage}`);

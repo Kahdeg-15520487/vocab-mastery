@@ -128,16 +128,17 @@ model SystemConfig {
 // ============================================
 
 model LlmProvider {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  provider  String
-  model     String
-  baseUrl   String?  @map("base_url")
-  apiKey    String?  @map("api_key")
-  context   String?
-  maxTokens Int      @default(4096) @map("max_tokens")
-  isActive  Boolean  @default(false) @map("is_active")
-  createdAt DateTime @default(now()) @map("created_at")
+  id         String   @id @default(cuid())
+  name       String   @unique
+  provider   String
+  model      String
+  baseUrl    String?  @map("base_url")
+  apiKey     String?  @map("api_key")
+  context    String?
+  maxTokens  Int      @default(4096) @map("max_tokens")
+  reasoning  Boolean  @default(true) @map("reasoning")
+  isActive   Boolean  @default(false) @map("is_active")
+  createdAt  DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([isActive])
