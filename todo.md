@@ -7,7 +7,6 @@
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#246** **[low]** 📤 Shareable progress card — generate a shareable image/markdown of vocabulary achievements #feature #backend
 - [ ] **#253** 📊 Shareable progress summary card on Dashboard — embeddable stats snapshot #feature #frontend
-- [ ] **#255** **[high]** 📤 Export to Anki CSV — word, definition, examples, CEFR level, audio filename #feature #fullstack
 - [ ] **#256** 🎯 Word Mastery Goals — set target CEFR level and track % mastery per level #feature #fullstack
 - [ ] **#257** 📚 Study List sharing — generate share link, other users can import list #feature #fullstack
 
@@ -126,6 +125,7 @@
 - [x] **#250** 🌍 Words in the Wild — encounter tracking system (COMPLETE) #feature #complete
 - [x] **#252** 📝 Personal word notes/mnemonics — add notes to word progress during learning #feature #fullstack
 - [x] **#254** 📋 Import words from text — paste text, extract unknown words, create study list #feature #fullstack
+- [x] **#255** **[high]** 📤 Export to Anki CSV — word, definition, examples, CEFR level, audio filename #feature #fullstack
 
 <!-- Raw Data -->
 ```json
@@ -1618,14 +1618,15 @@
     {
       "id": 255,
       "text": "📤 Export to Anki CSV — word, definition, examples, CEFR level, audio filename",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
         "fullstack"
       ],
       "createdAt": 1775078313784,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775078425871
     },
     {
       "id": 256,

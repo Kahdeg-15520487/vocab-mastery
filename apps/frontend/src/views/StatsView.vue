@@ -9,6 +9,7 @@ const statsStore = useStatsStore()
 // Heatmap & study time
 const heatmapData = ref<Array<{ date: string; wordsLearned: number; wordsReviewed: number }>>([])
 const studyTime = ref<{ totalTimeMinutes: number; totalSessions: number; avgSessionMinutes: number; byType: { type: string; totalMinutes: number; sessions: number }[] } | null>(null)
+const masteryData = ref<{ levels: Array<{ level: string; total: number; mastered: number; learning: number; reviewing: number; unseen: number; masteryPercent: number; coveragePercent: number }>; overall: { totalWords: number; totalMastered: number; totalSeen: number; masteryPercent: number; coveragePercent: number }; estimatedLevel: string } | null>(null)
 
 onMounted(async () => {
   await Promise.all([
@@ -16,6 +17,7 @@ onMounted(async () => {
     statsStore.fetchDailyStats(7),
     statsApi.getHeatmap().then(d => heatmapData.value = d).catch(() => {}),
     statsApi.getStudyTime().then(d => studyTime.value = d).catch(() => {}),
+    statsApi.getMastery().then(d => masteryData.value = d).catch(() => {}),
   ])
 })
 
@@ -235,6 +237,47 @@ const statsXpNeeded = computed(() => {
               />
             </div>
             <span class="w-12 text-sm text-slate-600 dark:text-slate-400 text-right">{{ count }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CEFR Mastery Overview -->
+      <div v-if="masteryData" class="card">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-slate-900 dark:text-white">CEFR Mastery</h2>
+          <span class="text-sm px-3 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium">
+            ~{{ masteryData.estimatedLevel }} Level
+          </span>
+        </div>
+        <div class="space-y-3">
+          <div
+            v-for="lvl in masteryData.levels"
+            :key="lvl.level"
+            class="space-y-1"
+          >
+            <div class="flex items-center justify-between text-sm">
+              <span class="font-medium text-slate-700 dark:text-slate-300">{{ lvl.level }}</span>
+              <span class="text-slate-500 dark:text-slate-400">
+                {{ lvl.mastered }}/{{ lvl.total }} mastered ({{ lvl.masteryPercent }}%)
+              </span>
+            </div>
+            <div class="flex gap-1 h-3 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700">
+              <div class="bg-green-500 rounded-l-full" :style="{ width: lvl.masteryPercent + '%' }"></div>
+              <div class="bg-blue-500" :style="{ width: Math.round(lvl.reviewing / lvl.total * 100) + '%' }"></div>
+              <div class="bg-yellow-500" :style="{ width: Math.round(lvl.learning / lvl.total * 100) + '%' }"></div>
+            </div>
+            <div class="flex gap-3 text-xs text-slate-400">
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500 inline-block"></span>Mastered: {{ lvl.mastered }}</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500 inline-block"></span>Reviewing: {{ lvl.reviewing }}</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-yellow-500 inline-block"></span>Learning: {{ lvl.learning }}</span>
+            </div>
+          </div>
+        </div>
+        <!-- Overall -->
+        <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-slate-600 dark:text-slate-400">Overall Coverage</span>
+            <span class="text-sm font-semibold text-slate-900 dark:text-white">{{ masteryData.overall.totalMastered }} / {{ masteryData.overall.totalWords }} words ({{ masteryData.overall.masteryPercent }}%)</span>
           </div>
         </div>
       </div>

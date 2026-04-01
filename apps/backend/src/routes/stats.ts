@@ -425,4 +425,84 @@ export async function statsRoutes(app: FastifyInstance) {
       activeDays,
     };
   });
+
+  // ============================================
+  // GET /stats/mastery — Per-CEFR-level mastery with goal tracking
+  // ============================================
+  app.get('/stats/mastery', async (request, reply) => {
+    const userId = request.user!.userId;
+
+    // Total words per level in database
+    const totalByLevel = await prisma.word.groupBy({
+      by: ['cefrLevel'],
+      _count: true,
+      orderBy: { cefrLevel: 'asc' },
+    });
+
+    // Words with progress per level
+    const masteredByLevel = await prisma.$queryRaw<Array<{ cefr_level: string; mastered: bigint; learning: bigint; reviewing: bigint }>>`
+      SELECT w.cefr_level,
+        COUNT(CASE WHEN wp.status = 'mastered' THEN 1 END) as mastered,
+        COUNT(CASE WHEN wp.status = 'learning' THEN 1 END) as learning,
+        COUNT(CASE WHEN wp.status = 'reviewing' THEN 1 END) as reviewing
+      FROM words w
+      INNER JOIN word_progress wp ON w.id = wp.word_id AND wp.user_id = ${userId}
+      GROUP BY w.cefr_level
+      ORDER BY w.cefr_level
+    `;
+
+    const CEFR_ORDER = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+    const levels = CEFR_ORDER.filter(l => totalByLevel.some(t => t.cefrLevel === l));
+
+    const result = levels.map(level => {
+      const total = totalByLevel.find(t => t.cefrLevel === level)?._count || 0;
+      const row = masteredByLevel.find(m => m.cefr_level === level);
+      const mastered = Number(row?.mastered || 0);
+      const learning = Number(row?.learning || 0);
+      const reviewing = Number(row?.reviewing || 0);
+      const seen = mastered + learning + reviewing;
+
+      return {
+        level,
+        total,
+        mastered,
+        learning,
+        reviewing,
+        unseen: total - seen,
+        masteryPercent: total > 0 ? Math.round((mastered / total) * 100) : 0,
+        coveragePercent: total > 0 ? Math.round((seen / total) * 100) : 0,
+      };
+    });
+
+    // Overall mastery
+    const totalWords = result.reduce((s, r) => s + r.total, 0);
+    const totalMastered = result.reduce((s, r) => s + r.mastered, 0);
+    const totalSeen = result.reduce((s, r) => s + r.mastered + r.learning + r.reviewing, 0);
+
+    return {
+      levels: result,
+      overall: {
+        totalWords,
+        totalMastered,
+        totalSeen,
+        masteryPercent: totalWords > 0 ? Math.round((totalMastered / totalWords) * 100) : 0,
+        coveragePercent: totalWords > 0 ? Math.round((totalSeen / totalWords) * 100) : 0,
+      },
+      estimatedLevel: computeEstimatedLevel(result),
+    };
+  });
+}
+
+function computeEstimatedLevel(levels: Array<{ level: string; coveragePercent: number }>): string {
+  const CEFR = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+  let estimated = 'A1';
+  for (const cefr of CEFR) {
+    const data = levels.find(l => l.level === cefr);
+    if (data && data.coveragePercent >= 80) {
+      estimated = cefr;
+    } else {
+      break;
+    }
+  }
+  return estimated;
 }

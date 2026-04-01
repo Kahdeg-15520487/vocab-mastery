@@ -393,6 +393,12 @@ export const statsApi = {
   getStudyTime: () => request<{ totalTimeMinutes: number; totalSessions: number; avgSessionMinutes: number; byType: { type: string; totalMinutes: number; sessions: number }[] }>('/stats/study-time'),
 
   getVelocity: () => request<{ daily: { date: string; learned: number; reviewed: number }[]; weekly: { week: string; level: string; count: number }[]; avgLearnedPerDay: number; avgReviewedPerDay: number; totalLearned: number; totalReviewed: number; activeDays: number }>('/stats/velocity'),
+
+  getMastery: () => request<{
+    levels: Array<{ level: string; total: number; mastered: number; learning: number; reviewing: number; unseen: number; masteryPercent: number; coveragePercent: number }>
+    overall: { totalWords: number; totalMastered: number; totalSeen: number; masteryPercent: number; coveragePercent: number }
+    estimatedLevel: string
+  }>('/stats/mastery'),
 }
 
 // Admin API
