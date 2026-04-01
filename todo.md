@@ -4,9 +4,10 @@
 
 ## Pending
 
-- [ ] **#216** Clean up verbose LLM logging in callLLM (remove debug logs kept from debugging phase) #backend #cleanup
-- [ ] **#217** Verify list generation code path works correctly (callLLM integration in lists.ts) #backend #llm
-- [ ] **#218** Clean up verbose logging in categorize-job.ts #backend #llm
+- [ ] **#219** **[high]** Create browser-ai-worker.ts (Web Worker) + useBrowserAI composable (global singleton) #frontend #ai-feedback #worker
+- [ ] **#220** **[high]** Create AIFeedbackPanel component with structured evaluation display #frontend #writing #component
+- [ ] **#221** Add AI Coach toggle + model status to SettingsView #frontend #settings
+- [ ] **#222** **[high]** Integrate AI Coach into WritingExerciseView sentence mode #frontend #writing
 
 ## Completed
 
@@ -92,6 +93,9 @@
 - [x] **#213** **[high]** Add difficulty selection (Mixed/Easy/Medium/Hard) to all practice tabs #done
 - [x] **#214** **[high]** Create seed-dictionary.ts — parse & import oxford_5000.json + topic data into DB
 - [x] **#215** **[high]** Hook seed into server.ts startup with SystemConfig guard
+- [x] **#216** Clean up verbose LLM logging in callLLM (remove debug logs kept from debugging phase) #backend #cleanup
+- [x] **#217** Verify list generation code path works correctly (callLLM integration in lists.ts) #backend #llm
+- [x] **#218** Clean up verbose logging in categorize-job.ts #backend #llm
 
 <!-- Raw Data -->
 ```json
@@ -1167,40 +1171,93 @@
     {
       "id": 216,
       "text": "Clean up verbose LLM logging in callLLM (remove debug logs kept from debugging phase)",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "backend",
         "cleanup"
       ],
       "createdAt": 1775010293323,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775010486359
     },
     {
       "id": 217,
       "text": "Verify list generation code path works correctly (callLLM integration in lists.ts)",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "backend",
         "llm"
       ],
       "createdAt": 1775010301340,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775010491896
     },
     {
       "id": 218,
       "text": "Clean up verbose logging in categorize-job.ts",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "backend",
         "llm"
       ],
       "createdAt": 1775010305525,
+      "archived": false,
+      "completedAt": 1775010495392
+    },
+    {
+      "id": 219,
+      "text": "Create browser-ai-worker.ts (Web Worker) + useBrowserAI composable (global singleton)",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "frontend",
+        "ai-feedback",
+        "worker"
+      ],
+      "createdAt": 1775011091164,
+      "archived": false
+    },
+    {
+      "id": 220,
+      "text": "Create AIFeedbackPanel component with structured evaluation display",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "frontend",
+        "writing",
+        "component"
+      ],
+      "createdAt": 1775011097211,
+      "archived": false
+    },
+    {
+      "id": 221,
+      "text": "Add AI Coach toggle + model status to SettingsView",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "frontend",
+        "settings"
+      ],
+      "createdAt": 1775011102139,
+      "archived": false
+    },
+    {
+      "id": 222,
+      "text": "Integrate AI Coach into WritingExerciseView sentence mode",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "frontend",
+        "writing"
+      ],
+      "createdAt": 1775011426107,
       "archived": false
     }
   ],
-  "nextId": 219
+  "nextId": 223
 }
 ```

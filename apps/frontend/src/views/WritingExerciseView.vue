@@ -86,6 +86,14 @@
             </div>
           </div>
 
+          <!-- AI Coach Feedback -->
+          <AIFeedbackPanel
+            :visible="ai.enabled.value && aiFeedbackStatus !== 'idle'"
+            :status="aiFeedbackStatus"
+            :evaluation="aiEvaluation"
+            :error-message="aiError"
+          />
+
           <!-- Input -->
           <div class="space-y-2">
             <textarea
@@ -223,11 +231,15 @@ import { useRoute } from 'vue-router'
 import { writingApi, sprintApi } from '../lib/api'
 import { useToast } from '../composables/useToast'
 import { useSpeech } from '../composables/useSpeech'
+import { useBrowserAI } from '../composables/useBrowserAI'
+import { buildSentenceEvalPrompt, parseSentenceEvaluation, type SentenceEvaluation } from '../lib/browser-ai-prompts'
 import LoadingSpinner from '../components/ui/LoadingSpinner.vue'
+import AIFeedbackPanel from '../components/writing/AIFeedbackPanel.vue'
 
 const { playAudio: speakWord } = useSpeech()
 const route = useRoute()
 const toast = useToast()
+const ai = useBrowserAI()
 
 const sprintId = ref<string | null>(null)
 const mode = ref<'sentence' | 'long-form'>('sentence')
@@ -247,6 +259,11 @@ const sprintWords = ref<{ word: string }[]>([])
 const longFormText = ref('')
 const longFormResult = ref<any>(null)
 const usedLongFormWords = ref<Set<string>>(new Set())
+
+// AI Coach state
+const aiFeedbackStatus = ref<'idle' | 'evaluating' | 'done' | 'error'>('idle')
+const aiEvaluation = ref<SentenceEvaluation | null>(null)
+const aiError = ref('')
 
 const currentPrompt = computed(() => prompts.value[currentIndex.value] ?? null)
 
@@ -315,12 +332,19 @@ async function submitSentence() {
       toast.success('Great usage! ✓')
     }
 
+    // Trigger AI Coach evaluation if enabled and ready
+    if (ai.enabled.value && ai.isReady.value) {
+      evaluateWithAI()
+    }
+
     // Move to next prompt after a short delay
     setTimeout(() => {
       if (currentIndex.value < prompts.value.length - 1) {
         currentIndex.value++
         sentence.value = ''
         lastResult.value = null
+        aiFeedbackStatus.value = 'idle'
+        aiEvaluation.value = null
       } else {
         // All done — show results
         currentIndex.value = prompts.value.length
@@ -372,6 +396,42 @@ async function submitLongForm() {
     toast.error(e.message || 'Failed to submit')
   } finally {
     submitting.value = false
+  }
+}
+
+// AI Coach — evaluate the submitted sentence
+async function evaluateWithAI() {
+  if (!ai.isReady.value || !lastResult.value || !currentPrompt.value) return
+
+  // Grab the sentence that was just submitted
+  const submittedSentence = sentence.value.trim()
+  if (!submittedSentence) return
+
+  aiFeedbackStatus.value = 'evaluating'
+  aiEvaluation.value = null
+  aiError.value = ''
+
+  try {
+    const prompt = buildSentenceEvalPrompt({
+      word: currentPrompt.value.word,
+      partOfSpeech: currentPrompt.value.partOfSpeech,
+      definition: currentPrompt.value.definition,
+      sentence: submittedSentence,
+    })
+
+    const raw = await ai.generate(prompt)
+    const evaluation = parseSentenceEvaluation(raw)
+
+    if (raw) {
+      aiEvaluation.value = evaluation
+      aiFeedbackStatus.value = 'done'
+    } else {
+      aiError.value = 'AI Coach returned an empty response.'
+      aiFeedbackStatus.value = 'error'
+    }
+  } catch (err: any) {
+    aiError.value = err.message || 'Evaluation failed'
+    aiFeedbackStatus.value = 'error'
   }
 }
 </script>

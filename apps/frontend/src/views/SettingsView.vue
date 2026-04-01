@@ -4,11 +4,13 @@ import { useAuthStore } from '@/stores/auth'
 import { request } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
 import { useNotifications } from '@/composables/useNotifications'
+import { useBrowserAI } from '@/composables/useBrowserAI'
 import UserAvatar from '@/components/ui/UserAvatar.vue'
 
 const authStore = useAuthStore()
 const toast = useToast()
 const notifications = useNotifications()
+const ai = useBrowserAI()
 
 // Password change
 const currentPassword = ref('')
@@ -298,6 +300,103 @@ async function handleImport(event: Event) {
             @change="notifications.setReminderTime(($event.target as HTMLInputElement).value)"
             class="input w-auto"
           />
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Coach (Browser AI) -->
+    <div class="card mb-6">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">🤖 AI Coach</h2>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+        Run a small AI model locally in your browser to get instant feedback on your writing exercises.
+        The model is downloaded once and cached by your browser (~500 MB).
+      </p>
+
+      <!-- Toggle -->
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <p class="text-sm font-medium text-slate-900 dark:text-white">Enable AI Coach</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Requires WebGPU (Chrome 113+, Edge 113+)</p>
+        </div>
+        <button
+          @click="ai.setEnabled(!ai.enabled.value)"
+          class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+          :class="ai.enabled.value ? 'bg-primary-600' : 'bg-slate-300 dark:bg-slate-600'"
+        >
+          <span
+            class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+            :class="ai.enabled.value ? 'translate-x-6' : 'translate-x-1'"
+          />
+        </button>
+      </div>
+
+      <!-- Status -->
+      <div v-if="ai.enabled.value" class="space-y-3 border-t border-slate-200 dark:border-slate-700 pt-4">
+        <!-- Model info -->
+        <div class="flex items-center justify-between text-sm">
+          <span class="text-slate-500 dark:text-slate-400">Model</span>
+          <span class="text-slate-900 dark:text-white font-mono text-xs">Qwen 3.5 0.8B (q4)</span>
+        </div>
+
+        <!-- Status -->
+        <div class="flex items-center justify-between text-sm">
+          <span class="text-slate-500 dark:text-slate-400">Status</span>
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full" :class="{
+              'bg-green-500': ai.isReady.value,
+              'bg-amber-500 animate-pulse': ai.isLoading.value,
+              'bg-red-500': ai.status.value === 'error',
+              'bg-slate-400': ai.status.value === 'idle' || ai.status.value === 'disabled',
+            }"></span>
+            <span class="text-slate-900 dark:text-white">
+              <template v-if="ai.isReady.value">Ready</template>
+              <template v-else-if="ai.isLoading.value">
+                {{ ai.status.value === 'downloading' ? 'Downloading' : 'Loading' }}
+              </template>
+              <template v-else-if="ai.status.value === 'error'">Error</template>
+              <template v-else>Idle</template>
+            </span>
+          </div>
+        </div>
+
+        <!-- Progress bar (visible during download) -->
+        <div v-if="ai.isLoading.value && ai.status.value === 'downloading'">
+          <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
+            <span>{{ ai.statusMessage.value || 'Downloading model files…' }}</span>
+            <span>{{ ai.progressPercent.value }}%</span>
+          </div>
+          <div class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+            <div
+              class="h-full bg-primary-500 rounded-full transition-all duration-300"
+              :style="{ width: `${ai.progressPercent.value}%` }"
+            />
+          </div>
+          <p v-if="ai.progress.value.file" class="text-xs text-slate-400 mt-1 truncate">
+            {{ ai.progress.value.file }}
+          </p>
+        </div>
+
+        <!-- Error message -->
+        <div v-if="ai.status.value === 'error' && ai.errorMessage.value" class="p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-lg text-sm">
+          {{ ai.errorMessage.value }}
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-2">
+          <button
+            v-if="ai.status.value === 'error'"
+            @click="ai.setEnabled(false); $nextTick(() => ai.setEnabled(true))"
+            class="px-3 py-1.5 text-sm bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"
+          >
+            Retry
+          </button>
+          <button
+            v-if="ai.isReady.value"
+            @click="ai.setEnabled(false)"
+            class="px-3 py-1.5 text-sm bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"
+          >
+            Unload Model
+          </button>
         </div>
       </div>
     </div>
