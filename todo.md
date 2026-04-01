@@ -4,7 +4,7 @@
 
 ## Pending
 
-- [ ] **#228** **[high]** 🤖 AI Writing Feedback — server-side LLM review of user sentences #feature #backend #frontend #llm
+- [ ] **#229** **[high]** 🧠 Adaptive Quiz Difficulty — track performance and adjust difficulty dynamically #feature #backend #frontend
 
 ## Completed
 
@@ -102,6 +102,7 @@
 - [x] **#225** Sprint-aware study modes — show sprint context in Learn/Review/Quiz views
 - [x] **#226** **[high]** Sprint retention rate — compute & display retention rate per sprint + 85% target indicator #P1
 - [x] **#227** **[high]** Sentence Review flashcards — review your own submitted sentences as flashcards #P1
+- [x] **#228** **[high]** 🤖 AI Writing Feedback — server-side LLM review of user sentences #feature #backend #frontend #llm
 
 <!-- Raw Data -->
 ```json
@@ -1301,7 +1302,7 @@
     {
       "id": 228,
       "text": "🤖 AI Writing Feedback — server-side LLM review of user sentences",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
@@ -1310,9 +1311,23 @@
         "llm"
       ],
       "createdAt": 1775070776000,
+      "archived": false,
+      "completedAt": 1775071018125
+    },
+    {
+      "id": 229,
+      "text": "🧠 Adaptive Quiz Difficulty — track performance and adjust difficulty dynamically",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "backend",
+        "frontend"
+      ],
+      "createdAt": 1775071022744,
       "archived": false
     }
   ],
-  "nextId": 229
+  "nextId": 230
 }
 ```

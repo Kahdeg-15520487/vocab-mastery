@@ -273,8 +273,34 @@ export async function sessionRoutes(app: FastifyInstance) {
       sprintId?: string;
       levelRange?: [string, string];
       questionCount?: number;
+      adaptive?: boolean;
     };
-    const { themeId, listId, sprintId, levelRange, questionCount = 10 } = body;
+    const { themeId, listId, sprintId, levelRange, questionCount = 10, adaptive = true } = body;
+
+    // ── Adaptive difficulty: compute recent accuracy ──
+    let adaptiveLevel: 'easy' | 'medium' | 'hard' = 'medium';
+    if (adaptive) {
+      const recentSessions = await prisma.learningSession.findMany({
+        where: {
+          userId,
+          type: 'quiz',
+          completedAt: { not: null },
+        },
+        orderBy: { completedAt: 'desc' },
+        take: 5,
+        select: { totalCorrect: true, totalIncorrect: true },
+      });
+
+      if (recentSessions.length >= 2) {
+        const totalCorrect = recentSessions.reduce((sum, s) => sum + s.totalCorrect, 0);
+        const totalQuestions = recentSessions.reduce((sum, s) => sum + s.totalCorrect + s.totalIncorrect, 0);
+        const accuracy = totalQuestions > 0 ? totalCorrect / totalQuestions : 0.5;
+
+        if (accuracy >= 0.85) adaptiveLevel = 'hard';
+        else if (accuracy >= 0.6) adaptiveLevel = 'medium';
+        else adaptiveLevel = 'easy';
+      }
+    }
 
     // Build query to get words
     const where: any = {};
@@ -314,6 +340,31 @@ export async function sessionRoutes(app: FastifyInstance) {
       where.cefrLevel = { in: levels.slice(startIdx, endIdx + 1) };
     }
 
+    // Adaptive difficulty: adjust CEFR levels for word selection
+    const cefrLevels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+    let adaptiveCefr: string[] = cefrLevels;
+    if (adaptive && !levelRange && !sprintId) {
+      if (adaptiveLevel === 'easy') {
+        adaptiveCefr = ['A1', 'A2', 'B1']; // Easier words
+      } else if (adaptiveLevel === 'hard') {
+        adaptiveCefr = ['B2', 'C1', 'C2']; // Harder words
+      }
+      // medium = all levels
+      if (adaptiveCefr.length < cefrLevels.length) {
+        where.cefrLevel = { in: adaptiveCefr };
+      }
+    }
+
+    // Adaptive difficulty: adjust word status selection
+    // Easy: prefer mastered/known words (easy wins to build confidence)
+    // Hard: prefer learning/new words (challenge)
+    // Medium: mixed
+    const statusOrder = adaptiveLevel === 'easy'
+      ? ['mastered', 'known', 'learning', 'new']
+      : adaptiveLevel === 'hard'
+        ? ['learning', 'new', 'known', 'mastered']
+        : ['learning', 'known', 'mastered', 'new'];
+
     // Get quiz words (prefer words user has some progress with)
     let quizWords = await prisma.word.findMany({
       where: {
@@ -345,13 +396,35 @@ export async function sessionRoutes(app: FastifyInstance) {
     // Get random wrong answer options from other words
     const allWordIds = new Set(quizWords.map(w => w.id));
     
-    // Use raw query for true randomness (Prisma doesn't support ORDER BY RANDOM())
-    const wrongPool = await prisma.$queryRaw<Array<{ id: string; word: string; definition: string }>>`
-      SELECT id, word, definition FROM words
-      WHERE id NOT IN (${Prisma.join([...allWordIds])})
-      ORDER BY RANDOM()
-      LIMIT 100
-    `;
+    // Adaptive: for hard difficulty, use same-CEFR-level wrong answers (more confusing)
+    let wrongPool: Array<{ id: string; word: string; definition: string }>;
+    if (adaptive && adaptiveLevel === 'hard') {
+      // Hard: wrong answers from same CEFR levels as quiz words
+      const quizCefrLevels = [...new Set(quizWords.map(w => w.cefrLevel).filter(Boolean))];
+      if (quizCefrLevels.length > 0) {
+        wrongPool = await prisma.$queryRaw<Array<{ id: string; word: string; definition: string }>>`
+          SELECT id, word, definition FROM words
+          WHERE id NOT IN (${Prisma.join([...allWordIds])})
+          AND cefr_level = ANY(${quizCefrLevels}::text[])
+          ORDER BY RANDOM()
+          LIMIT 100
+        `;
+      } else {
+        wrongPool = await prisma.$queryRaw<Array<{ id: string; word: string; definition: string }>>`
+          SELECT id, word, definition FROM words
+          WHERE id NOT IN (${Prisma.join([...allWordIds])})
+          ORDER BY RANDOM()
+          LIMIT 100
+        `;
+      }
+    } else {
+      wrongPool = await prisma.$queryRaw<Array<{ id: string; word: string; definition: string }>>`
+        SELECT id, word, definition FROM words
+        WHERE id NOT IN (${Prisma.join([...allWordIds])})
+        ORDER BY RANDOM()
+        LIMIT 100
+      `;
+    }
 
     // Helper: sanitize definition to hide the answer word for quiz questions
     function sanitizeDefinition(word: string, definition: string): string {
@@ -461,6 +534,11 @@ export async function sessionRoutes(app: FastifyInstance) {
       sessionId: session.id,
       questionCount: questions.length,
       questions,
+      adaptive: adaptive ? {
+        enabled: true,
+        level: adaptiveLevel,
+        cefrRange: adaptiveCefr,
+      } : undefined,
     };
   });
 

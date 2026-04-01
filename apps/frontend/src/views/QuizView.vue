@@ -36,6 +36,11 @@ interface QuizData {
   sessionId: string
   questionCount: number
   questions: QuizQuestion[]
+  adaptive?: {
+    enabled: boolean
+    level: 'easy' | 'medium' | 'hard'
+    cefrRange: string[]
+  }
 }
 
 const route = useRoute()
@@ -99,6 +104,7 @@ async function startQuiz() {
   try {
     const body: any = {
       questionCount: questionCount.value,
+      adaptive: difficulty.value === 'mixed', // Only auto-adapt when set to mixed
     }
     const levelRange = getLevelRange(difficulty.value)
     if (levelRange) body.levelRange = levelRange
@@ -487,8 +493,11 @@ async function restartFromPrompt() {
 
       <!-- Difficulty & Mode info -->
       <div class="text-sm text-slate-500 dark:text-slate-400">
-        {{ { mixed: '🎲 Mixed', easy: '🟢 Easy', medium: '🟡 Medium', hard: '🔴 Hard' }[difficulty] }} ·
+        {{ { mixed: '\U0001f3b2 Mixed', easy: '\U0001f7e2 Easy', medium: '\U0001f7e1 Medium', hard: '\U0001f534 Hard' }[difficulty] }} ·
         {{ quizData.questionCount }} questions
+        <span v-if="quizData.adaptive?.enabled" class="ml-2 text-xs px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300">
+          Adaptive: {{ quizData.adaptive.level }}
+        </span>
       </div>
 
       <!-- XP Earned -->
