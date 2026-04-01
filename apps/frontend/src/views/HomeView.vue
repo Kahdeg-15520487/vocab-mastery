@@ -5,7 +5,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useProgressStore } from '@/stores/progress'
 import { useWordsStore } from '@/stores/words'
 import { useSprintStore } from '@/stores/sprint'
-import { request } from '@/lib/api'
+import { request, sprintApi } from '@/lib/api'
 import StreakDisplay from '@/components/progress/StreakDisplay.vue'
 import DailyGoals from '@/components/progress/DailyGoals.vue'
 import LevelProgress from '@/components/progress/LevelProgress.vue'
@@ -29,6 +29,19 @@ const reviewSchedule = ref<{ overdue: number; days: Array<{ date: string; dayLab
 
 // Plateau detection
 const plateau = ref<{ plateau: boolean; message: string | null; suggestions: string[]; currentStreak: number } | null>(null)
+const paceData = ref<{
+  target: number
+  deadline: string
+  totalLearned: number
+  wordsRemaining: number
+  dailyPace: number
+  requiredPace: number
+  projectedTotal: number
+  onTrack: boolean
+  daysRemaining: number
+  estimatedCompletion: string | null
+  progress: number
+} | null>(null)
 
 async function loadReviewSchedule() {
   try {
@@ -55,6 +68,11 @@ onMounted(async () => {
   // Check for plateau (non-blocking)
   request('/sprints/insights/plateau').then((data: any) => {
     if (data.plateau || data.suggestions?.length) plateau.value = data
+  }).catch(() => {})
+
+  // Load pace calculator (non-blocking)
+  sprintApi.getPace().then((data) => {
+    if (data && data.target > 0) paceData.value = data
   }).catch(() => {})
 })
 
@@ -97,6 +115,10 @@ const xpProgressPercent = computed(() => {
 
 function selectTheme(theme: any) {
   router.push(`/learn/${theme.slug}`)
+}
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
 }
 </script>
 
@@ -434,6 +456,47 @@ function selectTheme(theme: any) {
                 </p>
               </div>
             </div>
+          </div>
+
+          <!-- Year Goal Pace Tracker -->
+          <div v-if="paceData" class="card border-l-4" :class="paceData.onTrack ? 'border-green-500' : 'border-amber-500'">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-semibold text-slate-900 dark:text-white">🎯 Year Goal</h3>
+              <span class="text-xs px-2 py-0.5 rounded-full font-medium" :class="paceData.onTrack ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300'">
+                {{ paceData.onTrack ? '✅ On Track' : '⚠️ Behind' }}
+              </span>
+            </div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-slate-600 dark:text-slate-400">Progress</span>
+              <span class="font-medium text-slate-900 dark:text-white">{{ paceData.totalLearned }} / {{ paceData.target }} words</span>
+            </div>
+            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 mb-2">
+              <div
+                class="h-3 rounded-full transition-all duration-500"
+                :class="paceData.onTrack ? 'bg-green-500' : 'bg-amber-500'"
+                :style="{ width: paceData.progress + '%' }"
+              ></div>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+              <div>
+                <p class="text-slate-500 dark:text-slate-400">Daily Pace</p>
+                <p class="font-semibold text-slate-900 dark:text-white">{{ paceData.dailyPace }}/day</p>
+              </div>
+              <div>
+                <p class="text-slate-500 dark:text-slate-400">Required</p>
+                <p class="font-semibold" :class="paceData.dailyPace >= paceData.requiredPace ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'">{{ paceData.requiredPace }}/day</p>
+              </div>
+              <div>
+                <p class="text-slate-500 dark:text-slate-400">Days Left</p>
+                <p class="font-semibold text-slate-900 dark:text-white">{{ paceData.daysRemaining }}</p>
+              </div>
+            </div>
+            <p v-if="paceData.estimatedCompletion && !paceData.onTrack" class="text-xs text-amber-600 dark:text-amber-400 mt-2">
+              At current pace, you'll reach your goal by {{ formatDate(paceData.estimatedCompletion) }}
+            </p>
+            <p v-else-if="paceData.onTrack && paceData.dailyPace > 0" class="text-xs text-green-600 dark:text-green-400 mt-2">
+              {{ paceData.projectedTotal }} words projected by deadline — keep it up! 🚀
+            </p>
           </div>
 
           <!-- Quick Stats -->

@@ -68,6 +68,10 @@ model User {
   totalXp Int @default(0) @map("total_xp")
   level   Int @default(1) @map("level")
   
+  // Year goal
+  yearWordTarget Int @default(5000) @map("year_word_target")
+  yearTargetDate DateTime? @map("year_target_date")
+  
   // Timestamps
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")

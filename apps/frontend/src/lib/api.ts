@@ -581,4 +581,34 @@ export const sprintApi = {
       yearTarget: number
       yearProgress: number
     }>('/sprints/overview/dashboard'),
+
+  getPace: () =>
+    request<{
+      target: number
+      deadline: string
+      totalLearned: number
+      wordsRemaining: number
+      dailyPace: number
+      requiredPace: number
+      projectedTotal: number
+      onTrack: boolean
+      daysRemaining: number
+      estimatedCompletion: string | null
+      progress: number
+    }>('/sprints/pace'),
+
+  updateYearGoal: (data: { yearWordTarget?: number; yearTargetDate?: string }) =>
+    request<{ success: boolean; pace: any }>('/sprints/year-goal', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  getNextSuggestion: () =>
+    request<{
+      nextNumber: number
+      isReviewSprint: boolean
+      reviewReason: string | null
+      totalLearned: number
+      dailyPace: number
+    }>('/sprints/suggestions/next'),
 }

@@ -5,6 +5,10 @@
 ## Pending
 
 - [ ] **#219** Add Writing Prompts UI to Sprints page
+- [ ] **#220** **[high]** Implement Review Sprint logic (every 4th sprint, 50% weak words from previous 3)
+- [ ] **#221** **[high]** Add Year Goal setting + Pace Calculator on dashboard
+- [ ] **#222** Add Sprint Phase auto-transition (ACQUISITION→APPLICATION at day 8)
+- [ ] **#223** Add Writing Challenge live sprint word counter + highlighting
 
 ## Completed
 
@@ -1203,8 +1207,44 @@
       "tags": [],
       "createdAt": 1775056404737,
       "archived": false
+    },
+    {
+      "id": 220,
+      "text": "Implement Review Sprint logic (every 4th sprint, 50% weak words from previous 3)",
+      "done": false,
+      "priority": "high",
+      "tags": [],
+      "createdAt": 1775057508429,
+      "archived": false
+    },
+    {
+      "id": 221,
+      "text": "Add Year Goal setting + Pace Calculator on dashboard",
+      "done": false,
+      "priority": "high",
+      "tags": [],
+      "createdAt": 1775057511994,
+      "archived": false
+    },
+    {
+      "id": 222,
+      "text": "Add Sprint Phase auto-transition (ACQUISITION→APPLICATION at day 8)",
+      "done": false,
+      "priority": "medium",
+      "tags": [],
+      "createdAt": 1775057515933,
+      "archived": false
+    },
+    {
+      "id": 223,
+      "text": "Add Writing Challenge live sprint word counter + highlighting",
+      "done": false,
+      "priority": "medium",
+      "tags": [],
+      "createdAt": 1775057518523,
+      "archived": false
     }
   ],
-  "nextId": 220
+  "nextId": 224
 }
 ```

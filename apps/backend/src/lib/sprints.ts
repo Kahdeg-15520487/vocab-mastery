@@ -25,8 +25,78 @@ export async function getCurrentSprint(userId: string) {
 }
 
 /**
+ * Select weak words from the previous N sprints for review.
+ * Weak = not mastered, low ease factor, or quizzed-but-incorrect.
+ */
+async function selectReviewWords(userId: string, fromLastNSprints: number, count: number): Promise<string[]> {
+  // Get the latest N completed/abandoned sprints
+  const recentSprints = await prisma.sprint.findMany({
+    where: { userId, status: { in: ['COMPLETED', 'ABANDONED'] } },
+    orderBy: { number: 'desc' },
+    take: fromLastNSprints,
+    select: { id: true },
+  })
+
+  if (recentSprints.length === 0) return []
+
+  const sprintIds = recentSprints.map(s => s.id)
+
+  // Get sprint words with their progress data
+  const sprintWords = await prisma.sprintWord.findMany({
+    where: { sprintId: { in: sprintIds } },
+    include: {
+      word: {
+        include: {
+          progress: { where: { userId } },
+        },
+      },
+    },
+  })
+
+  // Score each word — lower score = weaker = higher priority for review
+  const scored: Array<{ wordId: string; score: number }> = []
+  for (const sw of sprintWords) {
+    const progress = sw.word.progress[0]
+
+    // Already mastered? Skip
+    if (progress?.status === 'mastered') continue
+
+    let score = 50 // default neutral
+
+    if (!progress || progress.status === 'new') {
+      // Never learned = high priority
+      score = 100
+    } else if (progress.status === 'learning') {
+      score = 70
+    }
+
+    // Quizzed but wrong = very weak
+    if (sw.quizzed && !sw.quizCorrect) {
+      score += 30
+    }
+
+    // Low ease factor = struggling
+    if (progress?.easeFactor && progress.easeFactor < 2.0) {
+      score += 20
+    }
+
+    // High interval = somewhat established, deprioritize
+    if (progress?.interval && progress.interval > 30) {
+      score -= 20
+    }
+
+    scored.push({ wordId: sw.wordId, score })
+  }
+
+  // Sort by score descending (weakest first), take top N
+  scored.sort((a, b) => b.score - a.score)
+  return scored.slice(0, count).map(s => s.wordId)
+}
+
+/**
  * Get or create the next sprint for a user.
  * Assigns words based on frequency (highest first), excluding words already in other sprints.
+ * Every 4th sprint is automatically a review sprint (50% new + 50% weak review words).
  */
 export async function createNextSprint(
   userId: string,
@@ -62,24 +132,38 @@ export async function createNextSprint(
   })
   const usedWordIds = new Set(existingSprintWords.map((sw) => sw.wordId))
 
-  // Build filter for word selection
-  const where: any = {
-    id: { notIn: [...usedWordIds] },
-  }
-  if (options?.cefrLevel) where.cefrLevel = options.cefrLevel
-  if (options?.themeId) {
-    where.themes = { some: { themeId: options.themeId } }
+  // Determine if this should be a review sprint
+  // Every 4th sprint, or explicitly requested
+  const isReview = options?.isReviewSprint ?? (number > 0 && number % 4 === 0)
+  const reviewWordCount = isReview ? Math.ceil(wordTarget * 0.5) : 0
+  const newWordCount = wordTarget - reviewWordCount
+
+  let wordIds: string[] = []
+
+  // For review sprints: select weak words from previous 3 sprints
+  if (isReview && reviewWordCount > 0) {
+    const reviewIds = await selectReviewWords(userId, 3, reviewWordCount)
+    wordIds.push(...reviewIds)
   }
 
-  // Select words by frequency (highest first), limited to target
+  // Fill remaining with new words (by frequency, excluding already used)
+  const reviewSet = new Set(wordIds)
+  const newWhere: any = {
+    id: { notIn: [...usedWordIds, ...reviewSet] },
+  }
+  if (options?.cefrLevel) newWhere.cefrLevel = options.cefrLevel
+  if (options?.themeId) {
+    newWhere.themes = { some: { themeId: options.themeId } }
+  }
+
   const candidateWords = await prisma.word.findMany({
-    where,
+    where: newWhere,
     orderBy: { frequency: 'desc' },
     select: { id: true },
-    take: wordTarget * 2, // get extra candidates in case some are filtered
+    take: newWordCount * 2,
   })
 
-  const wordIds = candidateWords.slice(0, wordTarget).map((w) => w.id)
+  wordIds.push(...candidateWords.slice(0, newWordCount).map((w) => w.id))
 
   // Create sprint with words in a transaction
   const sprint = await prisma.sprint.create({
@@ -90,7 +174,7 @@ export async function createNextSprint(
       startDate,
       endDate,
       wordTarget,
-      isReviewSprint: options?.isReviewSprint ?? false,
+      isReviewSprint: isReview,
       phase: 'ACQUISITION',
       words: {
         create: wordIds.map((wordId) => ({ wordId })),
@@ -103,6 +187,39 @@ export async function createNextSprint(
   })
 
   return sprint
+}
+
+/**
+ * Get suggestion for the next sprint — whether it should be a review sprint
+ */
+export async function getNextSprintSuggestion(userId: string) {
+  const sprintCount = await prisma.sprint.count({ where: { userId } })
+  const nextNumber = sprintCount + 1
+  const isReviewSprint = nextNumber > 0 && nextNumber % 4 === 0
+
+  // Count total words learned
+  const totalLearned = await prisma.wordProgress.count({
+    where: { userId, status: { not: 'new' } },
+  })
+
+  // Get current pace
+  const sevenDaysAgo = new Date()
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+  const recentGoals = await prisma.dailyGoal.findMany({
+    where: { userId, date: { gte: sevenDaysAgo } },
+  })
+  const recentTotal = recentGoals.reduce((s, d) => s + (d.wordsLearned ?? 0), 0)
+  const dailyPace = Math.round(recentTotal / 7)
+
+  return {
+    nextNumber,
+    isReviewSprint,
+    reviewReason: isReviewSprint
+      ? `Sprint #${nextNumber} is a review sprint — 50% new words + 50% weak words from your last 3 sprints`
+      : null,
+    totalLearned,
+    dailyPace,
+  }
 }
 
 /**
@@ -525,4 +642,70 @@ export async function getMilestonesWithProgress(userId: string) {
     achieved: totalLearned >= m.wordTarget,
     daysRemaining: Math.max(0, Math.ceil((m.deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24))),
   }))
+}
+
+/**
+ * Calculate pace toward year goal with projections
+ */
+export async function calculatePace(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      yearWordTarget: true,
+      yearTargetDate: true,
+      createdAt: true,
+    },
+  })
+
+  const target = user?.yearWordTarget ?? 5000
+  const deadline = user?.yearTargetDate
+    ? new Date(user.yearTargetDate)
+    : new Date(new Date().getFullYear(), 11, 31) // Dec 31 of current year
+
+  // Count total words learned
+  const totalLearned = await prisma.wordProgress.count({
+    where: { userId, status: { not: 'new' } },
+  })
+
+  // Calculate pace from daily goals
+  const sevenDaysAgo = new Date()
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+  const recentGoals = await prisma.dailyGoal.findMany({
+    where: { userId, date: { gte: sevenDaysAgo } },
+  })
+  const recentTotal = recentGoals.reduce((s, d) => s + (d.wordsLearned ?? 0), 0)
+  const dailyPace = recentGoals.length > 0 ? Math.round(recentTotal / 7) : 0
+
+  // Days remaining until deadline
+  const now = new Date()
+  const daysRemaining = Math.max(1, Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+  const wordsRemaining = Math.max(0, target - totalLearned)
+  const requiredPace = Math.ceil(wordsRemaining / daysRemaining)
+
+  // Projected total = current + (daily pace × days remaining)
+  const projectedTotal = totalLearned + (dailyPace * daysRemaining)
+  const onTrack = projectedTotal >= target
+
+  // Estimated completion date
+  let estimatedCompletion: string | null = null
+  if (dailyPace > 0 && wordsRemaining > 0) {
+    const daysNeeded = Math.ceil(wordsRemaining / dailyPace)
+    const estDate = new Date(now)
+    estDate.setDate(estDate.getDate() + daysNeeded)
+    estimatedCompletion = estDate.toISOString()
+  }
+
+  return {
+    target,
+    deadline: deadline.toISOString(),
+    totalLearned,
+    wordsRemaining,
+    dailyPace,
+    requiredPace,
+    projectedTotal: Math.min(projectedTotal, target),
+    onTrack,
+    daysRemaining,
+    estimatedCompletion,
+    progress: Math.min(100, Math.round((totalLearned / target) * 100)),
+  }
 }

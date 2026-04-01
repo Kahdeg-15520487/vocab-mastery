@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { request } from '@/lib/api'
+import { request, sprintApi } from '@/lib/api'
 import { useToast } from '@/composables/useToast'
 import { useNotifications } from '@/composables/useNotifications'
 import { useBrowserAI } from '@/composables/useBrowserAI'
@@ -37,8 +37,15 @@ const exporting = ref(false)
 const importing = ref(false)
 const backupError = ref('')
 
+// Year goal
+const yearWordTarget = ref(5000)
+const yearTargetDate = ref('2026-12-31')
+const yearGoalSaving = ref(false)
+const yearPace = ref<any>(null)
+
 onMounted(async () => {
   await loadGoals()
+  loadYearGoal()
 })
 
 async function loadGoals() {
@@ -74,6 +81,35 @@ async function handleSaveGoals() {
     goalsError.value = e.message || 'Failed to update goals'
   } finally {
     goalsSaving.value = false
+  }
+}
+
+async function loadYearGoal() {
+  try {
+    const pace = await sprintApi.getPace()
+    yearPace.value = pace
+    yearWordTarget.value = pace.target
+    if (pace.deadline) {
+      yearTargetDate.value = new Date(pace.deadline).toISOString().split('T')[0]
+    }
+  } catch {
+    // Use defaults
+  }
+}
+
+async function handleSaveYearGoal() {
+  yearGoalSaving.value = true
+  try {
+    const result = await sprintApi.updateYearGoal({
+      yearWordTarget: yearWordTarget.value,
+      yearTargetDate: yearTargetDate.value,
+    })
+    yearPace.value = result.pace
+    toast.success('Year goal updated!')
+  } catch (e: any) {
+    toast.error(e.message || 'Failed to update year goal')
+  } finally {
+    yearGoalSaving.value = false
   }
 }
 
@@ -268,6 +304,54 @@ async function handleImport(event: Event) {
           <span v-else>Save Goals</span>
         </button>
       </form>
+    </div>
+
+    <!-- Year Goal -->
+    <div class="card">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">🎯 Year Goal</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+        Set your annual vocabulary target. The pace calculator will show if you're on track.
+      </p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Word Target</label>
+          <input
+            v-model.number="yearWordTarget"
+            type="number"
+            min="100"
+            max="50000"
+            step="500"
+            class="input-field"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Target Date</label>
+          <input
+            v-model="yearTargetDate"
+            type="date"
+            class="input-field"
+          />
+        </div>
+        <div v-if="yearPace" class="p-3 rounded-lg" :class="yearPace.onTrack ? 'bg-green-50 dark:bg-green-900/30' : 'bg-amber-50 dark:bg-amber-900/30'">
+          <p class="text-sm font-medium" :class="yearPace.onTrack ? 'text-green-700 dark:text-green-300' : 'text-amber-700 dark:text-amber-300'">
+            {{ yearPace.onTrack ? '✅ You\'re on track!' : '⚠️ You need to speed up' }}
+          </p>
+          <p class="text-xs mt-1 text-slate-600 dark:text-slate-400">
+            Current pace: {{ yearPace.dailyPace }} words/day · Need: {{ yearPace.requiredPace }} words/day
+          </p>
+          <p class="text-xs text-slate-500 dark:text-slate-500">
+            {{ yearPace.totalLearned }} / {{ yearPace.target }} words ({{ yearPace.progress }}%) · {{ yearPace.daysRemaining }} days left
+          </p>
+        </div>
+        <button
+          @click="handleSaveYearGoal"
+          :disabled="yearGoalSaving"
+          class="btn-primary"
+        >
+          <span v-if="yearGoalSaving">Saving...</span>
+          <span v-else>Save Year Goal</span>
+        </button>
+      </div>
     </div>
 
     <!-- Notification Settings -->

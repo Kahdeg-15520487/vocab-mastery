@@ -11,6 +11,8 @@ import {
   getSprintReport,
   detectPlateau,
   generateWritingPrompts,
+  getNextSprintSuggestion,
+  calculatePace,
 } from '../lib/sprints.js'
 
 export async function sprintRoutes(app: FastifyInstance) {
@@ -91,6 +93,41 @@ export async function sprintRoutes(app: FastifyInstance) {
       yearTarget: 5000,
       yearProgress: Math.round((totalLearned / 5000) * 100),
     }
+  })
+
+  // Get next sprint suggestion
+  app.get('/suggestions/next', async (request) => {
+    const userId = (request.user as any).userId
+    const suggestion = await getNextSprintSuggestion(userId)
+    return suggestion
+  })
+
+  // Get pace calculation
+  app.get('/pace', async (request) => {
+    const userId = (request.user as any).userId
+    const pace = await calculatePace(userId)
+    return pace
+  })
+
+  // Update year goal settings
+  app.put('/year-goal', async (request) => {
+    const userId = (request.user as any).userId
+    const body = request.body as {
+      yearWordTarget?: number
+      yearTargetDate?: string
+    }
+
+    const data: any = {}
+    if (body.yearWordTarget) data.yearWordTarget = body.yearWordTarget
+    if (body.yearTargetDate) data.yearTargetDate = new Date(body.yearTargetDate)
+
+    await prisma.user.update({
+      where: { id: userId },
+      data,
+    })
+
+    const pace = await calculatePace(userId)
+    return { success: true, pace }
   })
 
   // Create next sprint

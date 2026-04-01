@@ -270,6 +270,12 @@
           <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Create New Sprint</h2>
 
           <div class="space-y-4">
+            <!-- Review Sprint Suggestion -->
+            <div v-if="nextSuggestion?.isReviewSprint" class="p-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700">
+              <p class="text-sm font-medium text-indigo-700 dark:text-indigo-300">🔄 Review Sprint</p>
+              <p class="text-xs text-indigo-600 dark:text-indigo-400 mt-1">{{ nextSuggestion.reviewReason }}</p>
+            </div>
+
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Word Target</label>
               <input
@@ -351,6 +357,7 @@ const completionReport = ref<any>(null)
 const showCompletion = ref(false)
 const showConfetti = ref(false)
 const prompts = ref<any[]>([])
+const nextSuggestion = ref<{ nextNumber: number; isReviewSprint: boolean; reviewReason: string | null } | null>(null)
 const newSprint = ref({
   wordTarget: 265,
   durationDays: 14,
@@ -477,15 +484,13 @@ function usePromptAction(prompt: any) {
 onMounted(async () => {
   await store.fetchDashboard()
   await store.fetchSprints()
-  // Load prompts if active sprint
-  if (store.currentSprint?.id) {
-    try {
-      const data = await sprintApi.getPrompts(store.currentSprint.id)
-      prompts.value = data.prompts ?? []
-    } catch {
-      // Non-critical
-    }
-  }
+  // Load suggestion + prompts in parallel
+  Promise.all([
+    sprintApi.getNextSuggestion().then(s => { nextSuggestion.value = s }).catch(() => {}),
+    store.currentSprint?.id
+      ? sprintApi.getPrompts(store.currentSprint.id).then(d => { prompts.value = d.prompts ?? [] }).catch(() => {})
+      : Promise.resolve(),
+  ])
 })
 
 async function handleCreateNext() {
