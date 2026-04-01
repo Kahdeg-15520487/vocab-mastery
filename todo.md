@@ -5,11 +5,8 @@
 ## Pending
 
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
-- [ ] **#246** **[low]** 📤 Shareable progress card — generate a shareable image/markdown of vocabulary achievements #feature #backend
-- [ ] **#253** 📊 Shareable progress summary card on Dashboard — embeddable stats snapshot #feature #frontend
-- [ ] **#261** **[high]** 🧩 Word Context Examples — show real-world usage snippets from different domains on word detail #feature #frontend
-- [ ] **#265** **[high]** 📈 Study Plan Generator — LLM generates personalized weekly study plan based on user stats/goals #feature #fullstack
-- [ ] **#282** 📊 Dashboard quick stat cards — Total Words, XP, Level, Streak in prominent grid #feature #frontend
+- [ ] **#283** 🔔 Review Reminders — configurable time-based reminders (morning/evening) with browser notifications #feature #frontend
+- [ ] **#286** **[high]** 🎮 Word Chain Game — chain words by last letter, earn XP, learn new words #feature #fullstack #gamification
 
 ## Completed
 
@@ -145,6 +142,7 @@
 - [x] **#277** **[high]** 🎯 Daily Challenge — a daily word challenge with bonus XP for completion #feature #fullstack #gamification
 - [x] **#278** 🌐 Word Translations — LLM-powered translations in multiple languages on word detail page #feature #fullstack #llm
 - [x] **#281** **[high]** 📎 Export Progress Report — HTML report with study stats, mastery breakdown, weak words list #feature #fullstack
+- [x] **#282** 📊 Dashboard quick stat cards — Total Words, XP, Level, Streak in prominent grid #feature #frontend
 
 <!-- Raw Data -->
 ```json
@@ -1546,18 +1544,6 @@
       "completedAt": 1775075963151
     },
     {
-      "id": 246,
-      "text": "📤 Shareable progress card — generate a shareable image/markdown of vocabulary achievements",
-      "done": false,
-      "priority": "low",
-      "tags": [
-        "feature",
-        "backend"
-      ],
-      "createdAt": 1775075975668,
-      "archived": false
-    },
-    {
       "id": 247,
       "text": "🛡️ 500 Error Page + API Error Boundary — graceful handling when backend is down",
       "done": true,
@@ -1608,18 +1594,6 @@
       "createdAt": 1775077300477,
       "archived": false,
       "completedAt": 1775077576740
-    },
-    {
-      "id": 253,
-      "text": "📊 Shareable progress summary card on Dashboard — embeddable stats snapshot",
-      "done": false,
-      "priority": "medium",
-      "tags": [
-        "feature",
-        "frontend"
-      ],
-      "createdAt": 1775077598523,
-      "archived": false
     },
     {
       "id": 254,
@@ -1700,18 +1674,6 @@
       "completedAt": 1775079589137
     },
     {
-      "id": 261,
-      "text": "🧩 Word Context Examples — show real-world usage snippets from different domains on word detail",
-      "done": false,
-      "priority": "high",
-      "tags": [
-        "feature",
-        "frontend"
-      ],
-      "createdAt": 1775079829385,
-      "archived": false
-    },
-    {
       "id": 264,
       "text": "🎓 Word Mastery Levels — 5-tier mastery badge (New→Learning→Familiar→Mastered→Expert) on browse/word detail",
       "done": true,
@@ -1723,18 +1685,6 @@
       "createdAt": 1775079873471,
       "archived": false,
       "completedAt": 1775080061871
-    },
-    {
-      "id": 265,
-      "text": "📈 Study Plan Generator — LLM generates personalized weekly study plan based on user stats/goals",
-      "done": false,
-      "priority": "high",
-      "tags": [
-        "feature",
-        "fullstack"
-      ],
-      "createdAt": 1775079877482,
-      "archived": false
     },
     {
       "id": 266,
@@ -1911,16 +1861,42 @@
     {
       "id": 282,
       "text": "📊 Dashboard quick stat cards — Total Words, XP, Level, Streak in prominent grid",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
         "frontend"
       ],
       "createdAt": 1775082909121,
+      "archived": false,
+      "completedAt": 1775082961024
+    },
+    {
+      "id": 283,
+      "text": "🔔 Review Reminders — configurable time-based reminders (morning/evening) with browser notifications",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "frontend"
+      ],
+      "createdAt": 1775083248588,
+      "archived": false
+    },
+    {
+      "id": 286,
+      "text": "🎮 Word Chain Game — chain words by last letter, earn XP, learn new words",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "fullstack",
+        "gamification"
+      ],
+      "createdAt": 1775083272121,
       "archived": false
     }
   ],
-  "nextId": 283
+  "nextId": 287
 }
 ```

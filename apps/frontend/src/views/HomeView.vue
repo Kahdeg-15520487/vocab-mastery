@@ -376,6 +376,11 @@ function formatDate(iso: string) {
           <div class="font-semibold text-sm sm:text-base text-amber-700 dark:text-amber-300">Daily Challenge</div>
           <div class="text-xs sm:text-sm text-amber-500 dark:text-amber-400 hidden sm:block">+75 bonus XP</div>
         </router-link>
+        <router-link to="/word-chain" class="card hover:shadow-md transition-shadow text-center group bg-purple-50 dark:bg-purple-900/10 border-purple-200 dark:border-purple-800">
+          <div class="text-3xl sm:text-4xl mb-1 sm:mb-2">🔗</div>
+          <div class="font-semibold text-sm sm:text-base text-purple-700 dark:text-purple-300">Word Chain</div>
+          <div class="text-xs sm:text-sm text-purple-500 dark:text-purple-400 hidden sm:block">Chain game</div>
+        </router-link>
       </div>
 
       <!-- Recently Viewed Words -->

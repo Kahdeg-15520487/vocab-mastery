@@ -210,6 +210,12 @@ export const wordsApi = {
 
   getTranslations: (wordId: string, languages?: string[]) => request<{ translations: Record<string, string>; cached: boolean }>(`/words/${wordId}/translate`, { method: 'POST', body: JSON.stringify({ languages }) }),
 
+  chainStart: () => request<{ word: string; definition: string; cefrLevel: string; wordId: string }>('/words/chain/start'),
+  chainValidate: (previousWord: string, userWord: string, chainLength: number) =>
+    request<{ valid: boolean; reason?: string; word?: string; definition?: string; cefrLevel?: string; wordId?: string; xpEarned?: number; chainLength?: number }>('/words/chain/validate', {
+      method: 'POST', body: JSON.stringify({ previousWord, userWord, chainLength }),
+    }),
+
   compareWords: (word1: string, word2: string) => request<{
     comparison: string
     word1: { word: string; meaning: string; usage: string; example: string; collocations: string[] }

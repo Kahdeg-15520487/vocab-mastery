@@ -898,4 +898,112 @@ Word 2: "${word2}"${w2 ? ` — ${w2.definition}` : ''}${w2?.partOfSpeech ? ` (${
     await prisma.wordEncounter.delete({ where: { id: encounterId } });
     return { success: true };
   });
+
+  // ============================================
+  // WORD CHAIN GAME
+  // ============================================
+
+  // GET /words/chain/start — Get a random starting word for word chain game
+  app.get('/words/chain/start', { preHandler: authenticate }, async (request, _reply) => {
+    const userId = request.user!.userId;
+
+    // Prefer single words the user is currently learning
+    const learningWords = await prisma.wordProgress.findMany({
+      where: { userId, status: { in: ['learning', 'reviewing'] }, word: { word: { not: { contains: ' ' } } } },
+      include: { word: { select: { id: true, word: true, definition: true, cefrLevel: true } } },
+      take: 20,
+      orderBy: { nextReview: 'asc' },
+    });
+
+    if (learningWords.length > 0) {
+      const pick = learningWords[Math.floor(Math.random() * learningWords.length)];
+      return {
+        word: pick.word.word,
+        definition: pick.word.definition,
+        cefrLevel: pick.word.cefrLevel,
+        wordId: pick.word.id,
+      };
+    }
+
+    // Fallback to random word
+    const [word] = await prisma.$queryRaw<Array<{ id: string; word: string; definition: string; cefr_level: string }>>`
+      SELECT id, word, definition, cefr_level FROM words
+      WHERE LENGTH(word) >= 3 AND LENGTH(word) <= 12 AND word NOT LIKE '% %'
+      ORDER BY RANDOM() LIMIT 1
+    `;
+
+    return {
+      word: word.word,
+      definition: word.definition,
+      cefrLevel: word.cefr_level,
+      wordId: word.id,
+    };
+  });
+
+  // POST /words/chain/validate — Validate a word chain move
+  app.post('/words/chain/validate', { preHandler: authenticate }, async (request, _reply) => {
+    const userId = request.user!.userId;
+    const { previousWord, userWord, chainLength } = request.body as {
+      previousWord: string;
+      userWord: string;
+      chainLength: number;
+    };
+
+    if (!userWord || !previousWord) {
+      throw { statusCode: 400, message: 'Both previous and current word are required' };
+    }
+
+    const normalizedUser = userWord.toLowerCase().trim();
+    const normalizedPrev = previousWord.toLowerCase().trim();
+
+    if (normalizedUser.includes(' ')) {
+      return { valid: false, reason: 'Single words only (no spaces)', chainLength };
+    }
+
+    // Check chain rule: last letter of previous must be first letter of user's word
+    const lastLetter = normalizedPrev[normalizedPrev.length - 1];
+    const firstLetter = normalizedUser[0];
+
+    if (lastLetter !== firstLetter) {
+      return {
+        valid: false,
+        reason: `Word must start with "${lastLetter.toUpperCase()}"`,
+        chainLength,
+      };
+    }
+
+    // Check if word exists in database
+    const word = await prisma.word.findFirst({
+      where: { word: { equals: normalizedUser, mode: 'insensitive' } },
+    });
+
+    if (!word) {
+      return {
+        valid: false,
+        reason: `"${userWord}" is not in the dictionary`,
+        chainLength,
+      };
+    }
+
+    // Calculate XP reward
+    const baseXp = 5;
+    const lengthBonus = Math.min(chainLength * 2, 20);
+    const totalXp = baseXp + lengthBonus;
+
+    // Award XP
+    await prisma.user.update({
+      where: { id: userId },
+      data: { totalXp: { increment: totalXp } },
+    });
+
+    return {
+      valid: true,
+      word: word.word,
+      definition: word.definition,
+      cefrLevel: word.cefrLevel,
+      wordId: word.id,
+      xpEarned: totalXp,
+      chainLength: chainLength + 1,
+    };
+  });
 }

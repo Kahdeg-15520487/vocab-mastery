@@ -129,6 +129,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/word-chain',
+    name: 'word-chain',
+    component: () => import('@/views/WordChainView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/achievements',
     name: 'achievements',
     component: () => import('@/views/AchievementsView.vue'),
