@@ -1089,6 +1089,70 @@ export async function progressRoutes(app: FastifyInstance) {
     };
   });
 
+  // GET /progress/export-csv — Export learned vocabulary as CSV
+  app.get('/progress/export-csv', { preHandler: authenticate }, async (request, reply) => {
+    const userId = request.user!.userId;
+    const status = (request.query as any).status || 'all';
+
+    const where: any = { userId };
+    if (status !== 'all' && ['new', 'learning', 'reviewing', 'mastered'].includes(status)) {
+      where.status = status;
+    } else {
+      where.status = { not: 'new' }; // Default: exclude unseen
+    }
+
+    const progress = await prisma.wordProgress.findMany({
+      where,
+      include: {
+        word: {
+          select: {
+            word: true,
+            definition: true,
+            cefrLevel: true,
+            partOfSpeech: true,
+            examples: true,
+            phoneticUs: true,
+          },
+        },
+      },
+      orderBy: { updatedAt: 'desc' },
+    });
+
+    // Build CSV
+    const headers = ['Word', 'Definition', 'CEFR', 'Part of Speech', 'Phonetic', 'Status', 'Repetitions', 'Ease Factor', 'Interval (days)', 'Total Reviews', 'Correct Reviews', 'Accuracy %', 'Next Review', 'Examples'];
+    const rows = progress.map(p => {
+      const w = (p as any).word;
+      const accuracy = p.totalReviews > 0 ? Math.round((p.correctReviews / p.totalReviews) * 100) : 0;
+      const examples = Array.isArray(w?.examples) ? (w.examples as string[]).join(' | ') : '';
+      const pos = Array.isArray(w?.partOfSpeech) ? (w.partOfSpeech as string[]).join(',') : (w?.partOfSpeech || '');
+      const def = String(w?.definition || '').replace(/"/g, '""');
+      const nextReview = p.nextReview ? new Date(p.nextReview as Date).toISOString().split('T')[0] : '';
+
+      return [
+        w?.word || '',
+        `"${def}"`,
+        w?.cefrLevel || '',
+        pos,
+        w?.phoneticUs || '',
+        p.status,
+        p.repetitions,
+        p.easeFactor,
+        p.interval,
+        p.totalReviews,
+        p.correctReviews,
+        accuracy,
+        nextReview,
+        `"${examples}"`,
+      ];
+    });
+
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+
+    reply.header('Content-Type', 'text/csv');
+    reply.header('Content-Disposition', `attachment; filename=vocab-${status}-${new Date().toISOString().split('T')[0]}.csv`);
+    return csv;
+  });
+
   // GET /progress/report — Self-contained HTML progress report
   app.get('/progress/report', { preHandler: authenticate }, async (request, reply) => {
     const userId = request.user!.userId;

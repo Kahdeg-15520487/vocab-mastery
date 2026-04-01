@@ -24,6 +24,25 @@ async function downloadReport() {
   }
 }
 
+async function downloadCSV() {
+  try {
+    const token = sessionStorage.getItem('accessToken')
+    const res = await fetch('/api/progress/export-csv', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    const csv = await res.text()
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `vocab-export-${new Date().toISOString().split('T')[0]}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch {
+    // Silently fail
+  }
+}
+
 // Heatmap & study time
 const heatmapData = ref<Array<{ date: string; wordsLearned: number; wordsReviewed: number }>>([])
 const topicBreakdown = ref<Array<{ name: string; slug: string; topics: Array<{ name: string; total: number; learned: number; mastered: number; pct: number }> }>>([])
@@ -155,6 +174,9 @@ const statsXpNeeded = computed(() => {
         </button>
         <button @click="downloadReport" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 rounded-lg text-sm font-medium transition-colors">
           Print Report
+        </button>
+        <button @click="downloadCSV" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors">
+          Export CSV
         </button>
       </div>
     </div>
