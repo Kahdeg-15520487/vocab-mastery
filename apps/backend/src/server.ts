@@ -17,6 +17,7 @@ import { sprintRoutes } from './routes/sprints.js';
 import { writingRoutes } from './routes/writing.js';
 import { readingRoutes } from './routes/reading.js';
 import prisma from './lib/prisma.js';
+import { seedDictionary } from './lib/seed-dictionary.js';
 import { startJobRunner, stopJobRunner } from './lib/jobs.js';
 import path from 'path';
 import fs from 'fs';
@@ -172,6 +173,14 @@ async function start() {
     // Start job runner after server is up
     startJobRunner(5000);
     app.log.info('Job runner started');
+
+    // Auto-seed dictionary on first run
+    try {
+      await seedDictionary(prisma, process.env.FORCE_RESEED === 'true');
+      app.log.info('Dictionary seed check complete');
+    } catch (seedErr: any) {
+      app.log.error({ err: seedErr }, 'Dictionary seed failed — will retry on next restart');
+    }
   } catch (err) {
     app.log.error(err);
     process.exit(1);
