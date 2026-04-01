@@ -4,7 +4,7 @@
 
 ## Pending
 
-- [ ] **#231** **[high]** 💡 LLM-powered example sentences — generate contextual examples for words on demand #feature #backend #frontend #llm
+- [ ] **#232** 📊 Vocabulary Level Test — comprehensive assessment that estimates CEFR level #feature #backend #frontend
 
 ## Completed
 
@@ -105,6 +105,7 @@
 - [x] **#228** **[high]** 🤖 AI Writing Feedback — server-side LLM review of user sentences #feature #backend #frontend #llm
 - [x] **#229** **[high]** 🧠 Adaptive Quiz Difficulty — track performance and adjust difficulty dynamically #feature #backend #frontend
 - [x] **#230** **[high]** 🎯 Smart Review Recommendations — suggest which words to review based on due dates and weakness #feature #frontend
+- [x] **#231** **[high]** 💡 LLM-powered example sentences — generate contextual examples for words on demand #feature #backend #frontend #llm
 
 <!-- Raw Data -->
 ```json
@@ -1346,7 +1347,7 @@
     {
       "id": 231,
       "text": "💡 LLM-powered example sentences — generate contextual examples for words on demand",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
@@ -1355,9 +1356,23 @@
         "llm"
       ],
       "createdAt": 1775071485971,
+      "archived": false,
+      "completedAt": 1775071802165
+    },
+    {
+      "id": 232,
+      "text": "📊 Vocabulary Level Test — comprehensive assessment that estimates CEFR level",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "backend",
+        "frontend"
+      ],
+      "createdAt": 1775071808725,
       "archived": false
     }
   ],
-  "nextId": 232
+  "nextId": 233
 }
 ```

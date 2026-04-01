@@ -260,6 +260,102 @@ export async function sessionRoutes(app: FastifyInstance) {
     };
   });
 
+  // ============================================
+  // POST /sessions/level-test — Vocabulary level assessment
+  // ============================================
+  app.post('/sessions/level-test', async (request, reply) => {
+    const userId = request.user!.userId;
+
+    await abandonExistingSession(userId);
+
+    const body = request.body as { questionCount?: number };
+    const questionCount = Math.min(body.questionCount || 24, 40);
+
+    // Get words from each CEFR level, ensuring coverage
+    const cefrLevels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+    const wordsPerLevel = Math.ceil(questionCount / cefrLevels.length);
+
+    const levelWords: any[] = [];
+    for (const level of cefrLevels) {
+      const words = await prisma.$queryRaw<Array<{ id: string; word: string; definition: string; partOfSpeech: any; cefrLevel: string }>>`
+        SELECT id, word, definition, part_of_speech as "partOfSpeech", cefr_level as "cefrLevel"
+        FROM words
+        WHERE cefr_level = ${level}
+        ORDER BY RANDOM()
+        LIMIT ${wordsPerLevel + 2}
+      `;
+      levelWords.push(...words);
+    }
+
+    // Shuffle and take the target count
+    const shuffled = levelWords.sort(() => Math.random() - 0.5).slice(0, questionCount);
+
+    if (shuffled.length < 4) {
+      return reply.status(400).send({ error: 'Not enough words for a level test' });
+    }
+
+    // Get wrong answer pool
+    const allIds = new Set(shuffled.map((w: any) => w.id));
+    const wrongPool = await prisma.$queryRaw<Array<{ id: string; word: string; definition: string }>>`
+      SELECT id, word, definition FROM words
+      WHERE id NOT IN (${Prisma.join([...allIds])})
+      ORDER BY RANDOM()
+      LIMIT 200
+    `;
+
+    function sanitizeDef(word: string, definition: string): string {
+      let sanitized = definition;
+      const w = word.toLowerCase().replace(/[^a-z]/g, '');
+      const patterns = [w, w + 's', w + 'es', w + 'ed', w + 'ing', w + 'er', w + 'ly'];
+      patterns.sort((a, b) => b.length - a.length);
+      for (const variant of patterns) {
+        if (variant.length >= 2) {
+          const escaped = variant.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const re = new RegExp(`\\b${escaped}\\b`, 'gi');
+          sanitized = sanitized.replace(re, '____');
+        }
+      }
+      return sanitized;
+    }
+
+    // Build questions
+    const questions = shuffled.map((word: any, index: number) => {
+      const wrongAnswers = [...wrongPool].sort(() => Math.random() - 0.5).slice(0, 3).map(w => ({
+        id: w.id, word: w.word, definition: w.definition,
+      }));
+
+      const options = [
+        { id: word.id, word: word.word, definition: word.definition, correct: true },
+        ...wrongAnswers.map(w => ({ ...w, correct: false })),
+      ].sort(() => Math.random() - 0.5);
+
+      return {
+        index,
+        id: word.id,
+        word: word.word,
+        partOfSpeech: word.partOfSpeech as string[],
+        definition: sanitizeDef(word.word, word.definition || ''),
+        cefrLevel: word.cefrLevel,
+        options,
+      };
+    });
+
+    const session = await prisma.learningSession.create({
+      data: {
+        userId,
+        type: 'quiz',
+        sessionWords: { create: shuffled.map((w: any) => ({ wordId: w.id })) },
+      },
+    });
+
+    return {
+      sessionId: session.id,
+      questionCount: questions.length,
+      questions,
+      isLevelTest: true,
+    };
+  });
+
   // Generate quiz questions
   app.post('/sessions/quiz', async (request, reply) => {
     const userId = request.user!.userId;
@@ -597,6 +693,69 @@ export async function sessionRoutes(app: FastifyInstance) {
     }
 
     return { correct: isCorrect, correctId: body.wordId };
+  });
+
+  // GET /sessions/level-test/:sessionId/results — Compute CEFR level from level test
+  app.get('/sessions/level-test/:sessionId/results', async (request, reply) => {
+    const userId = request.user!.userId;
+    const { sessionId } = request.params as { sessionId: string };
+
+    const session = await prisma.learningSession.findFirst({
+      where: { id: sessionId, userId, type: 'quiz' },
+      include: {
+        sessionWords: {
+          include: {
+            word: {
+              select: { id: true, word: true, cefrLevel: true },
+            },
+          },
+        },
+      },
+    });
+    if (!session) {
+      return reply.status(404).send({ error: 'Session not found' });
+    }
+
+    // Calculate per-level accuracy
+    const levelResults: Record<string, { total: number; correct: number }> = {};
+    const cefrLevels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+
+    for (const sw of session.sessionWords) {
+      const level = sw.word.cefrLevel || 'unknown';
+      if (!levelResults[level]) levelResults[level] = { total: 0, correct: 0 };
+      levelResults[level].total++;
+      if (sw.response === 'easy') levelResults[level].correct++;
+    }
+
+    // Find the highest level where accuracy >= 60%
+    let estimatedLevel = 'A1';
+    for (const level of cefrLevels) {
+      const result = levelResults[level];
+      if (result && result.total > 0 && (result.correct / result.total) >= 0.6) {
+        estimatedLevel = level;
+      }
+    }
+
+    // Compute overall accuracy
+    const totalQuestions = session.totalCorrect + session.totalIncorrect;
+    const overallAccuracy = totalQuestions > 0 ? session.totalCorrect / totalQuestions : 0;
+
+    return {
+      sessionId,
+      totalQuestions,
+      totalCorrect: session.totalCorrect,
+      totalIncorrect: session.totalIncorrect,
+      accuracy: Math.round(overallAccuracy * 100),
+      estimatedLevel,
+      levelBreakdown: cefrLevels.map(level => ({
+        level,
+        total: levelResults[level]?.total || 0,
+        correct: levelResults[level]?.correct || 0,
+        accuracy: levelResults[level] && levelResults[level].total > 0
+          ? Math.round((levelResults[level].correct / levelResults[level].total) * 100)
+          : null,
+      })).filter(l => l.total > 0),
+    };
   });
 
   // ============================================

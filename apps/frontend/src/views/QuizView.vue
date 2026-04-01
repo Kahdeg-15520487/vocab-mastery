@@ -41,6 +41,7 @@ interface QuizData {
     level: 'easy' | 'medium' | 'hard'
     cefrRange: string[]
   }
+  isLevelTest?: boolean
 }
 
 const route = useRoute()
@@ -50,6 +51,7 @@ const { activeSession, checkActiveSession, abandonActiveSession, showSingleTabWa
 // State
 const phase = ref<'setup' | 'resume' | 'playing' | 'results'>('setup')
 const loading = ref(false)
+const isLevelTest = ref(false)
 const quizData = ref<QuizData | null>(null)
 const quizResult = ref<{ xpEarned?: number; leveledUp?: boolean; newAchievements?: string[] } | null>(null)
 const confettiActive = ref(false)
@@ -104,7 +106,7 @@ async function startQuiz() {
   try {
     const body: any = {
       questionCount: questionCount.value,
-      adaptive: difficulty.value === 'mixed', // Only auto-adapt when set to mixed
+      adaptive: difficulty.value === 'mixed',
     }
     const levelRange = getLevelRange(difficulty.value)
     if (levelRange) body.levelRange = levelRange
@@ -130,7 +132,27 @@ async function startQuiz() {
   }
 }
 
-async function practiceMistakes() {
+async function startLevelTest() {
+  loading.value = true
+  isLevelTest.value = true
+  try {
+    const data = await request<QuizData>('/sessions/level-test', {
+      method: 'POST',
+      body: JSON.stringify({ questionCount: 24 }),
+    })
+    quizData.value = data
+    score.value = 0
+    currentIndex.value = 0
+    quizResult.value = null
+    missedQuestions.value = []
+    startTime.value = Date.now()
+    phase.value = 'playing'
+  } catch (e: any) {
+    toast.error(e.message || 'Failed to start level test')
+  } finally {
+    loading.value = false
+  }
+}() {
   if (missedQuestions.value.length === 0) return
   loading.value = true
   try {
@@ -493,11 +515,8 @@ async function restartFromPrompt() {
 
       <!-- Difficulty & Mode info -->
       <div class="text-sm text-slate-500 dark:text-slate-400">
-        {{ { mixed: '\U0001f3b2 Mixed', easy: '\U0001f7e2 Easy', medium: '\U0001f7e1 Medium', hard: '\U0001f534 Hard' }[difficulty] }} ·
+        {{ { mixed: '🎲 Mixed', easy: '🟢 Easy', medium: '🟡 Medium', hard: '🔴 Hard' }[difficulty] }} ·
         {{ quizData.questionCount }} questions
-        <span v-if="quizData.adaptive?.enabled" class="ml-2 text-xs px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300">
-          Adaptive: {{ quizData.adaptive.level }}
-        </span>
       </div>
 
       <!-- XP Earned -->
