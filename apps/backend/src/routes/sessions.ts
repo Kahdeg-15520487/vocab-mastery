@@ -215,6 +215,7 @@ export async function sessionRoutes(app: FastifyInstance) {
         userId,
         type,
         themeId,
+        sprintId,
         sessionWords: {
           create: words.map(word => ({
             wordId: word.id,
@@ -449,6 +450,7 @@ export async function sessionRoutes(app: FastifyInstance) {
         userId,
         type: 'quiz',
         themeId,
+        sprintId,
         sessionWords: {
           create: quizWords.map(word => ({ wordId: word.id })),
         },
@@ -507,6 +509,14 @@ export async function sessionRoutes(app: FastifyInstance) {
 
     // Update word progress (spaced repetition) for quiz answers
     await updateWordProgress(userId, body.wordId, isCorrect);
+
+    // Mark sprint word as quizzed if this is a sprint session
+    if (session.sprintId) {
+      await prisma.sprintWord.updateMany({
+        where: { sprintId: session.sprintId, wordId: body.wordId },
+        data: { quizzed: true, quizCorrect: isCorrect },
+      }).catch(() => {});
+    }
 
     return { correct: isCorrect, correctId: body.wordId };
   });
@@ -596,8 +606,9 @@ export async function sessionRoutes(app: FastifyInstance) {
     const session = await prisma.learningSession.create({
       data: {
         userId,
-        type: 'learn', // reuse learn type for simplicity
+        type: 'learn',
         themeId,
+        sprintId,
         sessionWords: {
           create: spellWords.map(word => ({ wordId: word.id })),
         },
@@ -691,6 +702,14 @@ export async function sessionRoutes(app: FastifyInstance) {
     // Update word progress (spaced repetition)
     await updateWordProgress(userId, body.wordId, isCorrect);
 
+    // Mark sprint word as quizzed if this is a sprint session
+    if (session.sprintId) {
+      await prisma.sprintWord.updateMany({
+        where: { sprintId: session.sprintId, wordId: body.wordId },
+        data: { quizzed: true, quizCorrect: isCorrect },
+      }).catch(() => {});
+    }
+
     return {
       correct: isCorrect,
       close: isClose,
@@ -772,6 +791,7 @@ export async function sessionRoutes(app: FastifyInstance) {
         userId,
         type: 'learn',
         themeId,
+        sprintId,
         sessionWords: {
           create: fillWords.map(word => ({ wordId: word.id })),
         },
@@ -896,6 +916,14 @@ export async function sessionRoutes(app: FastifyInstance) {
 
     // Update word progress (spaced repetition)
     await updateWordProgress(userId, body.wordId, isCorrect);
+
+    // Mark sprint word as quizzed if this is a sprint session
+    if (session.sprintId) {
+      await prisma.sprintWord.updateMany({
+        where: { sprintId: session.sprintId, wordId: body.wordId },
+        data: { quizzed: true, quizCorrect: isCorrect },
+      }).catch(() => {});
+    }
 
     return {
       correct: isCorrect,

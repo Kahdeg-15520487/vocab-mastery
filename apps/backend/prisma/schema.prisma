@@ -418,6 +418,7 @@ model LearningSession {
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   type          String
   themeId       String?       @map("theme_id")
+  sprintId      String?       @map("sprint_id")
   startedAt     DateTime      @default(now()) @map("started_at")
   completedAt   DateTime?     @map("completed_at")
   totalCorrect  Int           @default(0) @map("total_correct")
@@ -427,6 +428,7 @@ model LearningSession {
 
   @@index([userId])
   @@index([startedAt])
+  @@index([sprintId])
   @@map("learning_sessions")
 }
 

@@ -621,13 +621,4 @@ export const sprintApi = {
       totalLearned: number
       dailyPace: number
     }>('/sprints/suggestions/next'),
-
-  getFocus: () =>
-    request<{
-      quarter: string
-      focusArea: string
-      suggestedLevel: string
-      totalLearned: number
-      weakestThemes: string[]; recommendation: string
-    }>('/sprints/focus'),
 }

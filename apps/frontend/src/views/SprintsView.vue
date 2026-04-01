@@ -85,6 +85,18 @@
           </span>
         </div>
 
+        <!-- Retention Rate -->
+        <div v-if="sprintStats && sprintStats.retentionRate != null" class="mt-2 flex items-center gap-3 text-sm">
+          <div class="flex items-center gap-1">
+            <span v-if="sprintStats.retentionRate >= 0.85">🧠</span>
+            <span v-else>⚠️</span>
+            <span>Retention: {{ Math.round(sprintStats.retentionRate * 100) }}%</span>
+            <span v-if="sprintStats.retentionRate >= 0.85" class="text-green-200">✓ Target met</span>
+            <span v-else class="text-yellow-200">— Below 85% target, review recommended</span>
+          </div>
+          <span class="opacity-70">({{ sprintStats.wordsCorrect }}/{{ sprintStats.wordsQuizzed }} correct)</span>
+        </div>
+
         <!-- Actions -->
         <div class="mt-4 flex flex-wrap gap-3">
           <button
@@ -276,6 +288,17 @@
               <p class="text-xs text-indigo-600 dark:text-indigo-400 mt-1">{{ nextSuggestion.reviewReason }}</p>
             </div>
 
+            <!-- Focus Recommendations -->
+            <div v-if="focusRecommendation" class="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700">
+              <p class="text-sm font-medium text-amber-700 dark:text-amber-300">🎯 {{ focusRecommendation.quarter }} Focus</p>
+              <p class="text-xs text-amber-600 dark:text-amber-400">{{ focusRecommendation.focusArea }}</p>
+              <p class="text-xs text-amber-500 dark:text-amber-300 mt-1">Suggested level: {{ focusRecommendation.suggestedLevel }}</p>
+              <p v-if="focusRecommendation.weakestThemes?.length" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Weakest themes: {{ focusRecommendation.weakestThemes.join(', ') }}
+              </p>
+              <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 italic">💡 {{ focusRecommendation.recommendation }}</p>
+            </div>
+
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Word Target</label>
               <input
@@ -358,6 +381,7 @@ const showCompletion = ref(false)
 const showConfetti = ref(false)
 const prompts = ref<any[]>([])
 const nextSuggestion = ref<{ nextNumber: number; isReviewSprint: boolean; reviewReason: string | null } | null>(null)
+const focusRecommendation = ref<{ quarter: string; focusArea: string; suggestedLevel: string; totalLearned: number; weakestThemes: string[]; recommendation: string } | null>(null)
 const newSprint = ref({
   wordTarget: 265,
   durationDays: 14,
@@ -484,9 +508,10 @@ function usePromptAction(prompt: any) {
 onMounted(async () => {
   await store.fetchDashboard()
   await store.fetchSprints()
-  // Load suggestion + prompts in parallel
+  // Load suggestion + prompts + focus in parallel
   Promise.all([
     sprintApi.getNextSuggestion().then(s => { nextSuggestion.value = s }).catch(() => {}),
+    sprintApi.getFocusRecommendations().then(f => { focusRecommendation.value = f }).catch(() => {}),
     store.currentSprint?.id
       ? sprintApi.getPrompts(store.currentSprint.id).then(d => { prompts.value = d.prompts ?? [] }).catch(() => {})
       : Promise.resolve(),

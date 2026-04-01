@@ -7,6 +7,8 @@
 - [ ] **#220** **[high]** Implement Review Sprint logic (every 4th sprint, 50% weak words from previous 3)
 - [ ] **#224** Add Sentence Review flashcards — review your own submitted sentences
 - [ ] **#225** Sprint-aware study modes — show sprint context in Learn/Review/Quiz views
+- [ ] **#226** **[high]** Sprint retention rate — compute & display retention rate per sprint + 85% target indicator #P1
+- [ ] **#227** **[high]** Sentence Review flashcards — review your own submitted sentences as flashcards #P1
 
 ## Completed
 
@@ -1267,8 +1269,30 @@
       "tags": [],
       "createdAt": 1775059196368,
       "archived": false
+    },
+    {
+      "id": 226,
+      "text": "Sprint retention rate — compute & display retention rate per sprint + 85% target indicator",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "P1"
+      ],
+      "createdAt": 1775060941461,
+      "archived": false
+    },
+    {
+      "id": 227,
+      "text": "Sentence Review flashcards — review your own submitted sentences as flashcards",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "P1"
+      ],
+      "createdAt": 1775060946194,
+      "archived": false
     }
   ],
-  "nextId": 226
+  "nextId": 228
 }
 ```
