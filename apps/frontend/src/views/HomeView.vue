@@ -534,10 +534,15 @@ function selectTheme(theme: any) {
 
       <!-- Themes Section -->
       <div>
-        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Learn by Theme</h2>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white">Learn by Topic</h2>
+          <router-link to="/browse" class="text-sm text-primary-600 dark:text-primary-400 hover:underline">
+            Browse all {{ themes.length }} →
+          </router-link>
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <ThemeCard
-            v-for="theme in themes"
+            v-for="theme in themes.slice(0, 6)"
             :key="theme.id"
             :theme="theme"
             @select="selectTheme"
