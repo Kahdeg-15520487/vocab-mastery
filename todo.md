@@ -6,7 +6,8 @@
 
 - [ ] **#243** 📊 Vocabulary Statistics API — word count by status, CEFR level distribution, study time estimates #feature #backend
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
-- [ ] **#245** 📐 Vocabulary Size Estimator — statistical sampling test to estimate total known words #feature #backend #frontend
+- [ ] **#246** **[low]** 📤 Shareable progress card — generate a shareable image/markdown of vocabulary achievements #feature #backend
+- [ ] **#247** 🛡️ 500 Error Page + API Error Boundary — graceful handling when backend is down #polish #frontend
 
 ## Completed
 
@@ -117,6 +118,7 @@
 - [x] **#240** 👨‍👩‍👧‍👦 Word Family feature — show related word forms (noun/verb/adj/adv) on Word Detail page #feature #backend #frontend
 - [x] **#241** 🔊 Audio pronunciation in quiz results — play word audio when revealing correct answer #feature #frontend
 - [x] **#242** **[low]** 🖨️ Print-friendly vocabulary export — clean printable view for word lists #polish #frontend
+- [x] **#245** 📐 Vocabulary Size Estimator — statistical sampling test to estimate total known words #feature #backend #frontend
 
 <!-- Raw Data -->
 ```json
@@ -1518,7 +1520,7 @@
     {
       "id": 245,
       "text": "📐 Vocabulary Size Estimator — statistical sampling test to estimate total known words",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
@@ -1526,9 +1528,34 @@
         "frontend"
       ],
       "createdAt": 1775075379420,
+      "archived": false,
+      "completedAt": 1775075963151
+    },
+    {
+      "id": 246,
+      "text": "📤 Shareable progress card — generate a shareable image/markdown of vocabulary achievements",
+      "done": false,
+      "priority": "low",
+      "tags": [
+        "feature",
+        "backend"
+      ],
+      "createdAt": 1775075975668,
+      "archived": false
+    },
+    {
+      "id": 247,
+      "text": "🛡️ 500 Error Page + API Error Boundary — graceful handling when backend is down",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "polish",
+        "frontend"
+      ],
+      "createdAt": 1775075980226,
       "archived": false
     }
   ],
-  "nextId": 246
+  "nextId": 248
 }
 ```
