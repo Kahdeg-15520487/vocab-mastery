@@ -197,6 +197,7 @@ export const useSessionStore = defineStore('session', () => {
     isComplete,
     stats,
     responseBreakdown,
+    responses,
     loading,
     error,
     resumedFromServer,

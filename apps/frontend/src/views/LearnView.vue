@@ -39,6 +39,7 @@ const difficulty = ref<'mixed' | 'easy' | 'medium' | 'hard'>('mixed')
 const { playAudio } = useSpeech()
 const cardFlipped = ref(false)
 const confettiActive = ref(false)
+const showWordDetails = ref(false)
 
 // Resume state
 const showTabWarning = ref(false)
@@ -317,7 +318,33 @@ async function restartActiveSession() {
         </div>
       </div>
       
-      <div class="flex gap-4 justify-center">
+      <!-- Word Review Details -->
+      <div class="card mb-4">
+        <button @click="showWordDetails = !showWordDetails" class="w-full flex items-center justify-between text-sm font-medium text-slate-700 dark:text-slate-300">
+          <span>📋 Review Word Details</span>
+          <svg class="w-4 h-4 transition-transform" :class="showWordDetails ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+        </button>
+        <div v-if="showWordDetails" class="mt-3 space-y-1.5 max-h-60 overflow-y-auto">
+          <div
+            v-for="w in sessionStore.session?.words || []"
+            :key="w.id"
+            class="flex items-center gap-2 py-1.5 px-2 rounded text-sm"
+            :class="{
+              'bg-red-50 dark:bg-red-900/20': sessionStore.responses.get(w.id)?.response === 'forgot',
+              'bg-orange-50 dark:bg-orange-900/20': sessionStore.responses.get(w.id)?.response === 'hard',
+              'bg-green-50 dark:bg-green-900/20': sessionStore.responses.get(w.id)?.response === 'medium',
+              'bg-blue-50 dark:bg-blue-900/20': sessionStore.responses.get(w.id)?.response === 'easy',
+            }"
+          >
+            <span class="text-xs">{{ {forgot:'😵',hard:'😬',medium:'😊',easy:'🚀'}[sessionStore.responses.get(w.id)?.response || ''] || '❓' }}</span>
+            <span class="font-medium text-slate-900 dark:text-white">{{ w.word }}</span>
+            <span class="text-xs text-slate-400 truncate flex-1">{{ w.definition?.substring(0, 60) }}</span>
+            <router-link :to="'/words/' + w.id" class="text-xs text-primary-500 hover:underline">view</router-link>
+          </div>
+        </div>
+      </div>
+
+            <div class="flex gap-4 justify-center">
         <button @click="startNewSession" class="btn btn-primary">
           Learn More
         </button>

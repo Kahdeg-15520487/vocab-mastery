@@ -7,7 +7,6 @@
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#246** **[low]** 📤 Shareable progress card — generate a shareable image/markdown of vocabulary achievements #feature #backend
 - [ ] **#253** 📊 Shareable progress summary card on Dashboard — embeddable stats snapshot #feature #frontend
-- [ ] **#254** 📋 Import words from text — paste text, extract unknown words, create study list #feature #fullstack
 
 ## Completed
 
@@ -123,6 +122,7 @@
 - [x] **#248** 🔊 Auto-play pronunciation in learn/review flashcards — play word audio when card is revealed #feature #frontend
 - [x] **#250** 🌍 Words in the Wild — encounter tracking system (COMPLETE) #feature #complete
 - [x] **#252** 📝 Personal word notes/mnemonics — add notes to word progress during learning #feature #fullstack
+- [x] **#254** 📋 Import words from text — paste text, extract unknown words, create study list #feature #fullstack
 
 <!-- Raw Data -->
 ```json
@@ -1602,14 +1602,15 @@
     {
       "id": 254,
       "text": "📋 Import words from text — paste text, extract unknown words, create study list",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
         "fullstack"
       ],
       "createdAt": 1775077631920,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775077787003
     }
   ],
   "nextId": 255
