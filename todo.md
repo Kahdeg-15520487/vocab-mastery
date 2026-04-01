@@ -9,7 +9,7 @@
 - [ ] **#253** 📊 Shareable progress summary card on Dashboard — embeddable stats snapshot #feature #frontend
 - [ ] **#261** **[high]** 🧩 Word Context Examples — show real-world usage snippets from different domains on word detail #feature #frontend
 - [ ] **#265** **[high]** 📈 Study Plan Generator — LLM generates personalized weekly study plan based on user stats/goals #feature #fullstack
-- [ ] **#268** **[high]** 📱 PWA Install Prompt — show install banner when criteria met, persist dismissal #feature #frontend
+- [ ] **#269** **[high]** 🃏 Word Comparison — compare two similar words side by side with LLM analysis #feature #fullstack
 
 ## Completed
 
@@ -134,6 +134,7 @@
 - [x] **#264** **[high]** 🎓 Word Mastery Levels — 5-tier mastery badge (New→Learning→Familiar→Mastered→Expert) on browse/word detail #feature #frontend
 - [x] **#266** 📱 PWA Install Prompt — show install banner when PWA criteria met, persist dismissal #feature #fullstack
 - [x] **#267** **[high]** 📝 Study Plan Generator — LLM generates personalized weekly study plan from user stats #feature #fullstack
+- [x] **#268** **[high]** 📱 PWA Install Prompt — show install banner when criteria met, persist dismissal #feature #frontend
 
 <!-- Raw Data -->
 ```json
@@ -1754,16 +1755,29 @@
     {
       "id": 268,
       "text": "📱 PWA Install Prompt — show install banner when criteria met, persist dismissal",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
         "frontend"
       ],
       "createdAt": 1775080484033,
+      "archived": false,
+      "completedAt": 1775080550655
+    },
+    {
+      "id": 269,
+      "text": "🃏 Word Comparison — compare two similar words side by side with LLM analysis",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "fullstack"
+      ],
+      "createdAt": 1775080554923,
       "archived": false
     }
   ],
-  "nextId": 269
+  "nextId": 270
 }
 ```

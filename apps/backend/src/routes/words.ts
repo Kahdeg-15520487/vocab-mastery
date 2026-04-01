@@ -564,6 +564,38 @@ Analyze the etymology.`;
     }
   });
 
+  // POST /words/compare — Compare two words with LLM analysis
+  app.post('/words/compare', { preHandler: authenticate }, async (request, _reply) => {
+    const { word1, word2 } = request.body as { word1: string; word2: string };
+    if (!word1 || !word2) throw { statusCode: 400, message: 'Both word1 and word2 are required' };
+
+    try {
+      // Look up both words in DB
+      const w1 = await prisma.word.findFirst({ where: { word: { equals: word1, mode: 'insensitive' } } });
+      const w2 = await prisma.word.findFirst({ where: { word: { equals: word2, mode: 'insensitive' } } });
+
+      const config = await getLLMConfig();
+
+      const systemPrompt = `You are an English vocabulary expert helping learners distinguish between similar or commonly confused words.
+Return ONLY valid JSON:
+{"comparison":"1-2 sentence summary of the key difference","word1":{"word":"...","meaning":"clear definition","usage":"when to use this word","example":"example sentence","collocations":["common phrase1","phrase2"]},"word2":{"word":"...","meaning":"clear definition","usage":"when to use this word","example":"example sentence","collocations":["common phrase1","phrase2"]},"memoryTip":"A memorable tip to remember the difference","nuance":"Additional subtle differences in tone, formality, or context"}`;
+
+      const userPrompt = `Compare these two words:
+Word 1: "${word1}"${w1 ? ` — ${w1.definition}` : ''}${w1?.partOfSpeech ? ` (${(w1.partOfSpeech as string[]).join(', ')})` : ''}
+Word 2: "${word2}"${w2 ? ` — ${w2.definition}` : ''}${w2?.partOfSpeech ? ` (${(w2.partOfSpeech as string[]).join(', ')})` : ''}`;
+
+      const responseText = await callLLM(systemPrompt, userPrompt, config, { disableReasoning: true });
+
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('Invalid LLM response');
+      const result = JSON.parse(jsonMatch[0].replace(/,\s*\}/g, '}').replace(/,\s*\]/g, ']'));
+      return result;
+    } catch (error: any) {
+      console.error('[compare] Error:', error.message);
+      throw { statusCode: 500, message: 'Failed to compare words' };
+    }
+  });
+
   // GET /words/:wordId/related — Related words (same topic, similar CEFR level)
   app.get('/words/:wordId/related', async (request, reply) => {
     const { wordId } = request.params as { wordId: string };

@@ -16,6 +16,21 @@ const { addViewedWord } = useRecentlyViewed()
 const generatingExamples = ref(false)
 const relatedWords = ref<{ sameTopic: any[]; similar: any[]; family?: any[] } | null>(null)
 const etymology = ref<{ origin: string; root: string; breakdown: Array<{part: string; meaning: string; type: string}>; story: string; related: string[] } | null>(null)
+const compareWord = ref('')
+const compareResult = ref<any>(null)
+const compareLoading = ref(false)
+
+async function compareWords() {
+  if (!compareWord.value.trim()) return
+  compareLoading.value = true
+  try {
+    compareResult.value = await wordsApi.compareWords(word.value!.word, compareWord.value.trim())
+  } catch {
+    compareResult.value = null
+  } finally {
+    compareLoading.value = false
+  }
+}
 
 interface WordDetail {
   id: string
@@ -520,6 +535,66 @@ n            <span class="text-slate-500 dark:text-slate-400">Origin:</span>
               >{{ rw }}</router-link>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Word Compare -->
+      <div class="card">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Compare Words</h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">Confused between similar words? Compare them side by side.</p>
+        <div class="flex gap-2">
+          <input
+            v-model="compareWord"
+            placeholder="Enter a word to compare with {{ word.word }}..."
+            class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            @keyup.enter="compareWords"
+          />
+          <button
+            @click="compareWords"
+            :disabled="compareLoading || !compareWord.trim()"
+            class="px-4 py-2 bg-primary-600 hover:bg-primary-700 disabled:bg-slate-400 text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            {{ compareLoading ? '...' : 'Compare' }}
+          </button>
+        </div>
+
+        <div v-if="compareLoading" class="text-center py-4 text-slate-400">
+          <span class="animate-pulse">Analyzing...</span>
+        </div>
+
+        <div v-else-if="compareResult" class="mt-4 space-y-3">
+          <!-- Summary -->
+          <div class="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg border border-primary-200 dark:border-primary-800">
+            <p class="text-sm text-primary-800 dark:text-primary-200">{{ compareResult.comparison }}</p>
+          </div>
+
+          <!-- Side by side -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div class="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+              <h3 class="font-semibold text-blue-800 dark:text-blue-200 mb-2">{{ compareResult.word1.word }}</h3>
+              <p class="text-sm text-slate-700 dark:text-slate-300 mb-1">{{ compareResult.word1.meaning }}</p>
+              <p class="text-xs text-blue-600 dark:text-blue-400 mt-2"><strong>When to use:</strong> {{ compareResult.word1.usage }}</p>
+              <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 italic">"{{ compareResult.word1.example }}"</p>
+              <div v-if="compareResult.word1.collocations?.length" class="mt-2 flex flex-wrap gap-1">
+                <span v-for="c in compareResult.word1.collocations" :key="c" class="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900/40 rounded text-blue-700 dark:text-blue-300">{{ c }}</span>
+              </div>
+            </div>
+            <div class="p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+              <h3 class="font-semibold text-green-800 dark:text-green-200 mb-2">{{ compareResult.word2.word }}</h3>
+              <p class="text-sm text-slate-700 dark:text-slate-300 mb-1">{{ compareResult.word2.meaning }}</p>
+              <p class="text-xs text-green-600 dark:text-green-400 mt-2"><strong>When to use:</strong> {{ compareResult.word2.usage }}</p>
+              <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 italic">"{{ compareResult.word2.example }}"</p>
+              <div v-if="compareResult.word2.collocations?.length" class="mt-2 flex flex-wrap gap-1">
+                <span v-for="c in compareResult.word2.collocations" :key="c" class="text-xs px-2 py-0.5 bg-green-100 dark:bg-green-900/40 rounded text-green-700 dark:text-green-300">{{ c }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Memory tip & nuance -->
+          <div v-if="compareResult.memoryTip" class="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+            <p class="text-sm text-amber-800 dark:text-amber-200">💡 {{ compareResult.memoryTip }}</p>
+          </div>
+          <p v-if="compareResult.nuance" class="text-xs text-slate-500 dark:text-slate-400 italic">{{ compareResult.nuance }}</p>
         </div>
       </div>
 
