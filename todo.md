@@ -7,7 +7,6 @@
 - [ ] **#243** 📊 Vocabulary Statistics API — word count by status, CEFR level distribution, study time estimates #feature #backend
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#246** **[low]** 📤 Shareable progress card — generate a shareable image/markdown of vocabulary achievements #feature #backend
-- [ ] **#248** 🔊 Auto-play pronunciation in learn/review flashcards — play word audio when card is revealed #feature #frontend
 
 ## Completed
 
@@ -120,6 +119,7 @@
 - [x] **#242** **[low]** 🖨️ Print-friendly vocabulary export — clean printable view for word lists #polish #frontend
 - [x] **#245** 📐 Vocabulary Size Estimator — statistical sampling test to estimate total known words #feature #backend #frontend
 - [x] **#247** 🛡️ 500 Error Page + API Error Boundary — graceful handling when backend is down #polish #frontend
+- [x] **#248** 🔊 Auto-play pronunciation in learn/review flashcards — play word audio when card is revealed #feature #frontend
 
 <!-- Raw Data -->
 ```json
@@ -1560,16 +1560,17 @@
     {
       "id": 248,
       "text": "🔊 Auto-play pronunciation in learn/review flashcards — play word audio when card is revealed",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
         "frontend"
       ],
       "createdAt": 1775076116003,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775076393014
     }
   ],
-  "nextId": 249
+  "nextId": 250
 }
 ```

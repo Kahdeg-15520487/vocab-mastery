@@ -608,4 +608,82 @@ Rules:
       family: family.map(w => ({ ...w })),
     };
   });
+
+  // ===== Word Encounters (Words in the Wild) =====
+
+  // GET /words/encounters — Get all user encounters (pagination)
+  app.get('/words/encounters', { preHandler: authenticate }, async (request, _reply) => {
+    const userId = request.user!.userId;
+    const { page = '1', limit = '20', source } = request.query as { page?: string; limit?: string; source?: string };
+
+    const pageNum = Math.max(1, parseInt(page));
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit)));
+    const where: any = { userId };
+    if (source) where.source = source;
+
+    const [encounters, total] = await Promise.all([
+      prisma.wordEncounter.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (pageNum - 1) * limitNum,
+        take: limitNum,
+        include: { word: { select: { id: true, word: true, cefrLevel: true } } },
+      }),
+      prisma.wordEncounter.count({ where }),
+    ]);
+
+    return { encounters, total, page: pageNum, limit: limitNum };
+  });
+
+  // POST /words/:wordId/encounters — Log an encounter
+  app.post('/words/:wordId/encounters', { preHandler: authenticate }, async (request, reply) => {
+    const { wordId } = request.params as { wordId: string };
+    const userId = request.user!.userId;
+    const body = request.body as { source: string; note?: string };
+
+    if (!body.source) {
+      return reply.status(400).send({ error: 'Source is required' });
+    }
+
+    const validSources = ['book', 'movie', 'conversation', 'article', 'social_media', 'song', 'other'];
+    if (!validSources.includes(body.source)) {
+      return reply.status(400).send({ error: `Source must be one of: ${validSources.join(', ')}` });
+    }
+
+    const encounter = await prisma.wordEncounter.create({
+      data: { userId, wordId, source: body.source, note: body.note || null },
+    });
+
+    return { encounter };
+  });
+
+  // GET /words/:wordId/encounters — Get encounters for a word
+  app.get('/words/:wordId/encounters', { preHandler: authenticate }, async (request, reply) => {
+    const { wordId } = request.params as { wordId: string };
+    const userId = request.user!.userId;
+
+    const encounters = await prisma.wordEncounter.findMany({
+      where: { userId, wordId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return { encounters };
+  });
+
+  // DELETE /words/:wordId/encounters/:encounterId — Delete an encounter
+  app.delete('/words/:wordId/encounters/:encounterId', { preHandler: authenticate }, async (request, reply) => {
+    const { wordId, encounterId } = request.params as { wordId: string; encounterId: string };
+    const userId = request.user!.userId;
+
+    const encounter = await prisma.wordEncounter.findFirst({
+      where: { id: encounterId, userId, wordId },
+    });
+
+    if (!encounter) {
+      return reply.status(404).send({ error: 'Encounter not found' });
+    }
+
+    await prisma.wordEncounter.delete({ where: { id: encounterId } });
+    return { success: true };
+  });
 }

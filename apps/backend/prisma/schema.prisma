@@ -88,6 +88,7 @@ model User {
   sessions         LearningSession[]
   jobs             Job[]
   favorites        WordFavorite[]
+  encounters        WordEncounter[]
   passwordResets   PasswordReset[]
   sprints          Sprint[]
   milestones       Milestone[]
@@ -349,6 +350,7 @@ model Word {
   sessionWords  SessionWord[]
   listWords     StudyListWord[]
   favorites     WordFavorite[]
+  encounters     WordEncounter[]
   sprintWords   SprintWord[]
   createdAt     DateTime      @default(now()) @map("created_at")
   updatedAt     DateTime      @updatedAt @map("updated_at")
@@ -522,6 +524,23 @@ model WordFavorite {
   @@index([userId])
   @@index([wordId])
   @@map("word_favorites")
+}
+
+model WordEncounter {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  wordId    String   @map("word_id")
+  source    String   // book, movie, conversation, article, social_media, other
+  note      String?  // Optional context note
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  word      Word     @relation(fields: [wordId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([wordId])
+  @@index([userId, wordId])
+  @@map("word_encounters")
 }
 
 model PasswordReset {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { request, wordsApi, progressApi } from '@/lib/api'
 import { useSpeech } from '@/composables/useSpeech'
@@ -89,6 +89,42 @@ async function toggleFavorite() {
   } catch {
     word.value = { ...word.value!, favorited: wasFavorited }
     toast.error('Failed to toggle favorite')
+  }
+}
+
+// Encounter (Words in the Wild)
+const showEncounterModal = ref(false)
+const encounterSource = ref('book')
+const encounterNote = ref('')
+const encounterLoading = ref(false)
+const encounterCount = ref(0)
+const encounterList = ref<{ id: string; source: string; note: string | null; createdAt: string }[]>([])
+
+async function loadEncounters() {
+  if (!word.value) return
+  try {
+    const data = await wordsApi.getWordEncounters(word.value.id)
+    encounterList.value = data.encounters
+    encounterCount.value = data.encounters.length
+  } catch {}
+}
+
+// Load encounters when word loads
+watch(word, (w) => { if (w) loadEncounters() })
+
+async function addEncounter() {
+  if (!word.value) return
+  encounterLoading.value = true
+  try {
+    await wordsApi.addEncounter(word.value.id, encounterSource.value, encounterNote.value || undefined)
+    toast.success(`Logged encounter from ${encounterSource.value}`)
+    showEncounterModal.value = false
+    encounterNote.value = ''
+    loadEncounters()
+  } catch (e: any) {
+    toast.error(e.message || 'Failed to log encounter')
+  } finally {
+    encounterLoading.value = false
   }
 }
 
@@ -182,6 +218,14 @@ async function generateExamples() {
               :title="word.favorited ? 'Remove from favorites' : 'Add to favorites'"
             >
               {{ word.favorited ? '❤️' : '🤍' }}
+            </button>
+            <button
+              @click="showEncounterModal = true"
+              class="text-lg transition-transform hover:scale-110"
+              title="Log encounter (Words in the Wild)"
+            >
+              🌍
+              <span v-if="encounterCount > 0" class="ml-0.5 text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-full px-1.5">{{ encounterCount }}</span>
             </button>
           </div>
           <div class="flex items-center gap-3 flex-wrap">
@@ -422,6 +466,52 @@ async function generateExamples() {
           </div>
         </div>
       </div>
+
+      <!-- Past Encounters -->
+      <div v-if="encounterList.length > 0" class="card">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Encounters ({{ encounterCount }})</h2>
+          <router-link to="/encounters" class="text-sm text-primary-600 dark:text-primary-400 hover:underline">View all &rarr;</router-link>
+        </div>
+        <div class="space-y-2">
+          <div v-for="enc in encounterList.slice(0, 5)" :key="enc.id" class="flex items-center gap-3 py-1.5">
+            <span class="text-lg">{{ {book:'📖',movie:'🎬',conversation:'💬',article:'📰',social_media:'📱',song:'🎵',other:'✨'}[enc.source] || '✨' }}</span>
+            <div class="flex-1 min-w-0">
+              <span class="text-sm font-medium text-slate-700 dark:text-slate-300 capitalize">{{ enc.source.replace('_', ' ') }}</span>
+              <p v-if="enc.note" class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ enc.note }}</p>
+            </div>
+            <span class="text-xs text-slate-400">{{ new Date(enc.createdAt).toLocaleDateString() }}</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- Encounter Modal -->
+  <Teleport to="body">
+    <div v-if="showEncounterModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click.self="showEncounterModal = false">
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-md w-full mx-4 p-6">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Log Encounter</h3>
+        <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">Where did you encounter &ldquo;{{ word?.word }}&rdquo;?</p>
+
+        <div class="grid grid-cols-3 gap-2 mb-4">
+          <button v-for="(src, key) in ({book:'📖 Book',movie:'🎬 Movie/TV',conversation:'💬 Chat',article:'📰 Article',social_media:'📱 Social',song:'🎵 Song',other:'✨ Other'})" :key="key"
+            @click="encounterSource = key"
+            class="px-3 py-2 rounded-lg text-sm text-center transition-colors"
+            :class="encounterSource === key ? 'bg-primary-100 text-primary-800 dark:bg-primary-900/40 dark:text-primary-300 ring-1 ring-primary-300 dark:ring-primary-700' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600'"
+          >{{ src }}</button>
+        </div>
+
+        <textarea v-model="encounterNote" placeholder="Context note (optional)..." rows="2" class="input w-full mb-4"></textarea>
+
+        <div class="flex gap-3 justify-end">
+          <button @click="showEncounterModal = false" class="btn btn-secondary text-sm">Cancel</button>
+          <button @click="addEncounter" :disabled="encounterLoading" class="btn btn-primary text-sm">
+            {{ encounterLoading ? 'Saving...' : 'Log Encounter' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+
 </template>

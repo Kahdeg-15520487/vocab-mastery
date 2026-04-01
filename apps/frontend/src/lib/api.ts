@@ -204,6 +204,26 @@ export const wordsApi = {
 
   getRelated: (wordId: string) => request<{ sameTopic: { id: string; word: string; definition: string; cefrLevel: string }[]; similar: { id: string; word: string; definition: string; cefrLevel: string }[]; family: { id: string; word: string; definition: string; cefrLevel: string }[] }>(`/words/${wordId}/related`),
 
+  // Encounters (Words in the Wild)
+  getEncounters: (params?: { page?: number; limit?: number; source?: string }) => {
+    const q = new URLSearchParams()
+    if (params?.page) q.set('page', String(params.page))
+    if (params?.limit) q.set('limit', String(params.limit))
+    if (params?.source) q.set('source', params.source)
+    return request<{ encounters: { id: string; userId: string; wordId: string; source: string; note: string | null; createdAt: string; word: { id: string; word: string; cefrLevel: string } }[]; total: number; page: number; limit: number }>(`/words/encounters?${q}`)
+  },
+
+  addEncounter: (wordId: string, source: string, note?: string) => request<{ encounter: { id: string; source: string; note: string | null; createdAt: string } }>(`/words/${wordId}/encounters`, {
+    method: 'POST',
+    body: JSON.stringify({ source, note }),
+  }),
+
+  getWordEncounters: (wordId: string) => request<{ encounters: { id: string; source: string; note: string | null; createdAt: string }[] }>(`/words/${wordId}/encounters`),
+
+  deleteEncounter: (wordId: string, encounterId: string) => request<{ success: boolean }>(`/words/${wordId}/encounters/${encounterId}`, {
+    method: 'DELETE',
+  }),
+
   getFavorites: (params?: { page?: number; limit?: number }) => {
     const searchParams = new URLSearchParams()
     if (params) {

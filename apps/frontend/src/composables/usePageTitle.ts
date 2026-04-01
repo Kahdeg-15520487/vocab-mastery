@@ -7,6 +7,7 @@ const titles: Record<string, string> = {
   '/review': 'Review',
   '/history': 'Session History',
   '/favorites': 'Favorite Words',
+  '/encounters': 'Words in the Wild',
   '/quiz': 'Quiz',
   '/browse': 'Browse',
   '/lists': 'My Lists',

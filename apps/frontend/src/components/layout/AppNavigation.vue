@@ -31,6 +31,7 @@ const statsItems = [
 
 const collectionItems = [
   { path: '/favorites', label: 'Favorites', icon: '❤️' },
+  { path: '/encounters', label: 'Words in the Wild', icon: '🌍' },
   { path: '/lists', label: 'Lists', icon: '📋' },
   { path: '/sprints', label: 'Sprints', icon: '🏃' },
   { path: '/writing', label: 'Writing', icon: '✍️' },
