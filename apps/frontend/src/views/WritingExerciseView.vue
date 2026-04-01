@@ -94,9 +94,9 @@
             </div>
           </div>
 
-          <!-- AI Coach Feedback -->
+          <!-- AI Feedback Panel -->
           <AIFeedbackPanel
-            :visible="ai.enabled.value && aiFeedbackStatus !== 'idle'"
+            :visible="aiFeedbackStatus !== 'idle'"
             :status="aiFeedbackStatus"
             :evaluation="aiEvaluation"
             :error-message="aiError"
@@ -417,10 +417,8 @@ async function submitSentence() {
     lastResult.value = result
     toast.success('Great usage! ✓')
 
-    // ── Step 3: AI Coach evaluation (if enabled & ready) ──
-    if (ai.enabled.value && ai.isReady.value) {
-      evaluateWithAI()
-    }
+    // ── Step 3: AI evaluation (server-side LLM, always available) ──
+    evaluateWithAI()
 
     await loadWritings()
 
@@ -505,9 +503,8 @@ async function submitLongForm() {
 
 // AI Coach — evaluate the submitted sentence
 async function evaluateWithAI() {
-  if (!ai.isReady.value || !lastResult.value || !currentPrompt.value) return
+  if (!lastResult.value || !currentPrompt.value) return
 
-  // Grab the sentence that was just submitted
   const submittedSentence = sentence.value.trim()
   if (!submittedSentence) return
 
@@ -515,27 +512,53 @@ async function evaluateWithAI() {
   aiEvaluation.value = null
   aiError.value = ''
 
+  // Try server-side AI first (more capable, always available)
   try {
-    const messages = buildEvalMessages({
-      word: currentPrompt.value.word,
-      partOfSpeech: currentPrompt.value.partOfSpeech,
-      definition: currentPrompt.value.definition,
-      sentence: submittedSentence,
-    })
+    const evaluation = await writingApi.getAIFeedback(
+      submittedSentence,
+      currentPrompt.value.word,
+      currentPrompt.value.definition,
+      currentPrompt.value.partOfSpeech
+    )
 
-    const raw = await ai.generate(messages)
-    const evaluation = parseSentenceEvaluation(raw)
-
-    if (raw) {
-      aiEvaluation.value = evaluation
+    if (evaluation && evaluation.grammar) {
+      aiEvaluation.value = {
+        grammar: { score: evaluation.grammar.score as 1|2|3|4|5, note: evaluation.grammar.note },
+        usage: { score: evaluation.usage.score as 1|2|3|4|5, note: evaluation.usage.note },
+        clarity: { score: evaluation.clarity.score as 1|2|3|4|5, note: evaluation.clarity.note },
+        suggestion: evaluation.suggestion,
+      }
       aiFeedbackStatus.value = 'done'
-    } else {
-      aiError.value = 'AI Coach returned an empty response.'
-      aiFeedbackStatus.value = 'error'
+      return
     }
-  } catch (err: any) {
-    aiError.value = err.message || 'Evaluation failed'
-    aiFeedbackStatus.value = 'error'
+  } catch (e: any) {
+    console.warn('[AI Feedback] Server-side failed, trying browser AI:', e.message)
   }
+
+  // Fallback to browser AI (if enabled & ready)
+  if (ai.enabled.value && ai.isReady.value) {
+    try {
+      const messages = buildEvalMessages({
+        word: currentPrompt.value.word,
+        partOfSpeech: currentPrompt.value.partOfSpeech,
+        definition: currentPrompt.value.definition,
+        sentence: submittedSentence,
+      })
+
+      const raw = await ai.generate(messages)
+      const evaluation = parseSentenceEvaluation(raw)
+
+      if (raw) {
+        aiEvaluation.value = evaluation
+        aiFeedbackStatus.value = 'done'
+        return
+      }
+    } catch (err: any) {
+      console.warn('[AI Feedback] Browser AI failed:', err.message)
+    }
+  }
+
+  aiError.value = 'AI feedback unavailable. Try again later.'
+  aiFeedbackStatus.value = 'error'
 }
 </script>

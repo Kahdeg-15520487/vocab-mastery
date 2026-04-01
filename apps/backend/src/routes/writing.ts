@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify'
 import prisma from '../lib/prisma.js'
 import { authenticate } from '../middleware/auth.js'
+import { callLLM, getLLMConfig } from '../lib/llm.js'
 
 export async function writingRoutes(app: FastifyInstance) {
   app.addHook('preHandler', authenticate)
@@ -200,6 +201,71 @@ export async function writingRoutes(app: FastifyInstance) {
       sprintWordsTotal: sprintWords.length,
       coverage: sprintWords.length > 0 ? Math.round((usedSprintWords.length / sprintWords.length) * 100) : 0,
       usedWords: usedSprintWords,
+    }
+  })
+
+  // AI Writing Feedback — server-side LLM review of a sentence
+  app.post('/feedback', async (request) => {
+    const userId = (request.user as any).userId
+    const body = request.body as {
+      sentence: string
+      word: string
+      definition?: string
+      partOfSpeech?: string[]
+    }
+
+    if (!body.sentence?.trim() || !body.word?.trim()) {
+      throw { statusCode: 400, message: 'sentence and word are required' }
+    }
+
+    try {
+      const config = await getLLMConfig()
+
+      const systemPrompt = `You are an expert English writing coach. Evaluate the student's sentence for their use of a target vocabulary word.
+Return ONLY valid JSON with this exact structure (no markdown, no explanation outside JSON):
+{
+  "grammar": { "score": <1-5>, "note": "<brief note>" },
+  "usage": { "score": <1-5>, "note": "<brief note>" },
+  "clarity": { "score": <1-5>, "note": "<brief note>" },
+  "suggestion": "<improvement suggestion or 'No improvement needed.'>"
+}
+Scoring: 1=Poor, 2=Below average, 3=Adequate, 4=Good, 5=Excellent.
+Be encouraging but honest. Keep notes under 15 words.`
+
+      let userPrompt = `Target word: "${body.word}"`
+      if (body.partOfSpeech?.length) {
+        userPrompt += `\nPart of speech: ${body.partOfSpeech.join(', ')}`
+      }
+      if (body.definition) {
+        userPrompt += `\nDefinition: ${body.definition}`
+      }
+      userPrompt += `\n\nStudent's sentence: "${body.sentence}"\n\nEvaluate this sentence.`
+
+      const responseText = await callLLM(systemPrompt, userPrompt, config, { disableReasoning: true })
+
+      // Parse JSON from response
+      let evaluation: any = null
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        let jsonStr = jsonMatch[0]
+          .replace(/,\s*([}\]])/g, '$1')
+          .replace(/'/g, '"')
+        evaluation = JSON.parse(jsonStr)
+      }
+
+      if (!evaluation || !evaluation.grammar || !evaluation.usage || !evaluation.clarity) {
+        return {
+          grammar: { score: 3, note: 'Could not evaluate' },
+          usage: { score: 3, note: 'Could not evaluate' },
+          clarity: { score: 3, note: 'Could not evaluate' },
+          suggestion: responseText || 'No feedback available.',
+        }
+      }
+
+      return evaluation
+    } catch (error: any) {
+      console.error('[writing/feedback] Error:', error.message)
+      throw { statusCode: 500, message: 'AI feedback temporarily unavailable' }
     }
   })
 
