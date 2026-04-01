@@ -34,6 +34,7 @@ const collectionItems = [
   { path: '/lists', label: 'Lists', icon: '📋' },
   { path: '/sprints', label: 'Sprints', icon: '🏃' },
   { path: '/writing', label: 'Writing', icon: '✍️' },
+  { path: '/speaking', label: 'Speaking', icon: '🎙️' },
   { path: '/reading', label: 'Reading', icon: '📚' },
 ]
 

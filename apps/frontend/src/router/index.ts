@@ -81,6 +81,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/speaking',
+    name: 'speaking',
+    component: () => import('@/views/SpeakingView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/fill-blank',
     name: 'fill-blank',
     component: () => import('@/views/FillBlankView.vue'),

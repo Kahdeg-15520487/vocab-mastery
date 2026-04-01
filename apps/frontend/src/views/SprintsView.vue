@@ -284,6 +284,17 @@
         </div>
       </div>
     </teleport>
+
+    <!-- Sprint Completion Report Modal -->
+    <SprintCompletionModal
+      v-if="showCompletion && completionReport"
+      :report="completionReport"
+      @close="showCompletion = false"
+      @create-next="handleCreateNext"
+    />
+
+    <!-- Confetti -->
+    <ConfettiEffect :active="showConfetti" @done="showConfetti = false" />
   </div>
 </template>
 
@@ -293,12 +304,17 @@ import { useSprintStore } from '@/stores/sprint'
 import { useToast } from '@/composables/useToast'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import AICoachPanel from '@/components/writing/AICoachPanel.vue'
+import SprintCompletionModal from '@/components/sprints/SprintCompletionModal.vue'
+import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
 
 const store = useSprintStore()
 const toast = useToast()
 
 const showCreate = ref(false)
 const creating = ref(false)
+const completionReport = ref<any>(null)
+const showCompletion = ref(false)
+const showConfetti = ref(false)
 const newSprint = ref({
   wordTarget: 265,
   durationDays: 14,
@@ -378,10 +394,14 @@ async function handleAbandon() {
 
 async function handleComplete() {
   if (!currentSprint.value) return
-  if (!confirm('Complete this sprint and start the next one?')) return
+  if (!confirm('Complete this sprint and see your results?')) return
   try {
-    await store.completeSprint(currentSprint.value.id)
-    toast.success('🎉 Sprint completed! Creating next sprint...')
+    const result = await store.completeSprint(currentSprint.value.id)
+    if (result?.report) {
+      completionReport.value = result.report
+      showCompletion.value = true
+      showConfetti.value = true
+    }
     await store.fetchDashboard()
     await store.fetchSprints()
   } catch (e: any) {
@@ -393,4 +413,9 @@ onMounted(() => {
   store.fetchDashboard()
   store.fetchSprints()
 })
+
+async function handleCreateNext() {
+  showCompletion.value = false
+  showCreate.value = true
+}
 </script>

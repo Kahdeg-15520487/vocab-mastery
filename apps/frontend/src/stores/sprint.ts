@@ -108,9 +108,10 @@ export const useSprintStore = defineStore('sprint', () => {
     try {
       loading.value = true
       error.value = null
-      await sprintApi.complete(id)
+      const result = await sprintApi.complete(id)
       currentSprint.value = null
       sprintStats.value = null
+      return result
     } catch (e: any) {
       error.value = e.message
     } finally {

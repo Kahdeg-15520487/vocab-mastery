@@ -4,7 +4,11 @@
 
 ## Pending
 
-- [ ] **#223** **[high]** [Shelved] Backend: Validation key signing for writing exercises
+- [ ] **#214** **[high]** Phase 5: Sprint completion report backend endpoint
+- [ ] **#215** **[high]** Phase 5: SprintCompletionModal component
+- [ ] **#216** Phase 5: Speaking practice mode with Web Speech API
+- [ ] **#217** Phase 5: Plateau detection + nudge suggestions
+- [ ] **#218** Phase 5: Writing prompt generator using sprint words
 
 ## Completed
 
@@ -88,21 +92,6 @@
 - [x] **#211** Favorites view: wire up word favorites (heart icon on browse/word detail → favorites list) #frontend
 - [x] **#212** LeaderboardView: implement with real data from stats API #frontend #gamification
 - [x] **#213** **[high]** Add difficulty selection (Mixed/Easy/Medium/Hard) to all practice tabs #done
-- [x] **#214** **[high]** Create seed-dictionary.ts — parse & import oxford_5000.json + topic data into DB
-- [x] **#215** **[high]** Hook seed into server.ts startup with SystemConfig guard
-- [x] **#216** Clean up verbose LLM logging in callLLM (remove debug logs kept from debugging phase) #backend #cleanup
-- [x] **#217** Verify list generation code path works correctly (callLLM integration in lists.ts) #backend #llm
-- [x] **#218** Clean up verbose logging in categorize-job.ts #backend #llm
-- [x] **#219** **[high]** Create browser-ai-worker.ts (Web Worker) + useBrowserAI composable (global singleton) #frontend #ai-feedback #worker
-- [x] **#220** **[high]** Create AIFeedbackPanel component with structured evaluation display #frontend #writing #component
-- [x] **#221** Add AI Coach toggle + model status to SettingsView #frontend #settings
-- [x] **#222** **[high]** Integrate AI Coach into WritingExerciseView sentence mode #frontend #writing
-- [x] **#224** **[high]** Client-side gibberish check — reject nonsense instantly before submit
-- [x] **#225** **[high]** Frontend: Add delete button to recent sentences
-- [x] **#226** Polish AI Coach feedback quality — prompt calibrated, 15/15 for correct sentences ✓ #ai-coach #writing
-- [x] **#227** **[high]** Sprint integration: Add practice buttons to SprintsView (Quiz, Spelling, Fill Blanks, Review) #frontend #sprint #integration
-- [x] **#228** **[high]** Sprint integration: QuizView, SpellingView, FillBlankView, ReviewView accept sprintId query param #frontend #sprint #integration
-- [x] **#229** **[high]** Sprint system integrated with all practice tools (Learn, Review, Quiz, Spelling, Fill Blanks, Writing) #sprint #integration
 
 <!-- Raw Data -->
 ```json
@@ -1157,201 +1146,50 @@
     },
     {
       "id": 214,
-      "text": "Create seed-dictionary.ts — parse & import oxford_5000.json + topic data into DB",
-      "done": true,
-      "priority": "high",
-      "tags": [],
-      "createdAt": 1775006918796,
-      "archived": false,
-      "completedAt": 1775007283023
-    },
-    {
-      "id": 215,
-      "text": "Hook seed into server.ts startup with SystemConfig guard",
-      "done": true,
-      "priority": "high",
-      "tags": [],
-      "createdAt": 1775006925018,
-      "archived": false,
-      "completedAt": 1775007292828
-    },
-    {
-      "id": 216,
-      "text": "Clean up verbose LLM logging in callLLM (remove debug logs kept from debugging phase)",
-      "done": true,
-      "priority": "medium",
-      "tags": [
-        "backend",
-        "cleanup"
-      ],
-      "createdAt": 1775010293323,
-      "archived": false,
-      "completedAt": 1775010486359
-    },
-    {
-      "id": 217,
-      "text": "Verify list generation code path works correctly (callLLM integration in lists.ts)",
-      "done": true,
-      "priority": "medium",
-      "tags": [
-        "backend",
-        "llm"
-      ],
-      "createdAt": 1775010301340,
-      "archived": false,
-      "completedAt": 1775010491896
-    },
-    {
-      "id": 218,
-      "text": "Clean up verbose logging in categorize-job.ts",
-      "done": true,
-      "priority": "medium",
-      "tags": [
-        "backend",
-        "llm"
-      ],
-      "createdAt": 1775010305525,
-      "archived": false,
-      "completedAt": 1775010495392
-    },
-    {
-      "id": 219,
-      "text": "Create browser-ai-worker.ts (Web Worker) + useBrowserAI composable (global singleton)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "frontend",
-        "ai-feedback",
-        "worker"
-      ],
-      "createdAt": 1775011091164,
-      "archived": false,
-      "completedAt": 1775012042029
-    },
-    {
-      "id": 220,
-      "text": "Create AIFeedbackPanel component with structured evaluation display",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "frontend",
-        "writing",
-        "component"
-      ],
-      "createdAt": 1775011097211,
-      "archived": false,
-      "completedAt": 1775012046031
-    },
-    {
-      "id": 221,
-      "text": "Add AI Coach toggle + model status to SettingsView",
-      "done": true,
-      "priority": "medium",
-      "tags": [
-        "frontend",
-        "settings"
-      ],
-      "createdAt": 1775011102139,
-      "archived": false,
-      "completedAt": 1775012050266
-    },
-    {
-      "id": 222,
-      "text": "Integrate AI Coach into WritingExerciseView sentence mode",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "frontend",
-        "writing"
-      ],
-      "createdAt": 1775011426107,
-      "archived": false,
-      "completedAt": 1775012055569
-    },
-    {
-      "id": 223,
-      "text": "[Shelved] Backend: Validation key signing for writing exercises",
+      "text": "Phase 5: Sprint completion report backend endpoint",
       "done": false,
       "priority": "high",
       "tags": [],
-      "createdAt": 1775017651299,
+      "createdAt": 1775054840016,
       "archived": false
     },
     {
-      "id": 224,
-      "text": "Client-side gibberish check — reject nonsense instantly before submit",
-      "done": true,
+      "id": 215,
+      "text": "Phase 5: SprintCompletionModal component",
+      "done": false,
       "priority": "high",
       "tags": [],
-      "createdAt": 1775017656469,
-      "archived": false,
-      "completedAt": 1775017930293
+      "createdAt": 1775054843103,
+      "archived": false
     },
     {
-      "id": 225,
-      "text": "Frontend: Add delete button to recent sentences",
-      "done": true,
-      "priority": "high",
-      "tags": [],
-      "createdAt": 1775017662765,
-      "archived": false,
-      "completedAt": 1775017934174
-    },
-    {
-      "id": 226,
-      "text": "Polish AI Coach feedback quality — prompt calibrated, 15/15 for correct sentences ✓",
-      "done": true,
+      "id": 216,
+      "text": "Phase 5: Speaking practice mode with Web Speech API",
+      "done": false,
       "priority": "medium",
-      "tags": [
-        "ai-coach",
-        "writing"
-      ],
-      "createdAt": 1775028789592,
-      "archived": false,
-      "completedAt": 1775028799087
+      "tags": [],
+      "createdAt": 1775054847238,
+      "archived": false
     },
     {
-      "id": 227,
-      "text": "Sprint integration: Add practice buttons to SprintsView (Quiz, Spelling, Fill Blanks, Review)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "frontend",
-        "sprint",
-        "integration"
-      ],
-      "createdAt": 1775030411895,
-      "archived": false,
-      "completedAt": 1775031146583
+      "id": 217,
+      "text": "Phase 5: Plateau detection + nudge suggestions",
+      "done": false,
+      "priority": "medium",
+      "tags": [],
+      "createdAt": 1775054851344,
+      "archived": false
     },
     {
-      "id": 228,
-      "text": "Sprint integration: QuizView, SpellingView, FillBlankView, ReviewView accept sprintId query param",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "frontend",
-        "sprint",
-        "integration"
-      ],
-      "createdAt": 1775030423194,
-      "archived": false,
-      "completedAt": 1775031159230
-    },
-    {
-      "id": 229,
-      "text": "Sprint system integrated with all practice tools (Learn, Review, Quiz, Spelling, Fill Blanks, Writing)",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "sprint",
-        "integration"
-      ],
-      "createdAt": 1775032192461,
-      "archived": false,
-      "completedAt": 1775032196928
+      "id": 218,
+      "text": "Phase 5: Writing prompt generator using sprint words",
+      "done": false,
+      "priority": "medium",
+      "tags": [],
+      "createdAt": 1775054854624,
+      "archived": false
     }
   ],
-  "nextId": 230
+  "nextId": 219
 }
 ```

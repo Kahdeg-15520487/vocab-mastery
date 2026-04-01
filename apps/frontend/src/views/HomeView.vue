@@ -27,6 +27,9 @@ const sprintStore = useSprintStore()
 // Review schedule
 const reviewSchedule = ref<{ overdue: number; days: Array<{ date: string; dayLabel: string; count: number; isToday: boolean }> } | null>(null)
 
+// Plateau detection
+const plateau = ref<{ plateau: boolean; message: string | null; suggestions: string[]; currentStreak: number } | null>(null)
+
 async function loadReviewSchedule() {
   try {
     reviewSchedule.value = await request<any>('/progress/review-schedule')
@@ -48,6 +51,11 @@ onMounted(async () => {
   if (notifications.supported && notifications.permission.value === 'granted') {
     notifications.startReminderCheck(() => progressStore.dashboard?.stats.wordsDueForReview ?? 0)
   }
+
+  // Check for plateau (non-blocking)
+  request('/sprints/insights/plateau').then((data: any) => {
+    if (data.plateau || data.suggestions?.length) plateau.value = data
+  }).catch(() => {})
 })
 
 const themes = computed(() => wordsStore.themes)
@@ -172,6 +180,23 @@ function selectTheme(theme: any) {
         </router-link>
       </div>
 
+      <!-- Plateau Alert -->
+      <div
+        v-if="plateau && plateau.plateau"
+        class="bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl p-4 flex items-start justify-between"
+      >
+        <div class="flex items-start gap-3">
+          <span class="text-3xl">📊</span>
+          <div>
+            <div class="font-semibold">Learning Pace Slowing Down</div>
+            <div class="text-sm text-amber-100 mt-1">{{ plateau.message }}</div>
+            <div v-if="plateau.suggestions?.length" class="mt-2 space-y-1">
+              <div v-for="s in plateau.suggestions" :key="s" class="text-sm text-amber-100">· {{ s }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Welcome & Quick Stats -->
       <div class="text-center">
         <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">
@@ -246,6 +271,11 @@ function selectTheme(theme: any) {
           <div class="text-3xl sm:text-4xl mb-1 sm:mb-2">📝</div>
           <div class="font-semibold text-sm sm:text-base text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">Fill Blanks</div>
           <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 hidden sm:block">Context practice</div>
+        </router-link>
+        <router-link to="/speaking" class="card hover:shadow-md transition-shadow text-center group">
+          <div class="text-3xl sm:text-4xl mb-1 sm:mb-2">🎙️</div>
+          <div class="font-semibold text-sm sm:text-base text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">Speaking</div>
+          <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 hidden sm:block">Pronunciation</div>
         </router-link>
         <router-link to="/browse" class="card hover:shadow-md transition-shadow text-center group">
           <div class="text-3xl sm:text-4xl mb-1 sm:mb-2">📖</div>

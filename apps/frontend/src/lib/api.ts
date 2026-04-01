@@ -551,10 +551,19 @@ export const sprintApi = {
     }),
 
   complete: (id: string) =>
-    request<{ sprint: any }>(`/sprints/${id}/complete`, {
+    request<{ sprint: any; stats: any; report: any }>(`/sprints/${id}/complete`, {
       method: 'POST',
       body: JSON.stringify({}),
     }),
+
+  getReport: (id: string) =>
+    request<any>(`/sprints/${id}/report`),
+
+  getPrompts: (id: string) =>
+    request<{ prompts: any[] }>(`/sprints/${id}/prompts`),
+
+  getPlateau: () =>
+    request<{ plateau: boolean; message: string | null; suggestions: string[] }>('/sprints/insights/plateau'),
 
   getWords: (id: string) =>
     request<{ words: any[] }>(`/sprints/${id}/words`),
