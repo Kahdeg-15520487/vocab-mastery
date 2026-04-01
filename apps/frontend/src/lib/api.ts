@@ -213,6 +213,8 @@ export const wordsApi = {
 
   getTranslations: (wordId: string, languages?: string[]) => request<{ translations: Record<string, string>; cached: boolean }>(`/words/${wordId}/translate`, { method: 'POST', body: JSON.stringify({ languages }) }),
 
+  getMemoryPalace: (wordId: string) => request<{ mnemonic: { image: string; story: string; hook: string; connections: string[] }; cached: boolean }>(`/words/${wordId}/memory-palace`, { method: 'POST', body: JSON.stringify({}) }),
+
   chainStart: () => request<{ word: string; definition: string; cefrLevel: string; wordId: string }>('/words/chain/start'),
   chainValidate: (previousWord: string, userWord: string, chainLength: number) =>
     request<{ valid: boolean; reason?: string; word?: string; definition?: string; cefrLevel?: string; wordId?: string; xpEarned?: number; chainLength?: number }>('/words/chain/validate', {

@@ -18,6 +18,7 @@ const relatedWords = ref<{ sameTopic: any[]; similar: any[]; family?: any[] } | 
 const etymology = ref<{ origin: string; root: string; breakdown: Array<{part: string; meaning: string; type: string}>; story: string; related: string[] } | null>(null)
 const contextExamples = ref<Record<string, string> | null>(null)
 const translations = ref<Record<string, string> | null>(null)
+const memoryMnemonic = ref<{ image: string; story: string; hook: string; connections: string[] } | null>(null)
 const difficulty = ref<number>(0)
 const hoverDifficulty = ref(0)
 const compareWord = ref('')
@@ -94,6 +95,7 @@ onMounted(async () => {
     wordsApi.getEtymology(data.id).then(r => etymology.value = r.etymology).catch(() => {})
     wordsApi.getContextExamples(data.id).then(r => contextExamples.value = r.examples).catch(() => {})
     wordsApi.getTranslations(data.id).then(r => translations.value = r.translations).catch(() => {})
+    wordsApi.getMemoryPalace(data.id).then(r => memoryMnemonic.value = r.mnemonic).catch(() => {})
     if (data.progress?.difficulty) difficulty.value = data.progress.difficulty
   } catch (e: any) {
     error.value = e.message || 'Word not found'
@@ -614,6 +616,31 @@ n            <span class="text-slate-500 dark:text-slate-400">Origin:</span>
               <div class="text-xs text-slate-400 uppercase">{{ code }}</div>
               <div class="text-sm font-medium text-slate-900 dark:text-white">{{ tr }}</div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Memory Palace -->
+      <div v-if="memoryMnemonic" class="card">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Memory Palace</h2>
+        <div class="space-y-3">
+          <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+            <div class="text-xs font-semibold text-amber-600 dark:text-amber-400 mb-1">MENTAL IMAGE</div>
+            <p class="text-sm text-amber-900 dark:text-amber-100">{{ memoryMnemonic.image }}</p>
+          </div>
+          <div class="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+            <div class="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">MEMORY STORY</div>
+            <p class="text-sm text-blue-900 dark:text-blue-100">{{ memoryMnemonic.story }}</p>
+          </div>
+          <div class="p-3 rounded-xl bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
+            <div class="text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">HOOK</div>
+            <p class="text-sm font-medium text-purple-900 dark:text-purple-100">"{{ memoryMnemonic.hook }}"</p>
+          </div>
+          <div v-if="memoryMnemonic.connections?.length" class="flex gap-2 flex-wrap">
+            <span class="text-xs text-slate-500">Connections:</span>
+            <span v-for="conn in memoryMnemonic.connections" :key="conn" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+              {{ conn }}
+            </span>
           </div>
         </div>
       </div>

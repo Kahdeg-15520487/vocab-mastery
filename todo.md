@@ -6,7 +6,7 @@
 
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#283** 🔔 Review Reminders — configurable time-based reminders (morning/evening) with browser notifications #feature #frontend
-- [ ] **#290** **[high]** 📊 Word Analytics — detailed breakdown of vocabulary by topic, CEFR level, mastery status on Stats page #feature #frontend
+- [ ] **#291** **[high]** 🧠 Memory Palace — LLM generates vivid visual associations/mnemonics for words #feature #fullstack #llm
 
 ## Completed
 
@@ -145,6 +145,7 @@
 - [x] **#282** 📊 Dashboard quick stat cards — Total Words, XP, Level, Streak in prominent grid #feature #frontend
 - [x] **#286** **[high]** 🎮 Word Chain Game — chain words by last letter, earn XP, learn new words #feature #fullstack #gamification
 - [x] **#287** **[high]** 🎓 Word Difficulty Rating — user rates 1-5 stars, affects spaced repetition ease factor #feature #fullstack
+- [x] **#290** **[high]** 📊 Word Analytics — detailed breakdown of vocabulary by topic, CEFR level, mastery status on Stats page #feature #frontend
 
 <!-- Raw Data -->
 ```json
@@ -1915,16 +1916,30 @@
     {
       "id": 290,
       "text": "📊 Word Analytics — detailed breakdown of vocabulary by topic, CEFR level, mastery status on Stats page",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
         "frontend"
       ],
       "createdAt": 1775083897630,
+      "archived": false,
+      "completedAt": 1775084126948
+    },
+    {
+      "id": 291,
+      "text": "🧠 Memory Palace — LLM generates vivid visual associations/mnemonics for words",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "fullstack",
+        "llm"
+      ],
+      "createdAt": 1775084132100,
       "archived": false
     }
   ],
-  "nextId": 291
+  "nextId": 292
 }
 ```

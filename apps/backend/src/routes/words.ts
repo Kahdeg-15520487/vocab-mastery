@@ -733,6 +733,62 @@ Return translations as a JSON object with these language codes as keys.`;
     }
   });
 
+  // POST /words/:wordId/memory-palace — Generate vivid visual mnemonic (cached)
+  app.post('/words/:wordId/memory-palace', { preHandler: authenticate }, async (request, _reply) => {
+    const { wordId } = request.params as { wordId: string };
+
+    const word = await prisma.word.findUnique({ where: { id: wordId } });
+    if (!word) throw { statusCode: 404, message: 'Word not found' };
+
+    // Return cached
+    if (word.memoryPalace) {
+      try {
+        return { mnemonic: JSON.parse(word.memoryPalace as string), cached: true };
+      } catch { /* regenerate */ }
+    }
+
+    try {
+      const config = await getLLMConfig();
+
+      const systemPrompt = `You are a creative memory expert. Generate vivid, memorable visual mnemonics for English vocabulary words.
+
+Return a JSON object with:
+- "image": A striking, bizarre, or funny mental image (2-3 sentences)
+- "story": A short story connecting the image to the meaning (2-3 sentences)
+- "hook": A memorable catchphrase or association (1 sentence)
+- "connections": Array of 2-3 word associations (e.g. similar sounding words, rhymes)
+
+The mnemonic should be vivid, slightly absurd (absurdity aids memory), and directly connect to the word's meaning.
+Return ONLY valid JSON.`;
+
+      const userPrompt = `Word: "${word.word}"
+Definition: ${word.definition || 'N/A'}
+Part of speech: ${(word.partOfSpeech as string[])?.join(', ') || 'N/A'}
+Examples: ${((word.examples as string[]) || []).slice(0, 2).join('; ') || 'N/A'}`;
+
+      const responseText = await callLLM(systemPrompt, userPrompt, config, { disableReasoning: true });
+
+      let mnemonic: any = {};
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          mnemonic = JSON.parse(jsonMatch[0].replace(/,\s*\}/g, '}'));
+        } catch { /* empty */ }
+      }
+
+      // Cache
+      await prisma.word.update({
+        where: { id: wordId },
+        data: { memoryPalace: JSON.stringify(mnemonic) },
+      });
+
+      return { mnemonic, cached: false };
+    } catch (error: any) {
+      console.error('[memory-palace] Error:', error.message);
+      throw { statusCode: 500, message: 'Failed to generate mnemonic' };
+    }
+  });
+
   // POST /words/compare — Compare two words with LLM analysis
   app.post('/words/compare', { preHandler: authenticate }, async (request, _reply) => {
     const { word1, word2 } = request.body as { word1: string; word2: string };

@@ -350,6 +350,7 @@ model Word {
   etymology     String?       @map("etymology")
   contextExamples String?     @map("context_examples")
   translations  String?       @map("translations")
+  memoryPalace  String?       @map("memory_palace")
   themes        WordTheme[]
   progress      WordProgress[]
   sessionWords  SessionWord[]
