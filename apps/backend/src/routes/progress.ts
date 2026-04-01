@@ -772,6 +772,43 @@ export async function progressRoutes(app: FastifyInstance) {
   // ============================================
   // POST /api/progress/batch - Batch update
   // ============================================
+  // PUT /progress/:wordId/notes — Update personal notes/mnemonics
+  app.put('/progress/:wordId/notes', async (request, reply) => {
+    const userId = request.user!.userId;
+    const { wordId } = request.params as { wordId: string };
+    const { notes } = request.body as { notes: string };
+
+    if (typeof notes !== 'string') {
+      return reply.status(400).send({ error: 'Notes must be a string' });
+    }
+
+    if (notes.length > 1000) {
+      return reply.status(400).send({ error: 'Notes must be under 1000 characters' });
+    }
+
+    const word = await prisma.word.findUnique({ where: { id: wordId } });
+    if (!word) {
+      return reply.status(404).send({ error: 'Word not found' });
+    }
+
+    const existing = await prisma.wordProgress.findUnique({
+      where: { userId_wordId: { userId, wordId } },
+    });
+
+    if (existing) {
+      await prisma.wordProgress.update({
+        where: { userId_wordId: { userId, wordId } },
+        data: { notes },
+      });
+    } else {
+      await prisma.wordProgress.create({
+        data: { userId, wordId, notes, status: 'new' },
+      });
+    }
+
+    return { success: true, notes };
+  });
+
   app.post('/progress/batch', async (request, _reply) => {
     const userId = request.user!.userId;
     const { updates } = request.body as {

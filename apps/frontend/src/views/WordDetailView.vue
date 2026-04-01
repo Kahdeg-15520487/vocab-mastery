@@ -133,6 +133,38 @@ function getDefinitions(def: string): string[] {
   return def.split('\n\n').filter(Boolean)
 }
 
+// Personal notes
+const personalNotes = ref('')
+const notesSaving = ref(false)
+
+function loadNotes() {
+  if (!word.value) return
+  // Notes are included in progress data from the word detail endpoint
+  // Check if progress exists and has notes
+  personalNotes.value = (word.value as any).progress?.notes || ''
+}
+
+// Load notes when word loads
+watch(word, (w) => { if (w) loadNotes() })
+
+let notesSaveTimer: ReturnType<typeof setTimeout> | null = null
+async function saveNotes() {
+  if (!word.value) return
+  notesSaving.value = true
+  try {
+    await progressApi.updateNotes(word.value.id, personalNotes.value)
+  } catch {
+    // silent fail for auto-save
+  } finally {
+    notesSaving.value = false
+  }
+}
+
+function onNotesInput() {
+  if (notesSaveTimer) clearTimeout(notesSaveTimer)
+  notesSaveTimer = setTimeout(saveNotes, 1000)
+}
+
 async function markStatus(status: 'learning' | 'reviewing' | 'mastered' | 'new') {
   if (!word.value) return
   const oldProgress = word.value.progress
@@ -281,6 +313,23 @@ async function generateExamples() {
             <p class="text-slate-700 dark:text-slate-300">{{ def }}</p>
           </div>
         </div>
+      </div>
+
+      <!-- Personal Notes -->
+      <div class="card mb-6">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-semibold text-slate-900 dark:text-white">My Notes</h2>
+          <span v-if="notesSaving" class="text-xs text-slate-400">Saving...</span>
+        </div>
+        <textarea
+          v-model="personalNotes"
+          @input="onNotesInput"
+          placeholder="Add a mnemonic, memory trick, or personal note..."
+          rows="3"
+          class="input w-full text-sm"
+          maxlength="1000"
+        ></textarea>
+        <p class="text-xs text-slate-400 mt-1 text-right">{{ personalNotes.length }}/1000</p>
       </div>
 
       <!-- Examples -->

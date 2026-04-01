@@ -271,6 +271,12 @@ export const progressApi = {
       body: JSON.stringify({ status }),
     }),
 
+  updateNotes: (wordId: string, notes: string) =>
+    request<{ success: boolean; notes: string }>(`/progress/${wordId}/notes`, {
+      method: 'PUT',
+      body: JSON.stringify({ notes }),
+    }),
+
   batchUpdate: (updates: Array<{ wordId: string; response: 'easy' | 'medium' | 'hard' | 'forgot' }>) =>
     request<any>('/progress/batch', {
       method: 'POST',

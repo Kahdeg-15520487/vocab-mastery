@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { Word } from '@/types'
 import { useSpeech } from '@/composables/useSpeech'
 import LevelBadge from './LevelBadge.vue'
@@ -14,7 +14,29 @@ const emit = defineEmits<{
 }>()
 
 const { playAudio, isSpeaking } = useSpeech()
+const showNotes = ref(false)
+const notesText = ref('')
+const notesSaving = ref(false)
+let notesTimer: ReturnType<typeof setTimeout> | null = null
+
+import { progressApi } from '@/lib/api'
 const isFlipped = ref(false)
+
+// Load notes from word progress
+watch(() => props.word, (w) => {
+  notesText.value = (w as any).progress?.notes || ''
+}, { immediate: true })
+
+async function saveNotes() {
+  notesSaving.value = true
+  try { await progressApi.updateNotes(props.word.id, notesText.value) } catch {}
+  notesSaving.value = false
+}
+
+function onNotesInput() {
+  if (notesTimer) clearTimeout(notesTimer)
+  notesTimer = setTimeout(saveNotes, 1500)
+}
 
 const level = computed(() => props.word.cefrLevel)
 
@@ -153,7 +175,19 @@ function respond(response: 'easy' | 'medium' | 'hard' | 'forgot') {
       </div>
     </div>
 
-    <!-- Response Buttons -->
+    <!-- Quick Notes -->
+    <div v-if="isFlipped" class="mt-4">
+      <button @click="showNotes = !showNotes" class="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 flex items-center gap-1">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+        {{ showNotes ? 'Hide notes' : (notesText ? 'Edit notes' : 'Add note') }}
+      </button>
+      <div v-if="showNotes" class="mt-2">
+        <textarea v-model="notesText" @input="onNotesInput" placeholder="Add a mnemonic or note..." rows="2" class="input w-full text-sm" maxlength="1000"></textarea>
+        <span v-if="notesSaving" class="text-[10px] text-slate-400">Saving...</span>
+      </div>
+    </div>
+
+        <!-- Response Buttons -->
     <div v-if="isFlipped" class="grid grid-cols-4 gap-2 mt-6">
       <button
         @click="respond('forgot')"

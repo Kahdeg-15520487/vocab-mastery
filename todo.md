@@ -4,9 +4,9 @@
 
 ## Pending
 
-- [ ] **#243** 📊 Vocabulary Statistics API — word count by status, CEFR level distribution, study time estimates #feature #backend
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#246** **[low]** 📤 Shareable progress card — generate a shareable image/markdown of vocabulary achievements #feature #backend
+- [ ] **#252** 📝 Personal word notes/mnemonics — add notes to word progress during learning #feature #fullstack
 
 ## Completed
 
@@ -120,6 +120,7 @@
 - [x] **#245** 📐 Vocabulary Size Estimator — statistical sampling test to estimate total known words #feature #backend #frontend
 - [x] **#247** 🛡️ 500 Error Page + API Error Boundary — graceful handling when backend is down #polish #frontend
 - [x] **#248** 🔊 Auto-play pronunciation in learn/review flashcards — play word audio when card is revealed #feature #frontend
+- [x] **#250** 🌍 Words in the Wild — encounter tracking system (COMPLETE) #feature #complete
 
 <!-- Raw Data -->
 ```json
@@ -1494,18 +1495,6 @@
       "completedAt": 1775075374898
     },
     {
-      "id": 243,
-      "text": "📊 Vocabulary Statistics API — word count by status, CEFR level distribution, study time estimates",
-      "done": false,
-      "priority": "medium",
-      "tags": [
-        "feature",
-        "backend"
-      ],
-      "createdAt": 1775075001200,
-      "archived": false
-    },
-    {
       "id": 244,
       "text": "📱 PWA offline mode — cache word data for offline study sessions",
       "done": false,
@@ -1569,8 +1558,33 @@
       "createdAt": 1775076116003,
       "archived": false,
       "completedAt": 1775076393014
+    },
+    {
+      "id": 250,
+      "text": "🌍 Words in the Wild — encounter tracking system (COMPLETE)",
+      "done": true,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "complete"
+      ],
+      "createdAt": 1775077240271,
+      "archived": false,
+      "completedAt": 1775077242570
+    },
+    {
+      "id": 252,
+      "text": "📝 Personal word notes/mnemonics — add notes to word progress during learning",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "feature",
+        "fullstack"
+      ],
+      "createdAt": 1775077300477,
+      "archived": false
     }
   ],
-  "nextId": 250
+  "nextId": 253
 }
 ```
