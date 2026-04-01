@@ -154,13 +154,6 @@ registerJobHandler('CATEGORIZE_WORDS', async ({ payload, updateProgress, checkCa
       allWordResults.push({ word: r.word, category: r.category });
     }
 
-    // Log categorization results for this chunk
-    const chunkLog = chunkResults.slice(0, 20).map((r, i) => `${r.word} → ${r.category}`);
-    console.log(`[categorize-job] Chunk results (first 20): ${chunkLog.join(', ')}`);
-    
-    const nonGeneralCount = chunkResults.filter(r => r.category !== 'general').length;
-    console.log(`[categorize-job] Chunk summary: ${chunkResults.length} words, ${nonGeneralCount} non-general categories`);
-
     // Clear existing themes if overwrite
     if (overwrite) {
       await prisma.wordTheme.deleteMany({
@@ -197,9 +190,7 @@ registerJobHandler('CATEGORIZE_WORDS', async ({ payload, updateProgress, checkCa
     processed += chunk.length;
 
     console.log(
-      `[categorize-job] Progress: ${processed}/${effectiveLimit} ` +
-      `(${Math.round(processed / effectiveLimit * 100)}%) ` +
-      `| Tagged: ${tagged} | Errors: ${errors}`
+      `[categorize-job] ${processed}/${effectiveLimit} (${Math.round(processed / effectiveLimit * 100)}%) — tagged: ${tagged}, errors: ${errors}`
     );
   }
 

@@ -166,16 +166,19 @@ export async function callLLM(
       };
       
       const apiKey = config.apiKey || process.env.OPENAI_API_KEY;
-      console.log(`[LLM] Known provider: ${config.provider}, model: ${config.model}`);
       const response = await completeSimple(model, context, { apiKey });
       
-      console.log(`[LLM] Response stopReason: ${response.stopReason}, content types: [${response.content.map(c => c.type).join(', ')}]`);
-      
-      return response.content
+      const textContent = response.content
         .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
         .map(c => c.text)
         .join('')
         .trim();
+      
+      if (!textContent && response.stopReason === 'error') {
+        throw new Error(`LLM error: ${response.errorMessage}`);
+      }
+      
+      return textContent;
     }
     
     // Model not in pi-ai registry, fall through to custom model below
@@ -225,19 +228,15 @@ export async function callLLM(
   const apiKey = config.apiKey || process.env.OPENAI_API_KEY;
   
   try {
-    console.log(`[LLM] Calling provider: ${config.provider}, model: ${config.model}, baseUrl: ${config.baseUrl || 'default'}`);
+    console.log(`[LLM] Calling ${config.provider}/${config.model} (${config.baseUrl || 'default'})`);
     
     const response = await completeSimple(customModel as any, context, {
       apiKey,
       ...(options?.disableReasoning || !config.reasoning ? {} : { reasoning: 'medium' }),
     });
     
-    console.log(`[LLM] Response stopReason: ${response.stopReason}, errorMessage: ${response.errorMessage}`);
-    console.log(`[LLM] Response content types: [${response.content.map(c => c.type).join(', ')}]`);
-    
     if (response.stopReason === 'error') {
-      console.error('[LLM] Error response:', response.errorMessage);
-      console.error('[LLM] Content:', JSON.stringify(response.content).slice(0, 500));
+      throw new Error(`LLM error: ${response.errorMessage}`);
     }
     
     const textContent = response.content
@@ -247,11 +246,6 @@ export async function callLLM(
       .trim();
     
     if (!textContent) {
-      // Log full content for debugging
-      console.error(`[LLM] Empty text response. Full content:`, JSON.stringify(response.content).slice(0, 1000));
-      console.error(`[LLM] Stop reason: ${response.stopReason}`);
-      
-      // Fallback: try to extract text from thinking blocks (reasoning models may only produce thinking)
       const thinkingContent = response.content
         .filter((c): c is { type: 'thinking'; thinking: string } => c.type === 'thinking')
         .map(c => c.thinking)
@@ -259,15 +253,13 @@ export async function callLLM(
         .trim();
       
       if (thinkingContent) {
-        console.log(`[LLM] Found thinking content (${thinkingContent.length} chars) but skipReason=length, model ran out of tokens before producing output`);
+        console.warn(`[LLM] Model produced ${thinkingContent.length} chars of thinking but no text output (stopReason: ${response.stopReason})`);
       }
-    } else {
-      console.log(`[LLM] Got text response (${textContent.length} chars): ${textContent.slice(0, 200)}`);
     }
     
     return textContent;
   } catch (error: any) {
-    console.error('LLM call failed:', error.message);
+    console.error('[LLM] Call failed:', error.message);
     throw error;
   }
 }
@@ -281,7 +273,6 @@ export async function categorizeWord(
   partOfSpeech?: string[]
 ): Promise<string> {
   try {
-    console.log(`[categorizeWord] Categorizing: "${word}"`);
     const config = await getLLMConfig();
     
     let prompt = `Categorize this English word into ONE of these categories: ${themeSlugs.join(', ')}.\n\nWord: "${word}"`;
@@ -341,16 +332,9 @@ Example: {"abandon": "general", "algorithm": "technology", "bake": "food"}
 JSON:`;
 
     const responseText = await callLLM(BATCH_SYSTEM_PROMPT, prompt, config, { disableReasoning: true });
-    
-    console.log(`[categorizeWordsBatch] Raw LLM response (${responseText.length} chars): ${responseText.slice(0, 500)}`);
-    
     const categories = parseCategoriesJson(responseText, words.map(w => w.word));
     
-    console.log(`[categorizeWordsBatch] Parsed ${Object.keys(categories).length} categories for ${words.length} words`);
-    
-    // Log sample of results
-    const sampleResults = words.slice(0, 5).map(w => `${w.word} → ${categories[w.word.toLowerCase()] || 'general'}`);
-    console.log(`[categorizeWordsBatch] Sample: ${sampleResults.join(', ')}`);
+    console.log(`[categorizeWordsBatch] Parsed ${Object.keys(categories).length}/${words.length} categories`);
     
     if (options?.onProgress) {
       options.onProgress(words.length, words.length);
