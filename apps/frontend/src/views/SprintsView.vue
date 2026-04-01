@@ -5,7 +5,7 @@
       <button
         v-if="!hasActiveSprint && !hasPlannedSprint"
         @click="showCreate = true"
-        class="btn-primary"
+        class="btn-secondary"
       >
         + New Sprint
       </button>
@@ -22,7 +22,7 @@
         Create a sprint to start learning words in focused 2-week bursts.
         Each sprint targets a set of words to learn and review.
       </p>
-      <button @click="showCreate = true" class="btn-primary mt-4">
+      <button @click="showCreate = true" class="btn-secondary mt-4">
         Create Your First Sprint
       </button>
     </div>

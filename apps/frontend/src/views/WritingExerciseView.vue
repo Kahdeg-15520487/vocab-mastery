@@ -108,13 +108,21 @@
               <span class="text-xs text-slate-400">{{ sentence.trim().split(/\s+/).filter(Boolean).length }} words</span>
               <div class="flex gap-2">
                 <button
-                  v-if="currentIndex > 0"
+                  v-if="!hasSubmittedCurrent && currentIndex > 0"
                   @click="skipPrompt"
                   class="px-3 py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"
                 >
                   Skip
                 </button>
                 <button
+                  v-if="hasSubmittedCurrent"
+                  @click="nextPrompt"
+                  class="px-4 py-1.5 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                >
+                  {{ currentIndex < prompts.length - 1 ? 'Next →' : 'See Results →' }}
+                </button>
+                <button
+                  v-else
                   @click="submitSentence"
                   :disabled="!sentence.trim() || submitting"
                   class="px-4 py-1.5 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors"
@@ -266,6 +274,7 @@ const aiEvaluation = ref<SentenceEvaluation | null>(null)
 const aiError = ref('')
 
 const currentPrompt = computed(() => prompts.value[currentIndex.value] ?? null)
+const hasSubmittedCurrent = computed(() => results.value.length > currentIndex.value)
 
 onMounted(async () => {
   const sid = route.query.sprintId as string
@@ -337,20 +346,6 @@ async function submitSentence() {
       evaluateWithAI()
     }
 
-    // Move to next prompt after a short delay
-    setTimeout(() => {
-      if (currentIndex.value < prompts.value.length - 1) {
-        currentIndex.value++
-        sentence.value = ''
-        lastResult.value = null
-        aiFeedbackStatus.value = 'idle'
-        aiEvaluation.value = null
-      } else {
-        // All done — show results
-        currentIndex.value = prompts.value.length
-      }
-    }, 1500)
-
     loadWritings()
   } catch (e: any) {
     toast.error(e.message || 'Failed to submit')
@@ -365,6 +360,21 @@ function skipPrompt() {
     currentIndex.value++
     sentence.value = ''
     lastResult.value = null
+    aiFeedbackStatus.value = 'idle'
+    aiEvaluation.value = null
+  }
+}
+
+function nextPrompt() {
+  if (currentIndex.value < prompts.value.length - 1) {
+    currentIndex.value++
+    sentence.value = ''
+    lastResult.value = null
+    aiFeedbackStatus.value = 'idle'
+    aiEvaluation.value = null
+  } else {
+    // All done
+    currentIndex.value = prompts.value.length
   }
 }
 
