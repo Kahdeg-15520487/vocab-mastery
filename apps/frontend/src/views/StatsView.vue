@@ -7,7 +7,7 @@ import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
 const statsStore = useStatsStore()
 
 // Heatmap & study time
-const heatmapData = ref<Array<{ date: string; wordsLearned: number; wordsReviewed: number; sessions: number }>>([])
+const heatmapData = ref<Array<{ date: string; wordsLearned: number; wordsReviewed: number }>>([])
 const studyTime = ref<{ totalTimeMinutes: number; totalSessions: number; avgSessionMinutes: number; byType: { type: string; totalMinutes: number; sessions: number }[] } | null>(null)
 
 onMounted(async () => {
@@ -33,7 +33,7 @@ const heatmapGrid = computed(() => {
       const key = date.toISOString().split('T')[0]
       const entry = dataMap.get(key)
       const total = entry ? entry.wordsLearned + entry.wordsReviewed : 0
-      week.push({ date: key, total, sessions: entry?.sessions || 0 })
+      week.push({ date: key, total })
     }
     weeks.push(week)
   }
@@ -320,7 +320,7 @@ const statsXpNeeded = computed(() => {
                 :key="di"
                 class="w-2.5 h-2.5 rounded-sm transition-colors"
                 :class="heatmapColor(day.total)"
-                :title="`${day.date}: ${day.total} words, ${day.sessions} sessions`"
+                :title="`${day.date}: ${day.total} words`"
               />
             </div>
           </div>
