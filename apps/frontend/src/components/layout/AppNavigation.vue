@@ -99,9 +99,8 @@ function openSearch() {
           </RouterLink>
 
           <!-- Practice dropdown -->
-          <div class="relative" @mouseleave="showPracticeMenu = false">
+          <div class="relative" @mouseenter="showPracticeMenu = true" @mouseleave="showPracticeMenu = false">
             <button
-              @mouseenter="showPracticeMenu = true"
               @click="toggleMenu('practice')"
               :class="[
                 'px-3 py-2 rounded-lg transition-colors text-sm flex items-center gap-1',
@@ -136,9 +135,8 @@ function openSearch() {
           </div>
 
           <!-- Stats dropdown -->
-          <div class="relative" @mouseleave="showStatsMenu = false">
+          <div class="relative" @mouseenter="showStatsMenu = true" @mouseleave="showStatsMenu = false">
             <button
-              @mouseenter="showStatsMenu = true"
               @click="toggleMenu('stats')"
               :class="[
                 'px-3 py-2 rounded-lg transition-colors text-sm flex items-center gap-1',
@@ -173,9 +171,8 @@ function openSearch() {
           </div>
 
           <!-- More dropdown (collections + admin) -->
-          <div class="relative" @mouseleave="showMoreMenu = false">
+          <div class="relative" @mouseenter="showMoreMenu = true" @mouseleave="showMoreMenu = false">
             <button
-              @mouseenter="showMoreMenu = true"
               @click="toggleMenu('more')"
               :class="[
                 'px-3 py-2 rounded-lg transition-colors text-sm flex items-center gap-1',
