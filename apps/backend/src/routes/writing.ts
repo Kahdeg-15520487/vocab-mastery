@@ -5,6 +5,46 @@ import { authenticate } from '../middleware/auth.js'
 export async function writingRoutes(app: FastifyInstance) {
   app.addHook('preHandler', authenticate)
 
+  // Get user sentences across all sprints for flashcard review (static route BEFORE parametric)
+  app.get('/sentences/review', async (request) => {
+    const userId = (request.user as any).userId
+    const query = request.query as { limit?: string; offset?: string }
+    const limit = Math.min(parseInt(query.limit || '50'), 100)
+    const offset = parseInt(query.offset || '0')
+
+    const sentences = await prisma.sprintWriting.findMany({
+      where: {
+        type: 'sentence',
+        sprint: { userId },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      skip: offset,
+    })
+
+    const total = await prisma.sprintWriting.count({
+      where: {
+        type: 'sentence',
+        sprint: { userId },
+      },
+    })
+
+    const cards = sentences.map(s => {
+      const feedback = s.feedback as any
+      return {
+        id: s.id,
+        text: s.text,
+        targetWord: feedback?.targetWord || '',
+        usedWord: feedback?.usedWord || false,
+        wordCount: s.wordCount,
+        sprintId: s.sprintId,
+        createdAt: s.createdAt,
+      }
+    })
+
+    return { cards, total }
+  })
+
   // Get writing prompts for a sprint (random sprint words)
   app.get('/:sprintId/prompts', async (request) => {
     const userId = (request.user as any).userId
@@ -201,6 +241,7 @@ export async function writingRoutes(app: FastifyInstance) {
 
     return { writings }
   })
+
 }
 
 function getInflections(word: string): string[] {

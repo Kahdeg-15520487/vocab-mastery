@@ -20,6 +20,7 @@ const titles: Record<string, string> = {
   '/admin': 'Admin Panel',
   '/sprints': 'Sprints',
   '/writing': 'Writing Practice',
+  '/sentence-review': 'Sentence Review',
   '/speaking': 'Speaking Practice',
   '/reading': 'Reading Mode',
   '/login': 'Sign In',

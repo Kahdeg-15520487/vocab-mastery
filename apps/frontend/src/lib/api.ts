@@ -306,6 +306,9 @@ export const writingApi = {
     request<{ success: boolean }>(`/writing/${sprintId}/writings/${writingId}`, {
       method: 'DELETE',
     }),
+
+  getSentenceCards: (limit?: number) =>
+    request<{ cards: Array<{ id: string; text: string; targetWord: string; usedWord: boolean; wordCount: number; sprintId: string; createdAt: string }>; total: number }>(`/writing/sentences/review${limit ? '?limit=' + limit : ''}`),
 }
 
 export const readingApi = {
