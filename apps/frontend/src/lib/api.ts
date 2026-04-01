@@ -168,6 +168,8 @@ export const wordsApi = {
     status?: string
     list?: string
     search?: string
+    topic?: string
+    subtopic?: string
     page?: number
     limit?: number
   }) => {

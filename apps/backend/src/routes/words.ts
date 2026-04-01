@@ -12,6 +12,8 @@ export async function wordRoutes(app: FastifyInstance) {
     const list = query.list;
     const search = query.search;
     const status = query.status;
+    const topic = query.topic;
+    const subtopic = query.subtopic;
     const page = parseInt(query.page || '1', 10);
     const limit = parseInt(query.limit || '20', 10);
 
@@ -22,11 +24,15 @@ export async function wordRoutes(app: FastifyInstance) {
     if (search) {
       where.word = { contains: search, mode: 'insensitive' };
     }
-    if (theme) {
-      if (theme === 'none') {
+    if (theme || topic || subtopic) {
+      const themeWhere: any = {};
+      if (theme && theme === 'none') {
         where.themes = { none: {} };
       } else {
-        where.themes = { some: { theme: { slug: theme } } };
+        if (theme) themeWhere.theme = { slug: theme };
+        if (topic) themeWhere.topic = topic;
+        if (subtopic) themeWhere.subtopic = subtopic;
+        where.themes = { some: themeWhere };
       }
     }
     // Filter by learning status

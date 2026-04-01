@@ -33,7 +33,16 @@ const addedToList = ref<string | null>(null)
 const batchMode = ref(false)
 const selectedWordIds = ref<Set<string>>(new Set())
 const batchProcessing = ref(false)
+const selectedTopic = ref('')
+const selectedSubtopic = ref('')
+const topics = ref<Array<{ name: string; totalCount: number; subtopics: Array<{ name: string; count: number }> }>>([])
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
+
+const currentSubtopics = computed(() => {
+  if (!selectedTopic.value) return []
+  const t = topics.value.find(t => t.name === selectedTopic.value)
+  return t?.subtopics || []
+})
 
 const totalPages = computed(() => wordsStore.pagination.totalPages)
 const totalWords = computed(() => wordsStore.pagination.total)
@@ -77,6 +86,8 @@ async function loadWords() {
     theme: selectedTheme.value || undefined,
     level: selectedLevel.value || undefined,
     status: selectedStatus.value || undefined,
+    topic: selectedTopic.value || undefined,
+    subtopic: selectedSubtopic.value || undefined,
     page: page.value,
     limit,
   })
@@ -90,8 +101,26 @@ watch(search, (newValue) => {
   }, 300)
 })
 
+// Fetch topics when theme changes
+watch(selectedTheme, async (newTheme) => {
+  selectedTopic.value = ''
+  selectedSubtopic.value = ''
+  topics.value = []
+  if (newTheme && newTheme !== 'none') {
+    try {
+      const data = await fetch(`/api/themes/${newTheme}/topics`).then(r => r.json())
+      topics.value = data.topics || []
+    } catch {}
+  }
+})
+
+// Clear subtopic when topic changes
+watch(selectedTopic, () => {
+  selectedSubtopic.value = ''
+})
+
 // Trigger search when debounced value or filters change
-watch([searchDebounced, selectedTheme, selectedLevel, selectedStatus], () => {
+watch([searchDebounced, selectedTheme, selectedLevel, selectedStatus, selectedTopic, selectedSubtopic], () => {
   page.value = 1
   // Save filter state to localStorage
   localStorage.setItem('browse-theme', selectedTheme.value)
@@ -295,7 +324,7 @@ const visiblePages = computed(() => {
 
     <!-- Filters -->
     <div class="card mb-6">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
         <div class="md:col-span-2">
           <input
             ref="searchInput"
@@ -306,10 +335,22 @@ const visiblePages = computed(() => {
           />
         </div>
         <select v-model="selectedTheme" class="input">
-          <option value="">All Themes{{ wordsStore.wordCounts ? ` (${wordsStore.wordCounts.total})` : '' }}</option>
-          <option value="none">📝 No Theme{{ wordsStore.wordCounts?.themes.none ? ` (${wordsStore.wordCounts.themes.none})` : '' }}</option>
+          <option value="">All Topics{{ wordsStore.wordCounts ? ` (${wordsStore.wordCounts.total})` : '' }}</option>
+          <option value="none">📝 No Topic{{ wordsStore.wordCounts?.themes.none ? ` (${wordsStore.wordCounts.themes.none})` : '' }}</option>
           <option v-for="theme in wordsStore.themes" :key="theme.id" :value="theme.slug">
             {{ theme.icon }} {{ theme.name }}{{ wordsStore.wordCounts?.themes[theme.slug] ? ` (${wordsStore.wordCounts.themes[theme.slug]})` : '' }}
+          </option>
+        </select>
+        <select v-if="topics.length" v-model="selectedTopic" class="input">
+          <option value="">All Categories</option>
+          <option v-for="t in topics" :key="t.name" :value="t.name">
+            {{ t.name }} ({{ t.totalCount }})
+          </option>
+        </select>
+        <select v-if="currentSubtopics.length" v-model="selectedSubtopic" class="input">
+          <option value="">All Subtopics</option>
+          <option v-for="s in currentSubtopics" :key="s.name" :value="s.name">
+            {{ s.name }} ({{ s.count }})
           </option>
         </select>
         <select v-model="selectedLevel" class="input">
