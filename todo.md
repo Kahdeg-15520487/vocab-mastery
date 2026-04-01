@@ -6,7 +6,7 @@
 
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#283** 🔔 Review Reminders — configurable time-based reminders (morning/evening) with browser notifications #feature #frontend
-- [ ] **#299** 📊 Weekly Learning Insights — AI-generated summary of learning patterns and tips #feature #fullstack #llm
+- [ ] **#300** **[high]** 🔔 Next Review Timer — shows time until next review is due on dashboard #feature #frontend #ux
 
 ## Completed
 
@@ -151,6 +151,7 @@
 - [x] **#296** **[high]** ⚡ Speed Round — timed flashcard challenge, answer as many as possible in 60 seconds #feature #fullstack #gamification
 - [x] **#297** **[high]** 🎯 Smart Recommendations — suggest words based on weak topics, CEFR gaps, and review priority #feature #fullstack
 - [x] **#298** **[high]** 📚 Word Collection Badges — topic completion tracking with milestone badges #feature #fullstack #gamification
+- [x] **#299** 📊 Weekly Learning Insights — AI-generated summary of learning patterns and tips #feature #fullstack #llm
 
 <!-- Raw Data -->
 ```json
@@ -2003,7 +2004,7 @@
     {
       "id": 299,
       "text": "📊 Weekly Learning Insights — AI-generated summary of learning patterns and tips",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
@@ -2011,9 +2012,23 @@
         "llm"
       ],
       "createdAt": 1775085503590,
+      "archived": false,
+      "completedAt": 1775085738585
+    },
+    {
+      "id": 300,
+      "text": "🔔 Next Review Timer — shows time until next review is due on dashboard",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "frontend",
+        "ux"
+      ],
+      "createdAt": 1775085744792,
       "archived": false
     }
   ],
-  "nextId": 300
+  "nextId": 301
 }
 ```

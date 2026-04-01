@@ -57,6 +57,7 @@ const masteryData = ref<{ levels: Array<{ level: string; total: number; mastered
 
 // Plateau detection
 const plateau = ref<{ plateau: boolean; message: string | null; suggestions: string[]; currentStreak: number } | null>(null)
+const nextReviewData = ref<{ dueNow: number; nextReview: { at: string; word: string } | null; upcoming24h: number } | null>(null)
 const paceData = ref<{
   target: number
   deadline: string
@@ -97,6 +98,7 @@ onMounted(async () => {
     wordsStore.fetchThemes(),
     loadReviewSchedule(),
     loadReviewRecommendations(),
+    progressApi.getNextReview().then(d => nextReviewData.value = d).catch(() => {}),
     sprintStore.fetchCurrent(),
   ])
 
@@ -172,6 +174,18 @@ function selectTheme(theme: any) {
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+function formatTimeUntil(iso: string): string {
+  const diff = new Date(iso).getTime() - Date.now()
+  if (diff <= 0) return 'now'
+  const minutes = Math.floor(diff / 60000)
+  if (minutes < 60) return `${minutes}m`
+  const hours = Math.floor(minutes / 60)
+  const mins = minutes % 60
+  if (hours < 24) return `${hours}h ${mins}m`
+  const days = Math.floor(hours / 24)
+  return `${days}d ${hours % 24}h`
 }
 </script>
 
@@ -269,6 +283,24 @@ function formatDate(iso: string) {
               <div v-for="s in plateau.suggestions" :key="s" class="text-sm text-amber-100">· {{ s }}</div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Next Review Timer -->
+      <div
+        v-if="nextReviewData && nextReviewData.dueNow === 0 && nextReviewData.nextReview"
+        class="bg-gradient-to-r from-indigo-500 to-purple-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-xl p-4 flex items-center justify-between"
+      >
+        <div class="flex items-center gap-3">
+          <span class="text-3xl">⏰</span>
+          <div>
+            <div class="font-semibold">Next review in ~{{ formatTimeUntil(nextReviewData.nextReview.at) }}</div>
+            <div class="text-sm text-indigo-100">{{ nextReviewData.upcoming24h }} reviews scheduled in the next 24h</div>
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="text-xs text-indigo-200">Next word</div>
+          <div class="text-lg font-bold">{{ nextReviewData.nextReview.word }}</div>
         </div>
       </div>
 

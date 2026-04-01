@@ -323,6 +323,12 @@ export const progressApi = {
     recommendation: string
     priority: 'high' | 'medium' | 'low'
   }>('/progress/review-recommendations'),
+
+  getNextReview: () => request<{
+    dueNow: number
+    nextReview: { at: string; word: string } | null
+    upcoming24h: number
+  }>('/progress/next-review'),
 }
 
 // Lists API

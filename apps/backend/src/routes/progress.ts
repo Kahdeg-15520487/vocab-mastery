@@ -204,6 +204,37 @@ export async function progressRoutes(app: FastifyInstance) {
     return streak;
   });
 
+  // GET /progress/next-review — Get the next upcoming review time
+  app.get('/progress/next-review', async (request, _reply) => {
+    const userId = request.user!.userId;
+
+    const now = new Date();
+
+    // Count due now
+    const dueNow = await prisma.wordProgress.count({
+      where: { userId, nextReview: { lte: now }, status: { not: 'new' } },
+    });
+
+    // Find next upcoming review
+    const nextUp = await prisma.wordProgress.findFirst({
+      where: { userId, nextReview: { gt: now }, status: { not: 'new' } },
+      orderBy: { nextReview: 'asc' },
+      select: { nextReview: true, word: { select: { word: true } } },
+    });
+
+    // Total reviews scheduled in next 24h
+    const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const upcoming24h = await prisma.wordProgress.count({
+      where: { userId, nextReview: { gt: now, lte: in24h }, status: { not: 'new' } },
+    });
+
+    return {
+      dueNow,
+      nextReview: nextUp ? { at: nextUp.nextReview, word: nextUp.word.word } : null,
+      upcoming24h,
+    };
+  });
+
   // POST /progress/streak/freeze — Activate streak freeze (once per 7 days)
   app.post('/progress/streak/freeze', async (request, _reply) => {
     const userId = request.user!.userId;
