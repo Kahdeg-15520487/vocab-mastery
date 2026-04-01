@@ -422,6 +422,17 @@ export const statsApi = {
     overall: { totalWords: number; totalMastered: number; totalSeen: number; masteryPercent: number; coveragePercent: number }
     estimatedLevel: string
   }>('/stats/mastery'),
+
+  generateStudyPlan: () => request<{
+    plan: {
+      assessment: string
+      weeklyGoal: string
+      schedule: Array<{ day: string; focus: string; duration: string; tasks: string[] }>
+      tips: string[]
+      priorityWords: string
+    }
+    generatedAt: string
+  }>('/stats/study-plan', { method: 'POST', body: JSON.stringify({}) }),
 }
 
 // Admin API

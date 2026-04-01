@@ -8,9 +8,9 @@
 - [ ] **#246** **[low]** 📤 Shareable progress card — generate a shareable image/markdown of vocabulary achievements #feature #backend
 - [ ] **#253** 📊 Shareable progress summary card on Dashboard — embeddable stats snapshot #feature #frontend
 - [ ] **#261** **[high]** 🧩 Word Context Examples — show real-world usage snippets from different domains on word detail #feature #frontend
-- [ ] **#264** **[high]** 🎓 Word Mastery Levels — 5-tier mastery badge (New→Learning→Familiar→Mastered→Expert) on browse/word detail #feature #frontend
 - [ ] **#265** **[high]** 📈 Study Plan Generator — LLM generates personalized weekly study plan based on user stats/goals #feature #fullstack
 - [ ] **#266** 📱 PWA Install Prompt — show install banner when PWA criteria met, persist dismissal #feature #fullstack
+- [ ] **#267** **[high]** 📝 Study Plan Generator — LLM generates personalized weekly study plan from user stats #feature #fullstack
 
 ## Completed
 
@@ -132,6 +132,7 @@
 - [x] **#257** 📚 Study List sharing — generate share link, other users can import list #feature #fullstack
 - [x] **#258** **[high]** 📚 Study List sharing — share token, import into another user's account #feature #fullstack
 - [x] **#259** 🔍 Word Etymology — show word roots, prefixes, suffixes breakdown on Word Detail #feature #fullstack
+- [x] **#264** **[high]** 🎓 Word Mastery Levels — 5-tier mastery badge (New→Learning→Familiar→Mastered→Expert) on browse/word detail #feature #frontend
 
 <!-- Raw Data -->
 ```json
@@ -1701,14 +1702,15 @@
     {
       "id": 264,
       "text": "🎓 Word Mastery Levels — 5-tier mastery badge (New→Learning→Familiar→Mastered→Expert) on browse/word detail",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
         "frontend"
       ],
       "createdAt": 1775079873471,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775080061871
     },
     {
       "id": 265,
@@ -1733,8 +1735,20 @@
       ],
       "createdAt": 1775079881127,
       "archived": false
+    },
+    {
+      "id": 267,
+      "text": "📝 Study Plan Generator — LLM generates personalized weekly study plan from user stats",
+      "done": false,
+      "priority": "high",
+      "tags": [
+        "feature",
+        "fullstack"
+      ],
+      "createdAt": 1775080066344,
+      "archived": false
     }
   ],
-  "nextId": 267
+  "nextId": 268
 }
 ```

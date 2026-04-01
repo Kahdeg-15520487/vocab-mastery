@@ -10,6 +10,22 @@ const statsStore = useStatsStore()
 const heatmapData = ref<Array<{ date: string; wordsLearned: number; wordsReviewed: number }>>([])
 const studyTime = ref<{ totalTimeMinutes: number; totalSessions: number; avgSessionMinutes: number; byType: { type: string; totalMinutes: number; sessions: number }[] } | null>(null)
 const masteryData = ref<{ levels: Array<{ level: string; total: number; mastered: number; learning: number; reviewing: number; unseen: number; masteryPercent: number; coveragePercent: number }>; overall: { totalWords: number; totalMastered: number; totalSeen: number; masteryPercent: number; coveragePercent: number }; estimatedLevel: string } | null>(null)
+const studyPlan = ref<any>(null)
+const planLoading = ref(false)
+const planError = ref('')
+
+async function generatePlan() {
+  planLoading.value = true
+  planError.value = ''
+  try {
+    const result = await statsApi.generateStudyPlan()
+    studyPlan.value = result.plan
+  } catch (e: any) {
+    planError.value = e.message || 'Failed to generate plan'
+  } finally {
+    planLoading.value = false
+  }
+}
 
 onMounted(async () => {
   await Promise.all([
@@ -279,6 +295,88 @@ const statsXpNeeded = computed(() => {
             <span class="text-sm text-slate-600 dark:text-slate-400">Overall Coverage</span>
             <span class="text-sm font-semibold text-slate-900 dark:text-white">{{ masteryData.overall.totalMastered }} / {{ masteryData.overall.totalWords }} words ({{ masteryData.overall.masteryPercent }}%)</span>
           </div>
+        </div>
+      </div>
+
+      <!-- AI Study Plan -->
+      <div class="card">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-slate-900 dark:text-white">AI Study Plan</h2>
+          <button
+            @click="generatePlan"
+            :disabled="planLoading"
+            class="px-4 py-2 bg-primary-600 hover:bg-primary-700 disabled:bg-slate-400 text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            {{ planLoading ? 'Generating...' : 'Generate Plan' }}
+          </button>
+        </div>
+
+        <div v-if="planLoading" class="text-center py-8 text-slate-500 dark:text-slate-400">
+          <div class="animate-spin text-2xl mb-2">🤖</div>
+          <p>Analyzing your learning data...</p>
+        </div>
+
+        <div v-else-if="planError" class="text-center py-4 text-red-500">
+          {{ planError }}
+        </div>
+
+        <div v-else-if="studyPlan" class="space-y-4">
+          <!-- Assessment -->
+          <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <p class="text-sm text-blue-800 dark:text-blue-200">{{ studyPlan.assessment }}</p>
+          </div>
+
+          <!-- Weekly Goal -->
+          <div class="flex items-center gap-2">
+            <span class="text-lg">🎯</span>
+            <div>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Weekly Goal</p>
+              <p class="text-sm font-medium text-slate-900 dark:text-white">{{ studyPlan.weeklyGoal }}</p>
+            </div>
+          </div>
+
+          <!-- Schedule -->
+          <div class="space-y-2">
+            <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Weekly Schedule</h3>
+            <div
+              v-for="day in studyPlan.schedule"
+              :key="day.day"
+              class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700"
+            >
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-medium text-sm text-slate-900 dark:text-white">{{ day.day }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ day.duration }}</span>
+              </div>
+              <p class="text-xs text-primary-600 dark:text-primary-400 font-medium">{{ day.focus }}</p>
+              <ul class="mt-1 space-y-0.5">
+                <li v-for="(task, i) in day.tasks" :key="i" class="text-xs text-slate-600 dark:text-slate-400 flex items-start gap-1">
+                  <span class="text-slate-400 mt-0.5">•</span> {{ task }}
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Tips -->
+          <div v-if="studyPlan.tips?.length">
+            <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Tips</h3>
+            <ul class="space-y-1">
+              <li v-for="(tip, i) in studyPlan.tips" :key="i" class="text-sm text-slate-600 dark:text-slate-400 flex items-start gap-2">
+                <span class="text-primary-500">💡</span> {{ tip }}
+              </li>
+            </ul>
+          </div>
+
+          <!-- Priority -->
+          <div v-if="studyPlan.priorityWords" class="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+            <p class="text-xs text-amber-800 dark:text-amber-200">
+              <span class="font-semibold">Focus area:</span> {{ studyPlan.priorityWords }}
+            </p>
+          </div>
+        </div>
+
+        <div v-else class="text-center py-8 text-slate-400 dark:text-slate-500">
+          <p class="text-3xl mb-2">📋</p>
+          <p class="text-sm">Click "Generate Plan" for a personalized AI study plan</p>
         </div>
       </div>
 

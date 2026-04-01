@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import prisma from '../lib/prisma.js';
 import { authenticate } from '../middleware/auth.js';
+import { getLLMConfig, callLLM } from '../lib/llm.js';
 
 export async function statsRoutes(app: FastifyInstance) {
   // All stats routes require authentication
@@ -490,6 +491,76 @@ export async function statsRoutes(app: FastifyInstance) {
       },
       estimatedLevel: computeEstimatedLevel(result),
     };
+  });
+
+  // POST /stats/study-plan — Generate personalized study plan via LLM
+  app.post('/stats/study-plan', async (request, _reply) => {
+    const userId = request.user!.userId;
+
+    try {
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      if (!user) throw { statusCode: 404, message: 'User not found' };
+
+      // CEFR mastery
+      const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+      const masteryByLevel: Record<string, { learned: number; mastered: number; total: number }> = {};
+      for (const level of levels) {
+        const total = await prisma.word.count({ where: { cefrLevel: level } });
+        const learned = await prisma.wordProgress.count({
+          where: { userId, word: { cefrLevel: level }, status: { not: 'NEW' } },
+        });
+        const mastered = await prisma.wordProgress.count({
+          where: { userId, word: { cefrLevel: level }, status: 'MASTERED' },
+        });
+        masteryByLevel[level] = { learned, mastered, total };
+      }
+
+      // Recent activity (last 7 days)
+      const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+      const recentSessions = await prisma.learningSession.findMany({
+        where: { userId, createdAt: { gte: weekAgo } },
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+      });
+      const sessionTypes = recentSessions.reduce((acc, s) => {
+        acc[s.type] = (acc[s.type] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      const streak = await prisma.userStreak.findUnique({ where: { userId } });
+      const currentStreak = streak?.currentStreak || 0;
+      const xp = user.totalXp || 0;
+      const userLevel = user.level || 1;
+
+      const contextData = {
+        username: user.username,
+        level: userLevel,
+        xp,
+        currentStreak,
+        masteryByLevel,
+        recentSessions: { count: recentSessions.length, types: sessionTypes },
+        yearGoal: (user as any).yearWordTarget || null,
+      };
+
+      const config = await getLLMConfig();
+
+      const systemPrompt = `You are an expert language learning advisor. Create a personalized weekly study plan.
+Return ONLY valid JSON:
+{"assessment":"2-3 sentence assessment","weeklyGoal":"specific goal","schedule":[{"day":"Monday","focus":"activity","duration":"X min","tasks":["task1","task2"]}],"tips":["tip1","tip2","tip3"],"priorityWords":"focus area"}
+7 days in schedule. Be specific and actionable.`;
+
+      const userPrompt = 'My learning data:\n' + JSON.stringify(contextData, null, 2) + '\n\nCreate my study plan.';
+
+      const responseText = await callLLM(systemPrompt, userPrompt, config, { disableReasoning: true });
+
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('Invalid LLM response');
+      const plan = JSON.parse(jsonMatch[0].replace(/,\s*\}/g, '}').replace(/,\s*\]/g, ']'));
+      return { plan, generatedAt: new Date().toISOString() };
+    } catch (error: any) {
+      console.error('[study-plan] Error:', error.message);
+      throw { statusCode: 500, message: 'Failed to generate study plan' };
+    }
   });
 }
 
