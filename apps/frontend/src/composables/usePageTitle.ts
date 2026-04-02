@@ -18,6 +18,7 @@ const titles: Record<string, string> = {
   '/word-chain': 'Word Chain',
   '/word-match': 'Word Match',
   '/sentence-builder': 'Sentence Builder',
+  '/bulk-import': 'Bulk Import',
   '/speed-round': 'Speed Round',
   '/recommendations': 'Recommendations',
   '/collections': 'Collections',

@@ -153,6 +153,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/bulk-import',
+    name: 'bulk-import',
+    component: () => import('@/views/BulkImportView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/speed-round',
     name: 'speed-round',
     component: () => import('@/views/SpeedRoundView.vue'),

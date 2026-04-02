@@ -4,7 +4,7 @@
 
 ## Pending
 
-- [ ] **#313** 📋 Bulk Word Import — paste list of words, auto-match to database, add to study list ##feature ##frontend ##backend
+- [ ] **#313** **[high]** 📋 Bulk Word Import — paste list of words, auto-match to database, add to study list ##feature ##frontend ##backend
 
 ## Completed
 
@@ -2096,7 +2096,7 @@
       "id": 313,
       "text": "📋 Bulk Word Import — paste list of words, auto-match to database, add to study list",
       "done": false,
-      "priority": "medium",
+      "priority": "high",
       "tags": [
         "#feature",
         "#frontend",

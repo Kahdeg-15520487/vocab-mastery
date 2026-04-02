@@ -298,6 +298,51 @@ export async function wordRoutes(app: FastifyInstance) {
     return { total, levels, themes, statusCounts };
   });
 
+  // POST /words/bulk-lookup — Match a list of words to database entries
+  app.post('/words/bulk-lookup', { preHandler: authenticate }, async (request, reply) => {
+    const { words, listId } = request.body as { words: string[]; listId?: string };
+    if (!words || !Array.isArray(words) || words.length === 0) {
+      return reply.status(400).send({ error: 'words array is required' });
+    }
+    if (words.length > 500) {
+      return reply.status(400).send({ error: 'Maximum 500 words at a time' });
+    }
+
+    const normalized = words.map(w => w.trim().toLowerCase()).filter(w => w.length > 0);
+    // Deduplicate
+    const unique = [...new Set(normalized)];
+
+    const matched = await prisma.word.findMany({
+      where: {
+        word: { in: unique }
+      },
+      select: { id: true, word: true, definition: true, cefrLevel: true }
+    });
+
+    const matchedWords = new Set(matched.map(w => w.word.toLowerCase()));
+    const unmatched = unique.filter(w => !matchedWords.has(w));
+
+    // Optionally add to list
+    let added = 0, skipped = 0;
+    if (listId) {
+      const userId = request.user!.userId;
+      const list = await prisma.studyList.findUnique({ where: { id: listId } });
+      if (!list) return reply.status(404).send({ error: 'List not found' });
+      if (list.userId !== userId) return reply.status(403).send({ error: 'Not your list' });
+
+      for (const word of matched) {
+        try {
+          await prisma.studyListWord.create({ data: { listId, wordId: word.id } });
+          added++;
+        } catch {
+          skipped++; // Already in list
+        }
+      }
+    }
+
+    return { matched, unmatched, added, skipped };
+  });
+
   app.get('/words/:id', { preHandler: optionalAuth }, async (request, reply) => {
     const { id } = request.params as { id: string };
 

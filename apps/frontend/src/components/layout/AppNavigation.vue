@@ -43,6 +43,7 @@ const collectionItems = [
   { path: '/speaking', label: 'Speaking', icon: '🎙️' },
   { path: '/reading', label: 'Reading', icon: '📚' },
   { path: '/sentence-review', label: 'Sentence Review', icon: '📝' },
+  { path: '/bulk-import', label: 'Bulk Import', icon: '📥' },
 ]
 
 const showPracticeMenu = ref(false)
