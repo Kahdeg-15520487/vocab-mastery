@@ -1900,6 +1900,7 @@
         "frontend"
       ],
       "createdAt": 1775083248588,
+      "completedAt": 1775143897570,
       "archived": false
     },
     {
@@ -2076,6 +2077,7 @@
         "frontend"
       ],
       "createdAt": 1775086564096,
+      "completedAt": 1775143897575,
       "archived": false
     },
     {

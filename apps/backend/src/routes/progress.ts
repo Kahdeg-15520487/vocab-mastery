@@ -836,6 +836,30 @@ export async function progressRoutes(app: FastifyInstance) {
     }
   });
 
+  // GET /progress/batch — Get all user progress for offline sync
+  app.get('/progress/batch', { preHandler: authenticate }, async (request, reply) => {
+    const userId = request.user!.userId;
+    const query = request.query as Record<string, string | undefined>;
+    const limit = Math.min(parseInt(query.limit || '10000', 10), 50000);
+
+    const progress = await prisma.wordProgress.findMany({
+      where: { userId },
+      select: {
+        wordId: true,
+        status: true,
+        repetitions: true,
+        easeFactor: true,
+        interval: true,
+        nextReview: true,
+        totalReviews: true,
+        correctReviews: true,
+      },
+      take: limit,
+    });
+
+    return { words: progress, userId };
+  });
+
   // ============================================
   // POST /api/progress/batch - Batch update
   // ============================================

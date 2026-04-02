@@ -6,6 +6,7 @@ import { useToast } from '@/composables/useToast'
 import { useNotifications } from '@/composables/useNotifications'
 import { useSpeech } from '@/composables/useSpeech'
 import { useBrowserAI } from '@/composables/useBrowserAI'
+import { useOfflineSync } from '@/composables/useOfflineSync'
 import UserAvatar from '@/components/ui/UserAvatar.vue'
 
 const authStore = useAuthStore()
@@ -57,9 +58,47 @@ const backupError = ref('')
 const yearWordTarget = ref(5000)
 const yearTargetDate = ref('2026-12-31')
 const yearGoalSaving = ref(false)
+
+// Offline sync
+const offlineSync = useOfflineSync()
+const offlineSyncing = ref(false)
+const offlineStatus = ref<{ wordsCount: number; progressCount: number; pendingActions: number; lastSync: number | null } | null>(null)
+
+async function loadOfflineStatus() {
+  try {
+    offlineStatus.value = await offlineSync.getSyncStatus()
+  } catch {
+    // IndexedDB may not be available
+  }
+}
+
+async function handleOfflineSync() {
+  offlineSyncing.value = true
+  try {
+    const result = await offlineSync.fullSync()
+    toast.success(`Synced ${result.words.synced} words, ${result.progress.synced} progress records`)
+    await loadOfflineStatus()
+  } catch (e: any) {
+    toast.error(e.message || 'Sync failed')
+  } finally {
+    offlineSyncing.value = false
+  }
+}
+
+async function handleClearOffline() {
+  try {
+    await offlineSync.clearAll()
+    toast.success('Offline data cleared')
+    await loadOfflineStatus()
+  } catch (e: any) {
+    toast.error(e.message || 'Failed to clear')
+  }
+}
+
 const yearPace = ref<any>(null)
 
 onMounted(async () => {
+  loadOfflineStatus()
   await loadGoals()
   loadYearGoal()
 })
@@ -630,6 +669,54 @@ async function handleImport(event: Event) {
           <span v-else>Change Password</span>
         </button>
       </form>
+    </div>
+
+    <!-- Offline Mode -->
+    <div class="card mb-6">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">\u{1F4F1} Offline Mode</h2>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+        Download words and progress for offline study sessions. When you go offline, you can continue learning with cached data.
+      </p>
+
+      <div v-if="offlineStatus" class="grid grid-cols-3 gap-3 mb-4">
+        <div class="text-center p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+          <div class="text-lg font-bold text-slate-900 dark:text-white">{{ offlineStatus.wordsCount }}</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">Words Cached</div>
+        </div>
+        <div class="text-center p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+          <div class="text-lg font-bold text-slate-900 dark:text-white">{{ offlineStatus.progressCount }}</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">Progress Records</div>
+        </div>
+        <div class="text-center p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+          <div class="text-lg font-bold" :class="offlineStatus.pendingActions > 0 ? 'text-amber-600' : 'text-green-600'">{{ offlineStatus.pendingActions }}</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">Pending Sync</div>
+        </div>
+      </div>
+
+      <div v-if="offlineStatus?.lastSync" class="text-xs text-slate-500 dark:text-slate-400 mb-3">
+        Last synced: {{ new Date(offlineStatus.lastSync).toLocaleString() }}
+      </div>
+
+      <div class="flex gap-3 flex-wrap">
+        <button
+          @click="handleOfflineSync"
+          :disabled="offlineSyncing || !offlineSync.isOnline"
+          class="btn btn-primary"
+        >
+          {{ offlineSyncing ? 'Syncing...' : 'Sync Now' }}
+        </button>
+        <button
+          v-if="offlineStatus && (offlineStatus.wordsCount > 0 || offlineStatus.progressCount > 0)"
+          @click="handleClearOffline"
+          class="btn btn-secondary"
+        >
+          Clear Cache
+        </button>
+      </div>
+
+      <p v-if="!offlineSync.isOnline" class="text-xs text-amber-600 dark:text-amber-400 mt-2">
+        You are currently offline. Connect to the internet to sync.
+      </p>
     </div>
 
     <!-- Data Backup -->

@@ -34,7 +34,35 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json}'],
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: [
+          {
+            urlPattern: /\/api\/words\//i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'words-cache',
+              expiration: {
+                maxEntries: 500,
+                maxAgeSeconds: 24 * 60 * 60 // 24 hours
+              },
+              cacheableResponse: {
+                statuses: [200]
+              }
+            }
+          },
+          {
+            urlPattern: /\/api\/progress/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'progress-cache',
+              expiration: {
+                maxEntries: 200,
+                maxAgeSeconds: 60 * 60 // 1 hour
+              },
+              networkTimeoutSeconds: 3
+            }
+          },
           {
             urlPattern: /\/api\/.*/i,
             handler: 'NetworkFirst',
@@ -43,7 +71,8 @@ export default defineConfig({
               expiration: {
                 maxEntries: 100,
                 maxAgeSeconds: 60 * 60 // 1 hour
-              }
+              },
+              networkTimeoutSeconds: 3
             }
           },
           {
