@@ -11,7 +11,7 @@
 - [x] **#308** **[high]** 🔄 Smart Session Resume — detect incomplete sessions, offer to resume #feature #backend #frontend #ux
 - [x] **#309** **[high]** 🎯 Adaptive Learning Path — suggest CEFR focus level on dashboard based on mastery #feature #frontend #ux
 - [ ] **#310** 📝 Word of the Day push — daily browser notification with a random word #feature #frontend #ux
-- [ ] **#311** **[high]** 🎧 Listening Comprehension — hear word audio, type what you heard #feature #frontend #learning
+- [x] **#311** **[high]** 🎧 Listening Comprehension — hear word audio, type what you heard #feature #frontend #learning
 
 ## Completed
 

@@ -128,6 +128,7 @@ const encounterLoading = ref(false)
 const encounterCount = ref(0)
 const encounterList = ref<{ id: string; source: string; note: string | null; createdAt: string }[]>([])
 const wordActivity = ref<Array<{ type: string; date: string; response: string | null; responseTime: number | null; correct: boolean }>>([])
+const wordStreak = ref(0)
 
 async function loadEncounters() {
   if (!word.value) return
@@ -142,7 +143,10 @@ async function loadEncounters() {
 watch(word, (w) => {
   if (w) {
     loadEncounters()
-    wordsApi.getWordActivity(w.id).then(d => wordActivity.value = d.activity).catch(() => {})
+    wordsApi.getWordActivity(w.id).then(d => {
+      wordActivity.value = d.activity
+      wordStreak.value = d.streak || 0
+    }).catch(() => {})
   }
 })
 
@@ -754,6 +758,21 @@ n            <span class="text-slate-500 dark:text-slate-400">Origin:</span>
             >
               {{ w.word }}
             </router-link>
+          </div>
+        </div>
+      </div>
+
+      <!-- Word Streak -->
+      <div v-if="wordStreak > 0" class="card">
+        <div class="flex items-center gap-3">
+          <span class="text-3xl">&#x1F525;</span>
+          <div>
+            <div class="text-2xl font-bold" :class="wordStreak >= 10 ? 'text-orange-600 dark:text-orange-400' : wordStreak >= 5 ? 'text-amber-600 dark:text-amber-400' : 'text-green-600 dark:text-green-400'">
+              {{ wordStreak }}x Streak
+            </div>
+            <p class="text-sm text-slate-500 dark:text-slate-400">
+              {{ wordStreak >= 10 ? 'Incredible! This word is practically mastered!' : wordStreak >= 5 ? 'Great recall! Keep it up!' : 'Consecutive correct reviews' }}
+            </p>
           </div>
         </div>
       </div>

@@ -1029,7 +1029,17 @@ Word 2: "${word2}"${w2 ? ` — ${w2.definition}` : ''}${w2?.partOfSpeech ? ` (${
       },
     });
 
-    return { activity, progress };
+    // Compute word streak: consecutive correct responses from most recent
+    let streak = 0;
+    for (const i of interactions) {
+      if (i.response === 'easy' || i.response === 'good' || i.response === 'correct') {
+        streak++;
+      } else {
+        break;
+      }
+    }
+
+    return { activity, progress, streak };
   });
 
   // DELETE /words/:wordId/encounters/:encounterId — Delete an encounter

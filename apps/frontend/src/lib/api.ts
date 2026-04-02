@@ -248,6 +248,7 @@ export const wordsApi = {
   getWordActivity: (wordId: string) => request<{
     activity: Array<{ type: string; date: string; response: string | null; responseTime: number | null; correct: boolean }>
     progress: { status: string; repetitions: number; easeFactor: number; interval: number; totalReviews: number; correctReviews: number; nextReview: string; lastReview: string; createdAt: string } | null
+    streak: number
   }>(`/words/${wordId}/activity`),
 
   deleteEncounter: (wordId: string, encounterId: string) => request<{ success: boolean }>(`/words/${wordId}/encounters/${encounterId}`, {
