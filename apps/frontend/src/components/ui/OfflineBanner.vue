@@ -7,6 +7,27 @@ const isOffline = ref(!navigator.onLine)
 const wasOffline = ref(false)
 const syncing = ref(false)
 const wordsCached = ref(0)
+let syncInterval: ReturnType<typeof setInterval> | null = null
+
+// Periodic background sync — refresh cache every 30 minutes when online
+const SYNC_INTERVAL = 30 * 60 * 1000
+
+async function backgroundSync() {
+  if (!navigator.onLine || syncing.value) return
+  try {
+    const { useOfflineSync } = await import('@/composables/useOfflineSync')
+    const sync = useOfflineSync()
+    const status = await sync.getSyncStatus()
+    // Only sync if there are cached words (user has used offline mode)
+    if (status.wordsCount > 0) {
+      syncing.value = true
+      await sync.syncProgress()
+      syncing.value = false
+    }
+  } catch {
+    syncing.value = false
+  }
+}
 
 async function update() {
   const nowOnline = navigator.onLine
@@ -56,11 +77,14 @@ onMounted(() => {
   window.addEventListener('online', update)
   window.addEventListener('offline', update)
   if (isOffline.value) loadCachedCount()
+  // Start periodic background sync
+  syncInterval = setInterval(backgroundSync, SYNC_INTERVAL)
 })
 
 onUnmounted(() => {
   window.removeEventListener('online', update)
   window.removeEventListener('offline', update)
+  if (syncInterval) clearInterval(syncInterval)
 })
 </script>
 

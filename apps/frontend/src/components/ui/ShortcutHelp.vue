@@ -31,6 +31,7 @@ const groups: ShortcutGroup[] = [
     shortcuts: [
       { keys: 'Ctrl+K', description: 'Open word search' },
       { keys: '/', description: 'Open word search' },
+      { keys: 'Ctrl+D', description: 'Toggle dark mode' },
       { keys: '?', description: 'Show keyboard shortcuts' },
       { keys: 'Esc', description: 'Close modal / dialog' },
     ],

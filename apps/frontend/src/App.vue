@@ -9,13 +9,25 @@ import GlobalSearch from '@/components/ui/GlobalSearch.vue'
 import ShortcutHelp from '@/components/ui/ShortcutHelp.vue'
 import { useAuthStore } from '@/stores/auth'
 import { usePageTitle } from '@/composables/usePageTitle'
+import { useTheme } from '@/composables/useTheme'
 
 const authStore = useAuthStore()
+const theme = useTheme()
 usePageTitle()
+
+// Global keyboard shortcuts
+function handleGlobalKeydown(e: KeyboardEvent) {
+  // Ctrl+D = toggle dark mode
+  if (e.ctrlKey && e.key === 'd') {
+    e.preventDefault()
+    theme.toggleTheme()
+  }
+}
 
 // Fetch user on app mount
 onMounted(async () => {
   await authStore.fetchUser()
+  document.addEventListener('keydown', handleGlobalKeydown)
 })
 </script>
 
