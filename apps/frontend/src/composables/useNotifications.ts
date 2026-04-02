@@ -55,19 +55,32 @@ export function useNotifications() {
     }
   }
 
-  // Send daily reminder notification
-  function sendDailyReminder(wordsDue: number) {
+  // Send daily reminder notification with word of the day
+  async function sendDailyReminder(wordsDue: number) {
+    let body = ''
     if (wordsDue > 0) {
-      send('📚 Vocab Master — Time to Review!', {
-        body: `You have ${wordsDue} word${wordsDue !== 1 ? 's' : ''} waiting for review. Keep your streak alive!`,
-        tag: 'daily-reminder',
-      })
+      body = `You have ${wordsDue} word${wordsDue !== 1 ? 's' : ''} waiting for review. Keep your streak alive!`
     } else {
-      send('📚 Vocab Master — Daily Practice', {
-        body: 'Start your daily vocabulary practice to maintain your streak!',
-        tag: 'daily-reminder',
-      })
+      body = 'Start your daily vocabulary practice to maintain your streak!'
     }
+
+    // Try to fetch word of the day
+    try {
+      const res = await fetch('/api/words/daily')
+      if (res.ok) {
+        const data = await res.json()
+        if (data?.word) {
+          body += `\n\n📖 Word of the Day: ${data.word}` + (data.cefrLevel ? ` (${data.cefrLevel})` : '')
+        }
+      }
+    } catch {
+      // Ignore — word of the day is optional
+    }
+
+    send('Vocab Master — Time to Review!', {
+      body,
+      tag: 'daily-reminder',
+    })
   }
 
   // Check if it's time for the daily reminder

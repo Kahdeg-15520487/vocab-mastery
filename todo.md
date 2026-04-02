@@ -5,12 +5,12 @@
 ## Pending
 
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
-- [ ] **#283** 🔔 Review Reminders — configurable time-based reminders (morning/evening) with browser notifications #feature #frontend
-- [ ] **#303** 📊 Word Streak Tracker — show per-word review streak on Word Detail #feature #frontend
-- [ ] **#305** 📖 Contextual Learning Mode — paste article, extract unknown words, learn them in context #feature #backend #frontend #learning
+- [x] **#283** 🔔 Review Reminders — configurable time-based reminders (morning/evening) with browser notifications #feature #frontend
+- [x] **#303** 📊 Word Streak Tracker — show per-word review streak on Word Detail #feature #frontend
+- [x] **#305** 📖 Contextual Learning Mode — paste article, extract unknown words, learn them in context #feature #backend #frontend #learning
 - [x] **#308** **[high]** 🔄 Smart Session Resume — detect incomplete sessions, offer to resume #feature #backend #frontend #ux
 - [x] **#309** **[high]** 🎯 Adaptive Learning Path — suggest CEFR focus level on dashboard based on mastery #feature #frontend #ux
-- [ ] **#310** 📝 Word of the Day push — daily browser notification with a random word #feature #frontend #ux
+- [x] **#310** 📝 Word of the Day push — daily browser notification with a random word #feature #frontend #ux
 - [x] **#311** **[high]** 🎧 Listening Comprehension — hear word audio, type what you heard #feature #frontend #learning
 
 ## Completed
