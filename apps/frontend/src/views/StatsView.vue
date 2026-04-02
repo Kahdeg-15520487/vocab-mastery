@@ -50,6 +50,7 @@ const weeklyInsights = ref<{ summary: string; strengths: string[]; tips: string[
 const insightsLoading = ref(false)
 const studyTime = ref<{ totalTimeMinutes: number; totalSessions: number; avgSessionMinutes: number; byType: { type: string; totalMinutes: number; sessions: number }[] } | null>(null)
 const studyPatterns = ref<{ byDayOfWeek: { day: string; dayIndex: number; sessions: number; totalMinutes: number }[]; byHour: { hour: number; sessions: number; totalMinutes: number }[] } | null>(null)
+const growthData = ref<{ growth: { date: string; learned: number; reviewed: number }[] } | null>(null)
 const masteryData = ref<{ levels: Array<{ level: string; total: number; mastered: number; learning: number; reviewing: number; unseen: number; masteryPercent: number; coveragePercent: number }>; overall: { totalWords: number; totalMastered: number; totalSeen: number; masteryPercent: number; coveragePercent: number }; estimatedLevel: string } | null>(null)
 const studyPlan = ref<any>(null)
 const planLoading = ref(false)
@@ -79,6 +80,7 @@ onMounted(async () => {
     statsApi.getStudyTime().then(d => studyTime.value = d).catch(() => {}),
     statsApi.getMastery().then(d => masteryData.value = d).catch(() => {}),
     statsApi.getStudyPatterns().then(d => studyPatterns.value = d).catch(() => {}),
+    statsApi.getGrowth().then(d => growthData.value = d).catch(() => {}),
   ])
 })
 
@@ -112,6 +114,20 @@ const heatmapColor = (total: number) => {
 }
 
 const totalStudyHours = computed(() => studyTime.value ? Math.round(studyTime.value.totalTimeMinutes / 60 * 10) / 10 : 0)
+
+const growthPoints = computed(() => {
+  if (!growthData.value || growthData.value.growth.length < 2) return null
+  const g = growthData.value.growth
+  const maxLearned = g[g.length - 1].learned || 1
+  const maxReviewed = g[g.length - 1].reviewed || 1
+  return {
+    learned: g.map((p, i) => `${i * 8},${100 - (p.learned / maxLearned) * 90}`).join(' '),
+    reviewed: g.map((p, i) => `${i * 8},${100 - (p.reviewed / maxReviewed) * 90}`).join(' '),
+    width: g.length * 8,
+    firstDate: g[0]?.date?.slice(5),
+    lastDate: g[g.length - 1]?.date?.slice(5),
+  }
+})
 
 const sessionTypeEmoji: Record<string, string> = {
   learn: '\u{1F4DA}',
@@ -674,6 +690,38 @@ const statsXpNeeded = computed(() => {
             <span class="text-[9px] text-slate-400">6pm</span>
             <span class="text-[9px] text-slate-400">11pm</span>
           </div>
+        </div>
+      </div>
+
+      <!-- Vocabulary Growth -->
+      <div v-if="growthPoints" class="card">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">📈 Vocabulary Growth</h2>
+        <div class="relative h-40">
+          <svg class="w-full h-full" :viewBox="`0 0 ${growthPoints.width} 100`" preserveAspectRatio="none">
+            <polyline
+              :points="growthPoints.learned"
+              fill="none"
+              stroke="#6366f1"
+              stroke-width="2"
+              stroke-linejoin="round"
+            />
+            <polyline
+              :points="growthPoints.reviewed"
+              fill="none"
+              stroke="#10b981"
+              stroke-width="2"
+              stroke-linejoin="round"
+              stroke-dasharray="4,4"
+            />
+          </svg>
+          <div class="absolute bottom-0 left-0 right-0 flex justify-between">
+            <span class="text-[9px] text-slate-400">{{ growthPoints.firstDate }}</span>
+            <span class="text-[9px] text-slate-400">{{ growthPoints.lastDate }}</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-4 mt-3 text-xs">
+          <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-indigo-500 inline-block rounded"></span> Learned</span>
+          <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-emerald-500 inline-block rounded" style="border-bottom: 1px dashed"></span> Reviewed</span>
         </div>
       </div>
     </div>

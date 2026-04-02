@@ -477,6 +477,40 @@ export async function statsRoutes(app: FastifyInstance) {
     };
   });
 
+  // GET /stats/growth — Cumulative vocabulary growth over time
+  app.get('/stats/growth', async (request, reply) => {
+    const userId = request.user!.userId;
+
+    // Get daily cumulative word counts from word progress
+    const growth = await prisma.$queryRaw<Array<{ date: string; learned: bigint; reviewed: bigint }>>`
+      SELECT
+        DATE(wp.updated_at) as date,
+        COUNT(CASE WHEN wp.status != 'new' THEN 1 END) as learned,
+        COUNT(CASE WHEN wp.status IN ('reviewing', 'mastered') THEN 1 END) as reviewed
+      FROM word_progress wp
+      WHERE wp.user_id = ${userId}
+        AND wp.status != 'new'
+        AND wp.updated_at >= NOW() - INTERVAL '90 days'
+      GROUP BY DATE(wp.updated_at)
+      ORDER BY date ASC
+    `;
+
+    // Build cumulative totals
+    let cumulativeLearned = 0;
+    let cumulativeReviewed = 0;
+    const cumulative = growth.map(r => {
+      cumulativeLearned += Number(r.learned);
+      cumulativeReviewed += Number(r.reviewed);
+      return {
+        date: r.date,
+        learned: cumulativeLearned,
+        reviewed: cumulativeReviewed,
+      };
+    });
+
+    return { growth: cumulative };
+  });
+
   // ============================================
   // GET /stats/mastery — Per-CEFR-level mastery with goal tracking
   // ============================================
