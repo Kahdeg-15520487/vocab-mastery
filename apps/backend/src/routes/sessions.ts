@@ -162,7 +162,7 @@ export async function sessionRoutes(app: FastifyInstance) {
           progress: { where: { userId } },
         },
         take: wordCount,
-        orderBy: { frequency: 'asc' },
+        orderBy: [{ cefrLevel: 'asc' }],
       });
 
       if (unseenWords.length >= wordCount) {
@@ -187,7 +187,7 @@ export async function sessionRoutes(app: FastifyInstance) {
             progress: { where: { userId } },
           },
           take: remaining,
-          orderBy: { frequency: 'asc' },
+          orderBy: [{ cefrLevel: 'asc' }],
         });
         words = [...unseenWords, ...learningWords];
       }
@@ -208,6 +208,27 @@ export async function sessionRoutes(app: FastifyInstance) {
     if (words.length === 0) {
       return reply.status(400).send({ error: 'No words available for this session' });
     }
+
+    // Shuffle words within each CEFR level for variety
+    // (words are pre-sorted by CEFR level via orderBy)
+    const shuffled = [...words];
+    // Group by level, shuffle within group, then flatten
+    const byLevel = new Map<string, typeof words>();
+    for (const w of shuffled) {
+      const level = w.cefrLevel || 'A1';
+      if (!byLevel.has(level)) byLevel.set(level, []);
+      byLevel.get(level)!.push(w);
+    }
+    const result: typeof words = [];
+    for (const [, group] of byLevel) {
+      // Fisher-Yates shuffle
+      for (let i = group.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [group[i], group[j]] = [group[j], group[i]];
+      }
+      result.push(...group);
+    }
+    words = result;
 
     // Create session with userId
     const session = await prisma.learningSession.create({
@@ -468,7 +489,7 @@ export async function sessionRoutes(app: FastifyInstance) {
         progress: { some: { userId, status: { not: 'new' } } },
       },
       take: questionCount,
-      orderBy: { frequency: 'asc' },
+      orderBy: [{ cefrLevel: 'asc' }],
     });
 
     // If not enough, fill with any words (randomized)
@@ -477,7 +498,7 @@ export async function sessionRoutes(app: FastifyInstance) {
       const moreWords = await prisma.word.findMany({
         where: { ...where, id: { notIn: existingIds } },
         take: questionCount - quizWords.length,
-        orderBy: { frequency: 'asc' },
+        orderBy: [{ cefrLevel: 'asc' }],
       });
       quizWords = [...quizWords, ...moreWords];
     }
@@ -818,7 +839,7 @@ export async function sessionRoutes(app: FastifyInstance) {
         progress: { some: { userId, status: { in: ['learning', 'reviewing'] } } },
       },
       take: wordCount,
-      orderBy: { frequency: 'asc' },
+      orderBy: [{ cefrLevel: 'asc' }],
     });
 
     // Fill with new words if not enough
@@ -827,7 +848,7 @@ export async function sessionRoutes(app: FastifyInstance) {
       const moreWords = await prisma.word.findMany({
         where: { ...where, id: { notIn: existingIds } },
         take: wordCount - spellWords.length,
-        orderBy: { frequency: 'asc' },
+        orderBy: [{ cefrLevel: 'asc' }],
       });
       spellWords = [...spellWords, ...moreWords];
     }
@@ -1008,7 +1029,7 @@ export async function sessionRoutes(app: FastifyInstance) {
         NOT: { examples: { equals: [] } },
       },
       take: wordCount * 3, // over-fetch since some may not have good examples
-      orderBy: { frequency: 'asc' },
+      orderBy: [{ cefrLevel: 'asc' }],
     });
 
     // Filter to words with actual non-empty examples
