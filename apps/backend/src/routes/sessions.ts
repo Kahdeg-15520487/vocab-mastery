@@ -1610,6 +1610,35 @@ export async function sessionRoutes(app: FastifyInstance) {
     };
   });
 
+  // GET /sessions/export — Export session history as CSV
+  app.get('/sessions/export', async (request, reply) => {
+    const userId = request.user!.userId;
+
+    const sessions = await prisma.learningSession.findMany({
+      where: { userId, completedAt: { not: null } },
+      orderBy: { completedAt: 'desc' },
+      include: { sessionWords: true },
+    });
+
+    const header = 'Date,Type,Words,Correct,Incorrect,Accuracy%,Duration(s),Sprint ID';
+    const rows = sessions.map(s => {
+      const accuracy = s.totalCorrect + s.totalIncorrect > 0
+        ? Math.round((s.totalCorrect / (s.totalCorrect + s.totalIncorrect)) * 100)
+        : 0;
+      const duration = s.completedAt
+        ? Math.round((new Date(s.completedAt!).getTime() - new Date(s.startedAt).getTime()) / 1000)
+        : 0;
+      const date = new Date(s.completedAt!).toISOString().split('T')[0];
+      return `${date},${s.type},${s.sessionWords.length},${s.totalCorrect},${s.totalIncorrect},${accuracy},${duration},${s.sprintId || ''}`;
+    });
+
+    const csv = [header, ...rows].join('\n');
+
+    reply.header('Content-Type', 'text/csv');
+    reply.header('Content-Disposition', 'attachment; filename="vocab-sessions.csv"');
+    return csv;
+  });
+
   // Get session by ID (only own sessions)
   app.get('/sessions/:id', async (request, reply) => {
     const userId = request.user!.userId;

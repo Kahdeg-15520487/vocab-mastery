@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import type { Word } from '@/types'
 import { useSpeech } from '@/composables/useSpeech'
+import { useStudyPrefs } from '@/composables/useStudyPrefs'
 import LevelBadge from './LevelBadge.vue'
 
 const props = defineProps<{
@@ -14,6 +15,7 @@ const emit = defineEmits<{
 }>()
 
 const { playAudio, isSpeaking } = useSpeech()
+const { autoPlayAudio } = useStudyPrefs()
 const showNotes = ref(false)
 const notesText = ref('')
 const notesSaving = ref(false)
@@ -25,6 +27,10 @@ const isFlipped = ref(false)
 // Load notes from word progress
 watch(() => props.word, (w) => {
   notesText.value = (w as any).progress?.notes || ''
+  // Auto-play pronunciation when new word appears
+  if (autoPlayAudio.value) {
+    setTimeout(() => playAudio(w.word, w.audioUs || null, 'us'), 300)
+  }
 }, { immediate: true })
 
 async function saveNotes() {

@@ -92,6 +92,25 @@ async function loadSessions() {
   }
 }
 
+async function exportCSV() {
+  try {
+    const token = sessionStorage.getItem('accessToken')
+    const response = await fetch('/api/sessions/export', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (!response.ok) throw new Error('Export failed')
+    const blob = await response.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `vocab-sessions-${new Date().toISOString().split('T')[0]}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch {
+    // Silently fail
+  }
+}
+
 onMounted(() => {
   loadSessions()
 })
@@ -107,6 +126,13 @@ onMounted(() => {
           {{ total }} completed session{{ total !== 1 ? 's' : '' }}
         </p>
       </div>
+      <button
+        @click="exportCSV"
+        :disabled="sessions.length === 0"
+        class="btn btn-secondary text-sm"
+      >
+        📥 Export CSV
+      </button>
     </div>
 
     <!-- Filters -->
