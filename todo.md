@@ -1538,7 +1538,7 @@
     {
       "id": 244,
       "text": "📱 PWA offline mode — cache word data for offline study sessions",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
@@ -1546,6 +1546,7 @@
         "backend"
       ],
       "createdAt": 1775075006292,
+      "completedAt": 1775144499909,
       "archived": false
     },
     {
@@ -1893,7 +1894,7 @@
     {
       "id": 283,
       "text": "🔔 Review Reminders — configurable time-based reminders (morning/evening) with browser notifications",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
@@ -2070,7 +2071,7 @@
     {
       "id": 303,
       "text": "📊 Word Streak Tracker — show per-word review streak on Word Detail",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
@@ -2097,7 +2098,7 @@
     {
       "id": 305,
       "text": "📖 Contextual Learning Mode — learn words from a user-pasted article/paragraph",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
@@ -2105,6 +2106,7 @@
         "backend"
       ],
       "createdAt": 1775086570257,
+      "completedAt": 1775144499915,
       "archived": false
     },
     {
@@ -2124,7 +2126,7 @@
     {
       "id": 307,
       "text": "📖 Contextual Learning Mode — paste article, extract unknown words, learn them in context",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
@@ -2133,12 +2135,13 @@
         "learning"
       ],
       "createdAt": 1775086696786,
+      "completedAt": 1775144499916,
       "archived": false
     },
     {
       "id": 308,
       "text": "🔄 Smart Session Resume — detect incomplete sessions, offer to resume",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
@@ -2153,7 +2156,7 @@
     {
       "id": 309,
       "text": "🎯 Adaptive Learning Path — suggest CEFR focus level on dashboard based on mastery",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
@@ -2161,12 +2164,13 @@
         "ux"
       ],
       "createdAt": 1775086902557,
+      "completedAt": 1775144499916,
       "archived": false
     },
     {
       "id": 310,
       "text": "📝 Word of the Day push — daily browser notification with a random word",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "feature",
@@ -2174,12 +2178,13 @@
         "ux"
       ],
       "createdAt": 1775087020123,
+      "completedAt": 1775144499917,
       "archived": false
     },
     {
       "id": 311,
       "text": "🎧 Listening Comprehension — hear word audio, type what you heard",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "feature",
@@ -2187,6 +2192,7 @@
         "learning"
       ],
       "createdAt": 1775087025442,
+      "completedAt": 1775144499917,
       "archived": false
     }
   ],

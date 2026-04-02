@@ -1255,9 +1255,8 @@ export async function sessionRoutes(app: FastifyInstance) {
         themeId: themeId || null,
         sprintId: sprintId || null,
         sessionWords: {
-          create: words.map((w, index) => ({
+          create: words.map((w) => ({
             wordId: w.id,
-            wordIndex: index,
           })),
         },
       },
