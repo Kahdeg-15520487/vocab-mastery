@@ -256,6 +256,8 @@ function formatTimeUntil(iso: string): string {
 
 <template>
   <div class="space-y-6">
+    <!-- Onboarding Modal -->
+    <WelcomeModal v-if="showOnboarding" :user-name="authStore.user?.username || 'there'" @close="markComplete" />
     <!-- Loading State -->
     <div v-if="loading && !dashboard" class="space-y-6">
       <!-- Skeleton Welcome -->
