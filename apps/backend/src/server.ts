@@ -54,8 +54,21 @@ async function start() {
     timeWindow: process.env.RATE_LIMIT_WINDOW || '1 minute',
   });
 
-  // Health check (public)
-  app.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }));
+  // Health check (public) — includes DB connectivity
+  app.get('/health', async () => {
+    let db = 'ok';
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+    } catch {
+      db = 'error';
+    }
+    return {
+      status: db === 'ok' ? 'ok' : 'degraded',
+      database: db,
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+    };
+  });
 
   // Audio files — serve MP3s from dictionary/audio directory
   const AUDIO_BASE = path.resolve(process.env.AUDIO_DIR || path.join(process.cwd(), '..', '..', 'dictionary', 'audio'));

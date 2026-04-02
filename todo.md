@@ -5,7 +5,6 @@
 ## Pending
 
 - [ ] **#314** 🖨️ Printable Vocabulary Worksheet — generate printable word exercises (matching, fill-blank, word search) ##feature ##frontend
-- [ ] **#315** 📱 Swipe gestures for flashcards on mobile (swipe left=hard, right=easy, up=flip) ##feature ##frontend ##mobile
 
 ## Completed
 
@@ -159,6 +158,7 @@
 - [x] **#306** 🕐 Session Timer — track time spent per study session, show on session history #feature #backend #frontend
 - [x] **#312** 🃏 Word Matching Game — match words to definitions in a memory-style game ##feature ##frontend ##game
 - [x] **#313** **[high]** 📋 Bulk Word Import — paste list of words, auto-match to database, add to study list ##feature ##frontend ##backend
+- [x] **#315** 📱 Swipe gestures for flashcards on mobile (swipe left=hard, right=easy, up=flip) ##feature ##frontend ##mobile
 
 <!-- Raw Data -->
 ```json
@@ -2123,7 +2123,7 @@
     {
       "id": 315,
       "text": "📱 Swipe gestures for flashcards on mobile (swipe left=hard, right=easy, up=flip)",
-      "done": false,
+      "done": true,
       "priority": "medium",
       "tags": [
         "#feature",
@@ -2131,7 +2131,8 @@
         "#mobile"
       ],
       "createdAt": 1775164316022,
-      "archived": false
+      "archived": false,
+      "completedAt": 1775164378887
     }
   ],
   "nextId": 316

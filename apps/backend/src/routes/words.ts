@@ -3,6 +3,10 @@ import prisma from '../lib/prisma.js';
 import { optionalAuth, authenticate } from '../middleware/auth.js';
 import { callLLM, getLLMConfig } from '../lib/llm.js';
 
+// Simple in-memory cache for word counts (refreshed every 5 minutes)
+let countsCache: { data: any; expiry: number } | null = null;
+const COUNTS_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 export async function wordRoutes(app: FastifyInstance) {
   // Get all words with filters (requires auth)
   app.get('/words', { preHandler: authenticate }, async (request, _reply) => {
@@ -245,36 +249,43 @@ export async function wordRoutes(app: FastifyInstance) {
   app.get('/words/counts', { preHandler: optionalAuth }, async (request) => {
     const userId = (request as any).user?.userId;
 
-    const [levelCounts, themeCounts, total, unthemedCount] = await Promise.all([
-      prisma.word.groupBy({
-        by: ['cefrLevel'],
-        _count: { id: true },
-      }),
-      prisma.wordTheme.groupBy({
-        by: ['themeId'],
-        _count: { wordId: true },
-      }),
-      prisma.word.count(),
-      prisma.word.count({
-        where: { themes: { none: {} } },
-      }),
-    ]);
+    // Check cache for global counts (non-user-specific)
+    let cached = countsCache && countsCache.expiry > Date.now() ? countsCache.data : null;
+    if (!cached) {
+      const [levelCounts, themeCounts, total, unthemedCount] = await Promise.all([
+        prisma.word.groupBy({
+          by: ['cefrLevel'],
+          _count: { id: true },
+        }),
+        prisma.wordTheme.groupBy({
+          by: ['themeId'],
+          _count: { wordId: true },
+        }),
+        prisma.word.count(),
+        prisma.word.count({
+          where: { themes: { none: {} } },
+        }),
+      ]);
 
-    const levels: Record<string, number> = {};
-    for (const row of levelCounts) {
-      if (row.cefrLevel) levels[row.cefrLevel] = row._count.id;
+      const levels: Record<string, number> = {};
+      for (const row of levelCounts) {
+        if (row.cefrLevel) levels[row.cefrLevel] = row._count.id;
+      }
+
+      const dbThemes = await prisma.theme.findMany({ select: { id: true, slug: true } });
+      const themeSlugMap = Object.fromEntries(dbThemes.map(t => [t.id, t.slug]));
+
+      const themes: Record<string, number> = { none: unthemedCount };
+      for (const row of themeCounts) {
+        const slug = themeSlugMap[row.themeId];
+        if (slug) themes[slug] = row._count.wordId;
+      }
+
+      cached = { total, levels, themes };
+      countsCache = { data: cached, expiry: Date.now() + COUNTS_CACHE_TTL };
     }
 
-    const dbThemes = await prisma.theme.findMany({ select: { id: true, slug: true } });
-    const themeSlugMap = Object.fromEntries(dbThemes.map(t => [t.id, t.slug]));
-
-    const themes: Record<string, number> = { none: unthemedCount };
-    for (const row of themeCounts) {
-      const slug = themeSlugMap[row.themeId];
-      if (slug) themes[slug] = row._count.wordId;
-    }
-
-    // Add status counts for authenticated users
+    // Add status counts for authenticated users (user-specific, always fresh)
     let statusCounts: Record<string, number> | undefined;
     if (userId) {
       const progressByStatus = await prisma.wordProgress.groupBy({
@@ -288,14 +299,14 @@ export async function wordRoutes(app: FastifyInstance) {
       }
       const learned = (statusMap['learning'] || 0) + (statusMap['reviewing'] || 0) + (statusMap['mastered'] || 0);
       statusCounts = {
-        new: total - learned,
+        new: cached.total - learned,
         learning: statusMap['learning'] || 0,
         reviewing: statusMap['reviewing'] || 0,
         mastered: statusMap['mastered'] || 0,
       };
     }
 
-    return { total, levels, themes, statusCounts };
+    return { total: cached.total, levels: cached.levels, themes: cached.themes, statusCounts };
   });
 
   // POST /words/bulk-lookup — Match a list of words to database entries

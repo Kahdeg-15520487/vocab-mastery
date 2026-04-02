@@ -27,6 +27,7 @@ test.describe('Page navigation — smoke tests', () => {
     { path: '/word-chain', name: 'Word Chain', regex: /chain/i },
     { path: '/word-match', name: 'Word Match', regex: /match/i },
     { path: '/sentence-builder', name: 'Sentence Builder', regex: /sentence builder/i },
+    { path: '/bulk-import', name: 'Bulk Import', checkContent: true },
     { path: '/speed-round', name: 'Speed Round', checkContent: true },
     { path: '/recommendations', name: 'Recommendations', checkContent: true },
     { path: '/collections', name: 'Collections', checkContent: true },
