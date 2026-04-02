@@ -25,6 +25,7 @@ test.describe('Page navigation — smoke tests', () => {
     { path: '/vocab-size', name: 'Vocab Size', checkContent: true },
     { path: '/daily-challenge', name: 'Daily Challenge', regex: /challenge/i },
     { path: '/word-chain', name: 'Word Chain', regex: /chain/i },
+    { path: '/word-match', name: 'Word Match', regex: /match/i },
     { path: '/speed-round', name: 'Speed Round', checkContent: true },
     { path: '/recommendations', name: 'Recommendations', checkContent: true },
     { path: '/collections', name: 'Collections', checkContent: true },
