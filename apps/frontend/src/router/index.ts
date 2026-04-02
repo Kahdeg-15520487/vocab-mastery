@@ -147,6 +147,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/sentence-builder',
+    name: 'sentence-builder',
+    component: () => import('@/views/SentenceBuilderView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/speed-round',
     name: 'speed-round',
     component: () => import('@/views/SpeedRoundView.vue'),

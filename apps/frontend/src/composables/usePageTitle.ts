@@ -17,6 +17,7 @@ const titles: Record<string, string> = {
   '/daily-challenge': 'Daily Challenge',
   '/word-chain': 'Word Chain',
   '/word-match': 'Word Match',
+  '/sentence-builder': 'Sentence Builder',
   '/speed-round': 'Speed Round',
   '/recommendations': 'Recommendations',
   '/collections': 'Collections',
