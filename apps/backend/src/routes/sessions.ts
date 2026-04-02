@@ -1169,7 +1169,218 @@ export async function sessionRoutes(app: FastifyInstance) {
     };
   });
 
-  // Get session history (paginated list)
+  // ============================================
+  // Listening Comprehension Session
+  // ============================================
+
+  app.post('/sessions/listening', async (request, reply) => {
+    const userId = request.user!.userId;
+    await abandonExistingSession(userId);
+
+    const body = request.body as {
+      themeId?: string;
+      listId?: string;
+      sprintId?: string;
+      levelRange?: [string, string];
+      wordCount?: number;
+    };
+    const { themeId, listId, sprintId, levelRange, wordCount = 15 } = body;
+
+    // Only pick words that have audio
+    const where: any = {
+      OR: [
+        { audioUs: { not: null } },
+        { audioUk: { not: null } },
+      ],
+    };
+
+    if (themeId) where.themes = { some: { themeId } };
+    if (listId) {
+      const list = await prisma.studyList.findUnique({ where: { id: listId } });
+      if (!list) return reply.status(404).send({ error: 'List not found' });
+      if (list.userId !== userId) {
+        const shared = await prisma.sharedList.findUnique({
+          where: { listId_sharedWith: { listId, sharedWith: userId } },
+        });
+        if (!shared) return reply.status(403).send({ error: 'Access denied' });
+      }
+      where.studyListWords = { some: { listId } };
+    }
+    if (sprintId) {
+      const sprintWords = await prisma.sprintWord.findMany({
+        where: { sprintId },
+        select: { wordId: true },
+      });
+      where.id = { in: sprintWords.map(sw => sw.wordId) };
+    }
+    if (levelRange) {
+      const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+      const startIdx = levels.indexOf(levelRange[0]);
+      const endIdx = levels.indexOf(levelRange[1]);
+      if (startIdx >= 0 && endIdx >= startIdx) {
+        where.cefrLevel = { in: levels.slice(startIdx, endIdx + 1) };
+      }
+    }
+
+    // Prefer single words (no spaces/hyphens) and reasonable length
+    const words = await prisma.$queryRaw<Array<{
+      id: string; word: string; definition: string;
+      phonetic_us: string | null; phonetic_uk: string | null;
+      audio_us: string | null; audio_uk: string | null;
+      part_of_speech: any; examples: any; synonyms: any;
+      cefr_level: string; oxford_list: string | null;
+    }>>`
+      SELECT id, word, definition, phonetic_us, phonetic_uk,
+             audio_us, audio_uk, part_of_speech, examples,
+             synonyms, cefr_level, oxford_list
+      FROM words
+      WHERE (audio_us IS NOT NULL OR audio_uk IS NOT NULL)
+        AND word NOT LIKE '% %'
+        AND LENGTH(word) >= 3
+        ${themeId ? Prisma.sql`AND id IN (SELECT wt."wordId" FROM word_themes wt JOIN themes th ON wt."themeId" = th.id WHERE th.id = ${themeId})` : Prisma.empty}
+        ${listId ? Prisma.sql`AND id IN (SELECT slw."wordId" FROM study_list_words slw WHERE slw."listId" = ${listId})` : Prisma.empty}
+        ${sprintId ? Prisma.sql`AND id IN (SELECT sw."wordId" FROM sprint_words sw WHERE sw."sprintId" = ${sprintId})` : Prisma.empty}
+      ORDER BY RANDOM()
+      LIMIT ${wordCount}
+    `;
+
+    if (words.length === 0) {
+      return reply.status(400).send({ error: 'No words with audio available. Try a different filter.' });
+    }
+
+    const session = await prisma.learningSession.create({
+      data: {
+        userId,
+        type: 'learn',
+        themeId: themeId || null,
+        sprintId: sprintId || null,
+        sessionWords: {
+          create: words.map((w, index) => ({
+            wordId: w.id,
+            wordIndex: index,
+          })),
+        },
+      },
+    });
+
+    return {
+      sessionId: session.id,
+      words: words.map((w, index) => ({
+        index,
+        id: w.id,
+        word: w.word,
+        audioUs: w.audio_us,
+        audioUk: w.audio_uk,
+        phoneticUs: w.phonetic_us,
+        phoneticUk: w.phonetic_uk,
+        partOfSpeech: w.part_of_speech as string[],
+        definition: w.definition,
+        examples: (w.examples as string[]) || [],
+        synonyms: (w.synonyms as string[]) || [],
+        cefrLevel: w.cefr_level,
+        letterCount: w.word.length,
+      })),
+    };
+  });
+
+  app.post('/sessions/listening/:sessionId/check', async (request, reply) => {
+    const userId = request.user!.userId;
+    const { sessionId } = request.params as { sessionId: string };
+    const body = request.body as { wordId: string; answer: string };
+
+    if (!body.wordId || !body.answer) {
+      return reply.status(400).send({ error: 'wordId and answer required' });
+    }
+
+    const session = await prisma.learningSession.findUnique({
+      where: { id: sessionId },
+      include: { sessionWords: true },
+    });
+
+    if (!session || session.userId !== userId) {
+      return reply.status(404).send({ error: 'Session not found' });
+    }
+
+    const sessionWord = session.sessionWords.find(sw => sw.wordId === body.wordId);
+    if (!sessionWord) {
+      return reply.status(404).send({ error: 'Word not in session' });
+    }
+    if (sessionWord.response) {
+      return reply.status(400).send({ error: 'Already answered' });
+    }
+
+    const word = await prisma.word.findUnique({ where: { id: body.wordId } });
+    if (!word) return reply.status(404).send({ error: 'Word not found' });
+
+    const userAnswer = body.answer.trim().toLowerCase();
+    const correctAnswer = word.word.toLowerCase();
+    const isCorrect = userAnswer === correctAnswer;
+
+    // Close match: same letters, maybe wrong case or minor typo
+    const isClose = !isCorrect && (
+      levenshtein(userAnswer, correctAnswer) <= 1 ||
+      correctAnswer.startsWith(userAnswer) ||
+      userAnswer.startsWith(correctAnswer)
+    );
+
+    const quality = isCorrect ? 4 : isClose ? 2 : 1;
+    const response = isCorrect ? 'easy' : isClose ? 'hard' : 'forgot';
+
+    // Update session word
+    await prisma.sessionWord.update({
+      where: { id: sessionWord.id },
+      data: {
+        response,
+        responseTime: Date.now() - sessionWord.createdAt.getTime(),
+      },
+    });
+
+    // Update session stats
+    if (isCorrect) {
+      await prisma.learningSession.update({
+        where: { id: sessionId },
+        data: { totalCorrect: { increment: 1 } },
+      });
+    } else {
+      await prisma.learningSession.update({
+        where: { id: sessionId },
+        data: { totalIncorrect: { increment: 1 } },
+      });
+    }
+
+    // Update word progress (spaced repetition)
+    await updateWordProgress(userId, body.wordId, isCorrect);
+
+    return {
+      correct: isCorrect,
+      close: isClose,
+      correctAnswer: word.word,
+      phoneticUs: word.phoneticUs,
+      definition: word.definition,
+    };
+  });
+
+  // Helper: Levenshtein distance
+  function levenshtein(a: string, b: string): number {
+    const matrix: number[][] = [];
+    for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+    for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+    for (let i = 1; i <= b.length; i++) {
+      for (let j = 1; j <= a.length; j++) {
+        if (b[i - 1] === a[j - 1]) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j] + 1
+          );
+        }
+      }
+    }
+    return matrix[b.length][a.length];
+  }
+
   // Get active (incomplete) session for current user
   app.get('/sessions/active', async (request, reply) => {
     const userId = request.user!.userId;

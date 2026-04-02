@@ -17,9 +17,10 @@ const navItems = [
 ]
 
 const practiceItems = [
-  { path: '/quiz', label: 'Quiz', icon: '🧠' },
-  { path: '/spelling', label: 'Spelling', icon: '✍️' },
-  { path: '/fill-blank', label: 'Fill Blank', icon: '📝' },
+  { path: '/quiz', label: 'Quiz', icon: '\u{1F9E0}' },
+  { path: '/spelling', label: 'Spelling', icon: '\u270D\uFE0F' },
+  { path: '/fill-blank', label: 'Fill Blank', icon: '\u{1F4DD}' },
+  { path: '/listening', label: 'Listening', icon: '\u{1F3A7}' },
 ]
 
 const statsItems = [

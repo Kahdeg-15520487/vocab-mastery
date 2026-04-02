@@ -21,6 +21,7 @@ const titles: Record<string, string> = {
   '/collections': 'Collections',
   '/achievements': 'Achievements',
   '/spelling': 'Spelling Practice',
+  '/listening': 'Listening Comprehension',
   '/fill-blank': 'Fill in the Blank',
   '/leaderboard': 'Leaderboard',
   '/words': 'Word Details',

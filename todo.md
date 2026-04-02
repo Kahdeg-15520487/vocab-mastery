@@ -7,10 +7,9 @@
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
 - [ ] **#283** 🔔 Review Reminders — configurable time-based reminders (morning/evening) with browser notifications #feature #frontend
 - [ ] **#303** 📊 Word Streak Tracker — show per-word review streak on Word Detail #feature #frontend
-- [ ] **#305** 📖 Contextual Learning Mode — learn words from a user-pasted article/paragraph #feature #frontend #backend
-- [ ] **#307** **[high]** 📖 Contextual Learning Mode — paste article, extract unknown words, learn them in context #feature #backend #frontend #learning
-- [ ] **#308** **[high]** 🔄 Smart Session Resume — detect incomplete sessions, offer to resume #feature #backend #frontend #ux
-- [ ] **#309** **[high]** 🎯 Adaptive Learning Path — suggest CEFR focus level on dashboard based on mastery #feature #frontend #ux
+- [ ] **#305** 📖 Contextual Learning Mode — paste article, extract unknown words, learn them in context #feature #backend #frontend #learning
+- [x] **#308** **[high]** 🔄 Smart Session Resume — detect incomplete sessions, offer to resume #feature #backend #frontend #ux
+- [x] **#309** **[high]** 🎯 Adaptive Learning Path — suggest CEFR focus level on dashboard based on mastery #feature #frontend #ux
 - [ ] **#310** 📝 Word of the Day push — daily browser notification with a random word #feature #frontend #ux
 - [ ] **#311** **[high]** 🎧 Listening Comprehension — hear word audio, type what you heard #feature #frontend #learning
 
@@ -2146,6 +2145,7 @@
         "ux"
       ],
       "createdAt": 1775086888562,
+      "notes": "Session is in-progress when completedAt is null. Need: GET /sessions/incomplete endpoint, frontend resume prompt on Learn/Review/Quiz pages, resume logic to continue from last word.",
       "archived": false
     },
     {
