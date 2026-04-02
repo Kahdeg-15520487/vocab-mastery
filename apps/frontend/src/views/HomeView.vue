@@ -18,6 +18,8 @@ import { useNotifications } from '@/composables/useNotifications'
 import { useToast } from '@/composables/useToast'
 import ConfettiEffect from '@/components/ui/ConfettiEffect.vue'
 import { progressApi } from '@/lib/api'
+import WelcomeModal from '@/components/ui/WelcomeModal.vue'
+import { useOnboarding } from '@/composables/useOnboarding'
 
 const router = useRouter()
 const { recentlyViewed } = useRecentlyViewed()
@@ -29,6 +31,7 @@ const velocity = ref<{ daily: { date: string; learned: number; reviewed: number 
 const toast = useToast()
 const goalAlreadyCelebrated = ref(false)
 const confettiActive = ref(false)
+const { showOnboarding, markComplete } = useOnboarding()
 
 const authStore = useAuthStore()
 const progressStore = useProgressStore()
