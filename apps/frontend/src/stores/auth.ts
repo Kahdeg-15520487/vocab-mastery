@@ -34,6 +34,17 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = response.user;
       hasToken.value = true;
       resetAuthExpired();
+
+      // Background cache for offline mode (non-blocking)
+      import('@/composables/useOfflineSync').then(({ useOfflineSync }) => {
+        const sync = useOfflineSync();
+        sync.getSyncStatus().then(status => {
+          if (status.wordsCount === 0) {
+            sync.syncWords().catch(() => {});
+          }
+        }).catch(() => {});
+      }).catch(() => {});
+
       return true;
     } catch (e: any) {
       error.value = e.message || 'Login failed';

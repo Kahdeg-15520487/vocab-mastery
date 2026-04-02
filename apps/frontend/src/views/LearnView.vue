@@ -54,6 +54,26 @@ function handleCardFlip(flipped: boolean) {
 }
 
 onMounted(async () => {
+  // Check for offline mode
+  if (route.query.offline === 'true') {
+    const offlineData = sessionStorage.getItem('offline-session-data')
+    if (offlineData) {
+      try {
+        const parsed = JSON.parse(offlineData)
+        if (parsed.words?.length) {
+          sessionStore.loadOfflineSession(parsed.words)
+          phase.value = 'playing'
+          return
+        }
+      } catch {
+        // Invalid data
+      }
+    }
+    // No offline data — redirect to offline page
+    router.replace('/offline')
+    return
+  }
+
   // Load themes first
   await wordsStore.fetchThemes()
 
@@ -269,6 +289,13 @@ async function restartActiveSession() {
       <p class="text-slate-600 dark:text-slate-400 mb-6">
         {{ sessionStore.stats.accuracy >= 90 ? 'Amazing accuracy! You\'re mastering these words.' : sessionStore.stats.accuracy >= 70 ? 'Great job! You\'re making solid progress.' : sessionStore.stats.accuracy >= 50 ? 'Every session counts. Try reviewing these words again.' : 'Repetition is key. Review these words to strengthen your memory.' }}
       </p>
+
+      <!-- Offline notice -->
+      <div v-if="sessionStore.isOffline" class="card bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 mb-4">
+        <p class="text-sm text-amber-700 dark:text-amber-300">
+          📱 <strong>Offline session</strong> — Your progress will be synced when you reconnect.
+        </p>
+      </div>
       
       <div class="card mb-6">
         <div class="grid grid-cols-3 gap-4 text-center mb-4">

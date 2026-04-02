@@ -5,13 +5,6 @@
 ## Pending
 
 - [ ] **#244** 📱 PWA offline mode — cache word data for offline study sessions #feature #frontend #backend
-- [x] **#283** 🔔 Review Reminders — configurable time-based reminders (morning/evening) with browser notifications #feature #frontend
-- [x] **#303** 📊 Word Streak Tracker — show per-word review streak on Word Detail #feature #frontend
-- [x] **#305** 📖 Contextual Learning Mode — paste article, extract unknown words, learn them in context #feature #backend #frontend #learning
-- [x] **#308** **[high]** 🔄 Smart Session Resume — detect incomplete sessions, offer to resume #feature #backend #frontend #ux
-- [x] **#309** **[high]** 🎯 Adaptive Learning Path — suggest CEFR focus level on dashboard based on mastery #feature #frontend #ux
-- [x] **#310** 📝 Word of the Day push — daily browser notification with a random word #feature #frontend #ux
-- [x] **#311** **[high]** 🎧 Listening Comprehension — hear word audio, type what you heard #feature #frontend #learning
 
 ## Completed
 
@@ -1538,7 +1531,7 @@
     {
       "id": 244,
       "text": "📱 PWA offline mode — cache word data for offline study sessions",
-      "done": true,
+      "done": false,
       "priority": "medium",
       "tags": [
         "feature",
@@ -1546,7 +1539,6 @@
         "backend"
       ],
       "createdAt": 1775075006292,
-      "completedAt": 1775144499909,
       "archived": false
     },
     {
@@ -1892,19 +1884,6 @@
       "completedAt": 1775082961024
     },
     {
-      "id": 283,
-      "text": "🔔 Review Reminders — configurable time-based reminders (morning/evening) with browser notifications",
-      "done": true,
-      "priority": "medium",
-      "tags": [
-        "feature",
-        "frontend"
-      ],
-      "createdAt": 1775083248588,
-      "completedAt": 1775143897570,
-      "archived": false
-    },
-    {
       "id": 286,
       "text": "🎮 Word Chain Game — chain words by last letter, earn XP, learn new words",
       "done": true,
@@ -2069,19 +2048,6 @@
       "completedAt": 1775086274383
     },
     {
-      "id": 303,
-      "text": "📊 Word Streak Tracker — show per-word review streak on Word Detail",
-      "done": true,
-      "priority": "medium",
-      "tags": [
-        "feature",
-        "frontend"
-      ],
-      "createdAt": 1775086564096,
-      "completedAt": 1775143897575,
-      "archived": false
-    },
-    {
       "id": 304,
       "text": "🎯 Goal Celebrations — confetti + toast when daily/weekly goals are met",
       "done": true,
@@ -2096,20 +2062,6 @@
       "completedAt": 1775086578819
     },
     {
-      "id": 305,
-      "text": "📖 Contextual Learning Mode — learn words from a user-pasted article/paragraph",
-      "done": true,
-      "priority": "medium",
-      "tags": [
-        "feature",
-        "frontend",
-        "backend"
-      ],
-      "createdAt": 1775086570257,
-      "completedAt": 1775144499915,
-      "archived": false
-    },
-    {
       "id": 306,
       "text": "🕐 Session Timer — track time spent per study session, show on session history",
       "done": true,
@@ -2122,78 +2074,6 @@
       "createdAt": 1775086574155,
       "archived": false,
       "completedAt": 1775086666853
-    },
-    {
-      "id": 307,
-      "text": "📖 Contextual Learning Mode — paste article, extract unknown words, learn them in context",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "feature",
-        "backend",
-        "frontend",
-        "learning"
-      ],
-      "createdAt": 1775086696786,
-      "completedAt": 1775144499916,
-      "archived": false
-    },
-    {
-      "id": 308,
-      "text": "🔄 Smart Session Resume — detect incomplete sessions, offer to resume",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "feature",
-        "backend",
-        "frontend",
-        "ux"
-      ],
-      "createdAt": 1775086888562,
-      "notes": "Session is in-progress when completedAt is null. Need: GET /sessions/incomplete endpoint, frontend resume prompt on Learn/Review/Quiz pages, resume logic to continue from last word.",
-      "archived": false
-    },
-    {
-      "id": 309,
-      "text": "🎯 Adaptive Learning Path — suggest CEFR focus level on dashboard based on mastery",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "feature",
-        "frontend",
-        "ux"
-      ],
-      "createdAt": 1775086902557,
-      "completedAt": 1775144499916,
-      "archived": false
-    },
-    {
-      "id": 310,
-      "text": "📝 Word of the Day push — daily browser notification with a random word",
-      "done": true,
-      "priority": "medium",
-      "tags": [
-        "feature",
-        "frontend",
-        "ux"
-      ],
-      "createdAt": 1775087020123,
-      "completedAt": 1775144499917,
-      "archived": false
-    },
-    {
-      "id": 311,
-      "text": "🎧 Listening Comprehension — hear word audio, type what you heard",
-      "done": true,
-      "priority": "high",
-      "tags": [
-        "feature",
-        "frontend",
-        "learning"
-      ],
-      "createdAt": 1775087025442,
-      "completedAt": 1775144499917,
-      "archived": false
     }
   ],
   "nextId": 312

@@ -127,18 +127,47 @@ export const useSessionStore = defineStore('session', () => {
     // Store response locally
     responses.value.set(wordId, { response, responseTime })
 
-    // Move to next word immediately — don't block on API
+    // Move to next word immediately
     currentIndex.value++
     wordStartTime.value = Date.now()
 
-    // Fire-and-forget: record session answer (backend handles SRS + XP + achievements)
-    sessionsApi.respond(session.value!.sessionId, wordId, response, responseTime)
-      .catch((e: any) => { error.value = e.message })
+    if (isOffline.value) {
+      // Queue for later sync
+      import('@/composables/useOfflineLearn').then(({ useOfflineLearn }) => {
+        const offline = useOfflineLearn()
+        offline.queueProgressUpdate(wordId, response)
+      }).catch(() => {})
+    } else {
+      // Fire-and-forget: record session answer (backend handles SRS + XP + achievements)
+      sessionsApi.respond(session.value!.sessionId, wordId, response, responseTime)
+        .catch((e: any) => { error.value = e.message })
+    }
   }
 
   // Complete session
   async function completeSession() {
     if (!session.value) return null
+
+    if (isOffline.value) {
+      // Queue session completion for later sync
+      try {
+        const { useOfflineLearn } = await import('@/composables/useOfflineLearn')
+        const offline = useOfflineLearn()
+        await offline.queueSessionComplete(session.value.sessionId, {
+          totalCorrect: stats.value.correct,
+          totalIncorrect: stats.value.incorrect,
+        })
+      } catch {
+        // Queue failed — data still in local responses map
+      }
+      return {
+        sessionId: session.value.sessionId,
+        totalCorrect: stats.value.correct,
+        totalIncorrect: stats.value.incorrect,
+        accuracy: stats.value.accuracy,
+        offline: true,
+      }
+    }
 
     try {
       loading.value = true
@@ -152,12 +181,47 @@ export const useSessionStore = defineStore('session', () => {
     }
   }
 
+  // Load offline session from cached words
+  const isOffline = ref(false)
+
+  function loadOfflineSession(words: any[]) {
+    session.value = {
+      sessionId: 'offline-' + Date.now(),
+      type: 'learn',
+      totalWords: words.length,
+      words: words.map((w: any, index: number) => ({
+        index,
+        sessionWordId: `offline-${index}`,
+        id: w.id,
+        word: w.word,
+        phoneticUs: w.phoneticUs || '',
+        phoneticUk: w.phoneticUk || '',
+        partOfSpeech: w.partOfSpeech || [],
+        definition: w.definition || '',
+        examples: w.examples || [],
+        synonyms: w.synonyms || [],
+        antonyms: [],
+        oxfordList: '5000' as const,
+        cefrLevel: (w.cefrLevel || 'A1') as any,
+        frequency: 0,
+        themes: w.themes || [],
+      })),
+    }
+    responses.value = new Map()
+    currentIndex.value = 0
+    sessionStartTime.value = Date.now()
+    wordStartTime.value = Date.now()
+    isOffline.value = true
+    resumedFromServer.value = false
+  }
+
   // Reset session
   function reset() {
     session.value = null
     currentIndex.value = 0
     responses.value = new Map()
     error.value = null
+    isOffline.value = false
   }
 
   // Get session stats
@@ -201,6 +265,8 @@ export const useSessionStore = defineStore('session', () => {
     loading,
     error,
     resumedFromServer,
+    isOffline,
+    loadOfflineSession,
     startSession,
     resumeSession,
     submitResponse,
