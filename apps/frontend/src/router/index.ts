@@ -141,6 +141,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/word-match',
+    name: 'word-match',
+    component: () => import('@/views/WordMatchView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/speed-round',
     name: 'speed-round',
     component: () => import('@/views/SpeedRoundView.vue'),

@@ -16,6 +16,7 @@ const titles: Record<string, string> = {
   '/vocab-size': 'Vocabulary Size Estimator',
   '/daily-challenge': 'Daily Challenge',
   '/word-chain': 'Word Chain',
+  '/word-match': 'Word Match',
   '/speed-round': 'Speed Round',
   '/recommendations': 'Recommendations',
   '/collections': 'Collections',
