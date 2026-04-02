@@ -112,11 +112,12 @@ const heatmapColor = (total: number) => {
 const totalStudyHours = computed(() => studyTime.value ? Math.round(studyTime.value.totalTimeMinutes / 60 * 10) / 10 : 0)
 
 const sessionTypeEmoji: Record<string, string> = {
-  learn: '\ud83d\udcda',
-  review: '\ud83d\udd04',
-  quiz: '\ud83e\udde0',
-  spelling: '\u270d\ufe0f',
-  'fill-blank': '\ud83d\udcdd',
+  learn: '\u{1F4DA}',
+  review: '\u{1F504}',
+  quiz: '\u{1F9E0}',
+  spelling: '\u270D\uFE0F',
+  'fill-blank': '\u{1F4DD}',
+  listening: '\u{1F3A7}',
 }
 
 const stats = computed(() => statsStore.stats)
