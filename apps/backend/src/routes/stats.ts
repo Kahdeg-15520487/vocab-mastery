@@ -367,6 +367,55 @@ export async function statsRoutes(app: FastifyInstance) {
     };
   });
 
+  // GET /stats/study-patterns — Study time by day of week and hour of day
+  app.get('/stats/study-patterns', async (request, reply) => {
+    const userId = request.user!.userId;
+
+    // Sessions by day of week
+    const byDayOfWeek = await prisma.$queryRaw<Array<{ dow: number; sessions: bigint; totalMs: bigint }>>`
+      SELECT
+        EXTRACT(ISODOW FROM started_at) as dow,
+        COUNT(*) as sessions,
+        COALESCE(SUM(EXTRACT(EPOCH FROM (completed_at - started_at)) * 1000), 0) as "totalMs"
+      FROM learning_sessions
+      WHERE user_id = ${userId}
+        AND completed_at IS NOT NULL
+        AND (completed_at - started_at) < INTERVAL '2 hours'
+      GROUP BY EXTRACT(ISODOW FROM started_at)
+      ORDER BY dow ASC
+    `;
+
+    // Sessions by hour of day
+    const byHour = await prisma.$queryRaw<Array<{ hour: number; sessions: bigint; totalMs: bigint }>>`
+      SELECT
+        EXTRACT(HOUR FROM started_at) as hour,
+        COUNT(*) as sessions,
+        COALESCE(SUM(EXTRACT(EPOCH FROM (completed_at - started_at)) * 1000), 0) as "totalMs"
+      FROM learning_sessions
+      WHERE user_id = ${userId}
+        AND completed_at IS NOT NULL
+        AND (completed_at - started_at) < INTERVAL '2 hours'
+      GROUP BY EXTRACT(HOUR FROM started_at)
+      ORDER BY hour ASC
+    `;
+
+    const dayNames = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+    return {
+      byDayOfWeek: byDayOfWeek.map(r => ({
+        day: dayNames[Number(r.dow)] || 'Unknown',
+        dayIndex: Number(r.dow),
+        sessions: Number(r.sessions),
+        totalMinutes: Math.round(Number(r.totalMs) / 60000),
+      })),
+      byHour: byHour.map(r => ({
+        hour: Number(r.hour),
+        sessions: Number(r.sessions),
+        totalMinutes: Math.round(Number(r.totalMs) / 60000),
+      })),
+    };
+  });
+
   // GET /stats/velocity — Learning velocity (words/day for last 30 days)
   app.get('/stats/velocity', async (request, reply) => {
     const userId = request.user!.userId;

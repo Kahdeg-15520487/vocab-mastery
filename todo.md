@@ -4,7 +4,7 @@
 
 ## Pending
 
-- [ ] **#313** **[high]** 📋 Bulk Word Import — paste list of words, auto-match to database, add to study list ##feature ##frontend ##backend
+- [ ] **#314** 🖨️ Printable Vocabulary Worksheet — generate printable word exercises (matching, fill-blank, word search) ##feature ##frontend
 
 ## Completed
 
@@ -157,6 +157,7 @@
 - [x] **#304** 🎯 Goal Celebrations — confetti + toast when daily/weekly goals are met #feature #frontend #ux
 - [x] **#306** 🕐 Session Timer — track time spent per study session, show on session history #feature #backend #frontend
 - [x] **#312** 🃏 Word Matching Game — match words to definitions in a memory-style game ##feature ##frontend ##game
+- [x] **#313** **[high]** 📋 Bulk Word Import — paste list of words, auto-match to database, add to study list ##feature ##frontend ##backend
 
 <!-- Raw Data -->
 ```json
@@ -2095,7 +2096,7 @@
     {
       "id": 313,
       "text": "📋 Bulk Word Import — paste list of words, auto-match to database, add to study list",
-      "done": false,
+      "done": true,
       "priority": "high",
       "tags": [
         "#feature",
@@ -2103,9 +2104,22 @@
         "#backend"
       ],
       "createdAt": 1775162792263,
+      "archived": false,
+      "completedAt": 1775164063870
+    },
+    {
+      "id": 314,
+      "text": "🖨️ Printable Vocabulary Worksheet — generate printable word exercises (matching, fill-blank, word search)",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "#feature",
+        "#frontend"
+      ],
+      "createdAt": 1775164090306,
       "archived": false
     }
   ],
-  "nextId": 314
+  "nextId": 315
 }
 ```

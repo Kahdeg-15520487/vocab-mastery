@@ -49,6 +49,7 @@ const topicBreakdown = ref<Array<{ name: string; slug: string; topics: Array<{ n
 const weeklyInsights = ref<{ summary: string; strengths: string[]; tips: string[]; motivation: string } | null>(null)
 const insightsLoading = ref(false)
 const studyTime = ref<{ totalTimeMinutes: number; totalSessions: number; avgSessionMinutes: number; byType: { type: string; totalMinutes: number; sessions: number }[] } | null>(null)
+const studyPatterns = ref<{ byDayOfWeek: { day: string; dayIndex: number; sessions: number; totalMinutes: number }[]; byHour: { hour: number; sessions: number; totalMinutes: number }[] } | null>(null)
 const masteryData = ref<{ levels: Array<{ level: string; total: number; mastered: number; learning: number; reviewing: number; unseen: number; masteryPercent: number; coveragePercent: number }>; overall: { totalWords: number; totalMastered: number; totalSeen: number; masteryPercent: number; coveragePercent: number }; estimatedLevel: string } | null>(null)
 const studyPlan = ref<any>(null)
 const planLoading = ref(false)
@@ -77,6 +78,7 @@ onMounted(async () => {
     statsApi.getInsights().then(d => weeklyInsights.value = d.insights).catch(() => {}).finally(() => insightsLoading.value = false),
     statsApi.getStudyTime().then(d => studyTime.value = d).catch(() => {}),
     statsApi.getMastery().then(d => masteryData.value = d).catch(() => {}),
+    statsApi.getStudyPatterns().then(d => studyPatterns.value = d).catch(() => {}),
   ])
 })
 
@@ -622,6 +624,55 @@ const statsXpNeeded = computed(() => {
               <div class="h-full bg-primary-500 rounded-full" :style="{ width: studyTime.totalTimeMinutes > 0 ? (t.totalMinutes / studyTime.totalTimeMinutes * 100) + '%' : '0%' }" />
             </div>
             <span class="w-16 text-xs text-slate-500 dark:text-slate-400 text-right">{{ t.totalMinutes }}min ({{ t.sessions }})</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Study Patterns -->
+      <div v-if="studyPatterns && (studyPatterns.byDayOfWeek.length > 0 || studyPatterns.byHour.length > 0)" class="card">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Study Patterns</h2>
+
+        <!-- By Day of Week -->
+        <div v-if="studyPatterns.byDayOfWeek.length > 0" class="mb-6">
+          <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">Sessions by Day of Week</p>
+          <div class="flex items-end gap-1 h-32">
+            <div
+              v-for="(d, i) in ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']"
+              :key="i"
+              class="flex-1 flex flex-col items-center gap-1"
+            >
+              <div
+                class="w-full rounded-t transition-all duration-300"
+                :class="studyPatterns.byDayOfWeek.find(p => p.dayIndex === i + 1) ? 'bg-indigo-500' : 'bg-slate-200 dark:bg-slate-700'"
+                :style="{ height: studyPatterns.byDayOfWeek.find(p => p.dayIndex === i + 1) ? Math.max(8, (studyPatterns.byDayOfWeek.find(p => p.dayIndex === i + 1)!.sessions / Math.max(...studyPatterns.byDayOfWeek.map(x => x.sessions))) * 100) + '%' : '4px' }"
+              />
+              <span class="text-[10px] text-slate-500 dark:text-slate-400">{{ d }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- By Hour of Day -->
+        <div v-if="studyPatterns.byHour.length > 0">
+          <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">Sessions by Time of Day</p>
+          <div class="flex items-end gap-px h-20">
+            <div
+              v-for="h in 24"
+              :key="h"
+              class="flex-1 flex flex-col items-center"
+            >
+              <div
+                class="w-full rounded-t transition-all duration-300"
+                :class="studyPatterns.byHour.find(p => p.hour === h - 1) ? 'bg-emerald-500' : 'bg-slate-100 dark:bg-slate-800'"
+                :style="{ height: studyPatterns.byHour.find(p => p.hour === h - 1) ? Math.max(4, (studyPatterns.byHour.find(p => p.hour === h - 1)!.sessions / Math.max(...studyPatterns.byHour.map(x => x.sessions))) * 100) + '%' : '2px' }"
+              />
+            </div>
+          </div>
+          <div class="flex justify-between mt-1">
+            <span class="text-[9px] text-slate-400">12am</span>
+            <span class="text-[9px] text-slate-400">6am</span>
+            <span class="text-[9px] text-slate-400">12pm</span>
+            <span class="text-[9px] text-slate-400">6pm</span>
+            <span class="text-[9px] text-slate-400">11pm</span>
           </div>
         </div>
       </div>
