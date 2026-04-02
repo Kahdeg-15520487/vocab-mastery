@@ -5,6 +5,7 @@
 ## Pending
 
 - [ ] **#314** 🖨️ Printable Vocabulary Worksheet — generate printable word exercises (matching, fill-blank, word search) ##feature ##frontend
+- [ ] **#315** 📱 Swipe gestures for flashcards on mobile (swipe left=hard, right=easy, up=flip) ##feature ##frontend ##mobile
 
 ## Completed
 
@@ -2118,8 +2119,21 @@
       ],
       "createdAt": 1775164090306,
       "archived": false
+    },
+    {
+      "id": 315,
+      "text": "📱 Swipe gestures for flashcards on mobile (swipe left=hard, right=easy, up=flip)",
+      "done": false,
+      "priority": "medium",
+      "tags": [
+        "#feature",
+        "#frontend",
+        "#mobile"
+      ],
+      "createdAt": 1775164316022,
+      "archived": false
     }
   ],
-  "nextId": 315
+  "nextId": 316
 }
 ```

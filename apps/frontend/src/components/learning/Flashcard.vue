@@ -66,6 +66,28 @@ function respond(response: 'easy' | 'medium' | 'hard' | 'forgot') {
   // Don't reset isFlipped here - the Transition component will handle
   // unmounting this component and mounting a fresh one with the next word
 }
+
+// Swipe gesture support
+let touchStartX = 0
+let touchStartY = 0
+const swipeThreshold = 50
+
+function onTouchStart(e: TouchEvent) {
+  touchStartX = e.touches[0].clientX
+  touchStartY = e.touches[0].clientY
+}
+
+function onTouchEnd(e: TouchEvent) {
+  if (!isFlipped.value) return // Only respond to swipes after card is flipped
+  const dx = e.changedTouches[0].clientX - touchStartX
+  const dy = e.changedTouches[0].clientY - touchStartY
+  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > swipeThreshold) {
+    if (dx > 0) respond('easy') // Swipe right = easy
+    else respond('hard') // Swipe left = hard
+  } else if (dy < 0 && Math.abs(dy) > swipeThreshold) {
+    respond('forgot') // Swipe up = forgot
+  }
+}
 </script>
 
 <template>
@@ -74,6 +96,8 @@ function respond(response: 'easy' | 'medium' | 'hard' | 'forgot') {
     <div 
       class="flashcard-container cursor-pointer"
       @click="flipCard"
+      @touchstart="onTouchStart"
+      @touchend="onTouchEnd"
     >
       <div 
         :class="[
@@ -194,6 +218,11 @@ function respond(response: 'easy' | 'medium' | 'hard' | 'forgot') {
     </div>
 
         <!-- Response Buttons -->
+    <!-- Swipe hint (mobile only) -->
+    <div v-if="isFlipped" class="sm:hidden text-center mt-2 text-xs text-slate-400 dark:text-slate-500">
+      ← Swipe: Hard &nbsp;|&nbsp; → Swipe: Easy &nbsp;|&nbsp; ↑ Swipe: Forgot
+    </div>
+
     <div v-if="isFlipped" class="grid grid-cols-4 gap-2 mt-6">
       <button
         @click="respond('forgot')"
