@@ -1692,6 +1692,16 @@ export async function sessionRoutes(app: FastifyInstance) {
         total: session.sessionWords.length,
         completed: session.sessionWords.filter(sw => sw.response).length,
       },
+      words: session.sessionWords.map(sw => ({
+        wordId: sw.wordId,
+        word: sw.word.word,
+        definition: sw.word.definition,
+        cefrLevel: sw.word.cefrLevel,
+        examples: sw.word.examples,
+        phoneticUs: sw.word.phoneticUs,
+        response: sw.response,
+        responseTime: sw.responseTime,
+      })),
     };
   });
 

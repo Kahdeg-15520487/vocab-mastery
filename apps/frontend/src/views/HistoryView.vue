@@ -18,6 +18,9 @@ interface SessionSummary {
 
 const loading = ref(true)
 const sessions = ref<SessionSummary[]>([])
+const expandedSession = ref<string | null>(null)
+const sessionDetails = ref<any>(null)
+const detailsLoading = ref(false)
 const total = ref(0)
 const page = ref(1)
 const limit = 15
@@ -89,6 +92,26 @@ async function loadSessions() {
     console.error('Failed to load sessions:', e)
   } finally {
     loading.value = false
+  }
+}
+
+async function toggleSessionDetails(sessionId: string) {
+  if (expandedSession.value === sessionId) {
+    expandedSession.value = null
+    sessionDetails.value = null
+    return
+  }
+  expandedSession.value = sessionId
+  detailsLoading.value = true
+  try {
+    const res = await fetch(`/api/sessions/${sessionId}`, {
+      headers: { Authorization: `Bearer ${sessionStorage.getItem('accessToken')}` }
+    })
+    sessionDetails.value = await res.json()
+  } catch {
+    sessionDetails.value = null
+  } finally {
+    detailsLoading.value = false
   }
 }
 
@@ -172,30 +195,57 @@ onMounted(() => {
       <div
         v-for="session in sessions"
         :key="session.id"
-        class="card flex items-center gap-4"
       >
-        <!-- Type Icon -->
-        <div class="text-3xl flex-shrink-0">{{ typeIcon(session.type) }}</div>
+        <div
+          class="card flex items-center gap-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+          @click="toggleSessionDetails(session.id)"
+        >
+          <!-- Type Icon -->
+          <div class="text-3xl flex-shrink-0">{{ typeIcon(session.type) }}</div>
 
-        <!-- Session Info -->
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 mb-1">
-            <span class="font-semibold text-slate-900 dark:text-white">{{ typeLabel(session.type) }}</span>
-            <span class="text-xs text-slate-400">·</span>
-            <span class="text-sm text-slate-500 dark:text-slate-400">{{ session.wordCount }} words</span>
-            <span class="text-xs text-slate-400">·</span>
-            <span class="text-sm text-slate-500 dark:text-slate-400">{{ formatDuration(session.duration) }}</span>
+          <!-- Session Info -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="font-semibold text-slate-900 dark:text-white">{{ typeLabel(session.type) }}</span>
+              <span class="text-xs text-slate-400">·</span>
+              <span class="text-sm text-slate-500 dark:text-slate-400">{{ session.wordCount }} words</span>
+              <span class="text-xs text-slate-400">·</span>
+              <span class="text-sm text-slate-500 dark:text-slate-400">{{ formatDuration(session.duration) }}</span>
+            </div>
+            <div class="text-sm text-slate-400">{{ formatDate(session.completedAt) }}</div>
           </div>
-          <div class="text-sm text-slate-400">{{ formatDate(session.completedAt) }}</div>
+
+          <!-- Accuracy -->
+          <div class="text-right flex-shrink-0">
+            <div class="text-lg font-bold" :class="accuracyColor(session.accuracy)">
+              {{ session.accuracy }}%
+            </div>
+            <div class="text-xs text-slate-400">
+              {{ session.totalCorrect }}/{{ session.totalCorrect + session.totalIncorrect }}
+            </div>
+          </div>
+
+          <!-- Expand icon -->
+          <div class="text-slate-400 flex-shrink-0" :class="{ 'rotate-90': expandedSession === session.id }" style="transition: transform 0.2s">▶</div>
         </div>
 
-        <!-- Accuracy -->
-        <div class="text-right flex-shrink-0">
-          <div class="text-lg font-bold" :class="accuracyColor(session.accuracy)">
-            {{ session.accuracy }}%
-          </div>
-          <div class="text-xs text-slate-400">
-            {{ session.totalCorrect }}/{{ session.totalCorrect + session.totalIncorrect }}
+        <!-- Expanded Details -->
+        <div v-if="expandedSession === session.id" class="mt-2 ml-4 space-y-1">
+          <div v-if="detailsLoading" class="text-sm text-slate-400 text-center py-2">Loading details...</div>
+          <div v-else-if="sessionDetails?.words" class="space-y-1">
+            <div
+              v-for="(w, i) in sessionDetails.words"
+              :key="i"
+              class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm"
+              :class="w.response === 'easy' || w.response === 'medium' || w.response === 'good' ? 'bg-emerald-50 dark:bg-emerald-900/20' : w.response === 'hard' || w.response === 'forgot' ? 'bg-red-50 dark:bg-red-900/20' : 'bg-slate-50 dark:bg-slate-700/50'"
+            >
+              <span class="text-base">{{ w.response === 'forgot' ? '❌' : w.response === 'hard' ? '😬' : w.response === 'easy' ? '✅' : '📝' }}</span>
+              <router-link :to="`/words/${w.wordId}`" class="font-medium text-slate-900 dark:text-white hover:text-primary-600">{{ w.word }}</router-link>
+              <span class="text-xs text-slate-400 truncate flex-1">{{ Array.isArray(w.definition) ? w.definition[0] : w.definition }}</span>
+              <span v-if="w.response" class="text-xs px-1.5 py-0.5 rounded capitalize" :class="w.response === 'easy' || w.response === 'medium' || w.response === 'good' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'">
+                {{ w.response }}
+              </span>
+            </div>
           </div>
         </div>
       </div>
