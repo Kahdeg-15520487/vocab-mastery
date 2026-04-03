@@ -124,6 +124,9 @@ const cefrColors: Record<string, string> = {
     <div
       v-if="isOpen"
       class="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Search words"
     >
       <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" @click="close" />
       <div class="relative w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden">

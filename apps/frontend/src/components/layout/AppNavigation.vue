@@ -84,7 +84,7 @@ function openSearch() {
 
 <template>
   <!-- Desktop Navigation -->
-  <nav class="hidden md:block bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50">
+  <nav class="hidden md:block bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50" aria-label="Main navigation">
     <div class="container mx-auto px-4">
       <div class="flex items-center justify-between h-16">
         <RouterLink to="/" class="flex items-center gap-2 shrink-0">
@@ -279,7 +279,7 @@ function openSearch() {
   </nav>
 
   <!-- Mobile Top Bar -->
-  <nav class="md:hidden bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50">
+  <nav class="md:hidden bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50" aria-label="Mobile navigation">
     <div class="flex items-center justify-between px-4 h-14">
       <RouterLink to="/" class="flex items-center gap-2">
         <span class="text-xl">📚</span>
@@ -325,7 +325,7 @@ function openSearch() {
   </nav>
 
   <!-- Mobile Bottom Navigation -->
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 z-50" style="padding-bottom: env(safe-area-inset-bottom)">
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 z-50" style="padding-bottom: env(safe-area-inset-bottom)" aria-label="Quick navigation">
     <div class="flex items-center justify-around py-2">
       <RouterLink
         v-for="item in [

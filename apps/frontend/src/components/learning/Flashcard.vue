@@ -95,7 +95,12 @@ function onTouchEnd(e: TouchEvent) {
     <!-- Card Container -->
     <div 
       class="flashcard-container cursor-pointer"
+      role="button"
+      :aria-label="isFlipped ? 'Flip to see word (currently showing definition)' : 'Flip to see definition (currently showing word)'"
+      tabindex="0"
       @click="flipCard"
+      @keydown.enter="flipCard"
+      @keydown.space.prevent="flipCard"
       @touchstart="onTouchStart"
       @touchend="onTouchEnd"
     >
@@ -223,38 +228,42 @@ function onTouchEnd(e: TouchEvent) {
       ← Swipe: Hard &nbsp;|&nbsp; → Swipe: Easy &nbsp;|&nbsp; ↑ Swipe: Forgot
     </div>
 
-    <div v-if="isFlipped" class="grid grid-cols-4 gap-2 mt-6">
+    <div v-if="isFlipped" class="grid grid-cols-4 gap-2 mt-6" role="group" aria-label="Rate your recall of this word">
       <button
         @click="respond('forgot')"
         class="btn flex flex-col items-center py-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 border border-red-200 dark:border-red-800"
+        aria-label="Forgot this word (press 1)"
       >
-        <span class="text-lg">😵</span>
+        <span class="text-lg" aria-hidden="true">😵</span>
         <span class="text-xs mt-1">Forgot</span>
-        <span class="text-[10px] text-slate-400 mt-0.5">[1]</span>
+        <span class="text-[10px] text-slate-400 mt-0.5" aria-hidden="true">[1]</span>
       </button>
       <button
         @click="respond('hard')"
         class="btn flex flex-col items-center py-3 bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/30 border border-orange-200 dark:border-orange-800"
+        aria-label="Hard to recall (press 2)"
       >
-        <span class="text-lg">😬</span>
+        <span class="text-lg" aria-hidden="true">😬</span>
         <span class="text-xs mt-1">Hard</span>
-        <span class="text-[10px] text-slate-400 mt-0.5">[2]</span>
+        <span class="text-[10px] text-slate-400 mt-0.5" aria-hidden="true">[2]</span>
       </button>
       <button
         @click="respond('medium')"
         class="btn flex flex-col items-center py-3 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 border border-green-200 dark:border-green-800"
+        aria-label="Good recall (press 3)"
       >
-        <span class="text-lg">😊</span>
+        <span class="text-lg" aria-hidden="true">😊</span>
         <span class="text-xs mt-1">Good</span>
-        <span class="text-[10px] text-slate-400 mt-0.5">[3]</span>
+        <span class="text-[10px] text-slate-400 mt-0.5" aria-hidden="true">[3]</span>
       </button>
       <button
         @click="respond('easy')"
         class="btn flex flex-col items-center py-3 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 border border-blue-200 dark:border-blue-800"
+        aria-label="Easy recall (press 4)"
       >
-        <span class="text-lg">🚀</span>
+        <span class="text-lg" aria-hidden="true">🚀</span>
         <span class="text-xs mt-1">Easy</span>
-        <span class="text-[10px] text-slate-400 mt-0.5">[4]</span>
+        <span class="text-[10px] text-slate-400 mt-0.5" aria-hidden="true">[4]</span>
       </button>
     </div>
   </div>

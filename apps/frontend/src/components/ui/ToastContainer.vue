@@ -10,6 +10,9 @@ const { toasts, remove } = useToast()
       name="toast"
       tag="div"
       class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm"
+      role="status"
+      aria-live="polite"
+      aria-label="Notifications"
     >
       <div
         v-for="t in toasts"
