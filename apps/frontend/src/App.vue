@@ -33,8 +33,9 @@ onMounted(async () => {
 
 <template>
   <div class="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg">Skip to content</a>
     <AppNavigation />
-    <main class="container mx-auto px-4 py-6 pb-24 md:pb-6" role="main" aria-label="Main content">
+    <main id="main-content" class="container mx-auto px-4 py-6 pb-24 md:pb-6" role="main" aria-label="Main content">
       <RouterView v-slot="{ Component }">
         <Transition name="page" mode="out-in">
           <component :is="Component" />

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, computed, ref } from 'vue'
+import { onMounted, onUnmounted, computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useSessionStore } from '@/stores/session'
 import { useWordsStore } from '@/stores/words'
@@ -29,6 +29,32 @@ const sessionResult = ref<any>(null)
 
 // Phase: setup | resume | playing | results
 const phase = ref<'setup' | 'resume' | 'playing'>('setup')
+
+// Session timer
+const sessionStartTime = ref<Date | null>(null)
+const elapsedSeconds = ref(0)
+let timerInterval: ReturnType<typeof setInterval> | null = null
+
+function startTimer() {
+  sessionStartTime.value = new Date()
+  elapsedSeconds.value = 0
+  timerInterval = setInterval(() => {
+    elapsedSeconds.value++
+  }, 1000)
+}
+
+function stopTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval)
+    timerInterval = null
+  }
+}
+
+const formattedTime = computed(() => {
+  const m = Math.floor(elapsedSeconds.value / 60)
+  const s = elapsedSeconds.value % 60
+  return `${m}:${s.toString().padStart(2, '0')}`
+})
 
 // Settings
 const wordCount = ref(10)
@@ -101,6 +127,12 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown)
+  stopTimer()
+})
+
+watch(phase, (newPhase) => {
+  if (newPhase === 'playing') startTimer()
+  else stopTimer()
 })
 
 function handleKeydown(e: KeyboardEvent) {
@@ -298,7 +330,7 @@ async function restartActiveSession() {
       </div>
       
       <div class="card mb-6">
-        <div class="grid grid-cols-3 gap-4 text-center mb-4">
+        <div class="grid grid-cols-4 gap-4 text-center mb-4">
           <div>
             <div class="text-2xl font-bold text-primary-600 dark:text-primary-400">{{ sessionStore.stats.total }}</div>
             <div class="text-sm text-slate-500 dark:text-slate-400">Words</div>
@@ -312,6 +344,10 @@ async function restartActiveSession() {
               {{ sessionStore.stats.accuracy }}%
             </div>
             <div class="text-sm text-slate-500 dark:text-slate-400">Accuracy</div>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-slate-600 dark:text-slate-300 font-mono">{{ formattedTime }}</div>
+            <div class="text-sm text-slate-500 dark:text-slate-400">Time</div>
           </div>
         </div>
 
@@ -388,10 +424,13 @@ async function restartActiveSession() {
     <div v-else-if="sessionStore.currentWord">
       <!-- Progress -->
       <div class="mb-6">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-sm text-slate-500 dark:text-slate-400">Progress</span>
+          <span v-if="elapsedSeconds > 0" class="text-sm text-slate-400 font-mono">⏱ {{ formattedTime }}</span>
+        </div>
         <ProgressBar
           :current="sessionStore.progress.current"
           :total="sessionStore.progress.total"
-          label="Progress"
         />
       </div>
 
