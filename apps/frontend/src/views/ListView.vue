@@ -135,6 +135,12 @@ function generateWorksheet() {
   window.open(url, '_blank')
 }
 
+function printFlashcards() {
+  const token = sessionStorage.getItem('accessToken')
+  const url = `/api/lists/${listId}/flashcards?token=${token}`
+  window.open(url, '_blank')
+}
+
 async function generateStory() {
   if (!list.value) return
   storyLoading.value = true
@@ -288,6 +294,13 @@ function copyShareLink() {
               :disabled="list.pagination.total === 0"
             >
               Export CSV
+            </button>
+            <button
+              @click="printFlashcards"
+              class="btn btn-secondary text-sm"
+              :disabled="list.pagination.total === 0"
+            >
+              🃏 Flashcards
             </button>
             <button
               @click="showAddWords = !showAddWords"

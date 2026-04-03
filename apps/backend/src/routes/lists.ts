@@ -1189,4 +1189,113 @@ Return ONLY a JSON array of objects with "word" and "reason" fields.`;
 
     reply.header('Content-Type', 'text/html; charset=utf-8').send(html);
   });
+
+  // GET /lists/:id/flashcards — Printable flashcard sheet
+  app.get('/lists/:id/flashcards', async (request, reply) => {
+    const userId = request.user!.userId;
+    const { id } = request.params as { id: string };
+
+    const list = await prisma.studyList.findFirst({ where: { id, userId } });
+    if (!list) return reply.status(404).send({ error: 'List not found' });
+
+    const listWords = await prisma.studyListWord.findMany({
+      where: { listId: id },
+      include: { word: true },
+      orderBy: { addedAt: 'desc' },
+    });
+
+    if (listWords.length === 0) {
+      return reply.status(400).send({ error: 'List has no words' });
+    }
+
+    function getDef(w: any): string {
+      const def = w.definition;
+      if (Array.isArray(def)) return def.join('; ') || 'No definition';
+      if (typeof def === 'string') return def || 'No definition';
+      return 'No definition';
+    }
+
+    // Generate cards — 4 per row, front/back format
+    const cards = listWords.map((lw, i) => {
+      const w = lw.word;
+      const def = getDef(w).substring(0, 120);
+      const level = w.cefrLevel || '';
+      const phonetic = w.phoneticUs || '';
+      return `
+        <div class="card-front">
+          <div class="card-number">${i + 1}</div>
+          <div class="card-word">${w.word}</div>
+          ${phonetic ? `<div class="card-phonetic">${phonetic}</div>` : ''}
+          ${level ? `<div class="card-level">${level}</div>` : ''}
+        </div>
+        <div class="card-back">
+          <div class="card-number">${i + 1}</div>
+          <div class="card-definition">${def}</div>
+          ${level ? `<div class="card-level">${level}</div>` : ''}
+        </div>`;
+    });
+
+    // Arrange in rows of 4 cards (fronts on one row, backs on next)
+    const rowSize = 4;
+    const rows = [];
+    for (let i = 0; i < cards.length; i += rowSize) {
+      const frontRow = cards.slice(i, i + rowSize).map(c => c.split('</div>\n        <div class="card-back">')[0] + '</div>');
+      const backRow = cards.slice(i, i + rowSize).map(c => {
+        const parts = c.split('</div>\n        <div class="card-back">');
+        return parts.length > 1 ? '<div class="card-back">' + parts[1] : '';
+      });
+      rows.push({ fronts: frontRow.join(''), backs: backRow.join('') });
+    }
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>${list.name} — Flashcards</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 10px; }
+    h1 { font-size: 18px; margin-bottom: 8px; }
+    .subtitle { color: #64748b; font-size: 12px; margin-bottom: 16px; }
+    .card-row { display: flex; gap: 8px; margin-bottom: 8px; }
+    .card-front, .card-back {
+      flex: 1; min-height: 100px; border: 2px solid #e2e8f0; border-radius: 10px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 8px; position: relative; overflow: hidden;
+    }
+    .card-front { background: #f8fafc; }
+    .card-back { background: #eff6ff; border-style: dashed; }
+    .card-number { position: absolute; top: 4px; left: 8px; font-size: 10px; color: #94a3b8; }
+    .card-word { font-size: 20px; font-weight: 700; color: #1e293b; text-align: center; }
+    .card-phonetic { font-size: 11px; color: #64748b; margin-top: 2px; }
+    .card-definition { font-size: 13px; color: #1e293b; text-align: center; line-height: 1.4; }
+    .card-level { position: absolute; bottom: 4px; right: 8px; font-size: 10px; padding: 1px 6px; background: #dbeafe; color: #1d4ed8; border-radius: 4px; }
+    .row-label { font-size: 10px; color: #94a3b8; margin-bottom: 2px; font-weight: 600; }
+    .controls { margin-bottom: 12px; }
+    .controls button { padding: 6px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; margin-right: 6px; }
+    .btn-print { background: #4f46e5; color: white; }
+    .btn-flip { background: #f1f5f9; color: #475569; }
+    .instructions { font-size: 11px; color: #94a3b8; margin-bottom: 8px; }
+    @media print {
+      .no-print { display: none !important; }
+      body { padding: 0; }
+      .card-row { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="controls no-print">
+    <button class="btn-print" onclick="window.print()">🖨️ Print</button>
+    <button class="btn-flip" onclick="document.querySelectorAll('.card-front').forEach(e => e.style.display = e.style.display === 'none' ? 'flex' : 'none')">🔄 Toggle Fronts</button>
+    <button class="btn-flip" onclick="document.querySelectorAll('.card-back').forEach(e => e.style.display = e.style.display === 'none' ? 'flex' : 'none')">🔄 Toggle Backs</button>
+  </div>
+  <h1>${list.name} — Flashcards</h1>
+  <p class="subtitle">${listWords.length} words — Print, cut along borders, fold, and glue. Front (solid) | Back (dashed)</p>
+  <p class="instructions">💡 Print front sides first, then flip paper and print back sides. Or print all and cut/fold.</p>
+  ${rows.map(r => `<div class="row-label">FRONTS</div><div class="card-row">${r.fronts}</div><div class="row-label">BACKS</div><div class="card-row">${r.backs}</div>`).join('')}
+</body>
+</html>`;
+
+    reply.header('Content-Type', 'text/html; charset=utf-8').send(html);
+  });
 }
