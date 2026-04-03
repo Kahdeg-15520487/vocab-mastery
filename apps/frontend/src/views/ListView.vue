@@ -18,6 +18,9 @@ const shareToken = ref<string | null>(null)
 const shareLoading = ref(false)
 const shareCopied = ref(false)
 const origin = typeof window !== "undefined" ? window.location.origin : ""
+const storyLoading = ref(false)
+const story = ref<string | null>(null)
+const showStory = ref(false)
 const searchQuery = ref('')
 const searchResults = ref<any[]>([])
 const searching = ref(false)
@@ -130,6 +133,28 @@ function generateWorksheet() {
   const token = sessionStorage.getItem('accessToken')
   const url = `/api/lists/${listId}/worksheet?token=${token}`
   window.open(url, '_blank')
+}
+
+async function generateStory() {
+  if (!list.value) return
+  storyLoading.value = true
+  story.value = null
+  showStory.value = true
+  try {
+    const words = list.value.words.map((w: any) => w.word).slice(0, 10)
+    if (words.length < 3) {
+      toast.error('Need at least 3 words to generate a story')
+      showStory.value = false
+      return
+    }
+    const res = await wordsApi.generateStory(words)
+    story.value = res.story
+  } catch (e: any) {
+    toast.error(e.message || 'Failed to generate story. Is LLM configured?')
+    showStory.value = false
+  } finally {
+    storyLoading.value = false
+  }
 }
 
 function exportAnki() {
@@ -249,6 +274,13 @@ function copyShareLink() {
               :disabled="list.pagination.total < 3"
             >
               Worksheet
+            </button>
+            <button
+              @click="generateStory"
+              class="btn btn-secondary text-sm"
+              :disabled="list.pagination.total < 3 || storyLoading"
+            >
+              {{ storyLoading ? 'Generating...' : '📖 Story' }}
             </button>
             <button
               @click="exportAnki"
@@ -429,5 +461,22 @@ function copyShareLink() {
       :confirm-text="confirmBtnText"
       @confirm="confirmAction?.()"
     />
+
+    <!-- Story Modal -->
+    <div v-if="showStory" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" @click.self="showStory = false">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white">📖 Vocabulary Story</h2>
+          <button @click="showStory = false" class="text-slate-400 hover:text-slate-600 text-xl">&times;</button>
+        </div>
+        <div v-if="storyLoading" class="text-center py-8">
+          <div class="text-4xl animate-bounce mb-2">📖</div>
+          <p class="text-slate-500">Generating your story...</p>
+        </div>
+        <div v-else-if="story" class="prose dark:prose-invert max-w-none">
+          <div class="whitespace-pre-wrap text-slate-700 dark:text-slate-300 leading-relaxed text-sm">{{ story }}</div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>

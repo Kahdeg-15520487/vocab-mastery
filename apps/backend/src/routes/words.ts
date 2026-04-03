@@ -1222,4 +1222,52 @@ Word 2: "${word2}"${w2 ? ` — ${w2.definition}` : ''}${w2?.partOfSpeech ? ` (${
       chainLength: chainLength + 1,
     };
   });
+
+  // POST /words/story — Generate a short story using given words
+  app.post('/words/story', { preHandler: authenticate }, async (request, reply) => {
+    const { words: inputWords, level } = request.body as { words: string[]; level?: string };
+    if (!inputWords || !Array.isArray(inputWords) || inputWords.length < 3) {
+      return reply.status(400).send({ error: 'At least 3 words required' });
+    }
+    if (inputWords.length > 15) {
+      return reply.status(400).send({ error: 'Maximum 15 words per story' });
+    }
+
+    const config = await getLLMConfig();
+    if (!config) {
+      return reply.status(503).send({ error: 'LLM not configured' });
+    }
+
+    const wordList = inputWords.join(', ');
+    const levelNote = level ? ` The target audience is at ${level} English level.` : '';
+
+    const prompt = `Write a short, engaging story (150-250 words) that naturally incorporates ALL of these vocabulary words: ${wordList}.${levelNote}
+
+Requirements:
+- Use each word at least once in a way that makes its meaning clear from context
+- Make the story interesting and memorable to help with vocabulary retention
+- Bold each target word using **word** markdown
+- Keep the story appropriate for language learners
+- End with a brief "Key vocabulary used" summary
+
+Format your response as:
+STORY:
+[your story here]
+
+VOCABULARY:
+- word1: brief context usage
+- word2: brief context usage`;
+
+    try {
+      const response = await callLLM(
+        'You are a creative English language teacher who writes engaging short stories to help students learn vocabulary. Your stories are memorable, use clear context clues, and naturally incorporate target words.',
+        prompt,
+        config,
+        { disableReasoning: true }
+      );
+      return { story: response, words: inputWords };
+    } catch (e: any) {
+      return reply.status(500).send({ error: 'Failed to generate story: ' + (e.message || 'Unknown error') });
+    }
+  });
 }

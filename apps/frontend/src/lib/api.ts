@@ -216,6 +216,11 @@ export const wordsApi = {
   getMemoryPalace: (wordId: string) => request<{ mnemonic: { image: string; story: string; hook: string; connections: string[] }; cached: boolean }>(`/words/${wordId}/memory-palace`, { method: 'POST', body: JSON.stringify({}) }),
 
   chainStart: () => request<{ word: string; definition: string; cefrLevel: string; wordId: string }>('/words/chain/start'),
+
+  generateStory: (words: string[], level?: string) => request<{ story: string; words: string[] }>('/words/story', {
+    method: 'POST',
+    body: JSON.stringify({ words, level }),
+  }),
   chainValidate: (previousWord: string, userWord: string, chainLength: number) =>
     request<{ valid: boolean; reason?: string; word?: string; definition?: string; cefrLevel?: string; wordId?: string; xpEarned?: number; chainLength?: number }>('/words/chain/validate', {
       method: 'POST', body: JSON.stringify({ previousWord, userWord, chainLength }),
