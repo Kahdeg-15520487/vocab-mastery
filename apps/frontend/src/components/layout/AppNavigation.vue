@@ -22,6 +22,7 @@ const practiceItems = [
   { path: '/fill-blank', label: 'Fill Blank', icon: '\u{1F4DD}' },
   { path: '/listening', label: 'Listening', icon: '\u{1F3A7}' },
   { path: '/word-chain', label: 'Word Chain', icon: '\u{1F517}' },
+  { path: '/hangman', label: 'Hangman', icon: '\u{1F3AF}' },
   { path: '/word-match', label: 'Word Match', icon: '\u{1F0CF}' },
   { path: '/sentence-builder', label: 'Sentence Builder', icon: '🔤' },
   { path: '/speed-round', label: 'Speed Round', icon: '\u26A1' },

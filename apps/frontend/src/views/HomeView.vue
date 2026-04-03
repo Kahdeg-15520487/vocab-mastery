@@ -485,6 +485,11 @@ function formatTimeUntil(iso: string): string {
           <div class="font-semibold text-sm sm:text-base text-purple-700 dark:text-purple-300">Word Chain</div>
           <div class="text-xs sm:text-sm text-purple-500 dark:text-purple-400 hidden sm:block">Chain game</div>
         </router-link>
+        <router-link to="/hangman" class="card hover:shadow-md transition-shadow text-center group bg-orange-50 dark:bg-orange-900/10 border-orange-200 dark:border-orange-800">
+          <div class="text-3xl sm:text-4xl mb-1 sm:mb-2">🎯</div>
+          <div class="font-semibold text-sm sm:text-base text-orange-700 dark:text-orange-300">Hangman</div>
+          <div class="text-xs sm:text-sm text-orange-500 dark:text-orange-400 hidden sm:block">Guess the word</div>
+        </router-link>
         <router-link to="/speed-round" class="card hover:shadow-md transition-shadow text-center group bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800">
           <div class="text-3xl sm:text-4xl mb-1 sm:mb-2">⚡</div>
           <div class="font-semibold text-sm sm:text-base text-red-700 dark:text-red-300">Speed Round</div>

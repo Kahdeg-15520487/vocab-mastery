@@ -141,6 +141,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/hangman',
+    name: 'hangman',
+    component: () => import('@/views/HangmanView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/word-match',
     name: 'word-match',
     component: () => import('@/views/WordMatchView.vue'),
