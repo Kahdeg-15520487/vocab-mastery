@@ -1018,4 +1018,175 @@ Return ONLY a JSON array of objects with "word" and "reason" fields.`;
       .header('Content-Disposition', `attachment; filename="${filename}"`)
       .send('\uFEFF' + csv); // BOM for Excel UTF-8 compatibility
   });
+
+  // GET /lists/:id/worksheet — Generate printable worksheet with exercises
+  app.get('/lists/:id/worksheet', async (request, reply) => {
+    const userId = request.user!.userId;
+    const { id } = request.params as { id: string };
+    const types = ((request.query as any).types as string || 'matching,fill-blank,word-scramble').split(',');
+    const count = Math.min(Math.max(parseInt((request.query as any).count as string) || 10, 5), 30);
+
+    const list = await prisma.studyList.findFirst({ where: { id, userId } });
+    if (!list) return reply.status(404).send({ error: 'List not found' });
+
+    const listWords = await prisma.studyListWord.findMany({
+      where: { listId: id },
+      include: { word: true },
+      take: count,
+      orderBy: { addedAt: 'desc' },
+    });
+
+    if (listWords.length < 3) {
+      return reply.status(400).send({ error: 'Need at least 3 words for a worksheet' });
+    }
+
+    const words = listWords.map(lw => lw.word);
+
+    // Fisher-Yates shuffle helper
+    function shuffle<T>(arr: T[]): T[] {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // ─── Exercise generators ───
+    function getDef(w: typeof words[0]): string {
+      const def = w.definition;
+      if (Array.isArray(def)) return def.join('; ') || 'No definition';
+      if (typeof def === 'string') return def || 'No definition';
+      return 'No definition';
+    }
+    function matchingExercise(): string {
+      const selected = shuffle(words).slice(0, Math.min(words.length, 10));
+      const shuffledDefs = shuffle(selected.map(w => ({ word: w.word, def: getDef(w) })));
+      const numbered = selected.map((w, i) => ({ num: i + 1, word: w.word, def: getDef(w) }));
+      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+      const wordRows = numbered.map(n => `<div style="display:flex;align-items:center;margin-bottom:8px"><span style="width:24px;font-weight:600">${n.num}.</span> <span style="border-bottom:1px solid #cbd5e1;width:120px;padding:4px 0">____</span> <span style="margin-left:8px">${n.word}</span></div>`).join('');
+      const defItems = shuffledDefs.map((d, i) => `<div style="margin-bottom:6px"><span style="font-weight:600">${letters[i]}.</span> ${d.def}</div>`).join('');
+      const answerKey = numbered.map(n => {
+        const defIdx = shuffledDefs.findIndex(s => s.word === n.word);
+        return `${n.num}-${letters[defIdx]}`;
+      }).join(', ');
+
+      return `
+        <div class="exercise">
+          <h2>Section 1: Matching</h2>
+          <p class="instructions">Match each word to its definition by writing the correct letter in the blank.</p>
+          <div style="display:flex;gap:32px;flex-wrap:wrap">
+            <div style="flex:1;min-width:250px">${wordRows}</div>
+            <div style="flex:1;min-width:250px">${defItems}</div>
+          </div>
+          <div class="answer-key no-print"><strong>Answer Key:</strong> ${answerKey}</div>
+        </div>`;
+    }
+
+    function fillBlankExercise(): string {
+      const selected = shuffle(words).slice(0, Math.min(words.length, 8));
+      const rows = selected.map((w, i) => {
+        const def = getDef(w);
+        const blank = '_'.repeat(Math.max(w.word.length, 6));
+        return `<div style="margin-bottom:10px;padding:8px;border-left:3px solid #6366f1;background:#f8fafc;border-radius:0 6px 6px 0">
+          <span style="font-weight:600">${i + 1}.</span> ${def}<br>
+          <span style="color:#6366f1;margin-left:20px">Answer: ${blank}</span>
+        </div>`;
+      }).join('');
+      const answerKey = selected.map((w, i) => `${i + 1}. ${w.word}`).join(', ');
+
+      return `
+        <div class="exercise">
+          <h2>Section 2: Fill in the Blank</h2>
+          <p class="instructions">Write the correct word that matches each definition.</p>
+          ${rows}
+          <div class="answer-key no-print"><strong>Answer Key:</strong> ${answerKey}</div>
+        </div>`;
+    }
+
+    function wordScrambleExercise(): string {
+      const selected = shuffle(words).slice(0, Math.min(words.length, 8));
+      const rows = selected.map((w, i) => {
+        const chars = w.word.split('');
+        // Fisher-Yates scramble
+        for (let j = chars.length - 1; j > 0; j--) {
+          const k = Math.floor(Math.random() * (j + 1));
+          [chars[j], chars[k]] = [chars[k], chars[j]];
+        }
+        let scrambled = chars.join('');
+        if (scrambled === w.word) scrambled = chars.reverse().join('');
+        const def = getDef(w);
+        return `<div style="margin-bottom:10px">
+          <span style="font-weight:600">${i + 1}.</span>
+          <span style="letter-spacing:3px;font-family:monospace;background:#f1f5f9;padding:2px 8px;border-radius:4px;margin:0 8px">${scrambled.toUpperCase()}</span>
+          ${def && def !== 'No definition' ? `<span style="color:#64748b;font-size:13px">(${def})</span>` : ''}
+        </div>`;
+      }).join('');
+      const answerKey = selected.map((w, i) => `${i + 1}. ${w.word}`).join(', ');
+
+      return `
+        <div class="exercise">
+          <h2>Section 3: Word Scramble</h2>
+          <p class="instructions">Unscramble each word. The definition is provided as a hint.</p>
+          ${rows}
+          <div class="answer-key no-print"><strong>Answer Key:</strong> ${answerKey}</div>
+        </div>`;
+    }
+
+    // ─── Build worksheet HTML ───
+    const exercises: string[] = [];
+    if (types.includes('matching')) exercises.push(matchingExercise());
+    if (types.includes('fill-blank')) exercises.push(fillBlankExercise());
+    if (types.includes('word-scramble')) exercises.push(wordScrambleExercise());
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>${list.name} — Worksheet</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 24px; color: #1e293b; }
+    h1 { font-size: 22px; margin-bottom: 2px; color: #1e293b; }
+    .subtitle { color: #64748b; font-size: 14px; margin-bottom: 4px; }
+    .student-info { display: flex; gap: 24px; margin: 12px 0 20px; padding: 12px; background: #f8fafc; border-radius: 8px; }
+    .student-info span { font-size: 14px; }
+    .student-info input { border: none; border-bottom: 1px solid #94a3b8; outline: none; width: 180px; font-size: 14px; padding: 2px 0; }
+    .exercise { margin-bottom: 28px; page-break-inside: avoid; }
+    .exercise h2 { font-size: 16px; color: #4f46e5; margin-bottom: 4px; border-bottom: 2px solid #e0e7ff; padding-bottom: 4px; }
+    .instructions { color: #64748b; font-size: 13px; margin-bottom: 12px; font-style: italic; }
+    .answer-key { margin-top: 8px; font-size: 11px; color: #94a3b8; }
+    .footer { margin-top: 24px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 12px; }
+    .controls { margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .controls button { padding: 6px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; }
+    .btn-print { background: #4f46e5; color: white; }
+    .btn-toggle { background: #f1f5f9; color: #475569; }
+    .btn-toggle:hover { background: #e2e8f0; }
+    @media print {
+      .no-print { display: none !important; }
+      .exercise { page-break-inside: avoid; }
+      body { padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="controls no-print">
+    <button class="btn-print" onclick="window.print()">🖨️ Print / Save PDF</button>
+    <button class="btn-toggle" onclick="document.querySelectorAll('.answer-key').forEach(e => e.style.display = e.style.display === 'none' ? 'block' : 'none')">👁️ Toggle Answer Key</button>
+  </div>
+  <h1>${list.name}</h1>
+  <p class="subtitle">Vocabulary Worksheet — ${words.length} words — ${new Date().toLocaleDateString()}</p>
+  <div class="student-info">
+    <span>Name: <input type="text" /></span>
+    <span>Date: <input type="text" value="${new Date().toLocaleDateString()}" /></span>
+    <span>Score: <input type="text" style="width:60px" /> / ${words.length}</span>
+  </div>
+  ${exercises.join('\n')}
+  <div class="footer">Generated by Vocab Master — ${new Date().toLocaleDateString()}</div>
+</body>
+</html>`;
+
+    reply.header('Content-Type', 'text/html; charset=utf-8').send(html);
+  });
 }

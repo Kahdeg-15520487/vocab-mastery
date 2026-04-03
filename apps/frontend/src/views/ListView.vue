@@ -126,6 +126,12 @@ function printList() {
   window.open(url, '_blank')
 }
 
+function generateWorksheet() {
+  const token = sessionStorage.getItem('accessToken')
+  const url = `/api/lists/${listId}/worksheet?token=${token}`
+  window.open(url, '_blank')
+}
+
 function exportAnki() {
   const token = sessionStorage.getItem('accessToken')
   // Use fetch to download with auth header
@@ -236,6 +242,13 @@ function copyShareLink() {
               :disabled="list.pagination.total === 0"
             >
               Print
+            </button>
+            <button
+              @click="generateWorksheet"
+              class="btn btn-secondary text-sm"
+              :disabled="list.pagination.total < 3"
+            >
+              Worksheet
             </button>
             <button
               @click="exportAnki"
